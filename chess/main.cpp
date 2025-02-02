@@ -16,8 +16,7 @@
 
 int Run(const wstring& wsCmd, int sw)
 {
-    WAPP wapp(wsCmd, sw); 
-    return wapp.MsgPump();
+    return WAPP(wsCmd, sw).MsgPump();
 }
 
 /*
@@ -27,10 +26,10 @@ int Run(const wstring& wsCmd, int sw)
  */
 
 WAPP::WAPP(const wstring& wsCmd, int sw) : 
-    uiboard(*this)
+    wnboard(this)
 {
     Create(rssAppTitle);
-    PushFilterMsg(make_unique<FILTERMSGACCEL>(*this, rsaApp));
+    PushFilterMsg(new FILTERMSGACCEL(*this, rsaApp));
     Show(sw);
 }
 
@@ -54,63 +53,47 @@ CO WAPP::CoBack(void) const
 void WAPP::Layout(void)
 {
     RC rcInt(RcInterior());
+
     float dxyBoard = min(rcInt.dxWidth(), rcInt.dyHeight());
-    float dxyMargin = max(dxyBoard * 0.02f, 4.0f);
-    dxyBoard = max(dxyBoard - 2*dxyMargin, 25.0f * 8);
+    float dxyMargin = max(dxyBoard*wMarginPerWindow, dxyMarginMax);
+    dxyBoard = max(dxyBoard - 2*dxyMargin, 8*dxySquareMin);
     
-    uiboard.SetBounds(RC(PT(dxyMargin), SZ(dxyBoard)));
+    wnboard.SetBounds(RC(PT(dxyMargin), SZ(dxyBoard)));
 }
 
 /*
- *  CMDABOUT
- * 
- *  The About menu command
+ *  Application Commands
  */
-
-class CMDABOUT : public CMD<CMDABOUT, WAPP>
-{
-public:
-    CMDABOUT(WAPP& wapp) : CMD(wapp) {}
-
-    virtual int Execute(void) {
-        wapp.Dialog(rsdAbout);
-        return 1;
-    }
-};
 
 /*
- *  CMDEXIT
- * 
- *  The Exit menu command
+ *  CMDABOUT - The About menu command
  */
 
-class CMDEXIT : public CMD<CMDEXIT, WAPP>
+CMDEXECUTE(CMDABOUT)
 {
-public:
-    CMDEXIT(WAPP& wapp) : CMD(wapp) {}
-
-    virtual int Execute(void) {
-        wapp.Destroy();
-        return 1;
-    }
-};
+    wapp.Dialog(rsdAbout);
+    return 1;
+}
 
 /*
- *  CMDFLIPBOARD
- * 
- *  The flipboard command, called from menus and buttons
+ *  CMDEXIT - The Exit menu command
  */
 
-class CMDFLIPBOARD : public CMD<CMDFLIPBOARD, WAPP>
+CMDEXECUTE(CMDEXIT) 
 {
-public:
-    CMDFLIPBOARD(WAPP& wapp) : CMD(wapp) {}
+    wapp.Destroy();
+    return 1;
+}
 
-    virtual int Execute(void) {
-        wapp.uiboard.FlipCcp();
-        return 1;
-    }
-};
+/*
+ *  CMDFLIPBOARD - The flipboard command, called from menus and buttons
+ */
+
+int CMDFLIPBOARD::Execute(void)
+{
+    wapp.wnboard.FlipCcp();
+    return 1;
+}
 
 /*
  *  WAPP::RegisterMenuCmds
@@ -122,8 +105,8 @@ public:
 
 void WAPP::RegisterMenuCmds(void)
 {
-    RegisterMenuCmd(cmdAbout, make_unique<CMDABOUT>(*this));
-    RegisterMenuCmd(cmdExit, make_unique<CMDEXIT>(*this));
-    RegisterMenuCmd(cmdFlipBoard, make_unique<CMDFLIPBOARD>(*this));
+    REGMENUCMD(cmdAbout, CMDABOUT);
+    REGMENUCMD(cmdExit, CMDEXIT);
+    REGMENUCMD(cmdFlipBoard, CMDFLIPBOARD);
 }
 

@@ -22,25 +22,25 @@ protected:
 
     /* Device dependent resources */
 
-    ComPtr<ID2D1Device> pdev2;
-    ComPtr<ID3D11Device1> pdev3;
-    ComPtr<ID3D11DeviceContext1> pdc3;
-    ComPtr<IDXGIDevice> pdevxgi;
-    ComPtr<IDXGIFactory2> pfactxgi;
+    com_ptr<ID2D1Device> pdev2;
+    com_ptr<ID3D11Device1> pdev3;
+    com_ptr<ID3D11DeviceContext1> pdc3;
+    com_ptr<IDXGIDevice> pdevxgi;
+    com_ptr<IDXGIFactory2> pfactxgi;
  
     /* size dependent resources */
 
-    ComPtr<IDXGISwapChain1> pswapchain;
-    ComPtr<ID2D1Bitmap1> pbmpBackBuf;
+    com_ptr<IDXGISwapChain1> pswapchain;
+    com_ptr<ID2D1Bitmap1> pbmpBackBuf;
 
 public:
     RTC(IWAPP& wapp);
     ~RTC();
 
-    virtual void EnsureDeviceDependent(ComPtr<ID2D1DeviceContext>& pdc2);
-    virtual void ReleaseDeviceDependent(ComPtr<ID2D1DeviceContext>& pdc2);
+    virtual void EnsureDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2);
+    virtual void ReleaseDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2);
 
-    virtual void EnsureSizeDependent(ComPtr<ID2D1DeviceContext>& pdc2);
-    virtual void ReleaseSizeDependent(ComPtr<ID2D1DeviceContext>& pdc2);
-    virtual void Present(void);
+    virtual void EnsureSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2);
+    virtual void ReleaseSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2);
+    virtual void Present(const RC& rcUpdate);
 };

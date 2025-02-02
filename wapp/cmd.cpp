@@ -17,9 +17,10 @@
  *  function.
  */
 
-void IWAPP::RegisterMenuCmd(int cmd, unique_ptr<ICMD> picmd)
+void IWAPP::RegisterMenuCmd(int cmd, ICMD* picmd)
 {
-    mpcmdpicmdMenu[cmd] = move(picmd);
+    /* take onwership of the pointer */
+    mpcmdpicmdMenu[cmd] = unique_ptr<ICMD>(picmd);
 }
 
 /*

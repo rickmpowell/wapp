@@ -7,12 +7,22 @@
 
 #include "app.h"
 
-
-WN::WN(IWAPP& iwapp, WN* pwnParent) : DC(iwapp), pwnParent(pwnParent),
+WN::WN(IWAPP& iwapp, WN* pwnParent) : 
+    DC(iwapp), 
+    pwnParent(pwnParent),
     fVisible(true)
 {
     if (pwnParent)
         pwnParent->AddChild(this);
+}
+
+WN::WN(WN* pwnParent) :
+    DC(pwnParent->iwapp),
+    pwnParent(pwnParent),
+    fVisible(true)
+{
+    assert(pwnParent);
+    pwnParent->AddChild(this);
 }
 
 WN::~WN()
@@ -115,10 +125,10 @@ void WN::BeginDraw(void)
  *  All drawing must occur within a BeginDraw/EndDraw pair. EndDraw swaps the
  *  update to the actual screen
  */
-void WN::EndDraw(void)
+void WN::EndDraw(const RC& rcUpdate)
 {
     assert(pwnParent);
-    pwnParent->BeginDraw();
+    pwnParent->EndDraw(rcUpdate);
 }
 
 void WN::Redraw(void)
@@ -134,8 +144,7 @@ void WN::Redraw(const RC& rcUpdate, DRO dro)
     BeginDraw();
     DrawWithChildren(rcgUpdate, dro);
     DrawOverlappedSiblings(rcgUpdate);
-    EndDraw();
-
+    EndDraw(rcgUpdate);
 }
 
 void WN::DrawWithChildren(const RC& rcgUpdate, DRO dro)

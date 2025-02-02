@@ -6,7 +6,7 @@
  *  Definitions for standard control UI elements.
  */
 
-#include "ui.h"
+#include "wn.h"
 #include "cmd.h"
 
 /*
@@ -15,10 +15,12 @@
  *  The base class used for all controls, which just implements common functionality.
  */
 
-class CTL : public UI
+class CTL : public WN
 {
+    unique_ptr<ICMD> pcmd;
+
 public:
-    CTL(UI& uiParent, ICMD& cmd);
+    CTL(WN* pwnParent, ICMD* pcmd);
     virtual ~CTL();
 };
 
@@ -29,12 +31,25 @@ public:
  *  eevents, and launch a command when pressed.
  */
 
-class BTN : public CTL
+class BTN : public CTL  
 {
 public:
-    BTN(UI& uiParent, ICMD& cmd);
-    virtual ~BTN();
-
+    BTN(WN* pwnParent, ICMD* pcmd);
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
+};
+
+/*
+ *  BTNCH
+ *  
+ *  A button control that uses a single Unicode character as its image
+ */
+
+class BTNCH : public BTN
+{
+    wchar_t chImage;
+public:
+    BTNCH(WN* pwnParent, ICMD* pcmd, wchar_t ch);
+    virtual void Draw(const RC& rcUpdate) override;
+    virtual void Layout(void) override;
 };

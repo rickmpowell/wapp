@@ -93,4 +93,6 @@ public:
 
 void WAPP::RegisterMenuCmds()
 {
+    RegisterMenuCmd(cmdAbout, make_unique<CMDABOUT>(*this));
+    RegisterMenuCmd(cmdExit, make_unique<CMDEXIT>(*this));
 }

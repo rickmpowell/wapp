@@ -218,6 +218,9 @@ public:
 class RC : public D2D1_RECT_F
 {
 public:
+    RC(void) {  // leave uninitialized
+    }
+
     RC(float left, float top, float right, float bottom) {
         this->left = left;
         this->top = top;
@@ -246,8 +249,19 @@ public:
         bottom = top + sz.height;
     }
 
+    RC(const PT& ptTopLeft, const PT& ptBotRight) {
+        left = ptTopLeft.x;
+        top = ptTopLeft.y;
+        right = ptBotRight.x;
+        bottom = ptBotRight.y;
+    }
+
     PT ptTopLeft(void) const {
         return PT(left, top);
+    }
+
+    PT ptBotRight(void) const {
+        return PT(right, bottom);
     }
 
     float dxWidth(void) const {
@@ -440,5 +454,14 @@ public:
 
     RC& operator *= (float w) {
         return Scale(w);
+    }
+
+    operator RECT() const {
+        RECT rect;
+        rect.left = (long)floorf(left);
+        rect.top = (long)floorf(top);
+        rect.right = (long)ceilf(right);
+        rect.bottom = (long)ceilf(bottom);
+        return rect;
     }
 };

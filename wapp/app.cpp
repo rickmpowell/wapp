@@ -480,7 +480,7 @@ void IWAPP::OnPaint(void)
     ::BeginPaint(hwnd, &ps);
     BeginDraw();
     DrawWithChildren(ps.rcPaint, droParentDrawn);
-    EndDraw();
+    EndDraw(ps.rcPaint);
     ::EndPaint(hwnd, &ps);
 }
 
@@ -512,7 +512,7 @@ void IWAPP::BeginDraw(void)
     pdc2->BeginDraw();
 }
 
-void IWAPP::EndDraw(void)
+void IWAPP::EndDraw(const RC& rcUpdate)
 {
     if (pdc2->EndDraw() == D2DERR_RECREATE_TARGET) {
         ReleaseSizeDependentResources();
@@ -520,7 +520,7 @@ void IWAPP::EndDraw(void)
         return;
     }
 
-    prtc->Present();
+    prtc->Present(rcUpdate);
 }
 
 void IWAPP::Draw(const RC& rcUpdate)
@@ -573,8 +573,8 @@ bool IWAPP::FFilterMsg(MSG& msg)
  *  Adds a new filter to the message filter list
  */
 
-void IWAPP::PushFilterMsg(unique_ptr<FILTERMSG> pfm)
+void IWAPP::PushFilterMsg(FILTERMSG* pfm)
 {
-    /* move ownershp to vpfm */
-    vpfm.push_back(move(pfm));
+    /* take ownership of the pointer */
+    vpfm.push_back(unique_ptr<FILTERMSG>(pfm));
 }

@@ -17,7 +17,7 @@ RTC::~RTC()
 {
 }
 
-void RTC::EnsureDeviceDependent(ComPtr<ID2D1DeviceContext>& pdc2)
+void RTC::EnsureDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2)
 {
     if (pdev2)
         return;
@@ -29,8 +29,8 @@ void RTC::EnsureDeviceDependent(ComPtr<ID2D1DeviceContext>& pdc2)
         D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0,
         D3D_FEATURE_LEVEL_9_3, D3D_FEATURE_LEVEL_9_2, D3D_FEATURE_LEVEL_9_1
     };
-    ComPtr<ID3D11Device> pdev3T;
-    ComPtr<ID3D11DeviceContext> pdc3T;
+    com_ptr<ID3D11Device> pdev3T;
+    com_ptr<ID3D11DeviceContext> pdc3T;
     D3D_FEATURE_LEVEL level3 = D3D_FEATURE_LEVEL_1_0_CORE;
     ThrowError(D3D11CreateDevice(nullptr,
                                  D3D_DRIVER_TYPE_HARDWARE,
@@ -51,12 +51,12 @@ void RTC::EnsureDeviceDependent(ComPtr<ID2D1DeviceContext>& pdc2)
     /* and get the DirectX Graphics interface factory, which is used to create the
        swap chain and back buffer */
 
-    ComPtr<IDXGIAdapter> padaptxgiT;
+    com_ptr<IDXGIAdapter> padaptxgiT;
     pdevxgi->GetAdapter(&padaptxgiT);
     padaptxgiT->GetParent(IID_PPV_ARGS(&pfactxgi));
 }
 
-void RTC::ReleaseDeviceDependent(ComPtr<ID2D1DeviceContext>& pdc2)
+void RTC::ReleaseDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2)
 {
     pdev2.Reset();
     pfactxgi.Reset();
@@ -65,14 +65,14 @@ void RTC::ReleaseDeviceDependent(ComPtr<ID2D1DeviceContext>& pdc2)
     pdev3.Reset();
 }
 
-void RTC::EnsureSizeDependent(ComPtr<ID2D1DeviceContext>& pdc2)
+void RTC::EnsureSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2)
 {
     if (pbmpBackBuf)
         return;
 
     ThrowError(pdev2->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &pdc2));
 
-    /* create the simple 1-buffer swap chain */
+    /* create the simple 2-buffer swap chain */
 
     DXGI_SWAP_CHAIN_DESC1 swapchaind = { 0 };
     swapchaind.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -80,17 +80,18 @@ void RTC::EnsureSizeDependent(ComPtr<ID2D1DeviceContext>& pdc2)
     swapchaind.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     swapchaind.BufferCount = 2;
     swapchaind.Scaling = DXGI_SCALING_STRETCH;
-    swapchaind.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    swapchaind.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;//DXGI_SWAP_EFFECT_DISCARD;
     ThrowError(pfactxgi->CreateSwapChainForHwnd(pdev3.Get(),
                                                 wapp.hwnd,
                                                 &swapchaind,
                                                 nullptr, nullptr,
                                                 &pswapchain));
 
-    /* create the back buffer bitmap and install it in the device context */
+    /* create the back buffer bitmap for the swap chain and install it in the 
+       device context */
 
-    ComPtr<IDXGISurface> psurfdxgi;
-    ThrowError(pswapchain->GetBuffer(0, IID_PPV_ARGS(&psurfdxgi)));
+    com_ptr<IDXGISurface> psurfdxgi;
+    ThrowError(pswapchain->GetBuffer(0, __uuidof(IDXGISurface), &psurfdxgi));
     float dxy = (float)GetDpiForWindow(wapp.hwnd);
     D2D1_BITMAP_PROPERTIES1 bmpprop = {
         PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE),
@@ -100,15 +101,16 @@ void RTC::EnsureSizeDependent(ComPtr<ID2D1DeviceContext>& pdc2)
     pdc2->SetTarget(pbmpBackBuf.Get());
 }
 
-void RTC::ReleaseSizeDependent(ComPtr<ID2D1DeviceContext>& pdc2)
+void RTC::ReleaseSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2)
 {
     pbmpBackBuf.Reset();
     pswapchain.Reset();
     pdc2.Reset();
 }
 
-void RTC::Present(void)
+void RTC::Present(const RC& rcgUpdate)
 {
-    DXGI_PRESENT_PARAMETERS pp = { 0 };
-    pswapchain->Present1(1, 0, &pp);
+    RECT rect = rcgUpdate;
+    DXGI_PRESENT_PARAMETERS pp = { 1, &rect };
+    HRESULT err = pswapchain->Present1(0, 0, &pp);
 }

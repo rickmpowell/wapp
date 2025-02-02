@@ -7,16 +7,16 @@
 #include "chess.h"
 
  /*
-  *  UIBOARD
+  *  WNBOARD
   *
   *  The board UI element
   */
 
-UIBOARD::UIBOARD(WN& wnParent) : UI(wnParent),
-    ccpView(ccpWhite),
-    dxySquare(80), dxyBorder(40), dxyOutline(2), dyLabels(15),
-    rcSquares(PT(dxyBorder), SZ(dxySquare*8))
+WNBOARD::WNBOARD(WN* pwnParent) : 
+    WN(pwnParent), 
+    ccpView(ccpWhite)
 {
+    pbtnFlip = new BTNCH(this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f');
 }
 
 /*
@@ -26,24 +26,24 @@ UIBOARD::UIBOARD(WN& wnParent) : UI(wnParent),
  *  dark colors.
  */
 
-CO UIBOARD::CoBack(void) const
+CO WNBOARD::CoBack(void) const
 {
     return coLightYellow;
 }
 
-CO UIBOARD::CoText(void) const
+CO WNBOARD::CoText(void) const
 {
     return coDarkGreen;
 }
 
 /*
- *  UIBOARD::Layout
+ *  WNBOARD::Layout
  *
  *  Computes metrics needed for drawing the board and saves them away for when
  *  we need them.
  */
 
-void UIBOARD::Layout(void)
+void WNBOARD::Layout(void)
 {
     dxyBorder = RcInterior().dxWidth() * wBorderPerInterior;
     if (dxyBorder < dxyBorderMin)
@@ -58,30 +58,33 @@ void UIBOARD::Layout(void)
     }
     rcSquares = RcInterior().RcInflate(-dxyBorder);
     dxySquare = rcSquares.dxWidth() / 8;
+
+    PT ptBotRight(RcInterior().ptBotRight() - SZ(4.0f));
+    pbtnFlip->SetBounds(RC(ptBotRight - SZ(dxyBorder - 8.0f - 2*dxyOutline), ptBotRight));
 }
 
 /*
- *  UIBOARD::Draw
+ *  WNBOARD::Draw
  *
  *  Draws the board, which is the checkboard squares surrounded by an optional
  *  border area. If the board is small enough, we remove detail from the drawing.
  */
 
-void UIBOARD::Draw(const RC& rcUpdate)
+void WNBOARD::Draw(const RC& rcUpdate)
 {
     DrawBorder();
     DrawSquares();
 }
 
 /*
- *  UIBOARD::DrawBorder
+ *  WNBOARD::DrawBorder
  *
  *  Draws the border area of the board, which is mostly a blank area, but includes
  *  rank and file labels and a thin outline around the squares, if there is room
  *  for the labels and outline.
  */
 
-void UIBOARD::DrawBorder(void)
+void WNBOARD::DrawBorder(void)
 {
     if (dxyBorder <= 0)
         return;
@@ -108,12 +111,12 @@ void UIBOARD::DrawBorder(void)
 }
 
 /*
- *  UIBOARD::DrawSquares
+ *  WNBOARD::DrawSquares
  *
  *  Draws trhe squares of the board
  */
 
-void UIBOARD::DrawSquares(void)
+void WNBOARD::DrawSquares(void)
 {
     for (int rank = 0; rank < 8; rank++)
         for (int file = 0; file < 8; file++)
@@ -121,25 +124,25 @@ void UIBOARD::DrawSquares(void)
 }
 
 /*
- *  UIBOARD::RcFromRankFile
+ *  WNBOARD::RcFromRankFile
  *
  *  Returns the rectangular area for the (rank, file) square on the board.
  */
 
-RC UIBOARD::RcFromRankFile(int rank, int file) const
+RC WNBOARD::RcFromRankFile(int rank, int file) const
 {
     PT pt = (ccpView == ccpWhite) ? PT(file, 7-rank) : PT(7-file, rank);
     return RC(rcSquares.ptTopLeft() + pt*dxySquare, SZ(dxySquare));
 }
 
 /*
- *  UIBOARD::FlipCcp
+ *  WNBOARD::FlipCcp
  *
  *  Flips the board to the point of view
  */
 
-void UIBOARD::FlipCcp(void)
+void WNBOARD::FlipCcp(void)
 {
     ccpView = ~ccpView;
-    pwnParent->Redraw();
+    Redraw();
 }

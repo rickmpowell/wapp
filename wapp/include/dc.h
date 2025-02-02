@@ -32,7 +32,7 @@ public:
     void SetBounds(const RC& rcNew);
     RC RcInterior(void) const;
     RC RcgFromRc(const RC& rc) const;
-    RC RcFromRcg(const RC& rc) const;
+    RC RcFromRcg(const RC& rcg) const;
 
     virtual CO CoText(void) const;
     virtual CO CoBack(void) const;
@@ -42,6 +42,8 @@ public:
     void FillRc(const RC& rcFill, CO coFill = coNil);
     void FillRc(const RC& rcFill, const BR& br);
     void FillRcBack(const RC& rcFill);
+    void DrawRc(const RC& rc, CO co = coNil, float dxyStroke = 1.0f);
+    void DrawRc(const RC& rc, const BR& br, float dxyStroke = 1.0f);
 
     void DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText);
     void DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText = coNil);
@@ -59,7 +61,7 @@ public:
 class BR
 {
 public:
-    ComPtr<ID2D1SolidColorBrush> pbr;
+    com_ptr<ID2D1SolidColorBrush> pbr;
 
 public:
     BR(DC& dc, CO co);
@@ -87,7 +89,7 @@ public:
     };
 
 public:
-    ComPtr<IDWriteTextFormat> ptf;
+    com_ptr<IDWriteTextFormat> ptf;
 
 public:
     TF(DC& dc, const wstring& wsFace, float dyHeight, 
@@ -102,7 +104,7 @@ public:
 class BMP
 {
 public:
-    ComPtr<ID2D1Bitmap1> pbitmap;
+    com_ptr<ID2D1Bitmap1> pbitmap;
 
 public:
     BMP(DC& dc, BYTE* pb, unsigned long cb);

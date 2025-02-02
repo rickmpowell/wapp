@@ -8,20 +8,20 @@
 
 /* Core Windows */
 
-#include <SDKDDKVer.h>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <wrl.h>
 
 /* Direct2D */
 
 #include <d2d1_1.h>
-#include <d2d1_1helper.h>
+#include <d2d1_3.h>
 #include <d3d11_1.h>
 #include <dwrite_1.h>
 #include <wincodec.h>
 #include <d2d1effects.h>
+#include <d2d1_1helper.h>
 #include <d2d1effecthelpers.h>
-#include <d2d1_3.h>
 
 /* C standard library */
 
@@ -39,13 +39,18 @@
 #include <algorithm>
 #include <memory>
 
-#include <wrl.h>
-
 using namespace std;
 using namespace D2D1;
 using namespace Microsoft::WRL;
 
+/*
+ *  Some little conveniences for using COM objects
+ */
+
+template <typename T>
+using com_ptr = ComPtr<T>;
+
 inline void ThrowError(HRESULT hr) {
     if (hr != S_OK)
-        throw hr;
+        throw (int)hr;
 }

@@ -35,6 +35,10 @@ enum DRO
 
 class WN : public DC
 {
+private:
+    WN(const WN& wn) = delete;  /* disable copy constructors */
+    void operator = (const WN& wn) = delete;
+
 protected:
     WN* pwnParent;  // will be nullptr at root
     vector<WN*> vpwnChildren;
@@ -42,6 +46,7 @@ protected:
 
 public:
     WN(IWAPP& iwapp, WN* pwnParent = nullptr);
+    WN(WN* pwnParent);
     virtual ~WN();
     void AddChild(WN* pwnChild);
     void RemoveChild(WN* pwnChild);
@@ -50,7 +55,7 @@ public:
     virtual void Layout(void);
 
     virtual void BeginDraw(void);
-    virtual void EndDraw(void);
+    virtual void EndDraw(const RC& rcUpdate);
     virtual void Draw(const RC& rcUpdate);
     virtual void Redraw(void);
     virtual void Redraw(const RC& rcUpdate, DRO dro);

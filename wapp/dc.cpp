@@ -54,15 +54,14 @@ BMP::BMP(DC& dc, BYTE* pbPng, unsigned long cbPng)
 
 void BMP::Init(DC& dc, BYTE* pbPng, unsigned long cbPng)
 {
-    /* TODO: error handling */
-    ComPtr<IWICStream> pstream;
+    com_ptr<IWICStream> pstream;
     dc.iwapp.pfactwic->CreateStream(&pstream);
     pstream->InitializeFromMemory(pbPng, cbPng);
-    ComPtr<IWICBitmapDecoder> pdecoder;
+    com_ptr<IWICBitmapDecoder> pdecoder;
     dc.iwapp.pfactwic->CreateDecoderFromStream(pstream.Get(), nullptr, WICDecodeMetadataCacheOnLoad, &pdecoder);
-    ComPtr<IWICBitmapFrameDecode> pframe;
+    com_ptr<IWICBitmapFrameDecode> pframe;
     pdecoder->GetFrame(0, &pframe);
-    ComPtr<IWICFormatConverter> pconverter;
+    com_ptr<IWICFormatConverter> pconverter;
     dc.iwapp.pfactwic->CreateFormatConverter(&pconverter);
     pconverter->Initialize(pframe.Get(), GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0.0f,             
                            WICBitmapPaletteTypeMedianCut);
@@ -110,12 +109,12 @@ RC DC::RcInterior(void) const
 
 CO DC::CoBack(void) const
 {
-    return CO(ColorF::White);
+    return coWhite;
 }
 
 CO DC::CoText(void) const
 {
-    return CO(ColorF::Black);
+    return coBlack;
 }
 
 /*
@@ -141,6 +140,21 @@ void DC::FillRcBack(const RC& rc)
     RC rcg = RcgFromRc(rc);
     BR brBack(*this, CoBack());
     iwapp.pdc2->FillRectangle(&rcg, brBack);
+}
+
+void DC::DrawRc(const RC& rc, CO co, float dxyStroke)
+{
+    if (co == coNil)
+        co = CoText();
+    BR br(*this, co);
+    DrawRc(rc, br, dxyStroke);
+}
+
+void DC::DrawRc(const RC& rc, const BR& br, float dxyStroke)
+{
+    RC rcg = RcgFromRc(rc);
+    rcg.Inflate(SZ(-dxyStroke/2));
+    iwapp.pdc2->DrawRectangle(&rcg, br, dxyStroke);
 }
 
 void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText)
@@ -175,7 +189,7 @@ void DC::DrawWsCenter(const wstring& ws, const TF& tf, const RC& rc, CO coText)
 
 SZ DC::SzFromWs(const wstring& ws, const TF& tf)
 {
-    ComPtr<IDWriteTextLayout> ptxl;
+    com_ptr<IDWriteTextLayout> ptxl;
     iwapp.pfactdwr->CreateTextLayout(ws.c_str(), (UINT32)ws.size(),
                                    tf, 32767.0f, 32767.0f, &ptxl);
     DWRITE_TEXT_METRICS dtm;

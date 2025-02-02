@@ -40,19 +40,21 @@ enum TCP {
 };
 
 /*
- *  UIBOARD 
+ *  WNBOARD 
  *
  *  The board UI element on the screen
  */
 
-class UIBOARD : public UI
+class WNBOARD : public WN
 {
+    BTN* pbtnFlip;
     CCP ccpView;  // orientation of the board, black or white
 
     /* metrics for drawing, computed during layout */
 
     float dxySquare, dxyBorder, dxyOutline, dyLabels;
     RC rcSquares;
+
     const float wBorderPerInterior = 0.08f; // ratio of the size of of border to the total board size
     const float dxyBorderMin = 20.0f;   // minimum board border size
     const float wOutlinePerBorder = 0.0625f;    // ratio of width of outline width to the wideth of the boarder
@@ -61,7 +63,7 @@ class UIBOARD : public UI
     const float dyLabelsMin = 12.0f;    // minimum label font size
 
 public:
-    UIBOARD(WN& wnParent);
+    WNBOARD(WN* pwnParent);
  
     virtual CO CoText(void) const;
     virtual CO CoBack(void) const;
@@ -86,7 +88,11 @@ private:
 class WAPP : public IWAPP
 {
 public:
-    UIBOARD uiboard;
+    WNBOARD wnboard;
+
+    const float wMarginPerWindow = 0.02f; // ratio of the size of of margin to the total window size
+    const float dxyMarginMax = 4.0f;    // maximum margin around the board
+    const float dxySquareMin = 25.0f;   // minimum size of a single square
 
 public:
     WAPP(const wstring& wsCmd, int sw);
@@ -96,3 +102,44 @@ public:
     virtual CO CoBack(void) const override;
     virtual void Layout(void) override;    
 };
+
+/*
+ *  some macros to streamline the boilerplate in simple commands.
+ * 
+ *  The CMDEXECUTE assumes the WAPP is the name of the class of our application, 
+ *  that the constructors are minimal, and only the execution method is overridden.
+ * 
+ *  CMDEXECUTE(CMDMINE) 
+ *  {
+ *      wapp.PerformMyCommand();
+ *      return 1;
+ *  }
+ * 
+ *  The menu registration macro, to be used in RegisterMenuCmds, also assumes minimal 
+ *  construcors.
+ * 
+ *      REGMENUCMD(cmdMine, CMDMINE);
+ */
+
+#define CMD_DECLARE(C) \
+    class C : public CMD<C, WAPP>
+
+#define CMDEXECUTE_DECLARE(C) \
+    CMD_DECLARE(C) \
+    { \
+    public: \
+        C(WAPP& wapp) : CMD(wapp) { } \
+        virtual int Execute(void) override; \
+    }
+
+#define CMDEXECUTE(C) \
+    CMDEXECUTE_DECLARE(C); \
+    int C::Execute(void)
+
+#define REGMENUCMD(i, C) RegisterMenuCmd(i, new C(*this))
+
+/*
+ *  Declare commands that we need in multiple compilation units
+ */
+
+CMDEXECUTE_DECLARE(CMDFLIPBOARD);

@@ -5,8 +5,6 @@
  * 
  *  The base APP application class.
  * 
- *  APPCO   Application with only COM initialization
- *  APPD2   Application with only Direct2D initialization
  *  APP     Base Windows instance, with no window, includes Direct2D 
  *  WAPP    An applicatoin with a top-level window
  * 
@@ -16,6 +14,8 @@
 
 #include "framework.h"
 #include "coord.h"
+class FILTERMSG;
+class ICMD;
 
 #pragma comment(lib, "wapp.lib")
 #pragma comment(linker, "/include:wWinMain")
@@ -38,7 +38,7 @@ class APPCO
 {
 public:
     APPCO(void);
-    ~APPCO();
+    virtual ~APPCO();
 };
 
 /*
@@ -158,15 +158,13 @@ public:
  *  window, and the drawing context. 
  */
 
-class FILTERMSG;
-class ICMD;
 #include "rt.h"
 
 class IWAPP : public APP, public WNDMAIN, public WN
 {
 private:
-    vector<unique_ptr<FILTERMSG>> vpfm;    /* TODO: convert to unique_ptr */
-    map<int,unique_ptr<ICMD>> mpcmdpicmdMenu;
+    vector<unique_ptr<FILTERMSG>> vpfm;
+    map<int, unique_ptr<ICMD>> mpcmdpicmdMenu;
 
 public:
     IWAPP(void);
@@ -181,14 +179,14 @@ public:
 
     /* Device independent resources */
  
-    ComPtr<ID2D1Factory1> pfactd2;
-    ComPtr<IDWriteFactory1> pfactdwr;
-    ComPtr<IWICImagingFactory2> pfactwic;
+    com_ptr<ID2D1Factory1> pfactd2;
+    com_ptr<IDWriteFactory1> pfactdwr;
+    com_ptr<IWICImagingFactory2> pfactwic;
 
     /* our main render target */
 
     unique_ptr<RTC> prtc;
-    ComPtr<ID2D1DeviceContext> pdc2;    
+    com_ptr<ID2D1DeviceContext> pdc2;    
 
     virtual void EnsureDeviceIndependentResources(void);
     virtual void ReleaseDeviceIndependentResources(void);
@@ -213,20 +211,20 @@ public:
     /* drawing */
 
     virtual void BeginDraw(void) override;
-    virtual void EndDraw(void) override;
+    virtual void EndDraw(const RC& rcUpdate) override;
     virtual void Draw(const RC& rcUpdate) override;
 
     /* Menu commands */
 
     virtual void RegisterMenuCmds(void);
-    void RegisterMenuCmd(int cmd, unique_ptr<ICMD> picmd);
+    void RegisterMenuCmd(int cmd, ICMD* picmd);
     bool FExecuteMenuCmd(int cmd);
     bool FExecuteCmd(unique_ptr<ICMD>& picmd);
 
     /* message pump and message filters */
 
     virtual int MsgPump(void);
-    void PushFilterMsg(unique_ptr<FILTERMSG> pmf);
+    void PushFilterMsg(FILTERMSG* pmf);
     bool FFilterMsg(MSG& msg);
 };
 
