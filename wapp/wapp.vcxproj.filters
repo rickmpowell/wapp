@@ -48,6 +48,9 @@
     <ClInclude Include="include\rt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\wapp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp">
@@ -68,7 +71,10 @@
     <ClCompile Include="cmd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rt.cpp\rt.cpp">
+    <ClCompile Include="rt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wapp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

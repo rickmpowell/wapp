@@ -157,6 +157,7 @@
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\id.h" />
     <ClInclude Include="include\rt.h" />
+    <ClInclude Include="include\wapp.h" />
     <ClInclude Include="include\wn.h" />
   </ItemGroup>
   <ItemGroup>
@@ -165,7 +166,8 @@
     <ClCompile Include="ctl.cpp" />
     <ClCompile Include="dc.cpp" />
     <ClCompile Include="dlg.cpp" />
-    <ClCompile Include="rt.cpp\rt.cpp" />
+    <ClCompile Include="rt.cpp" />
+    <ClCompile Include="wapp.cpp" />
     <ClCompile Include="wn.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

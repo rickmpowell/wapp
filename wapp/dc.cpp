@@ -5,7 +5,7 @@
  *  Device context implementation
  */
 
-#include "app.h"
+#include "wapp.h"
 
 /*
  *  Brushes

@@ -5,7 +5,7 @@
  *  Dialog boxes
  */
 
-#include "app.h"
+#include "dlg.h"
 
 /*
  *  Dialogs

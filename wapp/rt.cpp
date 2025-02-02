@@ -7,7 +7,7 @@
  *  the device context that are handy.
  */
 
-#include "app.h"
+#include "wapp.h"
 
 RTC::RTC(IWAPP& wapp) : wapp(wapp)
 {

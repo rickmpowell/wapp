@@ -9,6 +9,7 @@
  */
 
 #include "framework.h"
+#include "coord.h"
 class IWAPP;
 
 /*

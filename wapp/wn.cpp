@@ -5,7 +5,7 @@
  *  WN class implementation.
  */
 
-#include "app.h"
+#include "wapp.h"
 
 WN::WN(IWAPP& iwapp, WN* pwnParent) : 
     DC(iwapp), 

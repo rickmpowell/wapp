@@ -5,20 +5,13 @@
  * 
  *  The base APP application class.
  * 
- *  APP     Base Windows instance, with no window, includes Direct2D 
- *  WAPP    An applicatoin with a top-level window
- * 
+ *  APP      Base Windows instance, with no window 
  *  WND      The lowest level window, 
  *  WNDMAIN  A top-level application window
  */
 
 #include "framework.h"
 #include "coord.h"
-class FILTERMSG;
-class ICMD;
-
-#pragma comment(lib, "wapp.lib")
-#pragma comment(linker, "/include:wWinMain")
 
 /*
  *  Run
@@ -29,27 +22,16 @@ class ICMD;
 int Run(const wstring& wsCmd, int sw);
 
 /*
- *  APP base classes.
- * 
- *  APPCO initializes COM interfaces.
- */
-
-class APPCO
-{
-public:
-    APPCO(void);
-    virtual ~APPCO();
-};
-
-/*
  *  APP
  * 
  *  The app represents the instance of the Windows application, without a window
  *  attached to it. It basically corresponds to a Windows instance, which means
  *  resources are loaded through this object. 
+ * 
+ *  The APP initializes the COM subsystem for the application.
  */
 
-class APP : public APPCO
+class APP
 {
 private:
     APP(const APP& app) = delete;   /* disable copy constructors for applicaitons */
@@ -117,6 +99,9 @@ public:
     virtual void OnDestroy(void);
     virtual void OnDisplayChange(void);
     virtual void OnSize(const SZ& sz);
+    virtual void OnMouseMove(const PT& pt);
+    virtual void OnMouseDown(const PT& pt);
+    virtual void OnMouseUp(const PT& pt);
     virtual void OnPaint(void);
     virtual int OnCommand(int cmd);
 
@@ -139,135 +124,10 @@ public:
     WNDMAIN(APP& app);
     
     WNDCLASSEXW WcexRegister(const wchar_t* wsClass, int rsm = 0, int rsiLarge = 0, int rsiSmall = 0) const;
-    virtual const wchar_t* WsRegister(void);
+    virtual const wchar_t* WsRegister(void) override;
 
     void Create(const wstring& wsTitle,
                 int ws = WS_OVERLAPPEDWINDOW, 
                 PT pt = PT(CW_USEDEFAULT), SZ sz = SZ(CW_USEDEFAULT));
 };
-
-#include "wn.h"
-
-/*
- *  IWAPP
- * 
- *  The base windows application, which is a combination of the application and the top-level
- *  main window. This should be sufficient for a vast majority of all Windows applications.
- * 
- *  The WAPP is a combination object, which contains the application, the top-level main 
- *  window, and the drawing context. 
- */
-
-#include "rt.h"
-
-class IWAPP : public APP, public WNDMAIN, public WN
-{
-private:
-    vector<unique_ptr<FILTERMSG>> vpfm;
-    map<int, unique_ptr<ICMD>> mpcmdpicmdMenu;
-
-public:
-    IWAPP(void);
-    virtual ~IWAPP();
-
-    void Create(const wstring& wsTitle,
-                int ws = WS_OVERLAPPEDWINDOW,
-                PT pt = PT(CW_USEDEFAULT), SZ sz = SZ(CW_USEDEFAULT));
-    void Create(int rssTitle,
-                int ws = WS_OVERLAPPEDWINDOW,
-                PT pt = PT(CW_USEDEFAULT), SZ sz = SZ(CW_USEDEFAULT));
-
-    /* Device independent resources */
- 
-    com_ptr<ID2D1Factory1> pfactd2;
-    com_ptr<IDWriteFactory1> pfactdwr;
-    com_ptr<IWICImagingFactory2> pfactwic;
-
-    /* our main render target */
-
-    unique_ptr<RTC> prtc;
-    com_ptr<ID2D1DeviceContext> pdc2;    
-
-    virtual void EnsureDeviceIndependentResources(void);
-    virtual void ReleaseDeviceIndependentResources(void);
-    virtual void EnsureDeviceDependentResources(void);
-    virtual void ReleaseDeviceDependentResources(void);
-    virtual void EnsureSizeDependentResources(void);
-    virtual void ReleaseSizeDependentResources(void);
-
-    /* window message handlers */
-
-    virtual void OnCreate(void) override;
-    virtual void OnDestroy(void) override;
-    virtual void OnDisplayChange(void) override;
-    virtual void OnSize(const SZ& sz) override;
-    virtual void OnPaint(void) override;
-    virtual int OnCommand(int cmd) override;
-
-    /* layout */
-
-    virtual void Layout(void) override;
-
-    /* drawing */
-
-    virtual void BeginDraw(void) override;
-    virtual void EndDraw(const RC& rcUpdate) override;
-    virtual void Draw(const RC& rcUpdate) override;
-
-    /* Menu commands */
-
-    virtual void RegisterMenuCmds(void);
-    void RegisterMenuCmd(int cmd, ICMD* picmd);
-    bool FExecuteMenuCmd(int cmd);
-    bool FExecuteCmd(unique_ptr<ICMD>& picmd);
-
-    /* message pump and message filters */
-
-    virtual int MsgPump(void);
-    void PushFilterMsg(FILTERMSG* pmf);
-    bool FFilterMsg(MSG& msg);
-};
-
-/*
- *  Message filters
- * 
- *  Our message pump has an option to pre-filter messages, intercepting them before they get
- *  sent off to the regular Windows dispatching system. This is how we implement
- */
-
-class FILTERMSG
-{
-public:
-    FILTERMSG(void) { }
-    virtual ~FILTERMSG() { }
-    virtual bool FFilterMsg(MSG& msg) = 0;
-};
-
-/*
- *  FILTERMSGACCEL
- * 
- *  Message filter for Windows keyboard accelerator tables, which are loaded from resource
- *  files.
- */
-
-class FILTERMSGACCEL : public FILTERMSG
-{
-private:
-    IWAPP& iwapp;
-    HACCEL haccel;
-
-public:
-    FILTERMSGACCEL(IWAPP& iwapp, int rsa) : FILTERMSG(),
-        iwapp(iwapp),
-        haccel(iwapp.HaccelLoad(rsa)) {
-    }
-    virtual ~FILTERMSGACCEL() {
-    }
-    virtual bool FFilterMsg(MSG& msg) {
-        return ::TranslateAcceleratorW(iwapp.hwnd, haccel, &msg); 
-    }
-};
-
-#include "cmd.h"
-#include "dlg.h"
 

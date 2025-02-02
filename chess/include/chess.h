@@ -6,7 +6,7 @@
  *  Our APP sample application, which is a stripped down chess game.
  */
 
-#include "app.h"
+#include "wapp.h"
 
 /*
  *  CCP 
@@ -47,7 +47,7 @@ enum TCP {
 
 class WNBOARD : public WN
 {
-    BTN* pbtnFlip;
+    BTNCH btnFlip;
     CCP ccpView;  // orientation of the board, black or white
 
     /* metrics for drawing, computed during layout */

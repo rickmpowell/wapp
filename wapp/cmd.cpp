@@ -6,7 +6,7 @@
  *  the Windows menu system.
  */
 
-#include "app.h"
+#include "wapp.h"
 
 /*
  *  IWAPP::RegisterMenuCmd

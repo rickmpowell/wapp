@@ -14,9 +14,9 @@
 
 WNBOARD::WNBOARD(WN* pwnParent) : 
     WN(pwnParent), 
+    btnFlip(this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f'),
     ccpView(ccpWhite)
 {
-    pbtnFlip = new BTNCH(this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f');
 }
 
 /*
@@ -59,8 +59,8 @@ void WNBOARD::Layout(void)
     rcSquares = RcInterior().RcInflate(-dxyBorder);
     dxySquare = rcSquares.dxWidth() / 8;
 
-    PT ptBotRight(RcInterior().ptBotRight() - SZ(4.0f));
-    pbtnFlip->SetBounds(RC(ptBotRight - SZ(dxyBorder - 8.0f - 2*dxyOutline), ptBotRight));
+    PT ptBotRight(RcInterior().ptBotRight() - SZ(8.0f));
+    btnFlip.SetBounds(RC(ptBotRight - SZ(dxyBorder - 16.0f - 2*dxyOutline), ptBotRight));
 }
 
 /*
