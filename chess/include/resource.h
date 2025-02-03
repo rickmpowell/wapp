@@ -6,7 +6,8 @@
 
 #define cmdAbout 1
 #define cmdExit 2
-#define cmdFlipBoard 3
+#define cmdDisableBoard 3
+#define cmdFlipBoard 4
 
 /*
  *  Accelerator tables
@@ -19,6 +20,8 @@
  */
 
 #define rssFirstUnused 16
+#define rssEnableBoard 17
+#define rssDisableBoard 18
 
 /*
  *  Dialogs

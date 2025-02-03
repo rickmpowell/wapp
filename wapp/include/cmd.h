@@ -45,6 +45,7 @@ public:
     virtual ICMD* clone(void) const = 0;
     virtual int Execute(void) = 0;
     virtual bool FEnabled(void) const;
+    virtual bool FChecked(void) const;
     virtual bool FToolTipWs(wstring& wsTip) const;
     virtual bool FMenuWs(wstring& wsMenu) const;
 };

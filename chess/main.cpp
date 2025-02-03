@@ -28,9 +28,9 @@ int Run(const wstring& wsCmd, int sw)
 WAPP::WAPP(const wstring& wsCmd, int sw) : 
     wnboard(this)
 {
-    Create(rssAppTitle);
+    CreateWnd(rssAppTitle);
     PushFilterMsg(new FILTERMSGACCEL(*this, rsaApp));
-    Show(sw);
+    Show();
 }
 
 /*
@@ -41,7 +41,7 @@ WAPP::WAPP(const wstring& wsCmd, int sw) :
 
 CO WAPP::CoBack(void) const
 {
-    return ColorF(0.50f, 0.48f, 0.40f);
+    return HSV(hueOrange, 0.15f, 0.25f);
 }
 
 /*
@@ -54,8 +54,8 @@ void WAPP::Layout(void)
 {
     RC rcInt(RcInterior());
 
-    float dxyBoard = min(rcInt.dxWidth(), rcInt.dyHeight());
-    float dxyMargin = max(dxyBoard*wMarginPerWindow, dxyMarginMax);
+    float dxyBoard = roundf(min(rcInt.dxWidth(), rcInt.dyHeight()));
+    float dxyMargin = roundf(max(dxyBoard*wMarginPerWindow, dxyMarginMax));
     dxyBoard = max(dxyBoard - 2*dxyMargin, 8*dxySquareMin);
     
     wnboard.SetBounds(RC(PT(dxyMargin), SZ(dxyBoard)));
@@ -81,9 +81,31 @@ CMDEXECUTE(CMDABOUT)
 
 CMDEXECUTE(CMDEXIT) 
 {
-    wapp.Destroy();
+    wapp.DestroyWnd();
     return 1;
 }
+
+/*
+ *  CMDDISABLE - toggles the disable state of the board
+ */
+
+CMD_DECLARE(CMDDISABLE)
+{
+public:
+    CMDDISABLE(WAPP& wapp) : CMD(wapp) {}
+
+    virtual int Execute(void) override {
+        wapp.wnboard.Enable(!wapp.wnboard.FEnabled());
+        return 1;
+    }
+
+    /*  We change the menu string depending on the current state */
+
+    virtual bool FMenuWs(wstring & ws) const override {
+        ws = wapp.WsLoad(wapp.wnboard.FEnabled() ? rssDisableBoard : rssEnableBoard);
+        return true;
+    }
+};
 
 /*
  *  CMDFLIPBOARD - The flipboard command, called from menus and buttons
@@ -107,6 +129,7 @@ void WAPP::RegisterMenuCmds(void)
 {
     REGMENUCMD(cmdAbout, CMDABOUT);
     REGMENUCMD(cmdExit, CMDEXIT);
+    REGMENUCMD(cmdDisableBoard, CMDDISABLE);
     REGMENUCMD(cmdFlipBoard, CMDFLIPBOARD);
 }
 

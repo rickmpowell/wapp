@@ -456,6 +456,30 @@ public:
         return Scale(w);
     }
 
+    bool operator == (const RC& rc) const {
+        return left == rc.left && 
+               top == rc.top && 
+               right == rc.right && 
+               bottom == rc.bottom;
+    }
+
+    bool operator != (const RC& rc) const {
+        return !(*this == rc);
+    }
+
+    bool FContainsPt(const PT& pt) const {
+        return pt.x >= left && pt.x < right &&
+               pt.y >= top && pt.y < bottom;
+    }
+    
+    bool FRoundUp(void) {
+        RC rcT(floorf(left), floorf(top), ceilf(right), ceilf(bottom));
+        if (rcT == *this)
+            return false;
+        *this = rcT;
+        return true;
+    }
+    
     operator RECT() const {
         RECT rect;
         rect.left = (long)floorf(left);

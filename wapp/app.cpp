@@ -110,7 +110,7 @@ WND::WND(APP& app) : app(app), hwnd(NULL)
 WND::~WND()
 {
     if (hwnd)
-        Destroy();
+        DestroyWnd();
 }
 
 /*
@@ -150,7 +150,7 @@ const wchar_t* WND::Register(const WNDCLASSEXW& wcex)
     return MAKEINTRESOURCEW(atom);
 }
 
-void WND::Create(const wstring& wsTitle, int ws, PT pt, SZ sz)
+void WND::CreateWnd(const wstring& wsTitle, int ws, PT pt, SZ sz)
 {
     POINT point = (POINT)pt;
     SIZE size = (SIZE)sz;
@@ -161,20 +161,15 @@ void WND::Create(const wstring& wsTitle, int ws, PT pt, SZ sz)
         throw 1;
 }
 
-void WND::Destroy(void)
+void WND::DestroyWnd(void)
 {
     ::DestroyWindow(hwnd);
     assert(hwnd == NULL);   // WndProc should clear this on the WM_DESTROY
 }
 
-void WND::Show(int sw)
+void WND::ShowWnd(int sw)
 {
     ::ShowWindow(hwnd, sw);
-}
-
-void WND::Hide(void)
-{
-    ::ShowWindow(hwnd, SW_HIDE);
 }
 
 void WND::Minimize(void)
@@ -229,13 +224,25 @@ LRESULT CALLBACK WND::WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
         return 0;
 
     case WM_MOUSEMOVE:
-        pwnd->OnMouseMove(PT(LOWORD(lParam), HIWORD(lParam)));
+        pwnd->OnMouseMove(PT(LOWORD(lParam), HIWORD(lParam)), (unsigned)wParam);
+        return 0;
+
+    case WM_LBUTTONDOWN:
+        pwnd->OnMouseDown(PT(LOWORD(lParam), HIWORD(lParam)), MK_LBUTTON);
+        return 0;
+
+    case WM_LBUTTONUP:
+        pwnd->OnMouseUp(PT(LOWORD(lParam), HIWORD(lParam)), MK_LBUTTON);
         return 0;
 
     case WM_COMMAND:
         if (pwnd->OnCommand(LOWORD(wParam)))
             return 0;
         break;
+
+    case WM_INITMENU:
+        pwnd->OnInitMenu();
+        return 0;
 
     default:
         break;
@@ -272,21 +279,25 @@ void WND::OnPaint(void)
     ::EndPaint(hwnd, &ps);
 }
 
-void WND::OnMouseMove(const PT& pt)
+void WND::OnMouseMove(const PT& ptg, unsigned mk)
 {
 }
 
-void WND::OnMouseDown(const PT& pt)
+void WND::OnMouseDown(const PT& ptg, unsigned mk)
 {
 }
 
-void WND::OnMouseUp(const PT& pt)
+void WND::OnMouseUp(const PT& ptg, unsigned mk)
 {
 }
 
 int WND::OnCommand(int cmd)
 {
     return 0;
+}
+
+void WND::OnInitMenu(void)
+{
 }
 
 /*
@@ -332,7 +343,7 @@ const wchar_t* WNDMAIN::WsRegister(void)
     return wsClass;
 }
 
-void WNDMAIN::Create(const wstring& wsTitle, int ws, PT pt, SZ sz)
+void WNDMAIN::CreateWnd(const wstring& wsTitle, int ws, PT pt, SZ sz)
 {
-    WND::Create(wsTitle, ws, pt, sz);
+    WND::CreateWnd(wsTitle, ws, pt, sz);
 }

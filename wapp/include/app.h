@@ -82,13 +82,12 @@ public:
 
     /* create and destroy windows HWND */
 
-    void Create(const wstring& wsTitle, int ws, PT pt, SZ sz);
-    void Destroy(void);
+    void CreateWnd(const wstring& wsTitle, int ws, PT pt, SZ sz);
+    void DestroyWnd(void);
 
     /* window operations */
 
-    void Show(int sw = SW_SHOW);
-    void Hide(void);
+    void ShowWnd(int sw = SW_SHOW);
     void Minimize(void);
 
     /* WndProc and window message handlers */
@@ -99,11 +98,12 @@ public:
     virtual void OnDestroy(void);
     virtual void OnDisplayChange(void);
     virtual void OnSize(const SZ& sz);
-    virtual void OnMouseMove(const PT& pt);
-    virtual void OnMouseDown(const PT& pt);
-    virtual void OnMouseUp(const PT& pt);
+    virtual void OnMouseMove(const PT& ptg, unsigned mk);
+    virtual void OnMouseDown(const PT& ptg, unsigned mk);
+    virtual void OnMouseUp(const PT& ptg, unsigned mk);
     virtual void OnPaint(void);
     virtual int OnCommand(int cmd);
+    virtual void OnInitMenu(void);
 
     /* dialogs */
 
@@ -126,7 +126,7 @@ public:
     WNDCLASSEXW WcexRegister(const wchar_t* wsClass, int rsm = 0, int rsiLarge = 0, int rsiSmall = 0) const;
     virtual const wchar_t* WsRegister(void) override;
 
-    void Create(const wstring& wsTitle,
+    void CreateWnd(const wstring& wsTitle,
                 int ws = WS_OVERLAPPEDWINDOW, 
                 PT pt = PT(CW_USEDEFAULT), SZ sz = SZ(CW_USEDEFAULT));
 };

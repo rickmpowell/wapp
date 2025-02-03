@@ -10,7 +10,8 @@
 WN::WN(IWAPP& iwapp, WN* pwnParent) : 
     DC(iwapp), 
     pwnParent(pwnParent),
-    fVisible(true)
+    fVisible(true),
+    fEnabled(true)
 {
     if (pwnParent)
         pwnParent->AddChild(this);
@@ -19,7 +20,8 @@ WN::WN(IWAPP& iwapp, WN* pwnParent) :
 WN::WN(WN* pwnParent) :
     DC(pwnParent->iwapp),
     pwnParent(pwnParent),
-    fVisible(true)
+    fVisible(true),
+    fEnabled(true)
 {
     assert(pwnParent);
     pwnParent->AddChild(this);
@@ -73,6 +75,33 @@ void WN::SetBounds(const RC& rcpNew)
 void WN::Layout(void)
 {
 }
+
+void WN::Show(bool fShow)
+{
+    fVisible = fShow;
+    pwnParent->Layout();
+    pwnParent->Redraw();
+}
+
+bool WN::FVisible(void) const
+{
+    return fVisible;
+}
+
+void WN::Enable(bool fEnable)
+{
+    fEnabled = fEnable;
+    Redraw();
+}
+
+bool WN::FEnabled(void) const
+{
+    return fEnabled;
+}
+
+/*
+ *  Drawing
+ */
 
 void WN::Draw(const RC& rcUpdate)
 {
@@ -138,13 +167,28 @@ void WN::Redraw(void)
 
 void WN::Redraw(const RC& rcUpdate, DRO dro)
 {
+    RedrawRcg(RcgFromRc(rcUpdate), dro);
+}
+
+void WN::RedrawRcg(RC rcgUpdate, DRO dro)
+{
     if (!fVisible)
         return;
-    RC rcgUpdate = RcgFromRc(rcUpdate);
-    BeginDraw();
-    DrawWithChildren(rcgUpdate, dro);
-    DrawOverlappedSiblings(rcgUpdate);
-    EndDraw(rcgUpdate);
+    /* EndDraw's rectangle is an integer-based RECT, not a Direct2D float rectangle. That
+       means we must expand the update rectangle to its encompassing integer boundaries.
+       And that means potentially redrawing this WN's parent to fill those partial pixels.
+       This is potentially very expensive, so we do this we absolutely must. Applications
+       that care about performance integer-align WNs */
+    if (rcgUpdate.FRoundUp()) {
+        assert(pwnParent);  // the top-most WN is guaranteed to be integer-aligned
+        pwnParent->RedrawRcg(rcgUpdate, dro);
+    }
+    else {
+        BeginDraw();
+        DrawWithChildren(rcgUpdate, dro);
+        DrawOverlappedSiblings(rcgUpdate);
+        EndDraw(rcgUpdate);
+    }
 }
 
 void WN::DrawWithChildren(const RC& rcgUpdate, DRO dro)
@@ -183,4 +227,43 @@ void WN::DrawOverlappedSiblings(const RC& rcgUpdate)
             fFoundUs = true;
     }
     pwnParent->DrawOverlappedSiblings(rcgUpdate);
+}
+
+/*
+ *  Mouse handling
+ */
+
+bool WN::FWnFromPt(const PT& ptg, WN*& pwn)
+{
+    if (!fVisible || !rcgBounds.FContainsPt(ptg))
+        return false;
+    for (WN* pwnChild : vpwnChildren)
+        if (pwnChild->FWnFromPt(ptg, pwn))
+            return true;
+    pwn = this;
+    return true;
+}
+
+void WN::Enter(const PT& pt)
+{
+}
+
+void WN::Hover(const PT& pt)
+{
+}
+
+void WN::Leave(const PT& pt)
+{
+}
+
+void WN::BeginDrag(const PT& pt, unsigned mk)
+{
+}
+
+void WN::Drag(const PT& pt, unsigned mk)
+{
+}
+
+void WN::EndDrag(const PT& pt, unsigned mk)
+{
 }

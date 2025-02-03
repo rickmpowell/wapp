@@ -33,6 +33,9 @@ public:
     RC RcInterior(void) const;
     RC RcgFromRc(const RC& rc) const;
     RC RcFromRcg(const RC& rcg) const;
+    PT PtgFromPt(const PT& pt) const;
+    PT PtFromPtg(const PT& ptg) const;
+    PT PtFromWnPt(const PT& pt, const DC& wn) const;
 
     virtual CO CoText(void) const;
     virtual CO CoBack(void) const;

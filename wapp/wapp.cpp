@@ -13,7 +13,11 @@
   *  Windows applicatoin, which is an APP and a top-level window rolled into one.
   */
 
-IWAPP::IWAPP(void) : APP(), WNDMAIN((APP&)*this), WN(*this, nullptr)
+IWAPP::IWAPP(void) : 
+    APP(), 
+    WNDMAIN((APP&)*this), 
+    WN(*this, nullptr),
+    pwnDrag(nullptr), pwnHover(nullptr)
 {
     prtc = make_unique<RTC>(*this);
     EnsureDeviceIndependentResources();
@@ -108,22 +112,22 @@ void IWAPP::ReleaseSizeDependentResources(void)
 }
 
 /*
- *  IWAPP::Create
+ *  IWAPP::CreateWnd
  *
  *  Creates the top-level window for the application, using Windows' styles
  *  ws, position pt, and size sz.
  */
 
-void IWAPP::Create(const wstring& wsTitle, int ws, PT pt, SZ sz)
+void IWAPP::CreateWnd(const wstring& wsTitle, int ws, PT pt, SZ sz)
 {
-    WNDMAIN::Create(wsTitle, ws, pt, sz);
+    WNDMAIN::CreateWnd(wsTitle, ws, pt, sz);
     if (GetMenu(hwnd) != NULL)
         RegisterMenuCmds();
 }
 
-void IWAPP::Create(int rssTitle, int ws, PT pt, SZ sz)
+void IWAPP::CreateWnd(int rssTitle, int ws, PT pt, SZ sz)
 {
-    Create(WsLoad(rssTitle), ws, pt, sz);
+    CreateWnd(WsLoad(rssTitle), ws, pt, sz);
 }
 
 /*
@@ -164,9 +168,70 @@ void IWAPP::OnPaint(void)
     ::EndPaint(hwnd, &ps);
 }
 
+void IWAPP::OnMouseMove(const PT& ptg, unsigned mk)
+{
+    PT ptHit = ptg;
+    WN* pwnHit = nullptr;
+    if (!FHitTest(ptHit, pwnHit))
+        return;
+
+    if (pwnDrag) {
+        // QUESTION: should we send enter/leave events while dragging?
+        // if (pwnHit->RcInterior().FContainsPt(ptHit)) SetHover(pwnHit); else ClearHover();
+        pwnHit->Drag(ptHit, mk);
+        return;
+    }
+
+    if (mk & (MK_LBUTTON | MK_MBUTTON | MK_RBUTTON))
+        return;
+    
+    assert(pwnHit);
+    if (pwnHit == pwnHover)
+        pwnHit->Hover(ptHit);
+    else {
+        if (pwnHover)
+            ClearHover(pwnHover->PtFromPtg(ptg));
+        SetHover(pwnHit, ptHit);
+    }
+}
+
+void IWAPP::OnMouseDown(const PT& ptg, unsigned mk)
+{
+    PT ptHit = ptg;
+    WN* pwnHit = nullptr;
+    if (!FHitTest(ptHit, pwnHit))
+        return;
+    ::SetCapture(hwnd);
+    SetDrag(pwnHit, ptHit, mk);
+}
+
+void IWAPP::OnMouseUp(const PT& ptg, unsigned mk)
+{
+    ::ReleaseCapture();
+    PT ptHit = ptg;
+    WN* pwnHit = nullptr;
+    if (!FHitTest(ptHit, pwnHit))
+        return;
+    ClearDrag(ptHit, mk);
+}
+
 int IWAPP::OnCommand(int cmd)
 {
     return FExecuteMenuCmd(cmd);
+}
+
+void IWAPP::OnInitMenu(void)
+{
+    InitMenuCmds();
+}
+
+/*
+ *  Window operations that make sense for the top-level HWND
+ */
+
+void IWAPP::Show(bool fShow)
+{
+    ::ShowWindow(hwnd, fShow ? SW_SHOW : SW_HIDE);
 }
 
 /*
@@ -205,6 +270,71 @@ void IWAPP::EndDraw(const RC& rcUpdate)
 
 void IWAPP::Draw(const RC& rcUpdate)
 {
+}
+
+/*
+ *  Mouse handling
+ */
+
+/*
+ *  FHitTest
+ * 
+ *  Determines who is going to be handling the mouse movement.
+ * 
+ *  pwn gets the window that handles the message on exit. On entry, the point
+ *  ptg is the mouse position relative to the containing window, and on exit
+ *  ptHit contains the point in local coordinates of pwnHit.
+ * 
+ *  Note that when we're dragging, ptHit can be outside the bounds of the
+ *  window we hit but the point is still relative to the upper left of the
+ *  hit window.
+ * 
+ *  Returns false if no hit.
+ */
+
+bool IWAPP::FHitTest(PT& pt, WN*& pwnHit)
+{
+    pwnHit = pwnDrag;
+    if (!pwnHit && !FWnFromPt(pt, pwnHit))
+        return false;
+    pt = pwnHit->PtFromPtg(pt);
+    return true;
+}
+
+void IWAPP::SetDrag(WN* pwn, const PT& pt, unsigned mk)
+{
+    assert(pwn);
+    if (pwn == pwnDrag)
+        return;
+    ClearHover(pt); // turn off hovering while we're dragging 
+    pwnDrag = pwn;
+    pwnDrag->BeginDrag(pt, mk);
+}
+
+void IWAPP::ClearDrag(const PT& pt, unsigned mk)
+{
+    if (!pwnDrag)
+        return;
+    pwnDrag->EndDrag(pt, mk);
+    pwnDrag = nullptr;
+    // QUESTION: should we re-compute hover?
+}
+
+void IWAPP::SetHover(WN* pwn, const PT& pt)
+{
+    assert(pwn);
+    if (pwn == pwnHover)
+        return;
+    pwnHover = pwn;
+    pwnHover->Enter(pt);
+}
+
+void IWAPP::ClearHover(const PT& pt)
+{
+    if (!pwnHover)
+        return;
+    pwnHover->Leave(pt);
+    pwnHover = nullptr;
 }
 
 /*

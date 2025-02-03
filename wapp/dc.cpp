@@ -210,3 +210,18 @@ RC DC::RcFromRcg(const RC& rcg) const
 {
     return rcg - rcgBounds.ptTopLeft();
 }
+
+PT DC::PtgFromPt(const PT& pt) const
+{
+    return pt + rcgBounds.ptTopLeft();
+}
+
+PT DC::PtFromPtg(const PT& ptg) const
+{
+    return ptg - rcgBounds.ptTopLeft();
+}
+
+PT DC::PtFromWnPt(const PT& pt, const DC& dc) const
+{
+    return pt - rcgBounds.ptTopLeft() + dc.rcgBounds.ptTopLeft();
+}

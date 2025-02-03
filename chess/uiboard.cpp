@@ -28,12 +28,18 @@ WNBOARD::WNBOARD(WN* pwnParent) :
 
 CO WNBOARD::CoBack(void) const
 {
-    return coLightYellow;
+    CO co(coIvory);
+    if (!FEnabled())
+        co.MakeGrayscale();
+    return co;
 }
 
 CO WNBOARD::CoText(void) const
 {
-    return coDarkGreen;
+    CO co(coDarkGreen);
+    if (!FEnabled())
+        co.MakeGrayscale();
+    return co;
 }
 
 /*

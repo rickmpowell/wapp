@@ -43,6 +43,7 @@ protected:
     WN* pwnParent;  // will be nullptr at root
     vector<WN*> vpwnChildren;
     bool fVisible;
+    bool fEnabled;
 
 public:
     WN(IWAPP& iwapp, WN* pwnParent = nullptr);
@@ -54,16 +55,28 @@ public:
     void SetBounds(const RC& rcpNew);
     virtual void Layout(void);
 
+    virtual void Show(bool fShow = true);
+    virtual bool FVisible(void) const;
+    virtual void Enable(bool fEnable = true);
+    virtual bool FEnabled(void) const;
+
     virtual void BeginDraw(void);
     virtual void EndDraw(const RC& rcUpdate);
     virtual void Draw(const RC& rcUpdate);
-    virtual void Redraw(void);
-    virtual void Redraw(const RC& rcUpdate, DRO dro);
     virtual void Erase(const RC& rcUpdate, DRO dro);
     virtual void TransparentErase(const RC& rcUpdate, DRO dro);
+    void Redraw(void);
+    void Redraw(const RC& rcUpdate, DRO dro);
+    void RedrawRcg(RC rcgUpdate, DRO dro);
+    void DrawWithChildren(const RC& rcgUpdate, DRO dro);
+    void DrawNoChildren(const RC& rcgUpdate, DRO dro);
+    void DrawOverlappedSiblings(const RC& rcgUpdate);
 
-public:
-    virtual void DrawWithChildren(const RC& rcgUpdate, DRO dro);
-    virtual void DrawNoChildren(const RC& rcgUpdate, DRO dro);
-    virtual void DrawOverlappedSiblings(const RC& rcgUpdate);
+    bool FWnFromPt(const PT& ptg, WN*& pwn);
+    virtual void Enter(const PT& pt);
+    virtual void Hover(const PT& pt);
+    virtual void Leave(const PT& pt);
+    virtual void BeginDrag(const PT& pt, unsigned mk);
+    virtual void Drag(const PT& pt, unsigned mk);
+    virtual void EndDrag(const PT& pt, unsigned mk);
 };

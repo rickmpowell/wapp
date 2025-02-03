@@ -35,14 +35,17 @@ private:
     vector<unique_ptr<FILTERMSG>> vpfm;
     map<int, unique_ptr<ICMD>> mpcmdpicmdMenu;
 
+    WN* pwnDrag;
+    WN* pwnHover;
+
 public:
     IWAPP(void);
     virtual ~IWAPP();
 
-    void Create(const wstring& wsTitle,
+    void CreateWnd(const wstring& wsTitle,
                 int ws = WS_OVERLAPPEDWINDOW,
                 PT pt = PT(CW_USEDEFAULT), SZ sz = SZ(CW_USEDEFAULT));
-    void Create(int rssTitle,
+    void CreateWnd(int rssTitle,
                 int ws = WS_OVERLAPPEDWINDOW,
                 PT pt = PT(CW_USEDEFAULT), SZ sz = SZ(CW_USEDEFAULT));
 
@@ -71,17 +74,33 @@ public:
     virtual void OnDisplayChange(void) override;
     virtual void OnSize(const SZ& sz) override;
     virtual void OnPaint(void) override;
+    virtual void OnMouseMove(const PT& ptg, unsigned mk) override;
+    virtual void OnMouseDown(const PT& ptg, unsigned mk) override;
+    virtual void OnMouseUp(const PT& ptg, unsigned mk) override;
     virtual int OnCommand(int cmd) override;
+    virtual void OnInitMenu(void) override;
 
     /* layout */
 
     virtual void Layout(void) override;
+
+    /* window manipulation */
+
+    virtual void Show(bool fShow = true) override;
 
     /* drawing */
 
     virtual void BeginDraw(void) override;
     virtual void EndDraw(const RC& rcUpdate) override;
     virtual void Draw(const RC& rcUpdate) override;
+    
+    /* mouse handling */
+
+    bool FHitTest(PT& pt, WN*& pwnHit);
+    void SetDrag(WN* pwn, const PT& pt, unsigned mk);
+    void ClearDrag(const PT& pt, unsigned mk);
+    void SetHover(WN* pwn, const PT& pt);
+    void ClearHover(const PT& pt);
 
     /* Menu commands */
 
@@ -89,6 +108,8 @@ public:
     void RegisterMenuCmd(int cmd, ICMD* picmd);
     bool FExecuteMenuCmd(int cmd);
     bool FExecuteCmd(unique_ptr<ICMD>& picmd);
+    void InitMenuCmds(void);
+    void InitMenuCmd(HMENU hmenu, int cmd, unique_ptr<ICMD>& pcmd);
 
     /* message pump and message filters */
 
