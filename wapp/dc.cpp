@@ -47,40 +47,51 @@ TF::operator IDWriteTextFormat* () const
  *  These only support PNGs for now.
  */
 
-BMP::BMP(DC& dc, BYTE* pbPng, unsigned long cbPng)
+void BMP::InitRsrc(IWAPP& iwapp, const wstring& wsType, int rs, BYTE*& pb, unsigned& cb)
+{
+    /* TODO: error handling */
+    HRSRC hrsrc = ::FindResourceW(iwapp.hinst, MAKEINTRESOURCEW(rs), wsType.c_str());
+    cb = static_cast<unsigned>(::SizeofResource(iwapp.hinst, hrsrc));
+    HGLOBAL hLoad = ::LoadResource(iwapp.hinst, hrsrc);
+    pb = static_cast<BYTE*>(::LockResource(hLoad));
+}
+
+PNG::PNG(DC& dc, BYTE* pbPng, unsigned long cbPng) : BMP(dc)
 {
     Init(dc, pbPng, cbPng);
 }
 
-void BMP::Init(DC& dc, BYTE* pbPng, unsigned long cbPng)
+PNG::PNG(IWAPP& iwapp, int rspng) : BMP(iwapp)
 {
-    com_ptr<IWICStream> pstream;
-    dc.iwapp.pfactwic->CreateStream(&pstream);
-    pstream->InitializeFromMemory(pbPng, cbPng);
-    com_ptr<IWICBitmapDecoder> pdecoder;
-    dc.iwapp.pfactwic->CreateDecoderFromStream(pstream.Get(), nullptr, WICDecodeMetadataCacheOnLoad, &pdecoder);
-    com_ptr<IWICBitmapFrameDecode> pframe;
-    pdecoder->GetFrame(0, &pframe);
-    com_ptr<IWICFormatConverter> pconverter;
-    dc.iwapp.pfactwic->CreateFormatConverter(&pconverter);
-    pconverter->Initialize(pframe.Get(), GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0.0f,             
-                           WICBitmapPaletteTypeMedianCut);
-    dc.iwapp.pdc2->CreateBitmapFromWicBitmap(pconverter.Get(), nullptr, &pbitmap);
-}
-
-BMP::BMP(IWAPP& iwapp, int rspng)
-{
-    /* TODO: error handling */
-    HRSRC hrsrc = ::FindResourceW(iwapp.hinst, MAKEINTRESOURCEW(rspng), L"PNG");
-    ULONG cbRes = ::SizeofResource(iwapp.hinst, hrsrc);
-    HGLOBAL hLoad = ::LoadResource(iwapp.hinst, hrsrc);
-    BYTE* pbRes = (BYTE*)::LockResource(hLoad);
+    BYTE* pbRes;
+    unsigned cbRes;
+    InitRsrc(iwapp, L"PNG", rspng, pbRes, cbRes);
     Init(iwapp, pbRes, cbRes);
 }
 
-BMP::operator ID2D1Bitmap1* () const
+void PNG::Init(DC& dc, BYTE* pbPng, unsigned long cbPng)
 {
-    return pbitmap.Get();
+    com_ptr<IWICStream> pstream;
+    ThrowError(dc.iwapp.pfactwic->CreateStream(&pstream));
+    pstream->InitializeFromMemory(pbPng, cbPng);
+    com_ptr<IWICBitmapDecoder> pdecoder;
+    ThrowError(dc.iwapp.pfactwic->CreateDecoderFromStream(pstream.Get(), 
+                                                          nullptr, 
+                                                          WICDecodeMetadataCacheOnLoad, 
+                                                          &pdecoder));
+    com_ptr<IWICBitmapFrameDecode> pframe;
+    pdecoder->GetFrame(0, &pframe);
+    com_ptr<IWICFormatConverter> pconverter;
+    ThrowError(dc.iwapp.pfactwic->CreateFormatConverter(&pconverter));
+    ThrowError(pconverter->Initialize(pframe.Get(), 
+                                      GUID_WICPixelFormat32bppPBGRA, 
+                                      WICBitmapDitherTypeNone, 
+                                      nullptr, 
+                                      0.0f,             
+                                      WICBitmapPaletteTypeMedianCut));
+    ThrowError(dc.iwapp.pdc2->CreateBitmapFromWicBitmap(pconverter.Get(), 
+                                                        nullptr, 
+                                                        &pbitmap));
 }
 
 /*
@@ -195,6 +206,15 @@ SZ DC::SzFromWs(const wstring& ws, const TF& tf)
     DWRITE_TEXT_METRICS dtm;
     ptxl->GetMetrics(&dtm);
     return SZ(dtm.width, dtm.height);
+}
+
+void DC::DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity)
+{
+    iwapp.pdc2->DrawBitmap(bmp,
+                           RcgFromRc(rcTo),
+                           opacity,
+                           D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR,
+                           rcFrom);
 }
 
 /*

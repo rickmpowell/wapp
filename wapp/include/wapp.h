@@ -15,6 +15,7 @@
 #include "wn.h"
 class FILTERMSG;
 class ICMD;
+class WAPP;
 
 #pragma comment(lib, "wapp.lib")
 #pragma comment(linker, "/include:wWinMain")
@@ -159,3 +160,26 @@ public:
 };
 
 #include "dlg.h"
+
+/*
+ *  Some save/restore Direct2D helpers
+ */
+
+struct TRANSFORMDC
+{
+private:
+    DC& dc;
+    D2D1_MATRIX_3X2_F matrixSav;
+
+public:
+    TRANSFORMDC(DC& dc, const D2D1_MATRIX_3X2_F& matrix) : dc(dc)
+    {
+        dc.iwapp.pdc2->GetTransform(&matrixSav);
+        dc.iwapp.pdc2->SetTransform(matrix);
+    }
+
+    ~TRANSFORMDC()
+    {
+        dc.iwapp.pdc2->SetTransform(matrixSav);
+    }
+};

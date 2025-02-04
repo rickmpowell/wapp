@@ -14,7 +14,7 @@
   */
 
 IWAPP::IWAPP(void) : 
-    APP(), 
+    APP(),
     WNDMAIN((APP&)*this), 
     WN(*this, nullptr),
     pwnDrag(nullptr), pwnHover(nullptr)

@@ -83,18 +83,13 @@ void IWAPP::InitMenuCmd(HMENU hmenu, int cmd, unique_ptr<ICMD>& pcmd)
 {
     MENUITEMINFOW mi = { sizeof(mi) };
     mi.fMask = MIIM_STATE;
-    mi.fState = pcmd->FEnabled() ? 
-        MFS_UNCHECKED | MFS_ENABLED :
-        MFS_UNCHECKED | MFS_DISABLED | MF_GRAYED;
+    mi.fState = pcmd->FEnabled() ? MFS_UNCHECKED|MFS_ENABLED : MFS_UNCHECKED|MFS_DISABLED|MF_GRAYED;
     if (pcmd->FChecked())
         mi.fState |= MFS_CHECKED;
     wstring wsMenu;
-    unique_ptr<wchar_t[]> achMenu;
     if (pcmd->FMenuWs(wsMenu)) {
         mi.fMask |= MIIM_TYPE;
-        achMenu.reset(new wchar_t[wsMenu.size()+1]);
-        memcpy(achMenu.get(), wsMenu.c_str(), sizeof(wchar_t)*(wsMenu.size()+1));
-        mi.dwTypeData = achMenu.get();
+        mi.dwTypeData = const_cast<LPWSTR>(wsMenu.c_str()); 
     }
     ::SetMenuItemInfoW(hmenu, cmd, false, &mi);
 }

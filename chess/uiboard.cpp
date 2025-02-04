@@ -5,6 +5,7 @@
  */
 
 #include "chess.h"
+#include "resource.h"
 
  /*
   *  WNBOARD
@@ -15,7 +16,8 @@
 WNBOARD::WNBOARD(WN* pwnParent) : 
     WN(pwnParent), 
     btnFlip(this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f'),
-    ccpView(ccpWhite)
+    ccpView(ccpWhite),
+    angle(0.0f)
 {
 }
 
@@ -78,8 +80,10 @@ void WNBOARD::Layout(void)
 
 void WNBOARD::Draw(const RC& rcUpdate)
 {
+    TRANSFORMDC sav(*this, Matrix3x2F::Rotation(angle, rcgBounds.ptCenter()));
     DrawBorder();
     DrawSquares();
+    DrawPieces();
 }
 
 /*
@@ -129,6 +133,16 @@ void WNBOARD::DrawSquares(void)
             FillRc(RcFromRankFile(rank, file), (rank + file) & 1 ? CoBack() : CoText());
 }
 
+void WNBOARD::DrawPieces(void)
+{
+    PNG png(this->iwapp, rspngChessPieces);
+    SZ szPng = png.sz();
+    DrawBmp(RcFromRankFile(0, 0), 
+            png, 
+            RC(0.0f, 0.0f, szPng.width/6, szPng.height/2),
+            1.0f);
+}
+
 /*
  *  WNBOARD::RcFromRankFile
  *
@@ -149,6 +163,9 @@ RC WNBOARD::RcFromRankFile(int rank, int file) const
 
 void WNBOARD::FlipCcp(void)
 {
+    for (angle = 0.0f; angle > -180.0f; angle -= 4.0f)
+        Redraw();
+    angle = 0.0f;
     ccpView = ~ccpView;
     Redraw();
 }

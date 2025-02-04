@@ -8,9 +8,9 @@
 
 #include "coord.h"
 #include "color.h"
-
 class BR;
 class TF;
+class BMP;
 class IWAPP;
 
 /*
@@ -53,6 +53,8 @@ public:
     void DrawWsCenter(const wstring& ws, const TF& tf, const RC& rc, const BR& brText);
     void DrawWsCenter(const wstring& ws, const TF& tf, const RC& rc, CO coText = coNil);
     SZ SzFromWs(const wstring& ws, const TF& tf);
+
+    void DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity);
 };
 
 /*
@@ -110,10 +112,22 @@ public:
     com_ptr<ID2D1Bitmap1> pbitmap;
 
 public:
-    BMP(DC& dc, BYTE* pb, unsigned long cb);
-    BMP(IWAPP& iwapp, int rspng);
+    BMP(DC& dc) : pbitmap(nullptr) { }
+    void InitRsrc(IWAPP& iwapp, const wstring& wsType, int rs, BYTE*& pb, unsigned& cb);
+    operator ID2D1Bitmap1* () const {
+        return pbitmap.Get();
+    }
+    SZ sz(void) const {
+        return pbitmap->GetSize();
+    }
+};
+
+class PNG : public BMP
+{
+public:
+    PNG(DC& dc, BYTE* pb, unsigned long cb);
+    PNG(IWAPP& iwapp, int rspng);
 
     void Init(DC& dc, BYTE* pb, unsigned long cb);
-
-    operator ID2D1Bitmap1* () const;
 };
+

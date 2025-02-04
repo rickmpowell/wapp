@@ -50,6 +50,8 @@ class WNBOARD : public WN
     BTNCH btnFlip;
     CCP ccpView;  // orientation of the board, black or white
 
+    float angle;    // and to draw during flipping
+
     /* metrics for drawing, computed during layout */
 
     float dxySquare, dxyBorder, dxyOutline, dyLabels;
@@ -65,17 +67,18 @@ class WNBOARD : public WN
 public:
     WNBOARD(WN* pwnParent);
  
-    virtual CO CoText(void) const;
-    virtual CO CoBack(void) const;
+    virtual CO CoText(void) const override;
+    virtual CO CoBack(void) const override;
 
-    virtual void Layout(void);
-    virtual void Draw(const RC& rcUpdate);
+    virtual void Layout(void) override;
+    virtual void Draw(const RC& rcUpdate) override;
 
     void FlipCcp(void);
 
 private:
     void DrawBorder(void);
     void DrawSquares(void);
+    void DrawPieces(void);
     RC RcFromRankFile(int rank, int file) const;
 };
 

@@ -3,11 +3,15 @@
 /*
  *  app.h
  * 
- *  The base APP application class.
+ *  The base APP application classes.
  * 
  *  APP      Base Windows instance, with no window 
  *  WND      The lowest level window, 
  *  WNDMAIN  A top-level application window
+ * 
+ *  These elements are not usually used directly by applications. They are
+ *  only necessary for specialty situations, or for the implementation of
+ *  the WAPP classes themselves. 
  */
 
 #include "framework.h"

@@ -19,6 +19,11 @@
 class SZ : public D2D1_SIZE_F
 {
 public:
+    SZ(const D2D1_SIZE_F& sz) {
+        width = sz.width;
+        height = sz.height;
+    }
+
     SZ(float width, float height) {
         this->width = width;
         this->height = height;
@@ -262,6 +267,10 @@ public:
 
     PT ptBotRight(void) const {
         return PT(right, bottom);
+    }
+
+    PT ptCenter(void) const {
+        return PT((left+right)/2, (top+bottom)/2);
     }
 
     float dxWidth(void) const {
