@@ -7,37 +7,9 @@
  */
 
 #include "wapp.h"
-
-/*
- *  CCP 
- *
- *  Color of Chess Piece
- */
-
-enum CCP {
-    ccpWhite,
-    ccpBlack
-};
-
-inline CCP operator ~ (CCP ccp) {
-    return ccp == ccpWhite ? ccpBlack : ccpWhite;
-}
-
-/*
- *  TCP
- * 
- *  Type of a chess piece
- */
-
-enum TCP {
-    tcpNone = 0,
-    tcpPawn = 1,
-    tcpKnight = 2,
-    tcpBishop = 3,
-    tcpRook = 4,
-    tcpQueen = 5,
-    tcpKing = 6
-};
+#include "board.h"
+#include <sstream>
+#include <iostream>
 
 /*
  *  WNBOARD 
@@ -47,9 +19,10 @@ enum TCP {
 
 class WNBOARD : public WN
 {
+    BD bd;
+
     BTNCH btnFlip;
     CCP ccpView;  // orientation of the board, black or white
-
     float angle;    // and to draw during flipping
 
     /* metrics for drawing, computed during layout */
@@ -79,7 +52,7 @@ private:
     void DrawBorder(void);
     void DrawSquares(void);
     void DrawPieces(void);
-    RC RcFromRankFile(int rank, int file) const;
+    RC RcFromSq(int sq) const;
 };
 
 /*

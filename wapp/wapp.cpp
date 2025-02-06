@@ -170,49 +170,38 @@ void IWAPP::OnPaint(void)
 
 void IWAPP::OnMouseMove(const PT& ptg, unsigned mk)
 {
-    PT ptHit = ptg;
     WN* pwnHit = nullptr;
-    if (!FHitTest(ptHit, pwnHit))
-        return;
+    FWnFromPt(ptg, pwnHit);
 
     if (pwnDrag) {
-        // QUESTION: should we send enter/leave events while dragging?
-        // if (pwnHit->RcInterior().FContainsPt(ptHit)) SetHover(pwnHit); else ClearHover();
-        pwnHit->Drag(ptHit, mk);
-        return;
+         if (pwnHit != pwnDrag) // while hovering, restrict hover to the drag source or null
+            pwnHit = nullptr;
+        SetHover(pwnHit, ptg);
+        if (pwnHit)
+            pwnHit->Drag(pwnHit->PtFromPtg(ptg), mk);
     }
-
-    if (mk & (MK_LBUTTON | MK_MBUTTON | MK_RBUTTON))
-        return;
-    
-    assert(pwnHit);
-    if (pwnHit == pwnHover)
-        pwnHit->Hover(ptHit);
     else {
-        if (pwnHover)
-            ClearHover(pwnHover->PtFromPtg(ptg));
-        SetHover(pwnHit, ptHit);
+        if (mk & (MK_LBUTTON | MK_MBUTTON | MK_RBUTTON))
+            return;
+        SetHover(pwnHit, ptg);
+        if (pwnHit)
+            pwnHit->Hover(pwnHit->PtFromPtg(ptg));
     }
 }
 
 void IWAPP::OnMouseDown(const PT& ptg, unsigned mk)
 {
-    PT ptHit = ptg;
     WN* pwnHit = nullptr;
-    if (!FHitTest(ptHit, pwnHit))
+    if (!FWnFromPt(ptg, pwnHit))
         return;
     ::SetCapture(hwnd);
-    SetDrag(pwnHit, ptHit, mk);
+    SetDrag(pwnHit, ptg, mk);
 }
 
 void IWAPP::OnMouseUp(const PT& ptg, unsigned mk)
 {
     ::ReleaseCapture();
-    PT ptHit = ptg;
-    WN* pwnHit = nullptr;
-    if (!FHitTest(ptHit, pwnHit))
-        return;
-    ClearDrag(ptHit, mk);
+    SetDrag(nullptr, ptg, mk);
 }
 
 int IWAPP::OnCommand(int cmd)
@@ -276,65 +265,26 @@ void IWAPP::Draw(const RC& rcUpdate)
  *  Mouse handling
  */
 
-/*
- *  FHitTest
- * 
- *  Determines who is going to be handling the mouse movement.
- * 
- *  pwn gets the window that handles the message on exit. On entry, the point
- *  ptg is the mouse position relative to the containing window, and on exit
- *  ptHit contains the point in local coordinates of pwnHit.
- * 
- *  Note that when we're dragging, ptHit can be outside the bounds of the
- *  window we hit but the point is still relative to the upper left of the
- *  hit window.
- * 
- *  Returns false if no hit.
- */
-
-bool IWAPP::FHitTest(PT& pt, WN*& pwnHit)
+void IWAPP::SetDrag(WN* pwn, const PT& ptg, unsigned mk)
 {
-    pwnHit = pwnDrag;
-    if (!pwnHit && !FWnFromPt(pt, pwnHit))
-        return false;
-    pt = pwnHit->PtFromPtg(pt);
-    return true;
-}
-
-void IWAPP::SetDrag(WN* pwn, const PT& pt, unsigned mk)
-{
-    assert(pwn);
     if (pwn == pwnDrag)
         return;
-    ClearHover(pt); // turn off hovering while we're dragging 
+    if (pwnDrag)
+        pwnDrag->EndDrag(pwnDrag->PtFromPtg(ptg), mk);
     pwnDrag = pwn;
-    pwnDrag->BeginDrag(pt, mk);
+    if (pwnDrag)
+        pwnDrag->BeginDrag(pwnDrag->PtFromPtg(ptg), mk);
 }
 
-void IWAPP::ClearDrag(const PT& pt, unsigned mk)
+void IWAPP::SetHover(WN* pwn, const PT& ptg)
 {
-    if (!pwnDrag)
-        return;
-    pwnDrag->EndDrag(pt, mk);
-    pwnDrag = nullptr;
-    // QUESTION: should we re-compute hover?
-}
-
-void IWAPP::SetHover(WN* pwn, const PT& pt)
-{
-    assert(pwn);
     if (pwn == pwnHover)
         return;
+    if (pwnHover)
+        pwnHover->Leave(pwnHover->PtFromPtg(ptg));
     pwnHover = pwn;
-    pwnHover->Enter(pt);
-}
-
-void IWAPP::ClearHover(const PT& pt)
-{
-    if (!pwnHover)
-        return;
-    pwnHover->Leave(pt);
-    pwnHover = nullptr;
+    if (pwnHover)
+        pwnHover->Enter(pwnHover->PtFromPtg(ptg));
 }
 
 /*

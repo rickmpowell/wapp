@@ -28,28 +28,19 @@ CTL::~CTL()
 
 void CTL::Enter(const PT& pt)
 {
-    cdsCur = cdsHover;
+    cdsCur = FDragging() ? cdsExecute : cdsHover;
     Redraw();
 }
 
 void CTL::Leave(const PT& pt)
 {
-    cdsCur = cdsNone;
+    cdsCur = FDragging() ? cdsCancel : cdsNone;
     Redraw();
 }
 
 void CTL::BeginDrag(const PT& pt, unsigned mk)
 {
     cdsCur = cdsExecute;
-    Redraw();
-}
-
-void CTL::Drag(const PT& pt, unsigned mk)
-{
-    if (RcInterior().FContainsPt(pt))
-        cdsCur = cdsExecute;
-    else
-        cdsCur = cdsCancel;
     Redraw();
 }
 

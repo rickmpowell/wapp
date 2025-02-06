@@ -54,3 +54,8 @@ inline void ThrowError(HRESULT hr) {
     if (hr != S_OK)
         throw (int)hr;
 }
+
+template <typename T>
+bool in_range(const T& t, const T& tFirst, const T& tLast) {
+    return t >= tFirst && t <= tLast;
+}

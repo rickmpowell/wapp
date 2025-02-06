@@ -32,6 +32,8 @@ class WAPP;
 
 class IWAPP : public APP, public WNDMAIN, public WN
 {
+    friend class WN;
+
 private:
     vector<unique_ptr<FILTERMSG>> vpfm;
     map<int, unique_ptr<ICMD>> mpcmdpicmdMenu;
@@ -97,11 +99,8 @@ public:
     
     /* mouse handling */
 
-    bool FHitTest(PT& pt, WN*& pwnHit);
-    void SetDrag(WN* pwn, const PT& pt, unsigned mk);
-    void ClearDrag(const PT& pt, unsigned mk);
-    void SetHover(WN* pwn, const PT& pt);
-    void ClearHover(const PT& pt);
+    void SetDrag(WN* pwn, const PT& ptg, unsigned mk);
+    void SetHover(WN* pwn, const PT& ptg);
 
     /* Menu commands */
 
@@ -172,14 +171,12 @@ private:
     D2D1_MATRIX_3X2_F matrixSav;
 
 public:
-    TRANSFORMDC(DC& dc, const D2D1_MATRIX_3X2_F& matrix) : dc(dc)
-    {
+    TRANSFORMDC(DC& dc, const D2D1_MATRIX_3X2_F& matrix) : dc(dc) {
         dc.iwapp.pdc2->GetTransform(&matrixSav);
         dc.iwapp.pdc2->SetTransform(matrix);
     }
 
-    ~TRANSFORMDC()
-    {
+    ~TRANSFORMDC() {
         dc.iwapp.pdc2->SetTransform(matrixSav);
     }
 };

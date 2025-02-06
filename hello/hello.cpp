@@ -28,8 +28,8 @@ int Run(const wstring& wsCmd, int sw)
 
 WAPP::WAPP(const wstring& wsCmd, int sw)
 {
-    Create(rssAppTitle);
-    Show(sw);
+    CreateWnd(rssAppTitle);
+    Show(true);
 }
 
 /*
@@ -40,7 +40,7 @@ WAPP::WAPP(const wstring& wsCmd, int sw)
 
 CO WAPP::CoBack(void) const
 {
-    return ColorF(0.80f, 0.80f, 0.80f);
+    return coLightGray;
 }
 
 /*
@@ -86,7 +86,7 @@ public:
     CMDEXIT(WAPP& wapp) : CMD(wapp) {}
 
     virtual int Execute(void) {
-        wapp.Destroy();
+        wapp.DestroyWnd();
         return 1;
     }
 };

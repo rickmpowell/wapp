@@ -151,6 +151,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="board.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="uiboard.cpp" />
   </ItemGroup>
@@ -171,6 +172,7 @@
     <None Include="resources\Chess_Pieces_Sprite.svg" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\board.h" />
     <ClInclude Include="include\chess.h" />
     <ClInclude Include="include\resource.h" />
   </ItemGroup>

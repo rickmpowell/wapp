@@ -267,3 +267,8 @@ void WN::Drag(const PT& pt, unsigned mk)
 void WN::EndDrag(const PT& pt, unsigned mk)
 {
 }
+
+bool WN::FDragging(void) const
+{
+    return this == iwapp.pwnDrag;
+}

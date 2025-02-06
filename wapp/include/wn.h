@@ -73,6 +73,7 @@ public:
     void DrawOverlappedSiblings(const RC& rcgUpdate);
 
     bool FWnFromPt(const PT& ptg, WN*& pwn);
+    bool FDragging(void) const;
     virtual void Enter(const PT& pt);
     virtual void Hover(const PT& pt);
     virtual void Leave(const PT& pt);

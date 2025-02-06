@@ -38,7 +38,6 @@ public:
     virtual void Leave(const PT& pt) override;
     virtual void BeginDrag(const PT& pt, unsigned mk) override;
     virtual void EndDrag(const PT& pt, unsigned mk) override;
-    virtual void Drag(const PT& pt, unsigned mk) override;
 };
 
 /*

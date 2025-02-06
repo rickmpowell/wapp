@@ -56,7 +56,7 @@ void WAPP::Layout(void)
 
     float dxyBoard = roundf(min(rcInt.dxWidth(), rcInt.dyHeight()));
     float dxyMargin = roundf(max(dxyBoard*wMarginPerWindow, dxyMarginMax));
-    dxyBoard = max(dxyBoard - 2*dxyMargin, 8*dxySquareMin);
+    dxyBoard = max(dxyBoard - 2*dxyMargin, raMax*dxySquareMin);
     
     wnboard.SetBounds(RC(PT(dxyMargin), SZ(dxyBoard)));
 }
