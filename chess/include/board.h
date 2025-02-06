@@ -105,6 +105,15 @@ inline uint8_t Sq(int ra, int fi) {
 const uint8_t sqNil = 0xc0;
 const uint8_t sqMax = raMax * fiMax;
 
+inline string to_string(SQ sq) {
+    if (sq == sqNil)
+        return "-";
+    char sz[3] = "a1";
+    sz[0] += ra(sq);
+    sz[1] += fi(sq);
+    return sz;
+}
+
 /*
  *  Castle state. These are or-ed together to make a 4-bit description of
  *  what castles are still legal.
@@ -138,6 +147,10 @@ class BD
     uint8_t csCur;
     SQ sqEnPassant;
 
+    static const string sParseBoard;
+    static const string sParseColor;
+    static const string sParseCastle;
+
 public:
     BD(void);
     BD(const string& fen);
@@ -147,6 +160,7 @@ public:
     }
 
     void InitFromFen(const string& fen);
+    string FenRender(void) const;
 
     CP operator[](SQ sq) const {
         return mpsqcp[sq];

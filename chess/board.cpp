@@ -24,6 +24,21 @@ int find_ch(const string& s, char ch)
     return static_cast<int>(ich);
 }
 
+/* these constant parsing strings are all cleverly ordered to line up with 
+   the numerical definitions of various board, piece, and color values */
+
+const string BD::sParseBoard("/PNBRQK  pnbrqk  12345678");
+const string BD::sParseColor = "wb";
+const string BD::sParseCastle = "KkQq";
+
+/*
+ *  BD::InitFromFen
+ * 
+ *  Initializes the board from a FEN (Forsyth-Edwards Notation) string.
+ * 
+ *  Throws an exception on parse errors. 
+ */
+
 void BD::InitFromFen(const string& fen)
 {
     /* pull in all the pieces of the FEN */
@@ -33,12 +48,6 @@ void BD::InitFromFen(const string& fen)
     if (!(iss >> sBoard >> sColor >> sCastle >> sEnPassant >> sHalfMove >> sFullMove))
         throw 1;
 
-    /* these constant parsing strings are all cleverly ordered to line up with the 
-       numerical definitions of various board, piece, and color values */
-
-    static const string sParseBoard("/PNBRQK  pnbrqk  12345678");
-    static const string sParseColor("wb");
-    static const string sParseCastle("KkQq-");
     assert(sParseBoard.find('k') == cpBlackKing);
     assert(sParseBoard.find('8') == 16 + 8);
     assert(sParseColor.find('b') == ccpBlack);
@@ -57,7 +66,7 @@ void BD::InitFromFen(const string& fen)
         else if (ich >= 16) // numbers, mean skip squares
             sq += ich - 16;
         else if (sq < sqMax)
-            mpsqcp[sq++] = CP(ich);   // otherwise the offset matches the value of the chess piece
+            mpsqcp[sq++] = ich;   // otherwise the offset matches the value of the chess piece
         else
             throw 1;
     }
@@ -66,14 +75,14 @@ void BD::InitFromFen(const string& fen)
 
     if (sColor.length() != 1)
         throw 1;
-    ccpToMove = CCP(find_ch(sParseColor, sColor[0]));
+    ccpToMove = static_cast<CCP>(find_ch(sParseColor, sColor[0]));
 
     /* parse the castle state */
 
     csCur = 0;
-    for (char ch : sCastle) {
-        if ((ich = find_ch(sParseCastle, ch)) <= 3)
-            csCur |= 1 << ich;
+    if (sCastle != "-") {
+        for (char ch : sCastle)
+            csCur |= 1 << find_ch(sParseCastle, ch);
     }
 
     /* parse the en passant square */
@@ -91,4 +100,63 @@ void BD::InitFromFen(const string& fen)
     halfmoveClock = stoi(sHalfMove);
     fullmoveNumber = stoi(sFullMove);
     */
+}
+
+/*
+ *  BD::FenRender(void)
+ * 
+ *  Turns a BD into a FEN string.
+ */
+
+string FenEmpties(int& csqEmpty) {
+    if (csqEmpty == 0)
+        return "";
+    int csq = csqEmpty;
+    csqEmpty = 0;
+    return to_string(csq);
+}
+
+string BD::FenRender(void) const
+{
+    string fen;
+
+    /* render the board */
+
+    int csqEmpty = 0;
+    for (int ra = raMax-1; ra >= 0; ra--) {
+        for (int fi = 0; fi < fiMax; fi++) {
+            CP cp = mpsqcp[Sq(ra, fi)];
+            if (cp == cpEmpty)
+                csqEmpty++;
+            else
+                fen += FenEmpties(csqEmpty) + sParseBoard[cp];
+        }
+        fen += FenEmpties(csqEmpty);
+    }
+
+    /* side to move */
+
+    fen += " " + sParseColor[ccpToMove];
+    
+    /* castle state */
+
+    fen += ' ';
+    if (csCur == 0)
+        fen += '-';
+    else {
+        for (int ics = 0; ics < 4; ics++)
+            if (csCur & (1 << ics))
+                fen += sParseCastle[ics];
+    }
+
+    /* en passant */
+
+    fen += " " + to_string(sqEnPassant);
+    
+    /* half move clock and full move */
+    
+    fen += " " + to_string(0);
+    fen += " " + to_string(1);
+
+    return fen;
 }

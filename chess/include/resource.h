@@ -8,6 +8,10 @@
 #define cmdExit 2
 #define cmdDisableBoard 3
 #define cmdFlipBoard 4
+#define cmdUndo 5
+#define cmdCut 6
+#define cmdCopy 7
+#define cmdPaste 8
 
 /*
  *  Accelerator tables

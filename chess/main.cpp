@@ -108,6 +108,60 @@ public:
 };
 
 /*
+ *  CMDUNDO
+ */
+
+CMD_DECLARE(CMDUNDO)
+{
+public:
+    CMDUNDO(WAPP& wapp) : CMD(wapp) {}
+
+    virtual int Execute(void) override {
+        return 1;
+    }
+
+    virtual bool FEnabled(void) const override {
+        return false;
+    }
+};
+
+/*
+ *  CMDCUT
+ */
+
+CMD_DECLARE(CMDCUT)
+{
+public:
+    CMDCUT(WAPP& wapp) : CMD(wapp) {}
+
+    virtual int Execute(void) override {
+        return 1;
+    }
+
+    virtual bool FEnabled(void) const override {
+        return false;
+    }
+};
+
+/*
+ *  CMDCOPY
+ */
+
+CMDEXECUTE(CMDCOPY)
+{
+    return 1;
+}
+
+/*
+ *  CMDPASTE
+ */
+
+CMDEXECUTE(CMDPASTE)
+{
+    return 1;
+}
+
+/*
  *  CMDFLIPBOARD - The flipboard command, called from menus and buttons
  */
 
@@ -130,6 +184,9 @@ void WAPP::RegisterMenuCmds(void)
     REGMENUCMD(cmdAbout, CMDABOUT);
     REGMENUCMD(cmdExit, CMDEXIT);
     REGMENUCMD(cmdDisableBoard, CMDDISABLE);
-    REGMENUCMD(cmdFlipBoard, CMDFLIPBOARD);
+    REGMENUCMD(cmdUndo, CMDUNDO);
+    REGMENUCMD(cmdCut, CMDCUT);
+    REGMENUCMD(cmdCopy, CMDCOPY);
+    REGMENUCMD(cmdPaste, CMDPASTE);
 }
 
