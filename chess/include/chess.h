@@ -19,8 +19,10 @@
 
 class WNBOARD : public WN
 {
+public:
     BD bd;
 
+private:
     BTNCH btnFlip;
     CCP ccpView;  // orientation of the board, black or white
     float angle;    // and to draw during flipping

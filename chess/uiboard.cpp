@@ -15,7 +15,7 @@
 
 WNBOARD::WNBOARD(WN* pwnParent) : 
     WN(pwnParent), 
-    bd("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
+    bd(fenStartPos),
     btnFlip(this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f'),
     ccpView(ccpWhite),
     angle(0.0f)

@@ -1,4 +1,17 @@
+/*
+ *  board.cpp
+ * 
+ *  Implements the chess board
+ */
+
 #include "chess.h"
+
+
+const char fenStartPos[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+/*
+ *  BD class - the basic chess board
+ */
 
 BD::BD(void) : 
     ccpToMove(ccpWhite),
@@ -16,7 +29,12 @@ BD::BD(const string& fen) :
     InitFromFen(fen);
 }
 
-int find_ch(const string& s, char ch)
+/*
+ *  FEN (Forsyth-Edwards Notation) board representation, which is a text-basded
+ *  standard simple representation of the chess board state. 
+ */
+
+int IchFind(const string& s, char ch)
 {
     size_t ich = s.find(ch);
     if (ich == string::npos)
@@ -41,11 +59,16 @@ const string BD::sParseCastle = "KkQq";
 
 void BD::InitFromFen(const string& fen)
 {
+    istringstream is(fen);
+    InitFromFen(is);
+}
+
+void BD::InitFromFen(istream& is)
+{
     /* pull in all the pieces of the FEN */
 
-    istringstream iss(fen);
     string sBoard, sColor, sCastle, sEnPassant, sHalfMove, sFullMove;
-    if (!(iss >> sBoard >> sColor >> sCastle >> sEnPassant >> sHalfMove >> sFullMove))
+    if (!(is >> sBoard >> sColor >> sCastle >> sEnPassant))
         throw 1;
 
     assert(sParseBoard.find('k') == cpBlackKing);
@@ -61,7 +84,7 @@ void BD::InitFromFen(const string& fen)
     int ra = raMax-1;
     SQ sq = Sq(ra, 0);
     for (char ch : sBoard) {
-        if ((ich = find_ch(sParseBoard, ch)) == 0) // slash, move to next rank
+        if ((ich = IchFind(sParseBoard, ch)) == 0) // slash, move to next rank
             sq = Sq(--ra, 0);
         else if (ich >= 16) // numbers, mean skip squares
             sq += ich - 16;
@@ -75,14 +98,14 @@ void BD::InitFromFen(const string& fen)
 
     if (sColor.length() != 1)
         throw 1;
-    ccpToMove = static_cast<CCP>(find_ch(sParseColor, sColor[0]));
+    ccpToMove = static_cast<CCP>(IchFind(sParseColor, sColor[0]));
 
     /* parse the castle state */
 
     csCur = 0;
     if (sCastle != "-") {
         for (char ch : sCastle)
-            csCur |= 1 << find_ch(sParseCastle, ch);
+            csCur |= 1 << IchFind(sParseCastle, ch);
     }
 
     /* parse the en passant square */
@@ -94,6 +117,9 @@ void BD::InitFromFen(const string& fen)
              in_range(sEnPassant[1], '1', '8'))
         sqEnPassant = Sq(sEnPassant[1]-'1', sEnPassant[0]-'a');
     else
+        throw 1;
+
+    if (!(is >> sHalfMove >> sFullMove))
         throw 1;
 
     /*
@@ -116,6 +142,11 @@ string FenEmpties(int& csqEmpty) {
     return to_string(csq);
 }
 
+void BD::RenderFen(ostream& os) const
+{
+    os << FenRender();
+}
+
 string BD::FenRender(void) const
 {
     string fen;
@@ -132,11 +163,13 @@ string BD::FenRender(void) const
                 fen += FenEmpties(csqEmpty) + sParseBoard[cp];
         }
         fen += FenEmpties(csqEmpty);
+        fen += sParseBoard[0];
     }
+    fen[fen.size()-1] = ' ';    // loop puts an extra slash at the end
 
     /* side to move */
 
-    fen += " " + sParseColor[ccpToMove];
+    fen += sParseColor[ccpToMove];
     
     /* castle state */
 

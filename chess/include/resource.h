@@ -6,12 +6,15 @@
 
 #define cmdAbout 1
 #define cmdExit 2
-#define cmdDisableBoard 3
-#define cmdFlipBoard 4
-#define cmdUndo 5
-#define cmdCut 6
-#define cmdCopy 7
-#define cmdPaste 8
+#define cmdUndo 3
+#define cmdRedo 4
+#define cmdCut 5
+#define cmdCopy 6
+#define cmdPaste 7
+
+#define cmdNewGame 16
+#define cmdDisableBoard 17
+#define cmdFlipBoard 18
 
 /*
  *  Accelerator tables
@@ -26,6 +29,8 @@
 #define rssFirstUnused 16
 #define rssEnableBoard 17
 #define rssDisableBoard 18
+#define rssPasteFailed 19
+#define rssCopyFailed 20
 
 /*
  *  Dialogs

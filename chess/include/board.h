@@ -4,7 +4,7 @@
  *  board.h
  * 
  *  Definitions for chess boards. This includes types for piece colors, piece types,
- *  the pieces themselves, square names, game state, and the board itself.
+ *  the pieces, square names, game state, and the board itself.
  */
 
 /*
@@ -74,7 +74,7 @@ const CP cpBlackQueen = Cp(ccpBlack, tcpQueen);
 const CP cpWhiteKing = Cp(ccpWhite, tcpKing);
 const CP cpBlackKing = Cp(ccpBlack, tcpKing);
 
-const CP cpEmpty = Cp(ccpWhite, tcpNone);
+const CP cpEmpty = 0;
 
 /*
  *  SQ square type
@@ -128,6 +128,8 @@ enum : uint8_t
     csBlackQueen = 8
 };
 
+extern const char fenStartPos[];
+
 /*
  *  BD class
  * 
@@ -142,14 +144,16 @@ enum : uint8_t
 
 class BD
 {
+private:
+    static const string sParseBoard;
+    static const string sParseColor;
+    static const string sParseCastle;
+
+public:
     CP mpsqcp[sqMax];
     CCP ccpToMove;
     uint8_t csCur;
     SQ sqEnPassant;
-
-    static const string sParseBoard;
-    static const string sParseColor;
-    static const string sParseCastle;
 
 public:
     BD(void);
@@ -159,7 +163,9 @@ public:
         memset(mpsqcp, cpEmpty, sqMax);
     }
 
+    void InitFromFen(istream& is);
     void InitFromFen(const string& fen);
+    void RenderFen(ostream& os) const;
     string FenRender(void) const;
 
     CP operator[](SQ sq) const {
