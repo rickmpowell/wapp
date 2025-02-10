@@ -87,3 +87,72 @@ public:
         return new D(static_cast<const D&>(*this));
     }
 };
+
+/*
+ *  A Windows menu enumerator
+ */
+
+class menuiterator : public iterator<input_iterator_tag, MENUITEMINFOW>
+{
+private:
+    HMENU hmenu;
+    int pos;
+    MENUITEMINFOW mii;
+
+public:
+    menuiterator(HMENU hmenu, int pos) : hmenu(hmenu), pos(pos) {
+        memset(&mii, 0, sizeof(mii));
+    }
+
+    menuiterator& operator++() {
+        ++pos;
+        mii.cbSize = 0; // invalidate the mii
+        return *this;
+    }
+
+    bool operator == (const menuiterator& it) const {
+        return hmenu == it.hmenu && pos == it.pos;
+    }
+
+    bool operator != (const menuiterator& it) const {
+        return !(*this == it);
+    }
+
+    MENUITEMINFOW operator * () {
+        if (mii.cbSize == 0)
+            UpdateMmi();
+        return mii;
+    }
+
+    void UpdateMmi(void) {
+        mii.cbSize = sizeof(mii);
+        mii.fMask = MIIM_ID | MIIM_FTYPE | MIIM_SUBMENU;
+        mii.cch = 0;
+        mii.dwTypeData = NULL;
+        if (!::GetMenuItemInfoW(hmenu, pos, TRUE, &mii))
+            hmenu = NULL;
+    }
+};
+
+class MENU
+{
+    HMENU hmenu;
+    int citem;
+
+public:
+    MENU(HMENU hmenu) : hmenu(hmenu) {
+        if (hmenu == NULL)
+            citem = 0;
+        else
+            citem = ::GetMenuItemCount(hmenu);
+    }
+
+    menuiterator begin(void) {
+        return menuiterator(hmenu, 0);
+    }
+
+    menuiterator end(void) {
+        return menuiterator(hmenu, citem);
+    }
+};
+

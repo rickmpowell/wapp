@@ -81,7 +81,8 @@ public:
     virtual void OnMouseDown(const PT& ptg, unsigned mk) override;
     virtual void OnMouseUp(const PT& ptg, unsigned mk) override;
     virtual int OnCommand(int cmd) override;
-    virtual void OnInitMenu(void) override;
+    //virtual void OnInitMenu(void) override;
+    virtual void OnInitMenuPopup(HMENU hmenu) override;
 
     /* layout */
 
@@ -107,9 +108,17 @@ public:
     virtual void RegisterMenuCmds(void);
     void RegisterMenuCmd(int cmd, ICMD* picmd);
     bool FExecuteMenuCmd(int cmd);
-    bool FExecuteCmd(unique_ptr<ICMD>& picmd);
     void InitMenuCmds(void);
+    void InitPopupMenuCmds(HMENU hmenu);
     void InitMenuCmd(HMENU hmenu, int cmd, unique_ptr<ICMD>& pcmd);
+    bool FVerifyMenuCmdsRegistered(void) const;
+    bool FVerifySubMenuCmdsRegistered(HMENU hmenu) const;
+
+    bool FExecuteCmd(unique_ptr<ICMD>& picmd);
+    
+    /* error messages */
+
+    void Error(int rss);
 
     /* message pump and message filters */
 
@@ -159,6 +168,7 @@ public:
 };
 
 #include "dlg.h"
+#include "clip.h"
 
 /*
  *  Some save/restore Direct2D helpers

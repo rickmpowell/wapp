@@ -6,6 +6,7 @@
  */
 
 #include "wapp.h"
+#include "id.h"
 
  /*
   *  IWAPP class
@@ -209,9 +210,15 @@ int IWAPP::OnCommand(int cmd)
     return FExecuteMenuCmd(cmd);
 }
 
+/* more efficient to do the work on OnInitMenuPopup
 void IWAPP::OnInitMenu(void)
 {
     InitMenuCmds();
+} */
+
+void IWAPP::OnInitMenuPopup(HMENU hmenu)
+{
+    InitPopupMenuCmds(hmenu);
 }
 
 /*
@@ -285,6 +292,14 @@ void IWAPP::SetHover(WN* pwn, const PT& ptg)
     pwnHover = pwn;
     if (pwnHover)
         pwnHover->Enter(pwnHover->PtFromPtg(ptg));
+}
+
+void IWAPP::Error(int rss)
+{
+    wstring wsText = WsLoad(rss);
+    wstring wsCaption = WsLoad(rssAppTitle);
+
+    ::MessageBoxW(hwnd, wsText.c_str(), wsCaption.c_str(), MB_OK);
 }
 
 /*

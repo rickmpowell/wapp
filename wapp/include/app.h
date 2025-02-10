@@ -108,6 +108,7 @@ public:
     virtual void OnPaint(void);
     virtual int OnCommand(int cmd);
     virtual void OnInitMenu(void);
+    virtual void OnInitMenuPopup(HMENU hmenu);
 
     /* dialogs */
 

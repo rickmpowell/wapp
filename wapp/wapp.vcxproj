@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\app.h" />
+    <ClInclude Include="include\clip.h" />
     <ClInclude Include="include\cmd.h" />
     <ClInclude Include="include\color.h" />
     <ClInclude Include="include\coord.h" />
@@ -162,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="clip.cpp" />
     <ClCompile Include="cmd.cpp" />
     <ClCompile Include="ctl.cpp" />
     <ClCompile Include="dc.cpp" />

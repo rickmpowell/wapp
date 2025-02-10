@@ -244,6 +244,10 @@ LRESULT CALLBACK WND::WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
         pwnd->OnInitMenu();
         return 0;
 
+    case WM_INITMENUPOPUP:
+        pwnd->OnInitMenuPopup((HMENU)wParam);
+        return 0;
+
     default:
         break;
     }
@@ -297,6 +301,10 @@ int WND::OnCommand(int cmd)
 }
 
 void WND::OnInitMenu(void)
+{
+}
+
+void WND::OnInitMenuPopup(HMENU hmenu)
 {
 }
 

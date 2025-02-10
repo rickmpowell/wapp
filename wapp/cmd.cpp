@@ -8,6 +8,8 @@
 
 #include "wapp.h"
 
+/*  TODO: write a wrapper on an HMENU along with a standard iterator */
+
 /*
  *  IWAPP::RegisterMenuCmd
  * 
@@ -32,10 +34,10 @@ void IWAPP::RegisterMenuCmd(int cmd, ICMD* picmd)
 
 bool IWAPP::FExecuteMenuCmd(int cmd)
 {
-    unique_ptr<ICMD>& picmd = mpcmdpicmdMenu[cmd];
-    if (picmd == nullptr)
+    auto it = mpcmdpicmdMenu.find(cmd);
+    if (it == mpcmdpicmdMenu.end() || it->second == nullptr)
         return false;
-    return FExecuteCmd(picmd);
+    return FExecuteCmd(it->second);
 }
 
 /*
@@ -57,18 +59,51 @@ bool IWAPP::FExecuteCmd(unique_ptr<ICMD>& picmd)
     return fResult;
 }
 
+/*
+ *  IWAPP::RegisterMenuCmds
+ * 
+ *  Applications should override this function to register their menu
+ *  commands with WAPP.
+ */
+
 void IWAPP::RegisterMenuCmds(void)
 {
 }
 
+/*
+ *  IWAPP::InitMenuCmds
+ * 
+ *  Overide this to impleeent menu commands that change dynamically with
+ *  program state.
+ * 
+ *  This method could be called OnInitMenu, for simple menus. It is more
+ *  efficient to initiaze menus OnInitPopupMenu and calling 
+ *  IWAPP::InitPopupMenuCmds.
+ */
+
 void IWAPP::InitMenuCmds(void)
 {
     HMENU hmenu = ::GetMenu(hwnd);
-    /* QUESTION: is it more efficient to enumerate the commands in the HMENU 
-       instead of the mpcmdpicmdMenu? This would allows us to take advantage
-       of WM_INITMENUPOPUP */
     for (auto it = mpcmdpicmdMenu.begin(); it != mpcmdpicmdMenu.end(); ++it)
         InitMenuCmd(hmenu, it->first, it->second);
+}
+
+/*
+ *  IWAPP::InitPopupMenuCmds
+ * 
+ *  When a popup menu is about to drop down, initialize all the menu items.
+ */
+
+void IWAPP::InitPopupMenuCmds(HMENU hmenu)
+{
+    MENU menu(hmenu);
+    for (MENUITEMINFOW mii : menu) {
+        if (mii.wID == 0 || mii.hSubMenu) // MFT_SEPARATOR isn't reliable
+            continue;
+        auto it = mpcmdpicmdMenu.find(mii.wID);
+        if (it != mpcmdpicmdMenu.end())
+            InitMenuCmd(hmenu, it->first, it->second);
+    }
 }
 
 /*
@@ -92,6 +127,34 @@ void IWAPP::InitMenuCmd(HMENU hmenu, int cmd, unique_ptr<ICMD>& pcmd)
         mi.dwTypeData = const_cast<LPWSTR>(wsMenu.c_str()); 
     }
     ::SetMenuItemInfoW(hmenu, cmd, false, &mi);
+}
+
+/*
+ *  IWAPP::FVerifyMenuCmdsRegistered
+ *
+ *  This is a debug check to be used in your menu registration code that you
+ *  can use in an assert to verify that you correctly registered all the
+ *  menu items in your menus.
+ */
+bool IWAPP::FVerifyMenuCmdsRegistered(void) const
+{
+    return FVerifySubMenuCmdsRegistered(::GetMenu(hwnd));
+}
+
+bool IWAPP::FVerifySubMenuCmdsRegistered(HMENU hmenu) const
+{
+    MENU menu(hmenu);
+    for (MENUITEMINFOW mii : menu) {
+        if (mii.wID == 0)
+            continue;
+        if (mii.hSubMenu) {
+            if (!FVerifySubMenuCmdsRegistered(mii.hSubMenu))
+                return false;
+        }
+        else if (mpcmdpicmdMenu.find(mii.wID) == mpcmdpicmdMenu.end())
+            return false;
+    }
+    return true;
 }
 
 /*

@@ -37,6 +37,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <iterator>
 #include <memory>
 
 using namespace std;
