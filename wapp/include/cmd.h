@@ -92,7 +92,7 @@ public:
  *  A Windows menu enumerator
  */
 
-class menuiterator : public iterator<input_iterator_tag, MENUITEMINFOW>
+class menuiterator 
 {
 private:
     HMENU hmenu;
@@ -100,6 +100,12 @@ private:
     MENUITEMINFOW mii;
 
 public:
+    using iterator_category = input_iterator_tag;
+    using value_type = MENUITEMINFOW;
+    using difference_type = ptrdiff_t;
+    using pointer = MENUITEMINFOW*;
+    using reference = MENUITEMINFO&;
+
     menuiterator(HMENU hmenu, int pos) : hmenu(hmenu), pos(pos) {
         memset(&mii, 0, sizeof(mii));
     }
@@ -110,6 +116,15 @@ public:
         return *this;
     }
 
+    menuiterator operator++ (int) {
+        if (mii.cbSize == 0)
+            UpdateMmi();
+        menuiterator it = *this;
+        mii.cbSize = 0;
+        pos++;
+        return it;
+    }
+
     bool operator == (const menuiterator& it) const {
         return hmenu == it.hmenu && pos == it.pos;
     }
@@ -118,10 +133,20 @@ public:
         return !(*this == it);
     }
 
-    MENUITEMINFOW operator * () {
+    difference_type operator - (const menuiterator& it) const {
+        return static_cast<difference_type>(pos) - static_cast<difference_type>(it.pos);
+    }
+
+    reference operator * () {
         if (mii.cbSize == 0)
             UpdateMmi();
         return mii;
+    }
+
+    pointer operator -> () {
+        if (mii.cbSize == 0)
+            UpdateMmi();
+        return &mii;
     }
 
     void UpdateMmi(void) {

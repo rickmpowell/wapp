@@ -65,7 +65,7 @@ HICON APP::HiconLoad(int rsi) const
 {
     HICON hicon =::LoadIconW(hinst, MAKEINTRESOURCEW(rsi));
     if (hicon == NULL)
-        throw 1;
+        throw ERRLAST();
     return hicon;
 }
 
@@ -80,7 +80,7 @@ HCURSOR APP::HcursorLoad(int rsc) const
 {
     HCURSOR hcursor = ::LoadCursorW(hinst, MAKEINTRESOURCEW(rsc));
     if (hcursor == NULL)
-        throw 1;
+        throw ERRLAST();
     return hcursor;
 }
 
@@ -146,7 +146,7 @@ const wchar_t* WND::Register(const WNDCLASSEXW& wcex)
 {
     ATOM atom = ::RegisterClassExW(&wcex);
     if (atom == 0)
-        throw 1;
+        throw ERRLAST();
     return MAKEINTRESOURCEW(atom);
 }
 
@@ -158,7 +158,7 @@ void WND::CreateWnd(const wstring& wsTitle, int ws, PT pt, SZ sz)
                     point.x, point.y, size.cx, size.cy,
                     NULL, NULL, app.hinst, this);
     if (!hwnd)
-        throw 1;
+        throw ERRLAST();
 }
 
 void WND::DestroyWnd(void)

@@ -15,6 +15,8 @@
  */
 
 #include "framework.h"
+#include "util.h"
+#include "err.h"
 #include "coord.h"
 
 /*

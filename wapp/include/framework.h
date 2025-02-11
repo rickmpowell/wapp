@@ -39,24 +39,12 @@
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <format>
 
 using namespace std;
 using namespace D2D1;
 using namespace Microsoft::WRL;
 
-/*
- *  Some little conveniences for using COM objects
- */
-
 template <typename T>
 using com_ptr = ComPtr<T>;
 
-inline void ThrowError(HRESULT hr) {
-    if (hr != S_OK)
-        throw (int)hr;
-}
-
-template <typename T>
-bool in_range(const T& t, const T& tFirst, const T& tLast) {
-    return t >= tFirst && t <= tLast;
-}

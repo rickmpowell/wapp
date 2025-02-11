@@ -183,8 +183,8 @@ CMDEXECUTE(CMDCOPY)
         oclipstream os(wapp, CF_TEXT);
         wapp.wnboard.bd.RenderFen(os);
     }
-    catch (...) {
-        wapp.Error(rssCopyFailed);
+    catch (ERR err) {
+        wapp.Error(rssErrCopyFailed, err);
     }
     return 1;
 }
@@ -216,8 +216,8 @@ public:
             wapp.wnboard.bd = bd;
             wapp.wnboard.Redraw();
         }
-        catch (...) {
-            wapp.Error(rssPasteFailed);
+        catch (ERR err) {
+            wapp.Error(rssErrPasteFailed, err);
         }
         return 1;
     }

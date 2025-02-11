@@ -29,8 +29,12 @@
 #define rssFirstUnused 16
 #define rssEnableBoard 17
 #define rssDisableBoard 18
-#define rssPasteFailed 19
-#define rssCopyFailed 20
+
+#define rssErrPasteFailed 128
+#define rssErrCopyFailed 129
+#define rssErrFenParse 130
+#define rssErrFenParseUnexpectedChar 131
+#define rssErrFenParseMissingPart 132
 
 /*
  *  Dialogs

@@ -35,6 +35,7 @@ protected:
     com_ptr<ID2D1Bitmap1> pbmpBackBuf;
 
 public:
+    RTC(void) = default;
     RTC(IWAPP& wapp);
     ~RTC();
 

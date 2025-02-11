@@ -143,7 +143,7 @@ void WNBOARD::DrawPieces(void)
         CP cp = bd[sq];
         if (cp == cpEmpty)
             continue;
-        RC rc = RC(PT(0), szPiece) + PT(szPiece.width*(mptcpdx[tcp(cp)]), szPiece.height*ccp(cp));
+        RC rc = RC(PT(0), szPiece) + PT(szPiece.width*(mptcpdx[tcp(cp)]), szPiece.height*static_cast<int>(ccp(cp)));
         DrawBmp(RcFromSq(sq), png, rc, 1.0f);
     }
 }

@@ -294,12 +294,51 @@ void IWAPP::SetHover(WN* pwn, const PT& ptg)
         pwnHover->Enter(pwnHover->PtFromPtg(ptg));
 }
 
-void IWAPP::Error(int rss)
-{
-    wstring wsText = WsLoad(rss);
-    wstring wsCaption = WsLoad(rssAppTitle);
+/*
+ *  IWAPP::Error
+ * 
+ *  This is kind of a weird API. It takes a string id and an error number. In the
+ *  general case, the rss is the error message and the err is what actually failed,
+ *  which is usually a system 
+ */
 
-    ::MessageBoxW(hwnd, wsText.c_str(), wsCaption.c_str(), MB_OK);
+void IWAPP::Error(int rss, ERR err)
+{
+    wstring wsCaption = WsLoad(rssAppTitle);
+    wstring wsError = rss ? WsLoad(rss) : wstring(L"");
+    wstring wsError2;
+
+    if (err != S_OK) {
+        if (err.fApp()) {
+            if (err.code())
+                wsError2 = WsLoad(err.code());
+        }
+        else {
+            wchar_t* sError2 = nullptr;
+            ::FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                             nullptr,
+                             err,
+                             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                             sError2,
+                             0,
+                             nullptr);
+            if (sError2) {
+                wsError2 = sError2;
+                ::LocalFree(sError2);
+            }
+        }
+    }
+
+    if (!wsError2.empty()) {
+        if (!wsError.empty()) 
+            wsError += ' ';
+        wsError += wsError2;
+    }
+
+    if (err.fHasVar())
+        wsError = vformat(wsError, make_wformat_args(err.wsVar()));
+
+    ::MessageBoxW(hwnd, wsError.c_str(), wsCaption.c_str(), MB_OK | MB_ICONERROR);
 }
 
 /*

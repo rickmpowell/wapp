@@ -70,6 +70,8 @@ void RTC::EnsureSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2)
     if (pbmpBackBuf)
         return;
 
+    EnsureDeviceDependent(pdc2);
+
     ThrowError(pdev2->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &pdc2));
 
     /* create the simple 2-buffer swap chain */

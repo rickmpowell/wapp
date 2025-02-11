@@ -1,3 +1,4 @@
+
 /*
  *  board.cpp
  * 
@@ -5,6 +6,7 @@
  */
 
 #include "chess.h"
+#include "resource.h"
 
 
 const char fenStartPos[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -38,7 +40,7 @@ int IchFind(const string& s, char ch)
 {
     size_t ich = s.find(ch);
     if (ich == string::npos)
-        throw 1;
+        throw ERRAPP(rssErrFenParseUnexpectedChar, wstring(1, ch));
     return static_cast<int>(ich);
 }
 
@@ -69,7 +71,7 @@ void BD::InitFromFen(istream& is)
 
     string sBoard, sColor, sCastle, sEnPassant, sHalfMove, sFullMove;
     if (!(is >> sBoard >> sColor >> sCastle >> sEnPassant))
-        throw 1;
+        throw ERRAPP(rssErrFenParseMissingPart);
 
     assert(sParseBoard.find('k') == cpBlackKing);
     assert(sParseBoard.find('8') == 16 + 8);
@@ -91,13 +93,13 @@ void BD::InitFromFen(istream& is)
         else if (sq < sqMax)
             mpsqcp[sq++] = ich;   // otherwise the offset matches the value of the chess piece
         else
-            throw 1;
+            throw ERRAPP(rssErrFenParse, WsFromS(sBoard));
     }
 
     /* parse the color with the move */
 
     if (sColor.length() != 1)
-        throw 1;
+        throw ERRAPP(rssErrFenParse, WsFromS(sColor));
     ccpToMove = static_cast<CCP>(IchFind(sParseColor, sColor[0]));
 
     /* parse the castle state */
@@ -117,10 +119,10 @@ void BD::InitFromFen(istream& is)
              in_range(sEnPassant[1], '1', '8'))
         sqEnPassant = Sq(sEnPassant[1]-'1', sEnPassant[0]-'a');
     else
-        throw 1;
+        throw ERRAPP(rssErrFenParse, WsFromS(sEnPassant));
 
     if (!(is >> sHalfMove >> sFullMove))
-        throw 1;
+        throw ERRAPP(rssErrFenParseMissingPart);
 
     /*
     halfmoveClock = stoi(sHalfMove);

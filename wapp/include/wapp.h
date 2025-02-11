@@ -13,6 +13,7 @@
 #include "app.h"
 #include "rt.h"
 #include "wn.h"
+
 class FILTERMSG;
 class ICMD;
 class WAPP;
@@ -118,7 +119,7 @@ public:
     
     /* error messages */
 
-    void Error(int rss);
+    void Error(int rss, ERR err = errNone);
 
     /* message pump and message filters */
 
@@ -137,7 +138,7 @@ public:
 class FILTERMSG
 {
 public:
-    FILTERMSG(void) {}
+    FILTERMSG(void) = default;
     virtual ~FILTERMSG() {}
     virtual bool FFilterMsg(MSG& msg) = 0;
 };

@@ -1,5 +1,18 @@
+
+/*
+ *  clip.cpp
+ *
+ *  Simplified interface with the Windows clipboard.
+ */
+
 #include "wapp.h"
 #include "clip.h"
+
+/*
+ *  CLIP class
+ * 
+ *  Simplified clipboard object
+ */
 
 class CLIP
 {
@@ -25,6 +38,12 @@ public:
     }
 };
 
+/*
+ *  HGLOCK
+ * 
+ *  Convenience class for automatically unlocking locked global objects
+ */
+
 class HGLOCK
 {
 public:
@@ -41,6 +60,12 @@ public:
     }
 };
 
+/*
+ *  HG 
+ * 
+ *  Convenience class for automatically free up globally allocated objects.
+ */
+
 class HG
 {
     HGLOBAL h;
@@ -49,20 +74,21 @@ public:
     HG(unsigned cb) : h(NULL), p(nullptr) {
         h = ::GlobalAlloc(GMEM_MOVEABLE, cb);
         if (h == NULL)
-            throw 1;
+            throw ERRLAST();
         p = static_cast<char*>(::GlobalLock(h));
         if (p == NULL) {
+            ERRLAST err;
             ::GlobalFree(h);
-            throw 1;
+            throw err;
         }
     }
 
     HG(HGLOBAL h) : h(h), p(nullptr) {
         if (h == NULL)
-            throw 1;
+            throw errFail;
         p = static_cast<char*>(::GlobalLock(h));
         if (p == nullptr)
-            throw 1;
+            throw ERRLAST();
     }
 
     ~HG() {
@@ -98,8 +124,6 @@ public:
         h = NULL;
     }
 };
-
-
 
 /*
  *  iclipbuffer
