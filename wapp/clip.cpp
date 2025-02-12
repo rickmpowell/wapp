@@ -39,93 +39,6 @@ public:
 };
 
 /*
- *  HGLOCK
- * 
- *  Convenience class for automatically unlocking locked global objects
- */
-
-class HGLOCK
-{
-public:
-    HGLOBAL h;
-    void* p;
-public:
-    HGLOCK(HGLOBAL h) : h(h), p(nullptr) {
-        ThrowError((p = ::GlobalLock(h)) != nullptr ? S_OK : ::GetLastError());
-    }
-
-    ~HGLOCK() {
-        if (p)
-            ::GlobalUnlock(h);
-    }
-};
-
-/*
- *  HG 
- * 
- *  Convenience class for automatically free up globally allocated objects.
- */
-
-class HG
-{
-    HGLOBAL h;
-    char* p;
-public:
-    HG(unsigned cb) : h(NULL), p(nullptr) {
-        h = ::GlobalAlloc(GMEM_MOVEABLE, cb);
-        if (h == NULL)
-            throw ERRLAST();
-        p = static_cast<char*>(::GlobalLock(h));
-        if (p == NULL) {
-            ERRLAST err;
-            ::GlobalFree(h);
-            throw err;
-        }
-    }
-
-    HG(HGLOBAL h) : h(h), p(nullptr) {
-        if (h == NULL)
-            throw errFail;
-        p = static_cast<char*>(::GlobalLock(h));
-        if (p == nullptr)
-            throw ERRLAST();
-    }
-
-    ~HG() {
-        if (p) {
-            ::GlobalUnlock(h);
-            p = nullptr;
-        }
-        if (h) {
-            ::GlobalFree(h);
-            h = NULL;
-        }
-    }
-
-    operator char* () {
-        return p;
-    }
-
-    HGLOBAL release(void) {
-        HANDLE hT = h;
-        if (p) {
-            ::GlobalUnlock(h);
-            p = nullptr;
-        }
-        h = NULL;
-        return hT;
-    }
-
-    void reset(void) {
-        if (p) {
-            ::GlobalUnlock(h);
-            p = nullptr;
-        }
-        h = NULL;
-    }
-};
-
-/*
  *  iclipbuffer
  * 
  *  The buffer implementation for streaming from the Windows clipboard.
@@ -137,9 +50,10 @@ public:
 iclipbuffer::iclipbuffer(IWAPP& iwapp, int cf)
 {
     CLIP clip(iwapp.hwnd);
-    HG hg(clip.GetData(cf));
-    setg(hg, hg, hg + strlen(hg));
-    hg.reset();
+    global_ptr pData(clip.GetData(cf));
+    char* s = pData.get();
+    setg(s, s, s + strlen(s));
+    pData.release();
 }
 
 int iclipbuffer::underflow(void)
@@ -167,7 +81,8 @@ int oclipbuffer::sync(void)
 {
     CLIP clip(iwapp.hwnd);
     clip.Empty();
-    HG hg(static_cast<int>(str().size()+1));
-    memcpy(hg, str().c_str(), str().size()+1);
-    return clip.SetData(cf, hg.release()) ? 0 : -1;
+    unsigned cb = static_cast<unsigned>(str().size() + 1);
+    global_ptr pData(static_cast<int>(cb));
+    memcpy(pData.get(), str().c_str(), cb);
+    return clip.SetData(cf, pData.release()) ? 0 : -1;
 }

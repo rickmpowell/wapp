@@ -8,8 +8,6 @@
 
 #include "wapp.h"
 
-/*  TODO: write a wrapper on an HMENU along with a standard iterator */
-
 /*
  *  IWAPP::RegisterMenuCmd
  * 

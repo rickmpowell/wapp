@@ -1,0 +1,7 @@
+  Add Undo and Redo stacks to command processor
+  Move Translate/DispatchMessage into a base message pump filter
+  Redesign menus and CMDs to build on the fly and use CMD to populate text of MENUITEMs
+  Redesign accelerator tables to build on the fly using CMDs
+  Rename all our RAII classes with GUARD naming convention
+  Implement a few more Windows pointer wrappers, like resource_ptr and global_ptr
+  Implement cached/invalidation of Direct2D device-dependent drawing objects

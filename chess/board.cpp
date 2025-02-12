@@ -17,7 +17,7 @@ const char fenStartPos[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
 
 BD::BD(void) : 
     ccpToMove(ccpWhite),
-    csCur(0),
+    csCur(csNone),
     sqEnPassant(sqNil)
 {
     EmptyMpsqcp();
@@ -25,7 +25,7 @@ BD::BD(void) :
 
 BD::BD(const string& fen) :
     ccpToMove(ccpWhite),
-    csCur(0),
+    csCur(csNone),
     sqEnPassant(sqNil)
 {
     InitFromFen(fen);
@@ -104,10 +104,10 @@ void BD::InitFromFen(istream& is)
 
     /* parse the castle state */
 
-    csCur = 0;
+    csCur = csNone;
     if (sCastle != "-") {
         for (char ch : sCastle)
-            csCur |= 1 << IchFind(sParseCastle, ch);
+            csCur |= static_cast<CS>(1 << IchFind(sParseCastle, ch));
     }
 
     /* parse the en passant square */

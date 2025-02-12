@@ -297,37 +297,17 @@ void IWAPP::SetHover(WN* pwn, const PT& ptg)
 /*
  *  IWAPP::Error
  * 
- *  This is kind of a weird API. It takes a string id and an error number. In the
- *  general case, the rss is the error message and the err is what actually failed,
- *  which is usually a system 
+ *  Display an error message box based on the error. For application errors, the
+ *  resource id of the string is encoded in the error. 
+ * 
+ *  Optionally takes two errors, which are concatenated if they exist. 
  */
 
-void IWAPP::Error(int rss, ERR err)
+void IWAPP::Error(ERR err, ERR err2)
 {
     wstring wsCaption = WsLoad(rssAppTitle);
-    wstring wsError = rss ? WsLoad(rss) : wstring(L"");
-    wstring wsError2;
-
-    if (err != S_OK) {
-        if (err.fApp()) {
-            if (err.code())
-                wsError2 = WsLoad(err.code());
-        }
-        else {
-            wchar_t* sError2 = nullptr;
-            ::FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                             nullptr,
-                             err,
-                             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                             sError2,
-                             0,
-                             nullptr);
-            if (sError2) {
-                wsError2 = sError2;
-                ::LocalFree(sError2);
-            }
-        }
-    }
+    wstring wsError = WsFromErr(err);
+    wstring wsError2 = WsFromErr(err2);
 
     if (!wsError2.empty()) {
         if (!wsError.empty()) 
@@ -335,10 +315,51 @@ void IWAPP::Error(int rss, ERR err)
         wsError += wsError2;
     }
 
-    if (err.fHasVar())
-        wsError = vformat(wsError, make_wformat_args(err.wsVar()));
-
     ::MessageBoxW(hwnd, wsError.c_str(), wsCaption.c_str(), MB_OK | MB_ICONERROR);
+}
+
+/*
+ *  IWAPP::WsFromErr
+ *
+ *  Returns the string of an error. If it's a system HRESULT error, retrieves the error
+ *  message from the Windows FormatMessage API. Otherwise it uses the code as a string
+ *  resource identifier.
+ *  
+ *  Errors have an optional "argument" attached to them, which is used with C++ 
+ *  std::format to insert context-specific information into the error message.
+ */
+
+wstring IWAPP::WsFromErr(ERR err) const
+{
+    wstring ws;
+    if (err == S_OK)
+        return ws;
+
+    if (err.fApp()) {
+        if (err.code())
+            ws = WsLoad(err.code());
+    }
+    else {
+        wchar_t* s = nullptr;
+        ::FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                         nullptr,
+                         err,
+                         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                         s,
+                         0,
+                         nullptr);
+        if (s) {
+            ws = s;
+            ::LocalFree(s);
+        }
+    }
+
+    /* optionally insert variable into the string */
+
+    if (err.fHasVar())
+        ws = vformat(ws, make_wformat_args(err.wsVar()));
+    
+    return ws;
 }
 
 /*

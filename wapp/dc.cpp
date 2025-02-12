@@ -45,32 +45,19 @@ TF::operator IDWriteTextFormat* () const
  *  Bitmap object.
  * 
  *  These only support PNGs for now.
+ * 
+ *  May throw an exception if the resource does not exist or in a catastrophic
+ *  failure of some kind.
  */
 
-void BMP::InitRsrc(IWAPP& iwapp, const wstring& wsType, int rs, BYTE*& pb, unsigned& cb)
+PNG::PNG(IWAPP& iwapp, int rspng) : BMP(iwapp), prsrc(iwapp, L"PNG", rspng)
 {
-    /* TODO: error handling */
-    HRSRC hrsrc = ::FindResourceW(iwapp.hinst, MAKEINTRESOURCEW(rs), wsType.c_str());
-    cb = static_cast<unsigned>(::SizeofResource(iwapp.hinst, hrsrc));
-    HGLOBAL hLoad = ::LoadResource(iwapp.hinst, hrsrc);
-    pb = static_cast<BYTE*>(::LockResource(hLoad));
-}
-
-PNG::PNG(DC& dc, BYTE* pbPng, unsigned long cbPng) : BMP(dc)
-{
-    Init(dc, pbPng, cbPng);
-}
-
-PNG::PNG(IWAPP& iwapp, int rspng) : BMP(iwapp)
-{
-    BYTE* pbRes;
-    unsigned cbRes;
-    InitRsrc(iwapp, L"PNG", rspng, pbRes, cbRes);
-    Init(iwapp, pbRes, cbRes);
+    Init(iwapp, prsrc.get(), prsrc.size());
 }
 
 void PNG::Init(DC& dc, BYTE* pbPng, unsigned long cbPng)
 {
+    assert(pbPng);
     com_ptr<IWICStream> pstream;
     ThrowError(dc.iwapp.pfactwic->CreateStream(&pstream));
     pstream->InitializeFromMemory(pbPng, cbPng);
@@ -168,13 +155,13 @@ void DC::DrawRc(const RC& rc, const BR& br, float dxyStroke)
     iwapp.pdc2->DrawRectangle(&rcg, br, dxyStroke);
 }
 
-void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText)
+void DC::DrawWs(const wstring& ws, TF& tf, const RC& rc, const BR& brText)
 {
     RC rcg = RcgFromRc(rc);
     iwapp.pdc2->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText);
 }
 
-void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText)
+void DC::DrawWs(const wstring& ws, TF& tf, const RC& rc, CO coText)
 {
     if (coText == coNil)
         coText = CoText();
@@ -182,15 +169,13 @@ void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText)
     DrawWs(ws, tf, rc, brText);
 }
 
-void DC::DrawWsCenter(const wstring& ws, const TF& tf, const RC& rc, const BR& brText)
+void DC::DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, const BR& brText)
 {
-    DWRITE_TEXT_ALIGNMENT taSav = tf.ptf->GetTextAlignment();
-    tf.ptf->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+    GUARDTFALIGNMENT sav(tf, DWRITE_TEXT_ALIGNMENT_CENTER);
     DrawWs(ws, tf, rc, brText);
-    tf.ptf->SetTextAlignment(taSav);
 }
 
-void DC::DrawWsCenter(const wstring& ws, const TF& tf, const RC& rc, CO coText)
+void DC::DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText)
 {
     if (coText == coNil)
         coText = CoText();
@@ -198,7 +183,7 @@ void DC::DrawWsCenter(const wstring& ws, const TF& tf, const RC& rc, CO coText)
     DrawWsCenter(ws, tf, rc, brText);
 }
 
-SZ DC::SzFromWs(const wstring& ws, const TF& tf)
+SZ DC::SzFromWs(const wstring& ws, TF& tf)
 {
     com_ptr<IDWriteTextLayout> ptxl;
     iwapp.pfactdwr->CreateTextLayout(ws.c_str(), (UINT32)ws.size(),

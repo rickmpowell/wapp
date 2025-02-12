@@ -119,7 +119,8 @@ public:
     
     /* error messages */
 
-    void Error(int rss, ERR err = errNone);
+    wstring WsFromErr(ERR err) const;
+    void Error(ERR err, ERR err2 = errNone);
 
     /* message pump and message filters */
 
@@ -172,22 +173,46 @@ public:
 #include "clip.h"
 
 /*
- *  Some save/restore Direct2D helpers
+ *  Some Direct2D guard classes
  */
 
-struct TRANSFORMDC
+ /*
+  *  TF text alignment
+  */
+
+class GUARDTFALIGNMENT
+{
+    TF& tf;
+    DWRITE_TEXT_ALIGNMENT taSav;
+
+public:
+    GUARDTFALIGNMENT(TF& tf, DWRITE_TEXT_ALIGNMENT ta) : tf(tf) {
+        taSav = tf.ptf->GetTextAlignment();
+        tf.ptf->SetTextAlignment(ta);
+    }
+
+    ~GUARDTFALIGNMENT() {
+        tf.ptf->SetTextAlignment(taSav);
+    }
+};
+
+/*
+ *  DC transform
+ */
+
+struct GUARDDCTRANSFORM
 {
 private:
     DC& dc;
     D2D1_MATRIX_3X2_F matrixSav;
 
 public:
-    TRANSFORMDC(DC& dc, const D2D1_MATRIX_3X2_F& matrix) : dc(dc) {
+    GUARDDCTRANSFORM(DC& dc, const D2D1_MATRIX_3X2_F& matrix) : dc(dc) {
         dc.iwapp.pdc2->GetTransform(&matrixSav);
         dc.iwapp.pdc2->SetTransform(matrix);
     }
 
-    ~TRANSFORMDC() {
+    ~GUARDDCTRANSFORM() {
         dc.iwapp.pdc2->SetTransform(matrixSav);
     }
 };

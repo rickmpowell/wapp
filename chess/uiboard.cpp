@@ -81,7 +81,7 @@ void WNBOARD::Layout(void)
 
 void WNBOARD::Draw(const RC& rcUpdate)
 {
-    TRANSFORMDC sav(*this, Matrix3x2F::Rotation(angle, rcgBounds.ptCenter()));
+    GUARDDCTRANSFORM sav(*this, Matrix3x2F::Rotation(angle, rcgBounds.ptCenter()));
     DrawBorder();
     DrawSquares();
     DrawPieces();

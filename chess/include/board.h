@@ -119,14 +119,24 @@ inline string to_string(SQ sq) {
  *  what castles are still legal.
  */
 
-enum : uint8_t
+enum CS : uint8_t
 {
+    csNone = 0,
     csKing = 1, csQueen = 4,
     csWhiteKing = 1,
     csBlackKing = 2,
     csWhiteQueen = 4,
     csBlackQueen = 8
 };
+
+inline CS operator | (CS cs1, CS cs2) {
+    return static_cast<CS>(static_cast<uint8_t>(cs1) | static_cast<uint8_t>(cs2));
+}
+
+inline CS& operator |= (CS& cs1, CS cs2) {
+    cs1 = cs1 | cs2;
+    return cs1;
+}
 
 extern const char fenStartPos[];
 
@@ -152,7 +162,7 @@ private:
 public:
     CP mpsqcp[sqMax];
     CCP ccpToMove;
-    uint8_t csCur;
+    CS csCur;
     SQ sqEnPassant;
 
 public:
@@ -163,12 +173,19 @@ public:
         memset(mpsqcp, cpEmpty, sqMax);
     }
 
+    CP operator[](SQ sq) const {
+        return mpsqcp[sq];
+    }
+
+    CP& operator[](SQ sq) {
+        return mpsqcp[sq];
+    }
+
+    /* FEN reading and writing */
+
     void InitFromFen(istream& is);
     void InitFromFen(const string& fen);
     void RenderFen(ostream& os) const;
     string FenRender(void) const;
-
-    CP operator[](SQ sq) const {
-        return mpsqcp[sq];
-    }
+    
 };

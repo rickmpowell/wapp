@@ -138,3 +138,115 @@ public:
                 PT pt = PT(CW_USEDEFAULT), SZ sz = SZ(CW_USEDEFAULT));
 };
 
+/*
+ *  Some Windows guard classes that ensure proper cleanup of various
+ *  Windows allocated objects.
+ */
+
+ /* TODO: implement other operations supported by unique_ptr, like swap, assignment,
+    copy constructors, reset, release  .... */
+class resource_ptr
+{
+    HGLOBAL hData;
+    BYTE* pData;
+    unsigned cbData;
+
+public:
+    resource_ptr(APP& app, const wstring& wsType, int rs) : hData(NULL), pData(nullptr) {
+        HRSRC hrsrc = ::FindResourceW(app.hinst, MAKEINTRESOURCEW(rs), wsType.c_str());
+        if (hrsrc == NULL)
+            throw ERRLAST();
+        cbData = static_cast<unsigned>(::SizeofResource(app.hinst, hrsrc));
+        hData = ::LoadResource(app.hinst, hrsrc);
+        if (hData == NULL)
+            throw ERRLAST();
+        pData = static_cast<BYTE*>(::LockResource(hData));
+        if (pData == NULL) {
+            hData = NULL;
+            throw ERRLAST();
+        }
+    }
+
+    ~resource_ptr() {
+        // don't need to unlock or free resources in modern Windows
+        pData = nullptr;
+        hData = NULL;
+    }
+
+    BYTE* get(void) {
+        return pData;
+    }
+
+    unsigned size(void) {
+        return cbData;
+    }
+};
+
+/* TODO: implement other operations supported by unique_ptr, like swap, assignment,
+   copy constructors, .... */
+class global_ptr
+{
+private:
+    HGLOBAL h;
+    char* p;
+
+public:
+    global_ptr(unsigned cb) : h(NULL), p(nullptr) {
+        h = ::GlobalAlloc(GMEM_MOVEABLE, cb);
+        if (h == NULL)
+            throw ERRLAST();
+        p = static_cast<char*>(::GlobalLock(h));
+        if (p == nullptr) {
+            ::GlobalFree(h);
+            throw ERRLAST();
+        }
+    }
+
+    global_ptr(HGLOBAL h) : h(h), p(nullptr) {
+        p = static_cast<char*>(::GlobalLock(h));
+        if (p == nullptr) {
+            ::GlobalFree(h);
+            throw ERRLAST();
+        }
+    }
+
+    ~global_ptr() {
+        if (p) {
+            ::GlobalUnlock(h);
+            p = nullptr;
+        }
+        if (h) {
+            ::GlobalFree(h);
+            h = NULL;
+        }
+    }
+
+    HGLOBAL release(void) {
+        HGLOBAL hT = h;
+        if (p) {
+            ::GlobalUnlock(h);
+            p = nullptr;
+        }
+        h = NULL;
+        return hT;
+    }
+
+    void reset(HGLOBAL hNew = NULL) {
+        if (p)
+            ::GlobalUnlock(h);
+        p = nullptr;
+        if (h)
+            ::GlobalFree(h);
+        h = hNew;
+        if (h) {
+            p = static_cast<char*>(::GlobalLock(h));
+            if (p == nullptr)
+                throw ERRLAST();
+        }
+    }
+
+    char* get(void) {
+        return p;
+    }
+};
+

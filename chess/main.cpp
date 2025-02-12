@@ -184,7 +184,7 @@ CMDEXECUTE(CMDCOPY)
         wapp.wnboard.bd.RenderFen(os);
     }
     catch (ERR err) {
-        wapp.Error(rssErrCopyFailed, err);
+        wapp.Error(ERRAPP(rssErrCopyFailed), err);
     }
     return 1;
 }
@@ -217,7 +217,7 @@ public:
             wapp.wnboard.Redraw();
         }
         catch (ERR err) {
-            wapp.Error(rssErrPasteFailed, err);
+            wapp.Error(ERRAPP(rssErrPasteFailed), err);
         }
         return 1;
     }

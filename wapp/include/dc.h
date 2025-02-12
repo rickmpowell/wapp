@@ -48,11 +48,11 @@ public:
     void DrawRc(const RC& rc, CO co = coNil, float dxyStroke = 1.0f);
     void DrawRc(const RC& rc, const BR& br, float dxyStroke = 1.0f);
 
-    void DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText);
-    void DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText = coNil);
-    void DrawWsCenter(const wstring& ws, const TF& tf, const RC& rc, const BR& brText);
-    void DrawWsCenter(const wstring& ws, const TF& tf, const RC& rc, CO coText = coNil);
-    SZ SzFromWs(const wstring& ws, const TF& tf);
+    void DrawWs(const wstring& ws, TF& tf, const RC& rc, const BR& brText);
+    void DrawWs(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil);
+    void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, const BR& brText);
+    void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil);
+    SZ SzFromWs(const wstring& ws, TF& tf);
 
     void DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity);
 };
@@ -113,7 +113,6 @@ public:
 
 public:
     BMP(DC& dc) : pbitmap(nullptr) { }
-    void InitRsrc(IWAPP& iwapp, const wstring& wsType, int rs, BYTE*& pb, unsigned& cb);
     operator ID2D1Bitmap1* () const {
         return pbitmap.Get();
     }
@@ -124,10 +123,9 @@ public:
 
 class PNG : public BMP
 {
+    resource_ptr prsrc;
 public:
-    PNG(DC& dc, BYTE* pb, unsigned long cb);
     PNG(IWAPP& iwapp, int rspng);
-
     void Init(DC& dc, BYTE* pb, unsigned long cb);
 };
 
