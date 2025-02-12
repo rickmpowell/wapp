@@ -39,10 +39,10 @@ public:
     RTC(IWAPP& wapp);
     ~RTC();
 
-    virtual void EnsureDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2);
-    virtual void ReleaseDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2);
+    virtual void ValidateDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2);
+    virtual void InvalidateDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2);
 
-    virtual void EnsureSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2);
-    virtual void ReleaseSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2);
+    virtual void ValidateSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2);
+    virtual void InvalidateSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2);
     virtual void Present(const RC& rcUpdate);
 };

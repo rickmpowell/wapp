@@ -187,5 +187,4 @@ public:
     void InitFromFen(const string& fen);
     void RenderFen(ostream& os) const;
     string FenRender(void) const;
-    
 };

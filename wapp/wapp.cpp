@@ -21,7 +21,7 @@ IWAPP::IWAPP(void) :
     pwnDrag(nullptr), pwnHover(nullptr)
 {
     prtc = make_unique<RTC>(*this);
-    EnsureDeviceIndependentResources();
+    ValidateAllDeviceIndependent();
 }
 
 IWAPP::~IWAPP()
@@ -29,13 +29,13 @@ IWAPP::~IWAPP()
 }
 
 /*
- *  IWAPP::EnsureDeviceIndependentResources
+ *  IWAPP::ValidateDeviceIndependent
  *
  *  Makes sure the Direct2D factories we need are all created. Throws an exception
  *  on failure.
  */
 
-void IWAPP::EnsureDeviceIndependentResources(void)
+void IWAPP::ValidateDeviceIndependent(void)
 {
     if (pfactd2)
         return;
@@ -57,21 +57,17 @@ void IWAPP::EnsureDeviceIndependentResources(void)
     ThrowError(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED,
                                    __uuidof(pfactdwr),
                                    &pfactdwr));
-
-    /* TODO: walk the WN tree? */
 }
 
-void IWAPP::ReleaseDeviceIndependentResources(void)
+void IWAPP::InvalidateDeviceIndependent(void)
 {
     pfactd2.Reset();
     pfactwic.Reset();
     pfactdwr.Reset();
-
-    /* TODO: walk the WN tree */
 }
 
 /*
- *  IWAPP:EnsureDeviceDependentResources
+ *  IWAPP:ValidateDeviceDependent
  *
  *  Creates the Direct2D resources for drawing on this application window.
  *  The base APP has created the static items we need, and this version creates
@@ -82,34 +78,25 @@ void IWAPP::ReleaseDeviceIndependentResources(void)
  *  Throws an exception if an error occurs.
  */
 
-void IWAPP::EnsureDeviceDependentResources(void)
+void IWAPP::ValidateDeviceDependent(void)
 {
     assert(hwnd != NULL);
-
-    prtc->EnsureDeviceDependent(pdc2);
-
-    /* TODO: walk WN tree to create objects */
+    prtc->ValidateDeviceDependent(pdc2);
 }
 
-void IWAPP::ReleaseDeviceDependentResources(void)
+void IWAPP::InvalidateDeviceDependent(void)
 {
-    prtc->ReleaseDeviceDependent(pdc2);
-
-    /* TODO: walk the WN tree to create objects */
+    prtc->InvalidateDeviceDependent(pdc2);
 }
 
-void IWAPP::EnsureSizeDependentResources(void)
+void IWAPP::ValidateSizeDependent(void)
 {
-    prtc->EnsureSizeDependent(pdc2);
-
-    /* TODO: walk WN tree */
+    prtc->ValidateSizeDependent(pdc2);
 }
 
-void IWAPP::ReleaseSizeDependentResources(void)
+void IWAPP::InvalidateSizeDependent(void)
 {
-    prtc->ReleaseSizeDependent(pdc2);
-
-    /* TODO: walk the WN tree */
+    prtc->InvalidateSizeDependent(pdc2);
 }
 
 /*
@@ -137,8 +124,8 @@ void IWAPP::CreateWnd(int rssTitle, int ws, PT pt, SZ sz)
 
 void IWAPP::OnCreate(void)
 {
-    EnsureDeviceIndependentResources();
-    EnsureDeviceDependentResources();
+    ValidateAllDeviceIndependent();
+    ValidateAllDeviceDependent();
 }
 
 void IWAPP::OnDestroy(void)
@@ -148,14 +135,14 @@ void IWAPP::OnDestroy(void)
 
 void IWAPP::OnDisplayChange(void)
 {
-    ReleaseSizeDependentResources();
-    ReleaseDeviceDependentResources();
+    InvalidateAllSizeDependent();
+    InvalidateAllDeviceDependent();
 }
 
 void IWAPP::OnSize(const SZ& sz)
 {
-    ReleaseSizeDependentResources();
-    EnsureSizeDependentResources();
+    InvalidateAllSizeDependent();
+    ValidateAllSizeDependent();
     SetBounds(RC(PT(0), sz));
 }
 
@@ -247,17 +234,17 @@ void IWAPP::BeginDraw(void)
     /* make sure all our Direct2D objects are created and force them to be
        recreated if the display has changed */
 
-    EnsureDeviceIndependentResources();
-    EnsureDeviceDependentResources();
-    EnsureSizeDependentResources();
+    ValidateAllDeviceIndependent();
+    ValidateAllDeviceDependent();
+    ValidateAllSizeDependent();
     pdc2->BeginDraw();
 }
 
 void IWAPP::EndDraw(const RC& rcUpdate)
 {
     if (pdc2->EndDraw() == D2DERR_RECREATE_TARGET) {
-        ReleaseSizeDependentResources();
-        ReleaseDeviceDependentResources();
+        InvalidateAllSizeDependent();
+        InvalidateAllDeviceDependent();
         return;
     }
 

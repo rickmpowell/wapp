@@ -161,7 +161,7 @@
   <ItemGroup>
     <ClCompile Include="board.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="uiboard.cpp" />
+    <ClCompile Include="wnboard.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\wapp\wapp.vcxproj">

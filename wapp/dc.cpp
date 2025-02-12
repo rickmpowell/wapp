@@ -11,14 +11,40 @@
  *  Brushes
  */
 
-BR::BR(DC& dc, CO co) 
+BR::BR(DC& dc, CO co)
 {
-    dc.iwapp.pdc2->CreateSolidColorBrush(co, &pbr);
+    reset(dc, co);
 }
 
 BR::operator ID2D1Brush* () const 
 {
-    return pbr.Get();
+    return pbrush.Get();
+}
+
+void BR::reset(void)
+{
+    if (pbrush)
+        pbrush.Detach()->Release();
+}
+
+void BR::reset(DC& dc, CO co)
+{
+    dc.iwapp.pdc2->CreateSolidColorBrush(co, &pbrush);
+}
+
+ID2D1SolidColorBrush* BR::release(void)
+{
+    return pbrush.Detach();
+}
+
+BR::operator bool() const
+{
+    return pbrush;
+}
+
+bool BR::operator ! () const
+{
+    return !pbrush;
 }
 
 /*
@@ -50,33 +76,61 @@ TF::operator IDWriteTextFormat* () const
  *  failure of some kind.
  */
 
-PNG::PNG(IWAPP& iwapp, int rspng) : BMP(iwapp), prsrc(iwapp, L"PNG", rspng)
+ID2D1Bitmap* BMP::release(void)
 {
-    Init(iwapp, prsrc.get(), prsrc.size());
+    return pbitmap.Detach();
 }
 
-void PNG::Init(DC& dc, BYTE* pbPng, unsigned long cbPng)
+void BMP::reset(void)
 {
-    assert(pbPng);
+    if (pbitmap)
+        pbitmap.Detach()->Release();
+}
+
+
+BMP::operator bool() const
+{
+    return pbitmap;
+}
+
+bool BMP::operator ! () const
+{
+    return !pbitmap;
+}
+
+PNG::PNG(IWAPP& iwapp, int rspng)
+{
+    reset(iwapp, rspng);
+}
+
+void PNG::reset(void)
+{
+    BMP::reset();
+}
+
+void PNG::reset(IWAPP& iwapp, int rspng)
+{
+    resource_ptr prsrc(iwapp, L"PNG", rspng);
+
     com_ptr<IWICStream> pstream;
-    ThrowError(dc.iwapp.pfactwic->CreateStream(&pstream));
-    pstream->InitializeFromMemory(pbPng, cbPng);
+    ThrowError(iwapp.pfactwic->CreateStream(&pstream));
+    pstream->InitializeFromMemory(prsrc.get(), prsrc.size());
     com_ptr<IWICBitmapDecoder> pdecoder;
-    ThrowError(dc.iwapp.pfactwic->CreateDecoderFromStream(pstream.Get(), 
+    ThrowError(iwapp.pfactwic->CreateDecoderFromStream(pstream.Get(), 
                                                           nullptr, 
                                                           WICDecodeMetadataCacheOnLoad, 
                                                           &pdecoder));
     com_ptr<IWICBitmapFrameDecode> pframe;
     pdecoder->GetFrame(0, &pframe);
     com_ptr<IWICFormatConverter> pconverter;
-    ThrowError(dc.iwapp.pfactwic->CreateFormatConverter(&pconverter));
+    ThrowError(iwapp.pfactwic->CreateFormatConverter(&pconverter));
     ThrowError(pconverter->Initialize(pframe.Get(), 
                                       GUID_WICPixelFormat32bppPBGRA, 
                                       WICBitmapDitherTypeNone, 
                                       nullptr, 
                                       0.0f,             
                                       WICBitmapPaletteTypeMedianCut));
-    ThrowError(dc.iwapp.pdc2->CreateBitmapFromWicBitmap(pconverter.Get(), 
+    ThrowError(iwapp.pdc2->CreateBitmapFromWicBitmap(pconverter.Get(), 
                                                         nullptr, 
                                                         &pbitmap));
 }

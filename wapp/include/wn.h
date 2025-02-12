@@ -60,6 +60,19 @@ public:
     virtual void Enable(bool fEnable = true);
     virtual bool FEnabled(void) const;
 
+    void ValidateAllDeviceIndependent(void);
+    void InvalidateAllDeviceIndependent(void);
+    void ValidateAllDeviceDependent(void);
+    void InvalidateAllDeviceDependent(void);
+    void ValidateAllSizeDependent(void);
+    void InvalidateAllSizeDependent(void);
+    virtual void ValidateDeviceIndependent(void);
+    virtual void InvalidateDeviceIndependent(void);
+    virtual void ValidateDeviceDependent(void);
+    virtual void InvalidateDeviceDependent(void);
+    virtual void ValidateSizeDependent(void);
+    virtual void InvalidateSizeDependent(void);
+
     virtual void BeginDraw(void);
     virtual void EndDraw(const RC& rcUpdate);
     virtual void Draw(const RC& rcUpdate);

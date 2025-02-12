@@ -24,6 +24,8 @@ public:
 
 private:
     BTNCH btnFlip;
+    PNG pngPieces;
+
     CCP ccpView;  // orientation of the board, black or white
     float angle;    // and to draw during flipping
 
@@ -44,6 +46,9 @@ public:
  
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
+
+    virtual void ValidateSizeDependent(void) override;
+    virtual void InvalidateSizeDependent(void) override;
 
     virtual void Layout(void) override;
     virtual void Draw(const RC& rcUpdate) override;

@@ -66,11 +66,17 @@ public:
 class BR
 {
 public:
-    com_ptr<ID2D1SolidColorBrush> pbr;
+    com_ptr<ID2D1SolidColorBrush> pbrush;
 
 public:
     BR(DC& dc, CO co);
+
+    void reset(void);
+    void reset(DC& dc, CO co);
     operator ID2D1Brush* () const;
+    ID2D1SolidColorBrush* release(void);
+    operator bool ( ) const;
+    bool operator ! () const;
 };
 
 /*
@@ -112,20 +118,23 @@ public:
     com_ptr<ID2D1Bitmap1> pbitmap;
 
 public:
-    BMP(DC& dc) : pbitmap(nullptr) { }
-    operator ID2D1Bitmap1* () const {
-        return pbitmap.Get();
-    }
-    SZ sz(void) const {
-        return pbitmap->GetSize();
-    }
+    BMP(void) : pbitmap(nullptr) { }
+
+    operator ID2D1Bitmap1* () const { return pbitmap.Get(); }
+    SZ sz(void) const { return pbitmap->GetSize(); }
+
+    void reset(void);
+    ID2D1Bitmap* release(void);
+    operator bool() const;
+    bool operator ! () const;
 };
 
 class PNG : public BMP
 {
-    resource_ptr prsrc;
 public:
+    PNG(void) : BMP() {}
     PNG(IWAPP& iwapp, int rspng);
-    void Init(DC& dc, BYTE* pb, unsigned long cb);
+    void reset(void);
+    void reset(IWAPP& iwapp, int rspng);
 };
 

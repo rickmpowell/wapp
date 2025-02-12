@@ -100,6 +100,76 @@ bool WN::FEnabled(void) const
 }
 
 /*
+ *  Direct2D drawing object management
+ */
+
+void WN::ValidateAllDeviceIndependent(void)
+{
+    ValidateDeviceIndependent();
+    for (WN* pwn : vpwnChildren)
+        pwn->ValidateAllDeviceIndependent();
+}
+
+void WN::InvalidateAllDeviceIndependent(void)
+{
+    InvalidateDeviceIndependent();
+    for (WN* pwn : vpwnChildren)
+        pwn->InvalidateAllDeviceIndependent();
+}
+
+void WN::ValidateAllDeviceDependent(void)
+{
+    ValidateDeviceDependent();
+    for (WN* pwn : vpwnChildren)
+        pwn->ValidateAllDeviceDependent();
+}
+
+void WN::InvalidateAllDeviceDependent(void)
+{
+    InvalidateDeviceDependent();
+    for (WN* pwn : vpwnChildren)
+        pwn->InvalidateAllDeviceDependent();
+}
+
+void WN::ValidateAllSizeDependent(void)
+{
+    ValidateSizeDependent();
+    for (WN* pwn : vpwnChildren)
+        pwn->ValidateAllSizeDependent();
+}
+
+void WN::InvalidateAllSizeDependent(void)
+{
+    InvalidateSizeDependent();
+    for (WN* pwn : vpwnChildren)
+        pwn->InvalidateAllSizeDependent();
+}
+
+void WN::ValidateDeviceIndependent(void)
+{
+}
+
+void WN::InvalidateDeviceIndependent(void)
+{
+}
+
+void WN::ValidateDeviceDependent(void)
+{
+}
+
+void WN::InvalidateDeviceDependent(void)
+{
+}
+
+void WN::ValidateSizeDependent(void)
+{
+}
+
+void WN::InvalidateSizeDependent(void)
+{
+}
+
+/*
  *  Drawing
  */
 

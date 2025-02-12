@@ -53,7 +53,7 @@ iclipbuffer::iclipbuffer(IWAPP& iwapp, int cf)
     global_ptr pData(clip.GetData(cf));
     char* s = pData.get();
     setg(s, s, s + strlen(s));
-    pData.release();
+    pData.release();    // don't reset since the clipboard owns the item
 }
 
 int iclipbuffer::underflow(void)
