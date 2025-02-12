@@ -1,7 +1,8 @@
+
 /*
- *  uiboard.cpp
+ *  wnboard.cpp
  * 
- *  Implementation of the UI board visible element.
+ *  Implementation of the board visible window element.
  */
 
 #include "chess.h"
@@ -20,6 +21,18 @@ WNBOARD::WNBOARD(WN* pwnParent) :
     ccpView(ccpWhite),
     angle(0.0f)
 {
+}
+
+void WNBOARD::ValidateSizeDependent(void)
+{
+    if (pngPieces)
+        return;
+    pngPieces.reset(iwapp, rspngChessPieces);
+}
+
+void WNBOARD::InvalidateSizeDependent(void)
+{
+    pngPieces.reset();
 }
 
 /*
@@ -136,15 +149,14 @@ void WNBOARD::DrawSquares(void)
 void WNBOARD::DrawPieces(void)
 {
     int mptcpdx[tcpMax] = { -1, 5, 3, 2, 4, 1, 0 }; // funky order of the bitmap
-    PNG png(this->iwapp, rspngChessPieces);
-    SZ szPng = png.sz();
+    SZ szPng = pngPieces.sz();
     SZ szPiece = SZ(szPng.width/6, szPng.height/2);
     for (SQ sq = 0; sq < sqMax; sq++) {
         CP cp = bd[sq];
         if (cp == cpEmpty)
             continue;
         RC rc = RC(PT(0), szPiece) + PT(szPiece.width*(mptcpdx[tcp(cp)]), szPiece.height*static_cast<int>(ccp(cp)));
-        DrawBmp(RcFromSq(sq), png, rc, 1.0f);
+        DrawBmp(RcFromSq(sq), pngPieces, rc, 1.0f);
     }
 }
 
@@ -171,7 +183,8 @@ void WNBOARD::FlipCcp(void)
 {
     /* animate the turning */
     
-    for (angle = 0.0f; angle > -180.0f; angle -= 4.0f)
+    const int iterations = 50;
+    for (angle = 0.0f; angle > -180.0f; angle -= 180.0f/iterations)
         Redraw();
     angle = 0.0f;
 
