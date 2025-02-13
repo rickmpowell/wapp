@@ -64,12 +64,12 @@ public:
     unique_ptr<RTC> prtc;
     com_ptr<ID2D1DeviceContext> pdc2;
 
-    virtual void ValidateDeviceIndependent(void) override;
-    virtual void InvalidateDeviceIndependent(void) override;
-    virtual void ValidateDeviceDependent(void) override;
-    virtual void InvalidateDeviceDependent(void) override;
-    virtual void ValidateSizeDependent(void) override;
-    virtual void InvalidateSizeDependent(void) override;
+    virtual void RebuildDeviceIndependent(void) override;
+    virtual void PurgeDeviceIndependent(void) override;
+    virtual void RebuildDeviceDependent(void) override;
+    virtual void PurgeDeviceDependent(void) override;
+    virtual void RebuildSizeDependent(void) override;
+    virtual void PurgeSizeDependent(void) override;
 
     /* window message handlers */
 

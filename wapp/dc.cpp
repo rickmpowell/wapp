@@ -7,6 +7,8 @@
 
 #include "wapp.h"
 
+BR DC::brScratch;
+
 /*
  *  Brushes
  */
@@ -14,6 +16,12 @@
 BR::BR(DC& dc, CO co)
 {
     reset(dc, co);
+}
+
+BR& BR::SetCo(CO co)
+{
+    pbrush->SetColor(co);
+    return *this;
 }
 
 BR::operator ID2D1Brush* () const 
@@ -183,23 +191,20 @@ void DC::FillRc(const RC& rc, CO coFill)
 {
     if (coFill == coNil)
         coFill = CoText();
-    BR br(*this, coFill);
-    FillRc(rc, br);
+    FillRc(rc, brScratch.SetCo(coFill));
 }
 
 void DC::FillRcBack(const RC& rc)
 {
     RC rcg = RcgFromRc(rc);
-    BR brBack(*this, CoBack());
-    iwapp.pdc2->FillRectangle(&rcg, brBack);
+    iwapp.pdc2->FillRectangle(&rcg, brScratch.SetCo(CoBack()));
 }
 
 void DC::DrawRc(const RC& rc, CO co, float dxyStroke)
 {
     if (co == coNil)
         co = CoText();
-    BR br(*this, co);
-    DrawRc(rc, br, dxyStroke);
+    DrawRc(rc, brScratch.SetCo(co), dxyStroke);
 }
 
 void DC::DrawRc(const RC& rc, const BR& br, float dxyStroke)
@@ -219,8 +224,7 @@ void DC::DrawWs(const wstring& ws, TF& tf, const RC& rc, CO coText)
 {
     if (coText == coNil)
         coText = CoText();
-    BR brText(*this, coText);
-    DrawWs(ws, tf, rc, brText);
+    DrawWs(ws, tf, rc, brScratch.SetCo(coText));
 }
 
 void DC::DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, const BR& brText)
@@ -233,8 +237,7 @@ void DC::DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText)
 {
     if (coText == coNil)
         coText = CoText();
-    BR brText(*this, coText);
-    DrawWsCenter(ws, tf, rc, brText);
+    DrawWsCenter(ws, tf, rc, brScratch.SetCo(coText));
 }
 
 SZ DC::SzFromWs(const wstring& ws, TF& tf)
@@ -284,3 +287,36 @@ PT DC::PtFromWnPt(const PT& pt, const DC& dc) const
 {
     return pt - rcgBounds.ptTopLeft() + dc.rcgBounds.ptTopLeft();
 }
+
+/*
+ *  Resource management
+ */
+
+void DC::RebuildDeviceIndependent(void)
+{
+}
+
+void DC::PurgeDeviceIndependent(void)
+{
+}
+
+void DC::RebuildDeviceDependent(void)
+{
+}
+
+void DC::PurgeDeviceDependent(void)
+{
+}
+
+void DC::RebuildSizeDependent(void)
+{
+    if (brScratch)
+        return;
+    brScratch.reset(*this, coWhite);
+}
+
+void DC::PurgeSizeDependent(void)
+{
+    brScratch.reset();
+}
+

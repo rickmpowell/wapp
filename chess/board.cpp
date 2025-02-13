@@ -84,10 +84,10 @@ void BD::InitFromFen(istream& is)
     EmptyMpsqcp();
     int ich;
     int ra = raMax-1;
-    SQ sq = Sq(ra, 0);
+    SQ sq = Sq(0, ra);
     for (char ch : sBoard) {
         if ((ich = IchFind(sParseBoard, ch)) == 0) // slash, move to next rank
-            sq = Sq(--ra, 0);
+            sq = Sq(0, --ra);
         else if (ich >= 16) // numbers, mean skip squares
             sq += ich - 16;
         else if (sq < sqMax)
@@ -114,10 +114,10 @@ void BD::InitFromFen(istream& is)
 
     if (sEnPassant == "-")
         sqEnPassant = sqNil;
-    else if (sEnPassant.length() == 2 && 
+    else if (sEnPassant.length() == 2 &&
              in_range(sEnPassant[0], 'a', 'h') &&
              in_range(sEnPassant[1], '1', '8'))
-        sqEnPassant = Sq(sEnPassant[1]-'1', sEnPassant[0]-'a');
+        sqEnPassant = Sq(sEnPassant[0]-'a', sEnPassant[1]-'1');
     else
         throw ERRAPP(rssErrFenParse, WsFromS(sEnPassant));
 
@@ -158,7 +158,7 @@ string BD::FenRender(void) const
     int csqEmpty = 0;
     for (int ra = raMax-1; ra >= 0; ra--) {
         for (int fi = 0; fi < fiMax; fi++) {
-            CP cp = mpsqcp[Sq(ra, fi)];
+            CP cp = mpsqcp[Sq(fi, ra)];
             if (cp == cpEmpty)
                 csqEmpty++;
             else

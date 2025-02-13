@@ -98,7 +98,7 @@ inline int fi(int sq) {
     return sq & (fiMax-1);
 }
 
-inline uint8_t Sq(int ra, int fi) {
+inline uint8_t Sq(int fi, int ra) {
     return (ra << 3) | fi;
 }
 

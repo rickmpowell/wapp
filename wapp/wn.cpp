@@ -103,70 +103,46 @@ bool WN::FEnabled(void) const
  *  Direct2D drawing object management
  */
 
-void WN::ValidateAllDeviceIndependent(void)
+void WN::RebuildAllDeviceIndependent(void)
 {
-    ValidateDeviceIndependent();
+    RebuildDeviceIndependent();
     for (WN* pwn : vpwnChildren)
-        pwn->ValidateAllDeviceIndependent();
+        pwn->RebuildAllDeviceIndependent();
 }
 
-void WN::InvalidateAllDeviceIndependent(void)
+void WN::PurgeAllDeviceIndependent(void)
 {
-    InvalidateDeviceIndependent();
+    PurgeDeviceIndependent();
     for (WN* pwn : vpwnChildren)
-        pwn->InvalidateAllDeviceIndependent();
+        pwn->PurgeAllDeviceIndependent();
 }
 
-void WN::ValidateAllDeviceDependent(void)
+void WN::RebuildAllDeviceDependent(void)
 {
-    ValidateDeviceDependent();
+    RebuildDeviceDependent();
     for (WN* pwn : vpwnChildren)
-        pwn->ValidateAllDeviceDependent();
+        pwn->RebuildAllDeviceDependent();
 }
 
-void WN::InvalidateAllDeviceDependent(void)
+void WN::PurgeAllDeviceDependent(void)
 {
-    InvalidateDeviceDependent();
+    PurgeDeviceDependent();
     for (WN* pwn : vpwnChildren)
-        pwn->InvalidateAllDeviceDependent();
+        pwn->PurgeAllDeviceDependent();
 }
 
-void WN::ValidateAllSizeDependent(void)
+void WN::RebuildAllSizeDependent(void)
 {
-    ValidateSizeDependent();
+    RebuildSizeDependent();
     for (WN* pwn : vpwnChildren)
-        pwn->ValidateAllSizeDependent();
+        pwn->RebuildAllSizeDependent();
 }
 
-void WN::InvalidateAllSizeDependent(void)
+void WN::PurgeAllSizeDependent(void)
 {
-    InvalidateSizeDependent();
+    PurgeSizeDependent();
     for (WN* pwn : vpwnChildren)
-        pwn->InvalidateAllSizeDependent();
-}
-
-void WN::ValidateDeviceIndependent(void)
-{
-}
-
-void WN::InvalidateDeviceIndependent(void)
-{
-}
-
-void WN::ValidateDeviceDependent(void)
-{
-}
-
-void WN::InvalidateDeviceDependent(void)
-{
-}
-
-void WN::ValidateSizeDependent(void)
-{
-}
-
-void WN::InvalidateSizeDependent(void)
-{
+        pwn->PurgeAllSizeDependent();
 }
 
 /*
@@ -320,6 +296,7 @@ void WN::Enter(const PT& pt)
 
 void WN::Hover(const PT& pt)
 {
+    SetDefCurs();
 }
 
 void WN::Leave(const PT& pt)
@@ -341,4 +318,15 @@ void WN::EndDrag(const PT& pt, unsigned mk)
 bool WN::FDragging(void) const
 {
     return this == iwapp.pwnDrag;
+}
+
+void WN::SetCurs(const CURS& curs)
+{
+    ::SetCursor(curs);
+}
+
+void WN::SetDefCurs(void)
+{
+    CURS cursArrow(iwapp, IDC_ARROW);
+    SetCurs(cursArrow);
 }

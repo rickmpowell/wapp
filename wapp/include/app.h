@@ -60,6 +60,19 @@ public:
     HCURSOR HcursorDef(LPCWSTR rsc) const;
 };
 
+class CURS
+{
+    HCURSOR hcursor;
+public:
+    CURS(APP& app, LPCWSTR idc) {
+        hcursor = app.HcursorDef(idc);
+    }
+
+    operator HCURSOR () const {
+        return hcursor;
+    }
+};
+
 /*
  *  WND class
  * 

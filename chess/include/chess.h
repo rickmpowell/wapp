@@ -22,9 +22,10 @@ class WNBOARD : public WN
 public:
     BD bd;
 
+    static PNG pngPieces;
+
 private:
     BTNCH btnFlip;
-    PNG pngPieces;
 
     CCP ccpView;  // orientation of the board, black or white
     float angle;    // and to draw during flipping
@@ -47,11 +48,14 @@ public:
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
 
-    virtual void ValidateSizeDependent(void) override;
-    virtual void InvalidateSizeDependent(void) override;
+    virtual void RebuildSizeDependent(void) override;
+    virtual void PurgeSizeDependent(void) override;
 
     virtual void Layout(void) override;
     virtual void Draw(const RC& rcUpdate) override;
+
+    virtual void Hover(const PT& pt) override;
+    virtual void SetDefCurs(void) override;
 
     void FlipCcp(void);
 
@@ -60,6 +64,7 @@ private:
     void DrawSquares(void);
     void DrawPieces(void);
     RC RcFromSq(int sq) const;
+    bool FSqFromPt(SQ& sq, const PT& pt) const;
 };
 
 /*
@@ -77,6 +82,9 @@ public:
     const float dxyMarginMax = 4.0f;    // maximum margin around the board
     const float dxySquareMin = 25.0f;   // minimum size of a single square
 
+    CURS cursArrow;
+    CURS cursHand;
+
 public:
     WAPP(const wstring& wsCmd, int sw);
  
@@ -85,6 +93,8 @@ public:
     virtual CO CoBack(void) const override;
     virtual void Layout(void) override;    
 };
+
+#define Wapp(iwapp) static_cast<WAPP&>(iwapp)
 
 /*
  *  some macros to streamline the boilerplate in simple commands.

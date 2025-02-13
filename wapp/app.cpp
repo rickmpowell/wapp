@@ -129,7 +129,7 @@ WNDCLASSEXW WND::WcexRegister(void) const
     wcex.lpfnWndProc = WND::WndProc;
     wcex.cbWndExtra = sizeof(WND*);
     wcex.hInstance = app.hinst;
-    wcex.hCursor = app.HcursorDef(IDC_ARROW);
+    wcex.hCursor = NULL;
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     return wcex;
 }
@@ -329,7 +329,7 @@ WNDCLASSEXW WNDMAIN::WcexRegister(const wchar_t* wsClass, int rsm, int rsiLarge,
 {
     WNDCLASSEXW wcex = WND::WcexRegister();
     wcex.lpszClassName = wsClass;
-    wcex.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
     wcex.lpszMenuName = rsm ? MAKEINTRESOURCE(rsm) : NULL;
     wcex.hIcon = rsiLarge ? app.HiconLoad(rsiLarge) : NULL;
     wcex.hIconSm = rsiSmall ? app.HiconLoad(rsiSmall) : NULL;

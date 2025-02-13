@@ -17,7 +17,7 @@ RTC::~RTC()
 {
 }
 
-void RTC::ValidateDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2)
+void RTC::RebuildDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2)
 {
     if (pdev2)
         return;
@@ -56,7 +56,7 @@ void RTC::ValidateDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2)
     padaptxgiT->GetParent(IID_PPV_ARGS(&pfactxgi));
 }
 
-void RTC::InvalidateDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2)
+void RTC::PurgeDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2)
 {
     pdev2.Reset();
     pfactxgi.Reset();
@@ -65,12 +65,12 @@ void RTC::InvalidateDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2)
     pdev3.Reset();
 }
 
-void RTC::ValidateSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2)
+void RTC::RebuildSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2)
 {
     if (pbmpBackBuf)
         return;
 
-    ValidateDeviceDependent(pdc2);
+    RebuildDeviceDependent(pdc2);
 
     ThrowError(pdev2->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &pdc2));
 
@@ -103,7 +103,7 @@ void RTC::ValidateSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2)
     pdc2->SetTarget(pbmpBackBuf.Get());
 }
 
-void RTC::InvalidateSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2)
+void RTC::PurgeSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2)
 {
     pbmpBackBuf.Reset();
     pswapchain.Reset();

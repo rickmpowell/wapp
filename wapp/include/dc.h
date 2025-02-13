@@ -24,6 +24,8 @@ class DC
 public:
     IWAPP& iwapp;
 
+    static BR brScratch;
+
 protected:
     RC rcgBounds;    /* relative to the pdc in the app */
 
@@ -55,6 +57,13 @@ public:
     SZ SzFromWs(const wstring& ws, TF& tf);
 
     void DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity);
+
+    virtual void RebuildDeviceIndependent(void);
+    virtual void PurgeDeviceIndependent(void);
+    virtual void RebuildDeviceDependent(void);
+    virtual void PurgeDeviceDependent(void);
+    virtual void RebuildSizeDependent(void);
+    virtual void PurgeSizeDependent(void);
 };
 
 /*
@@ -69,7 +78,9 @@ public:
     com_ptr<ID2D1SolidColorBrush> pbrush;
 
 public:
+    BR(void) {}
     BR(DC& dc, CO co);
+    BR& SetCo(CO co);
 
     void reset(void);
     void reset(DC& dc, CO co);

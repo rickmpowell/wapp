@@ -26,7 +26,8 @@ int Run(const wstring& wsCmd, int sw)
  */
 
 WAPP::WAPP(const wstring& wsCmd, int sw) : 
-    wnboard(this)
+    wnboard(this),
+    cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND)
 {
     CreateWnd(rssAppTitle);
     PushFilterMsg(new FILTERMSGACCEL(*this, rsaApp));

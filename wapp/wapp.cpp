@@ -21,7 +21,7 @@ IWAPP::IWAPP(void) :
     pwnDrag(nullptr), pwnHover(nullptr)
 {
     prtc = make_unique<RTC>(*this);
-    ValidateAllDeviceIndependent();
+    RebuildAllDeviceIndependent();
 }
 
 IWAPP::~IWAPP()
@@ -29,16 +29,18 @@ IWAPP::~IWAPP()
 }
 
 /*
- *  IWAPP::ValidateDeviceIndependent
+ *  IWAPP::RebuildDeviceIndependent
  *
  *  Makes sure the Direct2D factories we need are all created. Throws an exception
  *  on failure.
  */
 
-void IWAPP::ValidateDeviceIndependent(void)
+void IWAPP::RebuildDeviceIndependent(void)
 {
     if (pfactd2)
         return;
+
+    WN::RebuildDeviceIndependent();
 
     /* get all the Direcct2D factories we need */
 
@@ -59,15 +61,16 @@ void IWAPP::ValidateDeviceIndependent(void)
                                    &pfactdwr));
 }
 
-void IWAPP::InvalidateDeviceIndependent(void)
+void IWAPP::PurgeDeviceIndependent(void)
 {
     pfactd2.Reset();
     pfactwic.Reset();
     pfactdwr.Reset();
+    WN::PurgeDeviceIndependent();
 }
 
 /*
- *  IWAPP:ValidateDeviceDependent
+ *  IWAPP:RebuildDeviceDependent
  *
  *  Creates the Direct2D resources for drawing on this application window.
  *  The base APP has created the static items we need, and this version creates
@@ -78,25 +81,29 @@ void IWAPP::InvalidateDeviceIndependent(void)
  *  Throws an exception if an error occurs.
  */
 
-void IWAPP::ValidateDeviceDependent(void)
+void IWAPP::RebuildDeviceDependent(void)
 {
     assert(hwnd != NULL);
-    prtc->ValidateDeviceDependent(pdc2);
+    prtc->RebuildDeviceDependent(pdc2);
+    WN::RebuildDeviceDependent();
 }
 
-void IWAPP::InvalidateDeviceDependent(void)
+void IWAPP::PurgeDeviceDependent(void)
 {
-    prtc->InvalidateDeviceDependent(pdc2);
+    WN::PurgeDeviceDependent();
+    prtc->PurgeDeviceDependent(pdc2);
 }
 
-void IWAPP::ValidateSizeDependent(void)
+void IWAPP::RebuildSizeDependent(void)
 {
-    prtc->ValidateSizeDependent(pdc2);
+    prtc->RebuildSizeDependent(pdc2);
+    WN::RebuildSizeDependent();
 }
 
-void IWAPP::InvalidateSizeDependent(void)
+void IWAPP::PurgeSizeDependent(void)
 {
-    prtc->InvalidateSizeDependent(pdc2);
+    WN::PurgeSizeDependent();
+    prtc->PurgeSizeDependent(pdc2);
 }
 
 /*
@@ -124,8 +131,8 @@ void IWAPP::CreateWnd(int rssTitle, int ws, PT pt, SZ sz)
 
 void IWAPP::OnCreate(void)
 {
-    ValidateAllDeviceIndependent();
-    ValidateAllDeviceDependent();
+    RebuildAllDeviceIndependent();
+    RebuildAllDeviceDependent();
 }
 
 void IWAPP::OnDestroy(void)
@@ -135,14 +142,14 @@ void IWAPP::OnDestroy(void)
 
 void IWAPP::OnDisplayChange(void)
 {
-    InvalidateAllSizeDependent();
-    InvalidateAllDeviceDependent();
+    PurgeAllSizeDependent();
+    PurgeAllDeviceDependent();
 }
 
 void IWAPP::OnSize(const SZ& sz)
 {
-    InvalidateAllSizeDependent();
-    ValidateAllSizeDependent();
+    PurgeAllSizeDependent();
+    RebuildAllSizeDependent();
     SetBounds(RC(PT(0), sz));
 }
 
@@ -234,17 +241,17 @@ void IWAPP::BeginDraw(void)
     /* make sure all our Direct2D objects are created and force them to be
        recreated if the display has changed */
 
-    ValidateAllDeviceIndependent();
-    ValidateAllDeviceDependent();
-    ValidateAllSizeDependent();
+    RebuildAllDeviceIndependent();
+    RebuildAllDeviceDependent();
+    RebuildAllSizeDependent();
     pdc2->BeginDraw();
 }
 
 void IWAPP::EndDraw(const RC& rcUpdate)
 {
     if (pdc2->EndDraw() == D2DERR_RECREATE_TARGET) {
-        InvalidateAllSizeDependent();
-        InvalidateAllDeviceDependent();
+        PurgeAllSizeDependent();
+        PurgeAllDeviceDependent();
         return;
     }
 

@@ -8,6 +8,8 @@
 #include "chess.h"
 #include "resource.h"
 
+PNG WNBOARD::pngPieces;
+
  /*
   *  WNBOARD
   *
@@ -23,16 +25,22 @@ WNBOARD::WNBOARD(WN* pwnParent) :
 {
 }
 
-void WNBOARD::ValidateSizeDependent(void)
+void WNBOARD::RebuildSizeDependent(void)
 {
+    /* no per-instance resources */
+    
+    /* static class resources */
+
     if (pngPieces)
         return;
+    WN::RebuildSizeDependent();
     pngPieces.reset(iwapp, rspngChessPieces);
 }
 
-void WNBOARD::InvalidateSizeDependent(void)
+void WNBOARD::PurgeSizeDependent(void)
 {
     pngPieces.reset();
+    WN::PurgeSizeDependent();
 }
 
 /*
@@ -127,10 +135,10 @@ void WNBOARD::DrawBorder(void)
         float dy = SzFromWs(wstring(L"g8"), tf).height;
         for (int ra = 0; ra < raMax; ra++)
             DrawWsCenter(wstring(1, '1' + ra), tf,
-                         RcFromSq(Sq(ra, 0)).LeftRight(0, rcSquares.left).CenterDy(dy));
+                         RcFromSq(Sq(0, ra)).LeftRight(0, rcSquares.left).CenterDy(dy));
         for (int fi = 0; fi < fiMax; fi++)
             DrawWsCenter(wstring(1, 'a' + fi), tf,
-                         RcFromSq(Sq(0, fi)).TopBottom(rcSquares.bottom, RcInterior().bottom).CenterDy(dy));
+                         RcFromSq(Sq(fi, 0)).TopBottom(rcSquares.bottom, RcInterior().bottom).CenterDy(dy));
     }
 }
 
@@ -174,6 +182,43 @@ RC WNBOARD::RcFromSq(int sq) const
 }
 
 /*
+ *  WNBOARD::FSqFromPt
+ * 
+ *  Returns the square the point is in
+ */
+
+bool WNBOARD::FSqFromPt(SQ& sq, const PT& pt) const
+{
+    if (!rcSquares.FContainsPt(pt))
+        return false;
+    int ra = (int)floorf((pt.y - rcSquares.top) / dxySquare);
+    int fi = (int)floorf((pt.x - rcSquares.left) / dxySquare);
+    sq = (ccpView == ccpWhite) ? Sq(fi, raMax-1-ra) :
+                                 Sq(fiMax-1-fi, ra);
+    return true;
+}
+
+/*
+ *  WNBOARD::Hover
+ * 
+ *  Mouse hovering over the board 
+ */
+
+void WNBOARD::Hover(const PT& pt)
+{
+    SQ sqHit;
+    if (!FSqFromPt(sqHit, pt) || bd[sqHit] == cpEmpty || ccp(bd[sqHit])  != bd.ccpToMove) 
+        SetCurs(Wapp(iwapp).cursArrow);
+    else
+        SetCurs(Wapp(iwapp).cursHand);
+}
+
+void WNBOARD::SetDefCurs(void)
+{
+    /* no default cursor - hover is responsible for setting the cursor */
+}
+
+/*
  *  WNBOARD::FlipCcp
  *
  *  Flips the board to the opposite point of view
@@ -183,8 +228,9 @@ void WNBOARD::FlipCcp(void)
 {
     /* animate the turning */
     
-    const int iterations = 50;
-    for (angle = 0.0f; angle > -180.0f; angle -= 180.0f/iterations)
+    const int iterations = 180;
+    const float angleEnd = -180.0f;
+    for (angle = 0.0f; angle > angleEnd; angle += angleEnd/iterations)
         Redraw();
     angle = 0.0f;
 

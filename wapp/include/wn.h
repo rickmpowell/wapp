@@ -60,18 +60,12 @@ public:
     virtual void Enable(bool fEnable = true);
     virtual bool FEnabled(void) const;
 
-    void ValidateAllDeviceIndependent(void);
-    void InvalidateAllDeviceIndependent(void);
-    void ValidateAllDeviceDependent(void);
-    void InvalidateAllDeviceDependent(void);
-    void ValidateAllSizeDependent(void);
-    void InvalidateAllSizeDependent(void);
-    virtual void ValidateDeviceIndependent(void);
-    virtual void InvalidateDeviceIndependent(void);
-    virtual void ValidateDeviceDependent(void);
-    virtual void InvalidateDeviceDependent(void);
-    virtual void ValidateSizeDependent(void);
-    virtual void InvalidateSizeDependent(void);
+    void RebuildAllDeviceIndependent(void);
+    void PurgeAllDeviceIndependent(void);
+    void RebuildAllDeviceDependent(void);
+    void PurgeAllDeviceDependent(void);
+    void RebuildAllSizeDependent(void);
+    void PurgeAllSizeDependent(void);
 
     virtual void BeginDraw(void);
     virtual void EndDraw(const RC& rcUpdate);
@@ -93,4 +87,6 @@ public:
     virtual void BeginDrag(const PT& pt, unsigned mk);
     virtual void Drag(const PT& pt, unsigned mk);
     virtual void EndDrag(const PT& pt, unsigned mk);
+    virtual void SetDefCurs(void);
+    void SetCurs(const CURS& curs);
 };
