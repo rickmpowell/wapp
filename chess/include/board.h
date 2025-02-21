@@ -49,7 +49,7 @@ enum TCP : uint8_t
 
 typedef uint8_t CP;
 
-inline CP Cp(CCP ccp, TCP tcp) {
+constexpr CP Cp(CCP ccp, TCP tcp) {
     return (static_cast<uint8_t>(ccp) << 3) | static_cast<uint8_t>(tcp);
 }
 
@@ -61,20 +61,20 @@ inline TCP tcp(CP cp) {
     return static_cast<TCP>(cp & 7);
 }
 
-const CP cpWhitePawn = Cp(ccpWhite, tcpPawn);
-const CP cpBlackPawn = Cp(ccpBlack, tcpPawn);
-const CP cpWhiteKnight = Cp(ccpWhite, tcpKnight);
-const CP cpBlackKnight = Cp(ccpBlack, tcpKnight);
-const CP cpWhiteBishop = Cp(ccpWhite, tcpBishop);
-const CP cpBlackBishop = Cp(ccpBlack, tcpBishop);
-const CP cpWhiteRook = Cp(ccpWhite, tcpRook);
-const CP cpBlackRook = Cp(ccpBlack, tcpRook);
-const CP cpWhiteQueen = Cp(ccpWhite, tcpQueen);
-const CP cpBlackQueen = Cp(ccpBlack, tcpQueen);
-const CP cpWhiteKing = Cp(ccpWhite, tcpKing);
-const CP cpBlackKing = Cp(ccpBlack, tcpKing);
+constexpr CP cpWhitePawn = Cp(ccpWhite, tcpPawn);
+constexpr CP cpBlackPawn = Cp(ccpBlack, tcpPawn);
+constexpr CP cpWhiteKnight = Cp(ccpWhite, tcpKnight);
+constexpr CP cpBlackKnight = Cp(ccpBlack, tcpKnight);
+constexpr CP cpWhiteBishop = Cp(ccpWhite, tcpBishop);
+constexpr CP cpBlackBishop = Cp(ccpBlack, tcpBishop);
+constexpr CP cpWhiteRook = Cp(ccpWhite, tcpRook);
+constexpr CP cpBlackRook = Cp(ccpBlack, tcpRook);
+constexpr CP cpWhiteQueen = Cp(ccpWhite, tcpQueen);
+constexpr CP cpBlackQueen = Cp(ccpBlack, tcpQueen);
+constexpr CP cpWhiteKing = Cp(ccpWhite, tcpKing);
+constexpr CP cpBlackKing = Cp(ccpBlack, tcpKing);
 
-const CP cpEmpty = 0;
+constexpr CP cpEmpty = 0;
 
 /*
  *  SQ square type
@@ -87,8 +87,8 @@ const CP cpEmpty = 0;
 
 typedef uint8_t SQ;
 
-const int raMax = 8;
-const int fiMax = 8;
+constexpr int raMax = 8;
+constexpr int fiMax = 8;
 
 inline int ra(int sq) {
     return (sq >> 3) & (raMax-1);
@@ -102,8 +102,8 @@ inline uint8_t Sq(int fi, int ra) {
     return (ra << 3) | fi;
 }
 
-const uint8_t sqNil = 0xc0;
-const uint8_t sqMax = raMax * fiMax;
+constexpr uint8_t sqNil = 0xc0;
+constexpr uint8_t sqMax = raMax * fiMax;
 
 inline string to_string(SQ sq) {
     if (sq == sqNil)
@@ -155,9 +155,9 @@ extern const char fenStartPos[];
 class BD
 {
 private:
-    static const string sParseBoard;
-    static const string sParseColor;
-    static const string sParseCastle;
+    static const string_view sParseBoard;
+    static const string_view sParseColor;
+    static const string_view sParseCastle;
 
 public:
     CP mpsqcp[sqMax];
@@ -180,6 +180,8 @@ public:
     CP& operator[](SQ sq) {
         return mpsqcp[sq];
     }
+
+    void MakeMv(SQ sqFrom, SQ sqTo);
 
     /* FEN reading and writing */
 

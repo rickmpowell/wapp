@@ -32,11 +32,29 @@ BD::BD(const string& fen) :
 }
 
 /*
+ *  BD::MakeMv
+ * 
+ *  Moves the piece from sqFrom to sqTo
+ */
+
+void BD::MakeMv(SQ sqFrom, SQ sqTo)
+{
+    assert(sqFrom != sqNil && sqTo != sqNil);
+    if (sqFrom == sqTo)
+        return;
+
+    mpsqcp[sqTo] = mpsqcp[sqFrom];
+    mpsqcp[sqFrom] = cpEmpty;
+    
+    ccpToMove = ~ccpToMove;
+}
+
+/*
  *  FEN (Forsyth-Edwards Notation) board representation, which is a text-basded
  *  standard simple representation of the chess board state. 
  */
 
-int IchFind(const string& s, char ch)
+int IchFind(const string_view& s, char ch)
 {
     size_t ich = s.find(ch);
     if (ich == string::npos)
@@ -47,9 +65,9 @@ int IchFind(const string& s, char ch)
 /* these constant parsing strings are all cleverly ordered to line up with 
    the numerical definitions of various board, piece, and color values */
 
-const string BD::sParseBoard("/PNBRQK  pnbrqk  12345678");
-const string BD::sParseColor = "wb";
-const string BD::sParseCastle = "KkQq";
+const string_view BD::sParseBoard("/PNBRQK  pnbrqk  12345678");
+const string_view BD::sParseColor("wb");
+const string_view BD::sParseCastle("KkQq");
 
 /*
  *  BD::InitFromFen
@@ -120,6 +138,8 @@ void BD::InitFromFen(istream& is)
         sqEnPassant = Sq(sEnPassant[0]-'a', sEnPassant[1]-'1');
     else
         throw ERRAPP(rssErrFenParse, WsFromS(sEnPassant));
+
+    /* half move clock and full move number */
 
     if (!(is >> sHalfMove >> sFullMove))
         throw ERRAPP(rssErrFenParseMissingPart);

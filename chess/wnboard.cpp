@@ -8,7 +8,7 @@
 #include "chess.h"
 #include "resource.h"
 
-PNG WNBOARD::pngPieces;
+PNGX WNBOARD::pngPieces(rspngChessPieces);
 
  /*
   *  WNBOARD
@@ -19,28 +19,8 @@ PNG WNBOARD::pngPieces;
 WNBOARD::WNBOARD(WN* pwnParent) : 
     WN(pwnParent), 
     bd(fenStartPos),
-    btnFlip(this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f'),
-    ccpView(ccpWhite),
-    angle(0.0f)
+    btnFlip(this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f')
 {
-}
-
-void WNBOARD::RebuildSizeDependent(void)
-{
-    /* no per-instance resources */
-    
-    /* static class resources */
-
-    if (pngPieces)
-        return;
-    WN::RebuildSizeDependent();
-    pngPieces.reset(iwapp, rspngChessPieces);
-}
-
-void WNBOARD::PurgeSizeDependent(void)
-{
-    pngPieces.reset();
-    WN::PurgeSizeDependent();
 }
 
 /*
@@ -75,19 +55,30 @@ CO WNBOARD::CoText(void) const
 
 void WNBOARD::Layout(void)
 {
+    /* compute border area and decorative outline. if either gets too small, we 
+       don't draw them */
+
     dxyBorder = RcInterior().dxWidth() * wBorderPerInterior;
     if (dxyBorder < dxyBorderMin)
         dxyBorder = 0;
     dxyOutline = dxyBorder * wOutlinePerBorder;
     if (dxyOutline < dxyOutlineMin)
         dxyOutline = 0;
+
+    /* cell labels are written inside the border area; again, if too small, don't bother */
+
     dyLabels = dxyBorder * wLabelsPerBorder;
     if (dyLabels < dyLabelsMin) {
         dyLabels = 0;
         dxyBorder = dxyBorder * 0.5f;
     }
+
+    /* and after all that, we know where the squares are and the size of each square */
+
     rcSquares = RcInterior().RcInflate(-dxyBorder);
     dxySquare = rcSquares.dxWidth() / raMax;
+
+    /* position the rotation button */
 
     PT ptBotRight(RcInterior().ptBotRight() - SZ(8.0f));
     btnFlip.SetBounds(RC(ptBotRight - SZ(dxyBorder - 16.0f - 2*dxyOutline), ptBotRight));
@@ -102,10 +93,11 @@ void WNBOARD::Layout(void)
 
 void WNBOARD::Draw(const RC& rcUpdate)
 {
-    GUARDDCTRANSFORM sav(*this, Matrix3x2F::Rotation(angle, rcgBounds.ptCenter()));
+    GUARDDCTRANSFORM sav(*this, Matrix3x2F::Rotation(angleDraw, rcgBounds.ptCenter()));
     DrawBorder();
     DrawSquares();
     DrawPieces();
+    DrawDrag();
 }
 
 /*
@@ -150,22 +142,41 @@ void WNBOARD::DrawBorder(void)
 
 void WNBOARD::DrawSquares(void)
 {
-    for (SQ sq = 0; sq < sqMax; sq++)
-        FillRc(RcFromSq(sq), (ra(sq) + fi(sq)) & 1 ? CoBack() : CoText());
+    for (SQ sq = 0; sq < sqMax; sq++) {
+        CO co((ra(sq) + fi(sq)) & 1 ? CoBack() : CoText());
+        if (sqDragFrom != sqNil) {
+            if (sq == sqDragFrom || sq == sqDragTo)
+                co = CoAverage(CoBack(), CoText());
+        }
+        else if (sq == sqHoverCur)
+            co = CoAverage(co, coRed);
+        FillRc(RcFromSq(sq), co);
+    }
 }
 
 void WNBOARD::DrawPieces(void)
 {
-    int mptcpdx[tcpMax] = { -1, 5, 3, 2, 4, 1, 0 }; // funky order of the bitmap
+    for (SQ sq = 0; sq < sqMax; sq++) {
+        if (bd[sq] != cpEmpty)
+            DrawBmp(RcFromSq(sq), pngPieces, RcPiecesFromCp(bd[sq]), sq == sqDragFrom ? 0.33f : 1.0f);
+    }
+}
+
+void WNBOARD::DrawDrag(void)
+{
+    if (cpDrag == cpEmpty)
+        return;
+    RC rcTo = RC(ptDrag - dptDrag, SZ(dxySquare));
+    DrawBmp(rcTo, pngPieces, RcPiecesFromCp(cpDrag), 1.0f);
+}
+
+RC WNBOARD::RcPiecesFromCp(CP cp) const
+{
+    static const int mptcpdx[tcpMax] = { -1, 5, 3, 2, 4, 1, 0 }; // funky order of pieces in the bitmap
     SZ szPng = pngPieces.sz();
     SZ szPiece = SZ(szPng.width/6, szPng.height/2);
-    for (SQ sq = 0; sq < sqMax; sq++) {
-        CP cp = bd[sq];
-        if (cp == cpEmpty)
-            continue;
-        RC rc = RC(PT(0), szPiece) + PT(szPiece.width*(mptcpdx[tcp(cp)]), szPiece.height*static_cast<int>(ccp(cp)));
-        DrawBmp(RcFromSq(sq), pngPieces, rc, 1.0f);
-    }
+    RC rc = RC(PT(0), szPiece) + PT(szPiece.width*(mptcpdx[tcp(cp)]), szPiece.height*static_cast<int>(ccp(cp)));
+    return rc;
 }
 
 /*
@@ -199,23 +210,91 @@ bool WNBOARD::FSqFromPt(SQ& sq, const PT& pt) const
 }
 
 /*
+ *  WNBOARD::FLegalSqFrom
+ *
+ *  Tells if the square has A piece that can legally move
+ */
+
+bool WNBOARD::FLegalSqFrom(SQ sqFrom) const
+{
+    /* TODO: do real legal move testing */
+    return sqFrom != sqNil && bd[sqFrom] != cpEmpty && ccp(bd[sqFrom]) == bd.ccpToMove;
+}
+
+bool WNBOARD::FLegalSqTo(SQ sqFrom, SQ sqTo) const
+{
+    /* TODO: do real legal move testing */
+    return sqFrom != sqNil && sqTo != sqNil && (bd[sqTo] == cpEmpty || ccp(bd[sqTo]) == ~bd.ccpToMove);
+
+}
+
+/*
  *  WNBOARD::Hover
  * 
- *  Mouse hovering over the board 
+ *  Mouse is hovering over the board. We show a highlight over squares where
+ *  we can move from.
  */
 
 void WNBOARD::Hover(const PT& pt)
 {
     SQ sqHit;
-    if (!FSqFromPt(sqHit, pt) || bd[sqHit] == cpEmpty || ccp(bd[sqHit])  != bd.ccpToMove) 
-        SetCurs(Wapp(iwapp).cursArrow);
-    else
+    if (FSqFromPt(sqHit, pt) && FLegalSqFrom(sqHit))
         SetCurs(Wapp(iwapp).cursHand);
+    else {
+        SetCurs(Wapp(iwapp).cursArrow);
+        sqHit = sqNil;
+    }
+    if (sqHoverCur != sqHit) {
+        sqHoverCur = sqHit;
+        Redraw();
+    }
 }
 
 void WNBOARD::SetDefCurs(void)
 {
     /* no default cursor - hover is responsible for setting the cursor */
+}
+
+/*
+ *  WNBOARD::BeginDrag
+ * 
+ *  Starts the piece drag. 
+ */
+
+void WNBOARD::BeginDrag(const PT& pt, unsigned mk)
+{
+    SQ sqHit;
+    if (!FSqFromPt(sqHit, pt) || !FLegalSqFrom(sqHit))
+        return;
+    sqDragFrom = sqDragTo = sqHit;
+    sqHoverCur = sqNil;
+    cpDrag = bd[sqHit];
+    ptDrag = pt;
+    dptDrag = pt - RcFromSq(sqHit).ptTopLeft();
+    Redraw();
+}
+
+void WNBOARD::Drag(const PT& pt, unsigned mk)
+{
+    SQ sqHit = sqNil;
+    if (!FSqFromPt(sqHit, pt) || !FLegalSqTo(sqDragFrom, sqHit))
+        sqHit = sqNil;
+    if (sqDragTo != sqHit || pt != ptDrag) {
+        ptDrag = pt;
+        sqDragTo = sqHit;
+        Redraw();
+    }
+}
+
+void WNBOARD::EndDrag(const PT& pt, unsigned mk)
+{
+    SQ sqHit;
+    if (FSqFromPt(sqHit, pt) && FLegalSqTo(sqDragFrom, sqHit))
+        bd.MakeMv(sqDragFrom, sqHit);
+    cpDrag = cpEmpty;
+    sqDragFrom = sqDragTo = sqNil;
+    Redraw();
+    Hover(pt);
 }
 
 /*
@@ -226,14 +305,21 @@ void WNBOARD::SetDefCurs(void)
 
 void WNBOARD::FlipCcp(void)
 {
-    /* animate the turning */
+    /* animate the turning over a 1/2 second time period */
     
-    const int iterations = 180;
-    const float angleEnd = -180.0f;
-    for (angle = 0.0f; angle > angleEnd; angle += angleEnd/iterations)
+    float angleStart = angleDraw;
+    float angleEnd = angleStart - 180.0f;
+    constexpr chrono::milliseconds dtmTotal(500);
+    auto tmStart = chrono::high_resolution_clock::now();
+    
+    chrono::duration<float> dtm;
+    assert(angleEnd < angleStart);  // this loop assumes rotating in a negative angle 
+    for ( ; angleDraw > angleEnd; angleDraw = angleStart + (angleEnd - angleStart) * dtm / dtmTotal) {
         Redraw();
-    angle = 0.0f;
+        dtm = chrono::high_resolution_clock::now() - tmStart;
+    }
 
+    angleDraw = angleStart;
     ccpView = ~ccpView;
     Redraw();
 }

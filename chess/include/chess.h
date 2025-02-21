@@ -22,19 +22,24 @@ class WNBOARD : public WN
 public:
     BD bd;
 
-    static PNG pngPieces;
+    static PNGX pngPieces;
 
 private:
     BTNCH btnFlip;
 
-    CCP ccpView;  // orientation of the board, black or white
-    float angle;    // and to draw during flipping
+    CCP ccpView = ccpWhite;  // orientation of the board, black or white
+    
+    float angleDraw = 0.0f;    // and to draw during flipping
+    SQ sqHoverCur = sqNil;
+    SQ sqDragFrom = sqNil, sqDragTo = sqNil;
+    CP cpDrag = cpEmpty;  // piece we're dragging
+    PT ptDrag = PT(0, 0);
+    PT dptDrag = PT(0,0); // offset from the mouse cursor of the initial drag hit
 
-    /* metrics for drawing, computed during layout */
+    /* metrics for drawing */
 
     float dxySquare, dxyBorder, dxyOutline, dyLabels;
     RC rcSquares;
-
     const float wBorderPerInterior = 0.08f; // ratio of the size of of border to the total board size
     const float dxyBorderMin = 20.0f;   // minimum board border size
     const float wOutlinePerBorder = 0.0625f;    // ratio of width of outline width to the wideth of the boarder
@@ -48,14 +53,14 @@ public:
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
 
-    virtual void RebuildSizeDependent(void) override;
-    virtual void PurgeSizeDependent(void) override;
-
     virtual void Layout(void) override;
     virtual void Draw(const RC& rcUpdate) override;
 
     virtual void Hover(const PT& pt) override;
     virtual void SetDefCurs(void) override;
+    virtual void BeginDrag(const PT& pt, unsigned mk) override;
+    virtual void Drag(const PT& pt, unsigned mk) override;
+    virtual void EndDrag(const PT& pt, unsigned mk) override;
 
     void FlipCcp(void);
 
@@ -63,8 +68,12 @@ private:
     void DrawBorder(void);
     void DrawSquares(void);
     void DrawPieces(void);
+    void DrawDrag(void);
     RC RcFromSq(int sq) const;
+    RC RcPiecesFromCp(CP cp) const;
     bool FSqFromPt(SQ& sq, const PT& pt) const;
+    bool FLegalSqFrom(SQ sq) const;
+    bool FLegalSqTo(SQ sqFrom, SQ sqTo) const;
 };
 
 /*
