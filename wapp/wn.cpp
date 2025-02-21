@@ -103,46 +103,32 @@ bool WN::FEnabled(void) const
  *  Direct2D drawing object management
  */
 
-void WN::RebuildAllDeviceIndependent(void)
+void WN::RebuildDidosWithChildren(void)
 {
-    RebuildDeviceIndependent();
+    RebuildDidos();
     for (WN* pwn : vpwnChildren)
-        pwn->RebuildAllDeviceIndependent();
+        pwn->RebuildDidos();
 }
 
-void WN::PurgeAllDeviceIndependent(void)
+void WN::PurgeDidosWithChildren(void)
 {
-    PurgeDeviceIndependent();
+    PurgeDidos();
     for (WN* pwn : vpwnChildren)
-        pwn->PurgeAllDeviceIndependent();
+        pwn->PurgeDidosWithChildren();
 }
 
-void WN::RebuildAllDeviceDependent(void)
+void WN::RebuildDddosWithChildren(void)
 {
-    RebuildDeviceDependent();
+    RebuildDddos();
     for (WN* pwn : vpwnChildren)
-        pwn->RebuildAllDeviceDependent();
+        pwn->RebuildDddosWithChildren();
 }
 
-void WN::PurgeAllDeviceDependent(void)
+void WN::PurgeDddosWithChildren(void)
 {
-    PurgeDeviceDependent();
+    PurgeDddos();
     for (WN* pwn : vpwnChildren)
-        pwn->PurgeAllDeviceDependent();
-}
-
-void WN::RebuildAllSizeDependent(void)
-{
-    RebuildSizeDependent();
-    for (WN* pwn : vpwnChildren)
-        pwn->RebuildAllSizeDependent();
-}
-
-void WN::PurgeAllSizeDependent(void)
-{
-    PurgeSizeDependent();
-    for (WN* pwn : vpwnChildren)
-        pwn->PurgeAllSizeDependent();
+        pwn->PurgeDddosWithChildren();
 }
 
 /*

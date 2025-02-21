@@ -11,15 +11,40 @@
 #include "framework.h"
 #include "coord.h"
 class IWAPP;
+class DDDO;
 
 /*
- *  RTC
+ *
  */
+
 
 class RTC
 {
 protected:
-    IWAPP& wapp;
+    IWAPP& iwapp;
+public:
+    RTC(IWAPP& iwapp) : iwapp(iwapp) {}
+    virtual ~RTC() {}
+
+    virtual void RebuildDddos(com_ptr<ID2D1DeviceContext>& pdc2) = 0;
+    virtual void PurgeDddos(com_ptr<ID2D1DeviceContext>& pdc2) = 0;
+    virtual void Prepare(com_ptr<ID2D1DeviceContext>& pdc2) = 0;
+    virtual void Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate) = 0;
+
+    static vector<DDDO*>* pvpdddo;
+    static void RegisterDddo(DDDO& dddo);
+    static void UnregisterDddo(DDDO& dddo);
+    static void PurgeRegisteredDddos(void);
+    static void RebuildRegisteredDddos(IWAPP& iwapp);
+};
+
+/*
+ *  RTCFLIP
+ */
+
+class RTCFLIP : public RTC
+{
+protected:
 
     /* Device dependent resources */
 
@@ -35,13 +60,27 @@ protected:
     com_ptr<ID2D1Bitmap1> pbmpBackBuf;
 
 public:
-    RTC(void) = default;
-    RTC(IWAPP& wapp);
-    ~RTC();
+    RTCFLIP(void) = default;
+    RTCFLIP(IWAPP& iwapp);
+    virtual ~RTCFLIP();
 
-    virtual void RebuildDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2);
-    virtual void PurgeDeviceDependent(com_ptr<ID2D1DeviceContext>& pdc2);
-    virtual void RebuildSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2);
-    virtual void PurgeSizeDependent(com_ptr<ID2D1DeviceContext>& pdc2);
-    virtual void Present(const RC& rcUpdate);
+    virtual void RebuildDddos(com_ptr<ID2D1DeviceContext>& pdc2) override;
+    virtual void PurgeDddos(com_ptr<ID2D1DeviceContext>& pdc2) override;
+    virtual void Prepare(com_ptr<ID2D1DeviceContext>& pdc2) override;
+    virtual void Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate) override;
+protected:
+    void RebuildDev(void);
+    void CreateBuffer(com_ptr<ID2D1DeviceContext>& pdc2, com_ptr<ID2D1Bitmap1>& pbmpBuf);
+};
+
+
+class RTC2 : public RTCFLIP
+{
+public:
+    RTC2(void) = default;
+    RTC2(IWAPP& iwapp) : RTCFLIP(iwapp) {}
+
+    virtual void RebuildDddos(com_ptr<ID2D1DeviceContext>& pdc2) override;
+    virtual void Prepare(com_ptr<ID2D1DeviceContext>& pdc2) override;
+    virtual void Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcUpdate) override;
 };

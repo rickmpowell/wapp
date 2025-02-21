@@ -64,13 +64,15 @@ public:
     unique_ptr<RTC> prtc;
     com_ptr<ID2D1DeviceContext> pdc2;
 
-    virtual void RebuildDeviceIndependent(void) override;
-    virtual void PurgeDeviceIndependent(void) override;
-    virtual void RebuildDeviceDependent(void) override;
-    virtual void PurgeDeviceDependent(void) override;
-    virtual void RebuildSizeDependent(void) override;
-    virtual void PurgeSizeDependent(void) override;
+    /* drawing object management */
 
+    void RebuildAllDidos(void);
+    void PurgeAllDidos(void);
+    void RebuildAllDddos(void);
+    void PurgeAllDddos(void);
+    virtual void RebuildDidos(void) override;
+    virtual void PurgeDidos(void) override;
+ 
     /* window message handlers */
 
     virtual void OnCreate(void) override;

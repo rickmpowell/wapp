@@ -14,11 +14,29 @@
  *  A wrapper on the Direct2D ColorF class
  */
 
-class CO : public ColorF
+class CO : public D2D1_COLOR_F
 {
 public:
-    CO(ColorF color) : ColorF(color) { }
-    CO(float r, float g, float b) : ColorF(r, g, b) { }
+    CO(void) {
+        this->r = 0;
+        this->g = 0;
+        this->b = 0;
+        this->a = 1.0f;
+    }
+
+    constexpr CO(float r, float g, float b, float a=1.0f) {
+        this->r = r;
+        this->g = g;
+        this->b = b;
+        this->a = a;
+    }
+
+    constexpr CO(UINT32 rgb, float a=1.0f) {
+        this->r = static_cast<float>((rgb & 0xff0000) >> 16) / 255.f;
+        this->g = static_cast<float>((rgb & 0x00ff00) >> 8) / 255.f;
+        this->b = static_cast<float>((rgb & 0x0000ff) >> 0) / 255.f;
+        this->a = a;
+    }
 
     bool operator == (const CO& co) const {
         return r == co.r && g == co.g && b == co.b && a == co.a;
@@ -161,152 +179,151 @@ inline CO& CO::SetValue(float val) {
     return *this = hsv.SetValue(val);
 }
 
-
 /*
  *  constant colors
  */
 
-const CO coNil(ColorF((UINT32)0, -1.0f));  // an illegal alpha value
+constexpr CO coNil(0, -1.0f);  // an illegal alpha value
 
-const CO coAliceBlue(0xF0F8FF);
-const CO coAntiqueWhite(0xFAEBD7);
-const CO coAqua(0x00FFFF);
-const CO coAquamarine(0x7FFFD4);
-const CO coAzure(0xF0FFFF);
-const CO coBeige(0xF5F5DC);
-const CO coBisque(0xFFE4C4);
-const CO coBlack(0x000000);
-const CO coBlanchedAlmond(0xFFEBCD);
-const CO coBlue(0x0000FF);
-const CO coBlueViolet(0x8A2BE2);
-const CO coBrown(0xA52A2A);
-const CO coBurlyWood(0xDEB887);
-const CO coCadetBlue(0x5F9EA0);
-const CO coChartreuse(0x7FFF00);
-const CO coChocolate(0xD2691E);
-const CO coCoral(0xFF7F50);
-const CO coCornflowerBlue(0x6495ED);
-const CO coCornsilk(0xFFF8DC);
-const CO coCrimson(0xDC143C);
-const CO coCyan(0x00FFFF);
-const CO coDarkBlue(0x00008B);
-const CO coDarkCyan(0x008B8B);
-const CO coDarkGoldenrod(0xB8860B);
-const CO coDarkGreen(0x006400);
-const CO coDarkKhaki(0xBDB76B);
-const CO coDarkMagenta(0x8B008B);
-const CO coDarkOliveGreen(0x556B2F);
-const CO coDarkOrange(0xFF8C00);
-const CO coDarkOrchid(0x9932CC);
-const CO coDarkRed(0x8B0000);
-const CO coDarkSalmon(0xE9967A);
-const CO coDarkSeaGreen(0x8FBC8F);
-const CO coDarkSlateBlue(0x483D8B);
-const CO coDarkSlateGray(0x2F4F4F);
-const CO coDarkTurquoise(0x00CED1);
-const CO coDarkViolet(0x9400D3);
-const CO coDeepPink(0xFF1493);
-const CO coDeepSkyBlue(0x00BFFF);
-const CO coDimGray(0x696969);
-const CO coDodgerBlue(0x1E90FF);
-const CO coFirebrick(0xB22222);
-const CO coFloralWhite(0xFFFAF0);
-const CO coForestGreen(0x228B22);
-const CO coFuchsia(0xFF00FF);
-const CO coGainsboro(0xDCDCDC);
-const CO coGhostWhite(0xF8F8FF);
-const CO coGold(0xFFD700);
-const CO coGoldenrod(0xDAA520);
-const CO coGray(0x808080);
-const CO coGreen(0x008000);
-const CO coGreenYellow(0xADFF2F);
-const CO coHoneydew(0xF0FFF0);
-const CO coHotPink(0xFF69B4);
-const CO coIndianRed(0xCD5C5C);
-const CO coIndigo(0x4B0082);
-const CO coIvory(0xFFFFF0);
-const CO coKhaki(0xF0E68C);
-const CO coLavender(0xE6E6FA);
-const CO coLavenderBlush(0xFFF0F5);
-const CO coLawnGreen(0x7CFC00);
-const CO coLemonChiffon(0xFFFACD);
-const CO coLightBlue(0xADD8E6);
-const CO coLightCoral(0xF08080);
-const CO coLightCyan(0xE0FFFF);
-const CO coLightGoldenrodYellow(0xFAFAD2);
-const CO coLightGreen(0x90EE90);
-const CO coLightGray(0xD3D3D3);
-const CO coLightPink(0xFFB6C1);
-const CO coLightSalmon(0xFFA07A);
-const CO coLightSeaGreen(0x20B2AA);
-const CO coLightSkyBlue(0x87CEFA);
-const CO coLightSlateGray(0x778899);
-const CO coLightSteelBlue(0xB0C4DE);
-const CO coLightYellow(0xFFFFE0);
-const CO coLime(0x00FF00);
-const CO coLimeGreen(0x32CD32);
-const CO coLinen(0xFAF0E6);
-const CO coMagenta(0xFF00FF);
-const CO coMaroon(0x800000);
-const CO coMediumAquamarine(0x66CDAA);
-const CO coMediumBlue(0x0000CD);
-const CO coMediumOrchid(0xBA55D3);
-const CO coMediumPurple(0x9370DB);
-const CO coMediumSeaGreen(0x3CB371);
-const CO coMediumSlateBlue(0x7B68EE);
-const CO coMediumSpringGreen(0x00FA9A);
-const CO coMediumTurquoise(0x48D1CC);
-const CO coMediumVioletRed(0xC71585);
-const CO coMidnightBlue(0x191970);
-const CO coMintCream(0xF5FFFA);
-const CO coMistyRose(0xFFE4E1);
-const CO coMoccasin(0xFFE4B5);
-const CO coNavajoWhite(0xFFDEAD);
-const CO coNavy(0x000080);
-const CO coOldLace(0xFDF5E6);
-const CO coOlive(0x808000);
-const CO coOliveDrab(0x6B8E23);
-const CO coOrange(0xFFA500);
-const CO coOrangeRed(0xFF4500);
-const CO coOrchid(0xDA70D6);
-const CO coPaleGoldenrod(0xEEE8AA);
-const CO coPaleGreen(0x98FB98);
-const CO coPaleTurquoise(0xAFEEEE);
-const CO coPaleVioletRed(0xDB7093);
-const CO coPapayaWhip(0xFFEFD5);
-const CO coPeachPuff(0xFFDAB9);
-const CO coPeru(0xCD853F);
-const CO coPink(0xFFC0CB);
-const CO coPlum(0xDDA0DD);
-const CO coPowderBlue(0xB0E0E6);
-const CO coPurple(0x800080);
-const CO coRed(0xFF0000);
-const CO coRosyBrown(0xBC8F8F);
-const CO coRoyalBlue(0x4169E1);
-const CO coSaddleBrown(0x8B4513);
-const CO coSalmon(0xFA8072);
-const CO coSandyBrown(0xF4A460);
-const CO coSeaGreen(0x2E8B57);
-const CO coSeaShell(0xFFF5EE);
-const CO coSienna(0xA0522D);
-const CO coSilver(0xC0C0C0);
-const CO coSkyBlue(0x87CEEB);
-const CO coSlateBlue(0x6A5ACD);
-const CO coSlateGray(0x708090);
-const CO coSnow(0xFFFAFA);
-const CO coSpringGreen(0x00FF7F);
-const CO coSteelBlue(0x4682B4);
-const CO coTan(0xD2B48C);
-const CO coTeal(0x008080);
-const CO coThistle(0xD8BFD8);
-const CO coTomato(0xFF6347);
-const CO coTurquoise(0x40E0D0);
-const CO coViolet(0xEE82EE);
-const CO coWheat(0xF5DEB3);
-const CO coWhite(0xFFFFFF);
-const CO coWhiteSmoke(0xF5F5F5);
-const CO coYellow(0xFFFF00);
-const CO coYellowGreen(0x9ACD32);
+constexpr CO coAliceBlue(0xF0F8FF);
+constexpr CO coAntiqueWhite(0xFAEBD7);
+constexpr CO coAqua(0x00FFFF);
+constexpr CO coAquamarine(0x7FFFD4);
+constexpr CO coAzure(0xF0FFFF);
+constexpr CO coBeige(0xF5F5DC);
+constexpr CO coBisque(0xFFE4C4);
+constexpr CO coBlack(0x000000);
+constexpr CO coBlanchedAlmond(0xFFEBCD);
+constexpr CO coBlue(0x0000FF);
+constexpr CO coBlueViolet(0x8A2BE2);
+constexpr CO coBrown(0xA52A2A);
+constexpr CO coBurlyWood(0xDEB887);
+constexpr CO coCadetBlue(0x5F9EA0);
+constexpr CO coChartreuse(0x7FFF00);
+constexpr CO coChocolate(0xD2691E);
+constexpr CO coCoral(0xFF7F50);
+constexpr CO coCornflowerBlue(0x6495ED);
+constexpr CO coCornsilk(0xFFF8DC);
+constexpr CO coCrimson(0xDC143C);
+constexpr CO coCyan(0x00FFFF);
+constexpr CO coDarkBlue(0x00008B);
+constexpr CO coDarkCyan(0x008B8B);
+constexpr CO coDarkGoldenrod(0xB8860B);
+constexpr CO coDarkGreen(0x006400);
+constexpr CO coDarkKhaki(0xBDB76B);
+constexpr CO coDarkMagenta(0x8B008B);
+constexpr CO coDarkOliveGreen(0x556B2F);
+constexpr CO coDarkOrange(0xFF8C00);
+constexpr CO coDarkOrchid(0x9932CC);
+constexpr CO coDarkRed(0x8B0000);
+constexpr CO coDarkSalmon(0xE9967A);
+constexpr CO coDarkSeaGreen(0x8FBC8F);
+constexpr CO coDarkSlateBlue(0x483D8B);
+constexpr CO coDarkSlateGray(0x2F4F4F);
+constexpr CO coDarkTurquoise(0x00CED1);
+constexpr CO coDarkViolet(0x9400D3);
+constexpr CO coDeepPink(0xFF1493);
+constexpr CO coDeepSkyBlue(0x00BFFF);
+constexpr CO coDimGray(0x696969);
+constexpr CO coDodgerBlue(0x1E90FF);
+constexpr CO coFirebrick(0xB22222);
+constexpr CO coFloralWhite(0xFFFAF0);
+constexpr CO coForestGreen(0x228B22);
+constexpr CO coFuchsia(0xFF00FF);
+constexpr CO coGainsboro(0xDCDCDC);
+constexpr CO coGhostWhite(0xF8F8FF);
+constexpr CO coGold(0xFFD700);
+constexpr CO coGoldenrod(0xDAA520);
+constexpr CO coGray(0x808080);
+constexpr CO coGreen(0x008000);
+constexpr CO coGreenYellow(0xADFF2F);
+constexpr CO coHoneydew(0xF0FFF0);
+constexpr CO coHotPink(0xFF69B4);
+constexpr CO coIndianRed(0xCD5C5C);
+constexpr CO coIndigo(0x4B0082);
+constexpr CO coIvory(0xFFFFF0);
+constexpr CO coKhaki(0xF0E68C);
+constexpr CO coLavender(0xE6E6FA);
+constexpr CO coLavenderBlush(0xFFF0F5);
+constexpr CO coLawnGreen(0x7CFC00);
+constexpr CO coLemonChiffon(0xFFFACD);
+constexpr CO coLightBlue(0xADD8E6);
+constexpr CO coLightCoral(0xF08080);
+constexpr CO coLightCyan(0xE0FFFF);
+constexpr CO coLightGoldenrodYellow(0xFAFAD2);
+constexpr CO coLightGreen(0x90EE90);
+constexpr CO coLightGray(0xD3D3D3);
+constexpr CO coLightPink(0xFFB6C1);
+constexpr CO coLightSalmon(0xFFA07A);
+constexpr CO coLightSeaGreen(0x20B2AA);
+constexpr CO coLightSkyBlue(0x87CEFA);
+constexpr CO coLightSlateGray(0x778899);
+constexpr CO coLightSteelBlue(0xB0C4DE);
+constexpr CO coLightYellow(0xFFFFE0);
+constexpr CO coLime(0x00FF00);
+constexpr CO coLimeGreen(0x32CD32);
+constexpr CO coLinen(0xFAF0E6);
+constexpr CO coMagenta(0xFF00FF);
+constexpr CO coMaroon(0x800000);
+constexpr CO coMediumAquamarine(0x66CDAA);
+constexpr CO coMediumBlue(0x0000CD);
+constexpr CO coMediumOrchid(0xBA55D3);
+constexpr CO coMediumPurple(0x9370DB);
+constexpr CO coMediumSeaGreen(0x3CB371);
+constexpr CO coMediumSlateBlue(0x7B68EE);
+constexpr CO coMediumSpringGreen(0x00FA9A);
+constexpr CO coMediumTurquoise(0x48D1CC);
+constexpr CO coMediumVioletRed(0xC71585);
+constexpr CO coMidnightBlue(0x191970);
+constexpr CO coMintCream(0xF5FFFA);
+constexpr CO coMistyRose(0xFFE4E1);
+constexpr CO coMoccasin(0xFFE4B5);
+constexpr CO coNavajoWhite(0xFFDEAD);
+constexpr CO coNavy(0x000080);
+constexpr CO coOldLace(0xFDF5E6);
+constexpr CO coOlive(0x808000);
+constexpr CO coOliveDrab(0x6B8E23);
+constexpr CO coOrange(0xFFA500);
+constexpr CO coOrangeRed(0xFF4500);
+constexpr CO coOrchid(0xDA70D6);
+constexpr CO coPaleGoldenrod(0xEEE8AA);
+constexpr CO coPaleGreen(0x98FB98);
+constexpr CO coPaleTurquoise(0xAFEEEE);
+constexpr CO coPaleVioletRed(0xDB7093);
+constexpr CO coPapayaWhip(0xFFEFD5);
+constexpr CO coPeachPuff(0xFFDAB9);
+constexpr CO coPeru(0xCD853F);
+constexpr CO coPink(0xFFC0CB);
+constexpr CO coPlum(0xDDA0DD);
+constexpr CO coPowderBlue(0xB0E0E6);
+constexpr CO coPurple(0x800080);
+constexpr CO coRed(0xFF0000);
+constexpr CO coRosyBrown(0xBC8F8F);
+constexpr CO coRoyalBlue(0x4169E1);
+constexpr CO coSaddleBrown(0x8B4513);
+constexpr CO coSalmon(0xFA8072);
+constexpr CO coSandyBrown(0xF4A460);
+constexpr CO coSeaGreen(0x2E8B57);
+constexpr CO coSeaShell(0xFFF5EE);
+constexpr CO coSienna(0xA0522D);
+constexpr CO coSilver(0xC0C0C0);
+constexpr CO coSkyBlue(0x87CEEB);
+constexpr CO coSlateBlue(0x6A5ACD);
+constexpr CO coSlateGray(0x708090);
+constexpr CO coSnow(0xFFFAFA);
+constexpr CO coSpringGreen(0x00FF7F);
+constexpr CO coSteelBlue(0x4682B4);
+constexpr CO coTan(0xD2B48C);
+constexpr CO coTeal(0x008080);
+constexpr CO coThistle(0xD8BFD8);
+constexpr CO coTomato(0xFF6347);
+constexpr CO coTurquoise(0x40E0D0);
+constexpr CO coViolet(0xEE82EE);
+constexpr CO coWheat(0xF5DEB3);
+constexpr CO coWhite(0xFFFFFF);
+constexpr CO coWhiteSmoke(0xF5F5F5);
+constexpr CO coYellow(0xFFFF00);
+constexpr CO coYellowGreen(0x9ACD32);
 
 const float hueRed = 0.0f;
 const float hueOrange = 30.0f;

@@ -63,8 +63,8 @@ public:
  *  A few standard commonly used errors
  */
 
-const ERR errNone = ERR(S_OK);
-const ERR errFail = ERR(E_FAIL);
+extern const ERR errNone;
+extern const ERR errFail;
 
 /*
  *  ThrowError - throws an error if we have a failed operation

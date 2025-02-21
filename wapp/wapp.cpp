@@ -20,27 +20,50 @@ IWAPP::IWAPP(void) :
     WN(*this, nullptr),
     pwnDrag(nullptr), pwnHover(nullptr)
 {
-    prtc = make_unique<RTC>(*this);
-    RebuildAllDeviceIndependent();
+    prtc = make_unique<RTCFLIP>(*this);
+    RebuildAllDidos();
 }
 
 IWAPP::~IWAPP()
 {
 }
 
+void IWAPP::RebuildAllDidos(void)
+{
+    RebuildDidosWithChildren();
+}
+
+void IWAPP::PurgeAllDidos(void)
+{
+    RebuildDidosWithChildren();
+}
+
+void IWAPP::RebuildAllDddos(void)
+{
+    prtc->RebuildDddos(pdc2);
+    RebuildDddosWithChildren();
+}
+
+void IWAPP::PurgeAllDddos(void)
+{
+    PurgeDddosWithChildren();
+    prtc->PurgeDddos(pdc2);
+}
+
 /*
- *  IWAPP::RebuildDeviceIndependent
+ *  IWAPP::RebuildDidos
  *
  *  Makes sure the Direct2D factories we need are all created. Throws an exception
  *  on failure.
  */
 
-void IWAPP::RebuildDeviceIndependent(void)
+void IWAPP::RebuildDidos(void)
 {
     if (pfactd2)
         return;
 
-    WN::RebuildDeviceIndependent();
+    /* REVIEW: do I need to do this? */
+    WN::RebuildDidos();
 
     /* get all the Direcct2D factories we need */
 
@@ -61,49 +84,13 @@ void IWAPP::RebuildDeviceIndependent(void)
                                    &pfactdwr));
 }
 
-void IWAPP::PurgeDeviceIndependent(void)
+void IWAPP::PurgeDidos(void)
 {
     pfactd2.Reset();
     pfactwic.Reset();
     pfactdwr.Reset();
-    WN::PurgeDeviceIndependent();
-}
-
-/*
- *  IWAPP:RebuildDeviceDependent
- *
- *  Creates the Direct2D resources for drawing on this application window.
- *  The base APP has created the static items we need, and this version creates
- *  the swapchain and back buffer.
- *
- *  These items must be rebuilt whenever the window size changes.
- *
- *  Throws an exception if an error occurs.
- */
-
-void IWAPP::RebuildDeviceDependent(void)
-{
-    assert(hwnd != NULL);
-    prtc->RebuildDeviceDependent(pdc2);
-    WN::RebuildDeviceDependent();
-}
-
-void IWAPP::PurgeDeviceDependent(void)
-{
-    WN::PurgeDeviceDependent();
-    prtc->PurgeDeviceDependent(pdc2);
-}
-
-void IWAPP::RebuildSizeDependent(void)
-{
-    prtc->RebuildSizeDependent(pdc2);
-    WN::RebuildSizeDependent();
-}
-
-void IWAPP::PurgeSizeDependent(void)
-{
-    WN::PurgeSizeDependent();
-    prtc->PurgeSizeDependent(pdc2);
+    /* REVIEW: is this necessary? */
+    WN::PurgeDidos();
 }
 
 /*
@@ -131,8 +118,8 @@ void IWAPP::CreateWnd(int rssTitle, int ws, PT pt, SZ sz)
 
 void IWAPP::OnCreate(void)
 {
-    RebuildAllDeviceIndependent();
-    RebuildAllDeviceDependent();
+    RebuildAllDidos();
+    RebuildAllDddos();
 }
 
 void IWAPP::OnDestroy(void)
@@ -142,14 +129,13 @@ void IWAPP::OnDestroy(void)
 
 void IWAPP::OnDisplayChange(void)
 {
-    PurgeAllSizeDependent();
-    PurgeAllDeviceDependent();
+    PurgeAllDddos();
 }
 
 void IWAPP::OnSize(const SZ& sz)
 {
-    PurgeAllSizeDependent();
-    RebuildAllSizeDependent();
+    PurgeAllDddos();
+    RebuildAllDddos();
     SetBounds(RC(PT(0), sz));
 }
 
@@ -241,21 +227,21 @@ void IWAPP::BeginDraw(void)
     /* make sure all our Direct2D objects are created and force them to be
        recreated if the display has changed */
 
-    RebuildAllDeviceIndependent();
-    RebuildAllDeviceDependent();
-    RebuildAllSizeDependent();
+    RebuildAllDidos();
+    RebuildAllDddos();
+    
     pdc2->BeginDraw();
+    prtc->Prepare(pdc2);
 }
 
 void IWAPP::EndDraw(const RC& rcUpdate)
 {
     if (pdc2->EndDraw() == D2DERR_RECREATE_TARGET) {
-        PurgeAllSizeDependent();
-        PurgeAllDeviceDependent();
+        PurgeAllDddos();
         return;
     }
 
-    prtc->Present(rcUpdate);
+    prtc->Present(pdc2, rcUpdate);
 }
 
 void IWAPP::Draw(const RC& rcUpdate)
@@ -355,6 +341,9 @@ wstring IWAPP::WsFromErr(ERR err) const
     
     return ws;
 }
+
+const ERR errNone = ERR(S_OK); 
+const ERR errFail = ERR(E_FAIL);
 
 /*
  *  IWAPP::MsgPump

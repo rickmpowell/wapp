@@ -60,6 +60,12 @@ public:
     HCURSOR HcursorDef(LPCWSTR rsc) const;
 };
 
+/*
+ *  CURS class
+ * 
+ *  A mouse cursor
+ */
+
 class CURS
 {
     HCURSOR hcursor;
@@ -153,11 +159,24 @@ public:
 
 /*
  *  Some Windows guard classes that ensure proper cleanup of various
- *  Windows allocated objects.
+ *  Windows allocated objects. These are similar to unique_ptr in that only
+ *  oneresource_ptr will ever point to the object at any time.
  */
 
- /* TODO: implement other operations supported by unique_ptr, like swap, assignment,
-    copy constructors, reset, release  .... */
+/*
+ *  resource_ptr
+ * 
+ *  A pointer to a resource object in the application's resource fork. Uses
+ *  similar semantics to unique_ptr.
+ * 
+ *  Resources do not need to be freed in modern Windows, so this implementation
+ *  is a little weird. Also, the get() function returns a pointer rather than
+ *  a handle, and reset returns the handle to the data. We do not keep the 
+ *  resource handle internally, so that handle is lost. 
+ *
+ *  The size is lost after a reset(), so use it with care.
+ */
+
 class resource_ptr
 {
     HGLOBAL hData;
@@ -180,23 +199,77 @@ public:
         }
     }
 
-    ~resource_ptr() {
-        // don't need to unlock or free resources in modern Windows
-        pData = nullptr;
-        hData = NULL;
+    // don't do reset on these move operations so cbData copies too
+
+    resource_ptr(resource_ptr&& ptr) : hData(ptr.hData), pData(ptr.pData), cbData(ptr.cbData) {
+        ptr.release();
     }
 
-    BYTE* get(void) {
+    resource_ptr& operator = (resource_ptr&& ptr) noexcept {
+        if (this != &ptr) {
+            hData = ptr.hData;
+            pData = ptr.pData;
+            cbData = ptr.cbData;
+            ptr.release();
+        }
+        return *this;
+    }
+
+    ~resource_ptr() noexcept {
+        reset();
+    }
+
+    resource_ptr(const resource_ptr&) = delete;
+    resource_ptr& operator = (const resource_ptr&) = delete;
+
+    HGLOBAL release(void) noexcept {
+        HGLOBAL hT = hData;
+        hData = NULL;
+        pData = nullptr;
+        cbData = 0;
+        return hT;
+    }
+
+    void reset(HGLOBAL hData = NULL) noexcept {
+        this->hData = hData;
+        if (hData) {
+            pData = static_cast<BYTE*>(::LockResource(hData));
+            cbData = 0;     // note that we lose the size on reset
+        }
+        else {
+            pData = nullptr;
+            cbData = 0;
+        }
+    }
+
+    void swap(resource_ptr& ptr) noexcept {
+        std::swap(hData, ptr.hData);
+        std::swap(pData, ptr.pData);
+        std::swap(cbData, ptr.cbData);
+    }
+
+    BYTE* get(void) noexcept {
         return pData;
     }
 
-    unsigned size(void) {
+    HGLOBAL handle(void) noexcept {
+        return hData;
+    }
+
+    unsigned size(void) noexcept {
         return cbData;
     }
 };
 
-/* TODO: implement other operations supported by unique_ptr, like swap, assignment,
-   copy constructors, .... */
+/*
+ *  global_ptr
+ * 
+ *  Holds a global allocated Windows handle, similar semantics to unique_ptr.
+ * 
+ *  Note that the get() function returns a *pointer* to the globally allocated 
+ *  memory, while reset() returns a *handle* to the allocated memory.
+ */
+
 class global_ptr
 {
 private:
@@ -217,21 +290,25 @@ public:
 
     global_ptr(HGLOBAL h) : h(h), p(nullptr) {
         p = static_cast<char*>(::GlobalLock(h));
-        if (p == nullptr) {
-            ::GlobalFree(h);
+        if (p == nullptr)
             throw ERRLAST();
-        }
     }
 
+    global_ptr(resource_ptr&& ptr) {
+        reset(ptr.release());
+    }
+
+    global_ptr& operator = (global_ptr&& ptr) {
+        if (this != &ptr)
+            reset(ptr.release());
+        return *this;
+    }
+
+    global_ptr(const global_ptr&) = delete;
+    global_ptr& operator = (const global_ptr&) = delete;
+
     ~global_ptr() {
-        if (p) {
-            ::GlobalUnlock(h);
-            p = nullptr;
-        }
-        if (h) {
-            ::GlobalFree(h);
-            h = NULL;
-        }
+        reset();
     }
 
     HGLOBAL release(void) {
@@ -258,8 +335,17 @@ public:
         }
     }
 
+    void swap(global_ptr& ptr) {
+        std::swap(h, ptr.h);
+        std::swap(p, ptr.p);
+    }
+
     char* get(void) {
         return p;
+    }
+
+    HGLOBAL handle(void) const {
+        return h;
     }
 };
 

@@ -40,6 +40,7 @@
 #include <iterator>
 #include <memory>
 #include <format>
+#include <chrono>
 
 using namespace std;
 using namespace D2D1;

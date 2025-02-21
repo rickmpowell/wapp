@@ -211,6 +211,14 @@ public:
     PT& operator *= (float w) {
         return Scale(w);
     }
+
+    bool operator == (const PT& pt) const {
+        return x == pt.x && y == pt.y;
+    }
+
+    bool operator != (const PT& pt) const {
+        return !(*this == pt);
+    }
 };
 
 /*

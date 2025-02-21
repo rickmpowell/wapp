@@ -8,10 +8,134 @@
 
 #include "coord.h"
 #include "color.h"
+class DC;
 class BR;
 class TF;
 class BMP;
 class IWAPP;
+
+/*
+ *  BR class
+ *
+ *  The brush, a tight wrapper on the Direct2D brush.
+ */
+
+class BR
+{
+public:
+    com_ptr<ID2D1SolidColorBrush> pbrush;
+
+public:
+    BR(void) {}
+    BR(DC& dc, CO co);
+    BR& SetCo(CO co);
+
+    void reset(void);
+    void reset(DC& dc, CO co);
+    operator ID2D1Brush* () const;
+    ID2D1SolidColorBrush* release(void);
+    operator bool() const;
+    bool operator ! () const;
+};
+
+/*
+ *  TF class
+ *
+ *  The textface, a tight wrapper on the Direct2D/DWrite TextFormat.
+ */
+
+class TF
+{
+public:
+    enum WEIGHT
+    {
+        weightNormal,
+        weightBold
+    };
+    enum STYLE
+    {
+        styleNormal,
+        styleItalic
+    };
+
+public:
+    com_ptr<IDWriteTextFormat> ptf;
+
+public:
+    TF(DC& dc, const wstring& wsFace, float dyHeight,
+       WEIGHT weight = weightNormal, STYLE = styleNormal);
+    operator IDWriteTextFormat* () const;
+};
+
+/*
+ *  Bitmap class
+ */
+
+class BMP
+{
+public:
+    com_ptr<ID2D1Bitmap1> pbitmap;
+
+public:
+    BMP(void) : pbitmap(nullptr) {}
+
+    operator ID2D1Bitmap1* () const { return pbitmap.Get(); }
+    SZ sz(void) const { return pbitmap->GetSize(); }
+
+    void reset(void);
+    ID2D1Bitmap* release(void);
+    operator bool() const;
+    bool operator ! () const;
+};
+
+class PNG : public BMP
+{
+public:
+    PNG(void) : BMP() {}
+    PNG(IWAPP& iwapp, int rspng);
+    void reset(void);
+    void reset(IWAPP& iwapp, int rspng);
+};
+
+/*
+ *  Device dependent drawing objects that must be rebuilt on device or size changes. 
+ *  These items register themselves with our RT class so they will automatically be 
+ *  purged and rebuilt when the screen changes happen.
+ * 
+ *  They require maintining enough information to rebuild themselves. 
+ */
+
+class DDDO
+{
+public:
+    DDDO(void);
+    virtual ~DDDO();
+    virtual void rebuild(IWAPP& iwapp);
+    virtual void purge(void);
+};
+
+class PNGX : public PNG, public DDDO
+{
+    int rspng;
+public:
+    PNGX(void) = default;
+    PNGX(int rspng);
+    void reset(IWAPP& iwapp, int rspng);
+    virtual void rebuild(IWAPP& iwapp) override;
+    virtual void purge(void) override;
+};
+
+class BRX : public BR, public DDDO
+{
+    CO co;
+public:
+    BRX(void) = default;
+    BRX(CO co);
+    void reset(DC& dc, CO co);
+    virtual void rebuild(IWAPP& iwapp) override;
+    virtual void purge(void) override;
+};
+
 
 /*
  *  Drawing context class
@@ -24,7 +148,7 @@ class DC
 public:
     IWAPP& iwapp;
 
-    static BR brScratch;
+    static BRX brScratch;
 
 protected:
     RC rcgBounds;    /* relative to the pdc in the app */
@@ -58,94 +182,11 @@ public:
 
     void DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity);
 
-    virtual void RebuildDeviceIndependent(void);
-    virtual void PurgeDeviceIndependent(void);
-    virtual void RebuildDeviceDependent(void);
-    virtual void PurgeDeviceDependent(void);
-    virtual void RebuildSizeDependent(void);
-    virtual void PurgeSizeDependent(void);
-};
+    /* drawing object management */
 
-/*
- *  BR class
- * 
- *  The brush, a tight wrapper on the Direct2D brush.
- */
-
-class BR
-{
-public:
-    com_ptr<ID2D1SolidColorBrush> pbrush;
-
-public:
-    BR(void) {}
-    BR(DC& dc, CO co);
-    BR& SetCo(CO co);
-
-    void reset(void);
-    void reset(DC& dc, CO co);
-    operator ID2D1Brush* () const;
-    ID2D1SolidColorBrush* release(void);
-    operator bool ( ) const;
-    bool operator ! () const;
-};
-
-/*
- *  TF class
- * 
- *  The textface, a tight wrapper on the Direct2D/DWrite TextFormat.
- */
-
-class TF
-{
-public:
-    enum WEIGHT
-    {
-        weightNormal,
-        weightBold
-    };
-    enum STYLE
-    {
-        styleNormal,
-        styleItalic
-    };
-
-public:
-    com_ptr<IDWriteTextFormat> ptf;
-
-public:
-    TF(DC& dc, const wstring& wsFace, float dyHeight, 
-       WEIGHT weight = weightNormal, STYLE = styleNormal);
-    operator IDWriteTextFormat* () const;
-};
-
-/*
- *  Bitmap class
- */
-
-class BMP
-{
-public:
-    com_ptr<ID2D1Bitmap1> pbitmap;
-
-public:
-    BMP(void) : pbitmap(nullptr) { }
-
-    operator ID2D1Bitmap1* () const { return pbitmap.Get(); }
-    SZ sz(void) const { return pbitmap->GetSize(); }
-
-    void reset(void);
-    ID2D1Bitmap* release(void);
-    operator bool() const;
-    bool operator ! () const;
-};
-
-class PNG : public BMP
-{
-public:
-    PNG(void) : BMP() {}
-    PNG(IWAPP& iwapp, int rspng);
-    void reset(void);
-    void reset(IWAPP& iwapp, int rspng);
+    virtual void RebuildDidos(void);
+    virtual void PurgeDidos(void);
+    virtual void RebuildDddos(void);
+    virtual void PurgeDddos(void);
 };
 

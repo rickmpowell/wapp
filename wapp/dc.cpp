@@ -7,7 +7,7 @@
 
 #include "wapp.h"
 
-BR DC::brScratch;
+BRX DC::brScratch;
 
 /*
  *  Brushes
@@ -141,6 +141,80 @@ void PNG::reset(IWAPP& iwapp, int rspng)
     ThrowError(iwapp.pdc2->CreateBitmapFromWicBitmap(pconverter.Get(), 
                                                         nullptr, 
                                                         &pbitmap));
+}
+
+/*
+ *  Device dependent drawing objects that register themselves with the RT so they
+ *  can be automatically rebuilt on screen changes.
+ */
+
+PNGX::PNGX(int rspng) : PNG(), rspng(rspng)
+{
+}
+
+void PNGX::reset(IWAPP& iwapp, int rspng)
+{
+    this->rspng = rspng;
+    PNG::reset(iwapp, rspng);
+}
+
+void PNGX::purge(void)
+{
+    PNG::reset();
+}
+
+void PNGX::rebuild(IWAPP& iwapp)
+{
+    if (!*this)
+        reset(iwapp, rspng);
+}
+
+/*
+ *  automatically rebuilt brushes
+ */
+
+BRX::BRX(CO co) : co(co), BR()
+{
+}
+
+void BRX::reset(DC& dc, CO co)
+{
+    BR::reset(dc, co);
+}
+
+void BRX::purge(void)
+{
+    BR::reset();
+}
+
+void BRX::rebuild(IWAPP& iwapp)
+{
+    if (!*this)
+        reset(iwapp, co);
+}
+
+/*
+ *  automatically rebuild object base class
+ */
+
+DDDO::DDDO()
+{
+    RTC::RegisterDddo(*this);
+}
+
+DDDO::~DDDO()
+{
+    RTC::UnregisterDddo(*this);
+}
+
+void DDDO::purge(void)
+{
+    /* each class should call reset() with no arguments here */
+}
+
+void DDDO::rebuild(IWAPP& iwapp)
+{
+    /* each class should call reset(iwapp ...) here to rebuild itself */
 }
 
 /*
@@ -289,34 +363,23 @@ PT DC::PtFromWnPt(const PT& pt, const DC& dc) const
 }
 
 /*
- *  Resource management
+ *  Drawing object management
  */
 
-void DC::RebuildDeviceIndependent(void)
+void DC::RebuildDidos(void)
 {
 }
 
-void DC::PurgeDeviceIndependent(void)
+void DC::PurgeDidos(void)
 {
 }
 
-void DC::RebuildDeviceDependent(void)
+void DC::RebuildDddos(void)
 {
 }
 
-void DC::PurgeDeviceDependent(void)
+void DC::PurgeDddos(void)
 {
 }
 
-void DC::RebuildSizeDependent(void)
-{
-    if (brScratch)
-        return;
-    brScratch.reset(*this, coWhite);
-}
-
-void DC::PurgeSizeDependent(void)
-{
-    brScratch.reset();
-}
 

@@ -60,13 +60,11 @@ public:
     virtual void Enable(bool fEnable = true);
     virtual bool FEnabled(void) const;
 
-    void RebuildAllDeviceIndependent(void);
-    void PurgeAllDeviceIndependent(void);
-    void RebuildAllDeviceDependent(void);
-    void PurgeAllDeviceDependent(void);
-    void RebuildAllSizeDependent(void);
-    void PurgeAllSizeDependent(void);
-
+    void RebuildDidosWithChildren(void);
+    void PurgeDidosWithChildren(void);
+    void RebuildDddosWithChildren(void);
+    void PurgeDddosWithChildren(void);
+ 
     virtual void BeginDraw(void);
     virtual void EndDraw(const RC& rcUpdate);
     virtual void Draw(const RC& rcUpdate);
