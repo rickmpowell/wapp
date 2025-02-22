@@ -15,6 +15,7 @@
 #define cmdNewGame 16
 #define cmdDisableBoard 17
 #define cmdFlipBoard 18
+#define cmdTest 19
 
 /*
  *  Accelerator tables

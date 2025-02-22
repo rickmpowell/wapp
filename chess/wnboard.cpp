@@ -21,6 +21,7 @@ WNBOARD::WNBOARD(WN* pwnParent) :
     bd(fenStartPos),
     btnFlip(this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f')
 {
+    bd.MoveGen(vmv);
 }
 
 /*
@@ -142,16 +143,45 @@ void WNBOARD::DrawBorder(void)
 
 void WNBOARD::DrawSquares(void)
 {
+    BR brMove(*this, coGray);
+    constexpr float dxyCrossFull = 20.0f;
+    constexpr float dxyCrossCenter = 4.0f;
+    static const vector<PT> vptCross = { {-dxyCrossCenter, -dxyCrossFull},
+                                         {dxyCrossCenter, -dxyCrossFull},
+                                         {dxyCrossCenter, -dxyCrossCenter},
+                                         {dxyCrossFull, -dxyCrossCenter},
+                                         {dxyCrossFull, dxyCrossCenter},
+                                         {dxyCrossCenter, dxyCrossCenter},
+                                         {dxyCrossCenter, dxyCrossFull},
+                                         {-dxyCrossCenter, dxyCrossFull},
+                                         {-dxyCrossCenter, dxyCrossCenter},
+                                         {-dxyCrossFull, dxyCrossCenter},
+                                         {-dxyCrossFull, -dxyCrossCenter},
+                                         {-dxyCrossCenter, -dxyCrossCenter},
+                                         {-dxyCrossCenter, -dxyCrossFull} };
+    GEOM geomCross(*this, vptCross);
+
     for (SQ sq = 0; sq < sqMax; sq++) {
-        CO co((ra(sq) + fi(sq)) & 1 ? CoBack() : CoText());
+        CO coBack((ra(sq) + fi(sq)) & 1 ? CoBack() : CoText());
         if (sqDragFrom != sqNil) {
             if (sq == sqDragFrom || sq == sqDragTo)
-                co = CoAverage(CoBack(), CoText());
+                coBack = CoAverage(CoBack(), coDarkRed);
         }
         else if (sq == sqHoverCur)
-            co = CoAverage(co, coRed);
-        FillRc(RcFromSq(sq), co);
-    }
+            coBack = CoAverage(CoBack(), coDarkRed);
+        FillRc(RcFromSq(sq), coBack);
+    
+        for (MV mv : vmv) {
+            if (sq != mv.sqTo || (sqHoverCur != mv.sqFrom && sqDragFrom != mv.sqFrom))
+                continue;
+            brMove.SetCo(CoAverage(coBack, coBlack));
+            PT ptCenter = RcFromSq(sq).ptCenter();
+            if (bd[sq] == cpEmpty)
+                FillEll(ELL(ptCenter, dxySquare * 0.25f), brMove);
+            else
+                FillGeom(geomCross, ptCenter, dxySquare / (2 * dxyCrossFull), 45, brMove);
+        }
+    }    
 }
 
 void WNBOARD::DrawPieces(void)
@@ -217,14 +247,22 @@ bool WNBOARD::FSqFromPt(SQ& sq, const PT& pt) const
 
 bool WNBOARD::FLegalSqFrom(SQ sqFrom) const
 {
-    /* TODO: do real legal move testing */
-    return sqFrom != sqNil && bd[sqFrom] != cpEmpty && ccp(bd[sqFrom]) == bd.ccpToMove;
+    for (MV mv : vmv) {
+        if (mv.sqFrom == sqFrom)
+            return true;
+    }
+    return false;
 }
 
-bool WNBOARD::FLegalSqTo(SQ sqFrom, SQ sqTo) const
+bool WNBOARD::FLegalSqTo(SQ sqFrom, SQ sqTo, MV& mvHit) const
 {
-    /* TODO: do real legal move testing */
-    return sqFrom != sqNil && sqTo != sqNil && (bd[sqTo] == cpEmpty || ccp(bd[sqTo]) == ~bd.ccpToMove);
+    for (MV mv : vmv) {
+        if (mv.sqFrom == sqFrom && mv.sqTo == sqTo) {
+            mvHit = mv;
+            return true;
+        }
+    }
+    return false;
 
 }
 
@@ -277,7 +315,8 @@ void WNBOARD::BeginDrag(const PT& pt, unsigned mk)
 void WNBOARD::Drag(const PT& pt, unsigned mk)
 {
     SQ sqHit = sqNil;
-    if (!FSqFromPt(sqHit, pt) || !FLegalSqTo(sqDragFrom, sqHit))
+    MV mvHit;
+    if (!FSqFromPt(sqHit, pt) || !FLegalSqTo(sqDragFrom, sqHit, mvHit))
         sqHit = sqNil;
     if (sqDragTo != sqHit || pt != ptDrag) {
         ptDrag = pt;
@@ -289,8 +328,11 @@ void WNBOARD::Drag(const PT& pt, unsigned mk)
 void WNBOARD::EndDrag(const PT& pt, unsigned mk)
 {
     SQ sqHit;
-    if (FSqFromPt(sqHit, pt) && FLegalSqTo(sqDragFrom, sqHit))
-        bd.MakeMv(sqDragFrom, sqHit);
+    MV mvHit;
+    if (FSqFromPt(sqHit, pt) && FLegalSqTo(sqDragFrom, sqHit, mvHit)) {
+        bd.MakeMv(mvHit);
+        bd.MoveGen(vmv);
+    }
     cpDrag = cpEmpty;
     sqDragFrom = sqDragTo = sqNil;
     Redraw();

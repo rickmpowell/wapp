@@ -161,6 +161,8 @@
   <ItemGroup>
     <ClCompile Include="board.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="movegen.cpp" />
+    <ClCompile Include="test.cpp" />
     <ClCompile Include="wnboard.cpp" />
   </ItemGroup>
   <ItemGroup>

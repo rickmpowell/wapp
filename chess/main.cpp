@@ -27,6 +27,7 @@ int Run(const wstring& wsCmd, int sw)
 
 WAPP::WAPP(const wstring& wsCmd, int sw) : 
     wnboard(this),
+    wntest(this),
     cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND)
 {
     CreateWnd(rssAppTitle);
@@ -59,7 +60,12 @@ void WAPP::Layout(void)
     float dxyMargin = roundf(max(dxyBoard*wMarginPerWindow, dxyMarginMax));
     dxyBoard = max(dxyBoard - 2*dxyMargin, raMax*dxySquareMin);
     
-    wnboard.SetBounds(RC(PT(dxyMargin), SZ(dxyBoard)));
+    RC rc = RC(PT(dxyMargin), SZ(dxyBoard));
+    wnboard.SetBounds(rc);
+
+    rc.left = rc.right + dxyMargin;
+    rc.right = rc.left + 300.0f;
+    wntest.SetBounds(rc);
 }
 
 /*
@@ -92,7 +98,9 @@ CMDEXECUTE(CMDEXIT)
 
 CMDEXECUTE(CMDNEWGAME)
 {
+    /* TODO: can we invent an interface here that automatically calls MoveGen? */
     wapp.wnboard.bd.InitFromFen(fenStartPos);
+    wapp.wnboard.bd.MoveGen(wapp.wnboard.vmv);
     wapp.wnboard.Redraw();
     return 1;
 }
@@ -116,6 +124,16 @@ public:
         return true;
     }
 };
+
+/*
+ *  CMDTEST
+ */
+
+CMDEXECUTE(CMDTEST)
+{
+    wapp.RunTest();
+    return 1;
+}
 
 /*
  *  CMDUNDO
@@ -215,6 +233,7 @@ public:
             BD bd;
             bd.InitFromFen(is);
             wapp.wnboard.bd = bd;
+            wapp.wnboard.bd.MoveGen(wapp.wnboard.vmv);
             wapp.wnboard.Redraw();
         }
         catch (ERR err) {
@@ -255,6 +274,7 @@ void WAPP::RegisterMenuCmds(void)
     REGMENUCMD(cmdCopy, CMDCOPY);
     REGMENUCMD(cmdPaste, CMDPASTE);
 
+    REGMENUCMD(cmdTest, CMDTEST);
     REGMENUCMD(cmdAbout, CMDABOUT);
     
     assert(FVerifyMenuCmdsRegistered());

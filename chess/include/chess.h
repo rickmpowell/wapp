@@ -21,6 +21,7 @@ class WNBOARD : public WN
 {
 public:
     BD bd;
+    vector<MV> vmv;
 
     static PNGX pngPieces;
 
@@ -73,7 +74,27 @@ private:
     RC RcPiecesFromCp(CP cp) const;
     bool FSqFromPt(SQ& sq, const PT& pt) const;
     bool FLegalSqFrom(SQ sq) const;
-    bool FLegalSqTo(SQ sqFrom, SQ sqTo) const;
+    bool FLegalSqTo(SQ sqFrom, SQ sqTo, MV& mvHit) const;
+};
+
+/*
+ *  Test window
+ */
+
+class WNTEST : public WN
+{
+    TITLEBAR titlebar;
+    vector<wstring> vws;
+    RC rcClient;
+
+public:
+    WNTEST(WN* pwnParent);
+
+    virtual void Layout(void) override;
+    virtual void Draw(const RC& rcUpdate) override;
+
+    void clear(void);
+    void operator << (const wstring& ws);
 };
 
 /*
@@ -86,6 +107,7 @@ class WAPP : public IWAPP
 {
 public:
     WNBOARD wnboard;
+    WNTEST wntest;
 
     const float wMarginPerWindow = 0.02f; // ratio of the size of of margin to the total window size
     const float dxyMarginMax = 4.0f;    // maximum margin around the board
@@ -101,6 +123,8 @@ public:
 
     virtual CO CoBack(void) const override;
     virtual void Layout(void) override;    
+
+    void RunTest(void);
 };
 
 #define Wapp(iwapp) static_cast<WAPP&>(iwapp)

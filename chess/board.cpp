@@ -15,37 +15,96 @@ const char fenStartPos[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
  *  BD class - the basic chess board
  */
 
-BD::BD(void) : 
-    ccpToMove(ccpWhite),
-    csCur(csNone),
-    sqEnPassant(sqNil)
+BD::BD(void)
 {
     EmptyMpsqcp();
 }
 
-BD::BD(const string& fen) :
-    ccpToMove(ccpWhite),
-    csCur(csNone),
-    sqEnPassant(sqNil)
+BD::BD(const string& fen)
 {
     InitFromFen(fen);
+}
+
+void BD::EmptyMpsqcp(void) {
+    memset(acp, cpEmpty, sizeof(acp));
+    for (int icp = 0; icp < 10 * 2; icp++) {
+        acp[icp] = cpInvalid;
+        acp[10*10+icp] = cpInvalid;
+    }
+    for (int ra = 0; ra < 8; ra++) {
+        acp[(ra+2)*10] = cpInvalid;
+        acp[(ra+2)*10+9] = cpInvalid;
+    }
 }
 
 /*
  *  BD::MakeMv
  * 
- *  Moves the piece from sqFrom to sqTo
+ *  Makes a move on the board. 
  */
 
-void BD::MakeMv(SQ sqFrom, SQ sqTo)
+void BD::MakeMv(MV mv)
 {
-    assert(sqFrom != sqNil && sqTo != sqNil);
-    if (sqFrom == sqTo)
-        return;
+    assert(mv.sqFrom != sqNil && mv.sqTo != sqNil);
 
-    mpsqcp[sqTo] = mpsqcp[sqFrom];
-    mpsqcp[sqFrom] = cpEmpty;
+    CP cpMove = (*this)[mv.sqFrom];
+    SQ sqTake = mv.sqTo;
+
+    if (tcp(cpMove) == tcpPawn) {
+        /* keep track of en passant possibility */
+        if (abs(mv.sqFrom - mv.sqTo) == 16)
+            sqEnPassant = (mv.sqFrom + mv.sqTo) / 2;
+        else {
+            /* handle en passant capture */
+            if (mv.sqTo == sqEnPassant)
+                sqTake = ccpToMove == ccpWhite ? mv.sqTo - 8 : mv.sqTo + 8;
+            /* hanlde promotions */
+            else if (mv.tcpPromote != tcpNone)
+                cpMove = Cp(ccp(cpMove), mv.tcpPromote);
+            sqEnPassant = sqNil;
+        }
+    }
+    else {
+        sqEnPassant = sqNil;
+        if (tcp(cpMove) == tcpRook) {
+            /* clear castle state if we move a rook */
+            int raBack = RaBack(ccpToMove);
+            if (mv.sqFrom == Sq(fiQueenRook, raBack))
+                csCur &= ~Cs(csQueen, ccpToMove);
+            else if (mv.sqFrom == Sq(fiKingRook, raBack))
+                csCur &= ~Cs(csKing, ccpToMove);
+        }
+        else if (tcp(cpMove) == tcpKing) {
+            /* after the king moves, no castling is allowed */
+            csCur &= ~Cs(csKing|csQueen, ccpToMove);
+            /* castle moves have the from/to of the king part of the move */
+            /* Note Chess960 castle can potentially swap king and rook, so order of 
+               emptying/placing is important */
+            int raBack = RaBack(ccpToMove);
+            if (mv.csMove & csQueen) {
+                (*this)(fiQueenRook, raBack) = (*this)[mv.sqFrom] = cpEmpty;
+                (*this)(fiD, raBack) = Cp(ccpToMove, tcpRook);
+                (*this)[mv.sqTo] = cpMove;
+                goto Done;
+            }
+            if (mv.csMove & csKing) {
+                (*this)(fiKingRook, raBack) = (*this)[mv.sqFrom] = cpEmpty;
+                (*this)(fiF, raBack) = Cp(ccpToMove, tcpRook);
+                (*this)[mv.sqTo] = cpMove;
+                goto Done;
+            }
+        }
+    }
     
+    /* remove piece we're taking */
+    if ((*this)[sqTake] != cpEmpty)
+        (*this)[sqTake] = cpEmpty;
+
+    /* and finally we move the piece */
+    (*this)[mv.sqFrom] = cpEmpty;
+    (*this)[mv.sqTo] = cpMove;
+
+Done:
     ccpToMove = ~ccpToMove;
 }
 
@@ -65,9 +124,9 @@ int IchFind(const string_view& s, char ch)
 /* these constant parsing strings are all cleverly ordered to line up with 
    the numerical definitions of various board, piece, and color values */
 
-const string_view BD::sParseBoard("/PNBRQK  pnbrqk  12345678");
-const string_view BD::sParseColor("wb");
-const string_view BD::sParseCastle("KkQq");
+constexpr string_view BD::sParseBoard("/PNBRQK /pnbrqk /12345678");
+constexpr string_view BD::sParseColor("wb");
+constexpr string_view BD::sParseCastle("KkQq");
 
 /*
  *  BD::InitFromFen
@@ -109,7 +168,7 @@ void BD::InitFromFen(istream& is)
         else if (ich >= 16) // numbers, mean skip squares
             sq += ich - 16;
         else if (sq < sqMax)
-            mpsqcp[sq++] = ich;   // otherwise the offset matches the value of the chess piece
+            (*this)[sq++] = ich;   // otherwise the offset matches the value of the chess piece
         else
             throw ERRAPP(rssErrFenParse, WsFromS(sBoard));
     }
@@ -178,7 +237,7 @@ string BD::FenRender(void) const
     int csqEmpty = 0;
     for (int ra = raMax-1; ra >= 0; ra--) {
         for (int fi = 0; fi < fiMax; fi++) {
-            CP cp = mpsqcp[Sq(fi, ra)];
+            CP cp = (*this)[Sq(fi, ra)];
             if (cp == cpEmpty)
                 csqEmpty++;
             else
