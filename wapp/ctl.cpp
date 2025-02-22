@@ -121,3 +121,37 @@ void BTNCH::Layout(void)
 {
     /* TODO: size the font to fill the rectangle */
 }
+
+/*
+ *  TITLEBAR
+ */
+
+TITLEBAR::TITLEBAR(WN* pwnParent, const wstring& wsTitle) :
+    WN(pwnParent), wsTitle(wsTitle), tf(*this, L"Verdana", 15, TF::weightBold)
+{
+}
+
+CO TITLEBAR::CoBack(void) const
+{
+    return coDarkGreen;
+}
+
+CO TITLEBAR::CoText(void) const
+{
+    return coWhite;
+}
+
+void TITLEBAR::Draw(const RC& rcUpdate)
+{
+    RC rc = RcInterior();
+    rc.left += 12.0f;
+    rc.top += 4.0f;
+    DrawWs(wsTitle, tf, rc);
+}
+
+SZ TITLEBAR::SzRequestLayout(void) const
+{
+    SZ sz = SzFromWs(wsTitle, tf);
+    return SZ(-1.0f, sz.height + 8.0f);
+}
+

@@ -51,6 +51,8 @@ class BTN : public CTL
 {
 public:
     BTN(WN* pwnParent, ICMD* pcmd);
+    virtual ~BTN() = default;
+
     virtual CO CoBack(void) const override;
     virtual CO CoText(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
@@ -68,6 +70,27 @@ class BTNCH : public BTN
 
 public:
     BTNCH(WN* pwnParent, ICMD* pcmd, wchar_t ch);
+    virtual ~BTNCH() = default;
+
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
+};
+
+/*
+ *  TITLEBAR
+ */
+
+class TITLEBAR : public WN
+{
+    wstring wsTitle;
+    TF tf;
+
+public:
+    TITLEBAR(WN* pwnParent, const wstring& wsTitle);
+    virtual ~TITLEBAR() = default;
+
+    virtual CO CoBack(void) const override;
+    virtual CO CoText(void) const override;
+    virtual void Draw(const RC& rcUpdate) override;
+    virtual SZ SzRequestLayout(void) const;
 };
