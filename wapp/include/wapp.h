@@ -218,3 +218,24 @@ public:
         dc.iwapp.pdc2->SetTransform(matrixSav);
     }
 };
+
+/*
+ *  DC antialias mode
+ */
+
+struct GUARDDCAA
+{
+private:
+    DC& dc;
+    D2D1_ANTIALIAS_MODE aaSav;
+
+public:
+    GUARDDCAA(DC& dc, D2D1_ANTIALIAS_MODE aa) : dc(dc) {
+        aaSav = dc.iwapp.pdc2->GetAntialiasMode();
+        dc.iwapp.pdc2->SetAntialiasMode(aa);
+    }
+
+    ~GUARDDCAA() {
+        dc.iwapp.pdc2->SetAntialiasMode(aaSav);
+    }
+};

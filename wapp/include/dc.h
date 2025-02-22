@@ -29,6 +29,7 @@ public:
     BR(void) {}
     BR(DC& dc, CO co);
     BR& SetCo(CO co);
+    BR& SetOpacity(float opacity);
 
     void reset(void);
     void reset(DC& dc, CO co);
@@ -94,7 +95,27 @@ public:
     PNG(void) : BMP() {}
     PNG(IWAPP& iwapp, int rspng);
     void reset(void);
-    void reset(IWAPP& iwapp, int rspng);
+    void reset(DC& dc, int rspng);
+};
+
+/*
+ *  GEOM class
+ * 
+ *  A geometry
+ */
+
+class GEOM
+{
+private:
+    com_ptr<ID2D1PathGeometry> pgeometry;
+
+public:
+    GEOM(void) = default;
+    GEOM(DC& dc, const vector<PT>& vpt);
+
+    operator ID2D1PathGeometry* () const {
+        return pgeometry.Get();
+    }
 };
 
 /*
@@ -173,12 +194,15 @@ public:
     void FillRcBack(const RC& rcFill);
     void DrawRc(const RC& rc, CO co = coNil, float dxyStroke = 1.0f);
     void DrawRc(const RC& rc, const BR& br, float dxyStroke = 1.0f);
+    void FillEll(const ELL& ellFill, CO coFill = coNil);
+    void FillEll(const ELL& ellFill, const BR& br);
+    void FillGeom(const GEOM& geomFill, const PT& ptOffset, const SZ& szScale, float angle, BR& br);
 
-    void DrawWs(const wstring& ws, TF& tf, const RC& rc, const BR& brText);
-    void DrawWs(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil);
+    void DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText);
+    void DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText = coNil);
     void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, const BR& brText);
     void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil);
-    SZ SzFromWs(const wstring& ws, TF& tf);
+    SZ SzFromWs(const wstring& ws, const TF& tf) const;
 
     void DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity);
 

@@ -24,6 +24,12 @@ BR& BR::SetCo(CO co)
     return *this;
 }
 
+BR& BR::SetOpacity(float opacity)
+{
+    pbrush->SetOpacity(opacity);
+    return *this;
+}
+
 BR::operator ID2D1Brush* () const 
 {
     return pbrush.Get();
@@ -53,6 +59,24 @@ BR::operator bool() const
 bool BR::operator ! () const
 {
     return !pbrush;
+}
+
+/*
+ *  Geometry
+ */
+
+GEOM::GEOM(DC& dc, const vector<PT>& vpt) 
+{
+    auto apt = make_unique<PT[]>(vpt.size());
+    for (int ipt = 0; ipt < vpt.size(); ipt++)
+        apt[ipt] = vpt[ipt];
+    dc.iwapp.pfactd2->CreatePathGeometry(&pgeometry);
+    com_ptr<ID2D1GeometrySink> psink;
+    pgeometry->Open(&psink);
+    psink->BeginFigure(apt[0], D2D1_FIGURE_BEGIN_FILLED);
+    psink->AddLines(&apt[1], static_cast<UINT32>(vpt.size()-1));
+    psink->EndFigure(D2D1_FIGURE_END_CLOSED);
+    psink->Close();
 }
 
 /*
@@ -116,29 +140,29 @@ void PNG::reset(void)
     BMP::reset();
 }
 
-void PNG::reset(IWAPP& iwapp, int rspng)
+void PNG::reset(DC& dc, int rspng)
 {
-    resource_ptr prsrc(iwapp, L"PNG", rspng);
+    resource_ptr prsrc(dc.iwapp, L"PNG", rspng);
 
     com_ptr<IWICStream> pstream;
-    ThrowError(iwapp.pfactwic->CreateStream(&pstream));
+    ThrowError(dc.iwapp.pfactwic->CreateStream(&pstream));
     pstream->InitializeFromMemory(prsrc.get(), prsrc.size());
     com_ptr<IWICBitmapDecoder> pdecoder;
-    ThrowError(iwapp.pfactwic->CreateDecoderFromStream(pstream.Get(), 
+    ThrowError(dc.iwapp.pfactwic->CreateDecoderFromStream(pstream.Get(), 
                                                           nullptr, 
                                                           WICDecodeMetadataCacheOnLoad, 
                                                           &pdecoder));
     com_ptr<IWICBitmapFrameDecode> pframe;
     pdecoder->GetFrame(0, &pframe);
     com_ptr<IWICFormatConverter> pconverter;
-    ThrowError(iwapp.pfactwic->CreateFormatConverter(&pconverter));
+    ThrowError(dc.iwapp.pfactwic->CreateFormatConverter(&pconverter));
     ThrowError(pconverter->Initialize(pframe.Get(), 
                                       GUID_WICPixelFormat32bppPBGRA, 
                                       WICBitmapDitherTypeNone, 
                                       nullptr, 
                                       0.0f,             
                                       WICBitmapPaletteTypeMedianCut));
-    ThrowError(iwapp.pdc2->CreateBitmapFromWicBitmap(pconverter.Get(), 
+    ThrowError(dc.iwapp.pdc2->CreateBitmapFromWicBitmap(pconverter.Get(), 
                                                         nullptr, 
                                                         &pbitmap));
 }
@@ -288,13 +312,37 @@ void DC::DrawRc(const RC& rc, const BR& br, float dxyStroke)
     iwapp.pdc2->DrawRectangle(&rcg, br, dxyStroke);
 }
 
-void DC::DrawWs(const wstring& ws, TF& tf, const RC& rc, const BR& brText)
+void DC::FillEll(const ELL& ellFill, CO coFill)
+{
+    if (coFill == coNil)
+        coFill = CoText();
+    FillEll(ellFill, brScratch.SetCo(coFill));
+}
+
+void DC::FillEll(const ELL& ellFill, const BR& brFill)
+{
+    ELL ellg = ellFill.EllOffset(PtgFromPt(PT(0, 0)));
+    iwapp.pdc2->FillEllipse(&ellg, brFill);
+}
+
+void DC::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float angle, BR& brFill)
+{
+    PT ptgOrigin = rcgBounds.ptTopLeft();
+    GUARDDCTRANSFORM trans(*this,
+                           Matrix3x2F::Rotation(angle, PT(0, 0)) *
+                           Matrix3x2F::Scale(szScale, PT(0, 0)) *
+                           Matrix3x2F::Translation(ptgOrigin + ptOffset));
+    GUARDDCAA aa(*this, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+    iwapp.pdc2->FillGeometry(geom, brFill);
+}
+
+void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText)
 {
     RC rcg = RcgFromRc(rc);
     iwapp.pdc2->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText);
 }
 
-void DC::DrawWs(const wstring& ws, TF& tf, const RC& rc, CO coText)
+void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText)
 {
     if (coText == coNil)
         coText = CoText();
@@ -314,7 +362,7 @@ void DC::DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText)
     DrawWsCenter(ws, tf, rc, brScratch.SetCo(coText));
 }
 
-SZ DC::SzFromWs(const wstring& ws, TF& tf)
+SZ DC::SzFromWs(const wstring& ws, const TF& tf) const
 {
     com_ptr<IDWriteTextLayout> ptxl;
     iwapp.pfactdwr->CreateTextLayout(ws.c_str(), (UINT32)ws.size(),
