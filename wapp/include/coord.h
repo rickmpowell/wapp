@@ -110,6 +110,9 @@ public:
 class PT : public D2D1_POINT_2F
 {
 public:
+    PT(void) {
+    }
+
     PT(float x, float y) {
         this->x = x;
         this->y = y;
@@ -138,6 +141,10 @@ public:
         return point;
     }
 
+    operator D2D1_SIZE_F() const {
+        return SizeF(x, y);
+    }
+    
     PT& Offset(const SZ& sz) {
         x += sz.width;
         y += sz.height;
@@ -504,5 +511,49 @@ public:
         rect.right = (long)ceilf(right);
         rect.bottom = (long)ceilf(bottom);
         return rect;
+    }
+};
+
+/*
+ *  ELL class
+ * 
+ *  An ellipse
+ */
+
+class ELL : public D2D1_ELLIPSE
+{
+public:
+    ELL(void) {
+    }
+
+    ELL(const PT& ptCenter, const SZ& szRadius) {
+        point.x = ptCenter.x;
+        point.y = ptCenter.y;
+        radiusX = szRadius.width;
+        radiusY = szRadius.height;
+    }
+
+    ELL(const PT& ptCenter, float dxyRadius) {
+        point.x = ptCenter.x;
+        point.y = ptCenter.y;
+        radiusX = radiusY = dxyRadius;
+    }
+
+    ELL& Offset(float dx, float dy) {
+        point.x += dx;
+        point.y += dy;
+        return *this;
+    }
+
+    ELL& Offset(const PT& pt) {
+        point.x += pt.x;
+        point.y += pt.y;
+        return *this;
+    }
+
+    ELL EllOffset(const PT& pt) const {
+        ELL ell = *this;
+        ell.Offset(pt);
+        return ell;
     }
 };
