@@ -17,7 +17,7 @@ const char fenStartPos[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
 
 BD::BD(void)
 {
-    EmptyMpsqcp();
+    EmptyAcpbd();
 }
 
 BD::BD(const string& fen)
@@ -25,16 +25,17 @@ BD::BD(const string& fen)
     InitFromFen(fen);
 }
 
-void BD::EmptyMpsqcp(void) {
-    memset(acp, cpEmpty, sizeof(acp));
+void BD::EmptyAcpbd(void) {
     for (int icp = 0; icp < 10 * 2; icp++) {
-        acp[icp] = cpInvalid;
-        acp[10*10+icp] = cpInvalid;
+        acpbd[icp].cp(cpInvalid);
+        acpbd[10*10+icp].cp(cpInvalid);
     }
     for (int ra = 0; ra < 8; ra++) {
-        acp[(ra+2)*10] = cpInvalid;
-        acp[(ra+2)*10+9] = cpInvalid;
+        acpbd[(ra+2)*10].cp(cpInvalid);
+        acpbd[(ra+2)*10+9].cp(cpInvalid);
     }
+    for (SQ sq = 0; sq < sqMax; sq++)
+        (*this)[sq].cp(cpEmpty);
 }
 
 /*
@@ -43,11 +44,13 @@ void BD::EmptyMpsqcp(void) {
  *  Makes a move on the board. 
  */
 
-void BD::MakeMv(MV mv)
+void BD::MakeMv(MV& mv)
 {
     assert(mv.sqFrom != sqNil && mv.sqTo != sqNil);
 
-    CP cpMove = (*this)[mv.sqFrom];
+    mv.csSav = csCur;
+    mv.sqEnPassantSav = sqEnPassant;
+    CP cpMove = (*this)[mv.sqFrom].cp();
     SQ sqTake = mv.sqTo;
 
     if (tcp(cpMove) == tcpPawn) {
@@ -57,8 +60,8 @@ void BD::MakeMv(MV mv)
         else {
             /* handle en passant capture */
             if (mv.sqTo == sqEnPassant)
-                sqTake = ccpToMove == ccpWhite ? mv.sqTo - 8 : mv.sqTo + 8;
-            /* hanlde promotions */
+                sqTake += ccpToMove == ccpWhite ? -8 : 8;
+            /* promotions */
             else if (mv.tcpPromote != tcpNone)
                 cpMove = Cp(ccp(cpMove), mv.tcpPromote);
             sqEnPassant = sqNil;
@@ -97,15 +100,56 @@ void BD::MakeMv(MV mv)
     }
     
     /* remove piece we're taking */
-    if ((*this)[sqTake] != cpEmpty)
-        (*this)[sqTake] = cpEmpty;
+    if ((*this)[sqTake].cp() != cpEmpty) {
+        mv.cpTake = (*this)[sqTake].cp();
+        (*this)[sqTake].cp(cpEmpty);
+    }
 
     /* and finally we move the piece */
-    (*this)[mv.sqFrom] = cpEmpty;
-    (*this)[mv.sqTo] = cpMove;
+    (*this)[mv.sqFrom].cp(cpEmpty);
+    (*this)[mv.sqTo].cp(cpMove);
 
 Done:
     ccpToMove = ~ccpToMove;
+}
+
+/*
+ *
+ */
+
+void BD::UndoMv(MV& mv)
+{
+    ccpToMove = ~ccpToMove;
+    csCur = mv.csSav;
+    sqEnPassant = mv.sqEnPassantSav;
+
+    CP cpMove = (*this)[mv.sqTo].cp();
+    if (mv.tcpPromote != tcpNone)
+        cpMove = Cp(ccpToMove, tcpPawn);
+
+    if (mv.cpTake != cpEmpty) {
+        SQ sqTake = mv.sqTo;
+        if (mv.sqTo == mv.sqEnPassantSav) {
+            sqTake += ccpToMove == ccpWhite ? -8 : 8;
+            (*this)[mv.sqTo] = cpEmpty;
+        }
+        (*this)[sqTake] = mv.cpTake;
+    }
+    else if (mv.csMove & csKing) {
+        int raBack = RaBack(ccpToMove);
+        (*this)[mv.sqTo] = (*this)(fiF, raBack) = cpEmpty;
+        (*this)(fiKingRook, raBack) = Cp(ccpToMove, tcpRook);
+    }
+    else if (mv.csMove & csQueen) {
+        int raBack = RaBack(ccpToMove);
+        (*this)[mv.sqTo] = (*this)(fiD, raBack) = cpEmpty;
+        (*this)(fiQueenRook, raBack) = Cp(ccpToMove, tcpRook);
+    }
+    else {
+        (*this)[mv.sqTo] = cpEmpty;
+    }
+
+    (*this)[mv.sqFrom] = cpMove;
 }
 
 /*
@@ -158,7 +202,7 @@ void BD::InitFromFen(istream& is)
 
     /* parse the board */
 
-    EmptyMpsqcp();
+    EmptyAcpbd();
     int ich;
     int ra = raMax-1;
     SQ sq = Sq(0, ra);
@@ -237,7 +281,7 @@ string BD::FenRender(void) const
     int csqEmpty = 0;
     for (int ra = raMax-1; ra >= 0; ra--) {
         for (int fi = 0; fi < fiMax; fi++) {
-            CP cp = (*this)[Sq(fi, ra)];
+            CP cp = (*this)[Sq(fi, ra)].cp();
             if (cp == cpEmpty)
                 csqEmpty++;
             else

@@ -19,8 +19,8 @@
 
 class WNBOARD : public WN
 {
+    BD& bd;
 public:
-    BD bd;
     vector<MV> vmv;
 
     static PNGX pngPieces;
@@ -49,7 +49,7 @@ private:
     const float dyLabelsMin = 12.0f;    // minimum label font size
 
 public:
-    WNBOARD(WN* pwnParent);
+    WNBOARD(WN* pwnParent, BD& bd);
  
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
@@ -94,7 +94,7 @@ public:
     virtual void Draw(const RC& rcUpdate) override;
 
     void clear(void);
-    void operator << (const wstring& ws);
+    WNTEST& operator << (const wstring& ws);
 };
 
 /*
@@ -106,6 +106,7 @@ public:
 class WAPP : public IWAPP
 {
 public:
+    BD bd;
     WNBOARD wnboard;
     WNTEST wntest;
 
@@ -124,10 +125,14 @@ public:
     virtual CO CoBack(void) const override;
     virtual void Layout(void) override;    
 
-    void RunTest(void);
+    void RunPerft(void);
+    void RunDivide(void);
+    uint64_t CmvPerft(int depth);
 };
 
-#define Wapp(iwapp) static_cast<WAPP&>(iwapp)
+inline WAPP& Wapp(IWAPP& iwapp) {
+    return static_cast<WAPP&>(iwapp);
+}
 
 /*
  *  some macros to streamline the boilerplate in simple commands.

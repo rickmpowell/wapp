@@ -26,7 +26,8 @@ int Run(const wstring& wsCmd, int sw)
  */
 
 WAPP::WAPP(const wstring& wsCmd, int sw) : 
-    wnboard(this),
+    bd(fenStartPos),
+    wnboard(this, bd),
     wntest(this),
     cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND)
 {
@@ -99,8 +100,8 @@ CMDEXECUTE(CMDEXIT)
 CMDEXECUTE(CMDNEWGAME)
 {
     /* TODO: can we invent an interface here that automatically calls MoveGen? */
-    wapp.wnboard.bd.InitFromFen(fenStartPos);
-    wapp.wnboard.bd.MoveGen(wapp.wnboard.vmv);
+    wapp.bd.InitFromFen(fenStartPos);
+    wapp.bd.MoveGen(wapp.wnboard.vmv);
     wapp.wnboard.Redraw();
     return 1;
 }
@@ -129,9 +130,15 @@ public:
  *  CMDTEST
  */
 
-CMDEXECUTE(CMDTEST)
+CMDEXECUTE(CMDTESTPERFT)
 {
-    wapp.RunTest();
+    wapp.RunPerft();
+    return 1;
+}
+
+CMDEXECUTE(CMDTESTDIVIDE)
+{
+    wapp.RunDivide();
     return 1;
 }
 
@@ -200,7 +207,7 @@ CMDEXECUTE(CMDCOPY)
 {
     try {
         oclipstream os(wapp, CF_TEXT);
-        wapp.wnboard.bd.RenderFen(os);
+        wapp.bd.RenderFen(os);
     }
     catch (ERR err) {
         wapp.Error(ERRAPP(rssErrCopyFailed), err);
@@ -232,8 +239,8 @@ public:
             iclipstream is(wapp);
             BD bd;
             bd.InitFromFen(is);
-            wapp.wnboard.bd = bd;
-            wapp.wnboard.bd.MoveGen(wapp.wnboard.vmv);
+            wapp.bd = bd;
+            wapp.bd.MoveGen(wapp.wnboard.vmv);
             wapp.wnboard.Redraw();
         }
         catch (ERR err) {
@@ -274,7 +281,8 @@ void WAPP::RegisterMenuCmds(void)
     REGMENUCMD(cmdCopy, CMDCOPY);
     REGMENUCMD(cmdPaste, CMDPASTE);
 
-    REGMENUCMD(cmdTest, CMDTEST);
+    REGMENUCMD(cmdTestPerft, CMDTESTPERFT);
+    REGMENUCMD(cmdTestDivide, CMDTESTDIVIDE);
     REGMENUCMD(cmdAbout, CMDABOUT);
     
     assert(FVerifyMenuCmdsRegistered());

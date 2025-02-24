@@ -81,6 +81,33 @@ constexpr CP cpBlackKing = Cp(ccpBlack, tcpKing);
 constexpr CP cpEmpty = Cp(ccpEmpty, tcpNone);;
 constexpr CP cpInvalid = Cp(ccpInvalid, tcpMax);
 
+struct CPBD
+{
+    uint16_t tcp : 3,
+        ccp : 2,
+        icpd : 5;
+
+    CPBD(void) : ccp(ccpInvalid), tcp(tcpMax), icpd(0) {
+    }
+
+    CPBD(CCP ccp, TCP tcp) : ccp(ccp), tcp(tcp), icpd(0) {
+    }
+
+    CPBD(CP cp) : tcp(cp & 7), ccp(cp >> 3), icpd(0) {
+    }
+
+    CP cp(void) const {
+        return tcp | (ccp << 3);
+    }
+
+    void cp(CP cpNew) {
+        tcp = cpNew & 7;
+        ccp = cpNew >> 3;
+    }
+};
+
+
+
 /*
  *  SQ square type
  *
@@ -188,10 +215,10 @@ enum CS : uint8_t
     csBlackQueen = 0x08
 };
 
-static_assert((csKing << ccpWhite) == csWhiteKing);
-static_assert((csKing << ccpBlack) == csBlackKing);
-static_assert((csQueen << ccpWhite) == csWhiteQueen);
-static_assert((csQueen << ccpBlack) == csBlackQueen);
+static_assert((static_cast<uint8_t>(csKing) << ccpWhite) == csWhiteKing);
+static_assert((static_cast<uint8_t>(csKing) << ccpBlack) == csBlackKing);
+static_assert((static_cast<uint8_t>(csQueen) << ccpWhite) == csWhiteQueen);
+static_assert((static_cast<uint8_t>(csQueen) << ccpBlack) == csBlackQueen);
 
 inline CS operator | (CS cs1, CS cs2) {
     return static_cast<CS>(static_cast<uint8_t>(cs1) | static_cast<uint8_t>(cs2));
@@ -254,6 +281,11 @@ public:
     TCP tcpPromote = tcpNone;
     CS csMove = csNone;     // set on castle moves
 
+    /* undo information saved on MakeMv */
+    CP cpTake = cpEmpty;
+    CS csSav = csNone;  
+    SQ sqEnPassantSav = sqNil;
+
     MV(void) {
     }
     
@@ -302,7 +334,7 @@ private:
     static const string_view sParseCastle;
 
 public:
-    CP acp[12*10];  // 8x8 plus 4 guard ranks and 2 guard files
+    CPBD acpbd[12*10];  // 8x8 plus 4 guard ranks and 2 guard files
     CCP ccpToMove = ccpWhite;
     CS csCur = csNone;
     SQ sqEnPassant = sqNil;
@@ -311,34 +343,34 @@ public:
     BD(void);
     BD(const string& fen);
 
-    void EmptyMpsqcp(void);
+    void EmptyAcpbd(void);
 
-    inline CP operator[](SQ sq) const {
-        return acp[IcpFromSq(sq)];
+    inline CPBD operator[](SQ sq) const {
+        return acpbd[IcpFromSq(sq)];
     }
 
-    inline CP& operator[](SQ sq) {
-        return acp[IcpFromSq(sq)];
+    inline CPBD& operator[](SQ sq) {
+        return acpbd[IcpFromSq(sq)];
     }
 
-    inline CP& operator()(int fi, int ra) {
-        return acp[Icp(fi, ra)];
+    inline CPBD& operator()(int fi, int ra) {
+        return acpbd[Icp(fi, ra)];
     }
 
-    inline const CP& operator()(int fi, int ra) const {
-        return acp[Icp(fi, ra)];
+    inline const CPBD& operator()(int fi, int ra) const {
+        return acpbd[Icp(fi, ra)];
     }
 
     /* make and undo move */
 
-    void MakeMv(MV mv);
-    void UndoMv(MV mv);
+    void MakeMv(MV& mv);
+    void UndoMv(MV& mv);
 
     /* move generation */
 
-    void MoveGen(vector<MV>& vmv) const;
+    void MoveGen(vector<MV>& vmv);
     void MoveGenPseudo(vector<MV>& vmv) const;
-    void RemoveChecks(vector<MV>& vmv) const;
+    void RemoveChecks(vector<MV>& vmv);
 
     void MoveGenPawn(int icpFrom, vector<MV>& vmv) const;
     void MoveGenKing(int icpFrom, vector<MV>& vmv) const;
@@ -359,4 +391,11 @@ public:
     void InitFromFen(const string& fen);
     void RenderFen(ostream& os) const;
     string FenRender(void) const;
+
+    bool operator == (const BD& bd) const {
+        return memcmp(acpbd, bd.acpbd, sizeof(acpbd)) == 0 &&
+            ccpToMove == bd.ccpToMove &&
+            csCur == bd.csCur &&
+            sqEnPassant == bd.sqEnPassant;
+    }
 };

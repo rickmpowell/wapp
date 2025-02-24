@@ -16,9 +16,9 @@ PNGX WNBOARD::pngPieces(rspngChessPieces);
   *  The board UI element
   */
 
-WNBOARD::WNBOARD(WN* pwnParent) : 
+WNBOARD::WNBOARD(WN* pwnParent, BD& bd) : 
     WN(pwnParent), 
-    bd(fenStartPos),
+    bd(bd),
     btnFlip(this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f')
 {
     bd.MoveGen(vmv);
@@ -176,7 +176,7 @@ void WNBOARD::DrawSquares(void)
                 continue;
             brMove.SetCo(CoAverage(coBack, coBlack));
             PT ptCenter = RcFromSq(sq).ptCenter();
-            if (bd[sq] == cpEmpty)
+            if (bd[sq].cp() == cpEmpty)
                 FillEll(ELL(ptCenter, dxySquare * 0.25f), brMove);
             else
                 FillGeom(geomCross, ptCenter, dxySquare / (2 * dxyCrossFull), 45, brMove);
@@ -187,8 +187,8 @@ void WNBOARD::DrawSquares(void)
 void WNBOARD::DrawPieces(void)
 {
     for (SQ sq = 0; sq < sqMax; sq++) {
-        if (bd[sq] != cpEmpty)
-            DrawBmp(RcFromSq(sq), pngPieces, RcPiecesFromCp(bd[sq]), sq == sqDragFrom ? 0.33f : 1.0f);
+        if (bd[sq].cp() != cpEmpty)
+            DrawBmp(RcFromSq(sq), pngPieces, RcPiecesFromCp(bd[sq].cp()), sq == sqDragFrom ? 0.33f : 1.0f);
     }
 }
 
@@ -306,7 +306,7 @@ void WNBOARD::BeginDrag(const PT& pt, unsigned mk)
         return;
     sqDragFrom = sqDragTo = sqHit;
     sqHoverCur = sqNil;
-    cpDrag = bd[sqHit];
+    cpDrag = bd[sqHit].cp();
     ptDrag = pt;
     dptDrag = pt - RcFromSq(sqHit).ptTopLeft();
     Redraw();

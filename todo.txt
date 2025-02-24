@@ -2,6 +2,12 @@
   Move Translate/DispatchMessage into a base message pump filter
   Redesign menus and CMDs to build on the fly and use CMD to populate text of MENUITEMs
   Redesign accelerator tables to build on the fly using CMDs
+  Implement MoveGen in chess program
+  Implement real MakeMv and UndoMv
+  Implement test framework for MoveGen, MakeMv, UndoMv
+  Gather up a test suite of FENs 
+  Perft test driver
+  Have UI go through command dispatch to make moves
 
 * Implement cached/invalidation of Direct2D device-dependent drawing objects
 * Rename all our RAII classes with GUARD naming convention

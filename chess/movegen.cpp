@@ -17,7 +17,7 @@ static const int adicpBishop[] = { -11, -9, 9, 11 };
 static const int adicpRook[] = { -10, -1, 1, 10 };
 static const int adicpKnight[] = { -21, -19, -12, -8, 8, 12, 19, 21 };
 static const int adicpKing[] = { -11, -10, -9, -1, 1, 9, 10, 11 };
-static const int adicpPawn[] = { 9, 11, -11 -9 };  /* first 2 are white, second 2 are black */
+static const int adicpPawn[] = { 9, 11, -11, -9 };  /* first 2 are white, second 2 are black */
 
 /*
  *  BD::MoveGen
@@ -31,7 +31,7 @@ static const int adicpPawn[] = { 9, 11, -11 -9 };  /* first 2 are white, second 
  *  intermeidate move list.
  */
 
-void BD::MoveGen(vector<MV>& vmv) const
+void BD::MoveGen(vector<MV>& vmv)
 {
     MoveGenPseudo(vmv);
     RemoveChecks(vmv);
@@ -42,7 +42,7 @@ void BD::MoveGenPseudo(vector<MV>& vmv) const
     vmv.clear();
     for (SQ sq = 0; sq < sqMax; sq++) {
         int icpFrom = IcpFromSq(sq);
-        CP cp = acp[icpFrom];
+        CP cp = acpbd[icpFrom].cp();
         if (ccp(cp) != ccpToMove)
             continue;
         switch (tcp(cp)) {
@@ -71,15 +71,17 @@ void BD::MoveGenPseudo(vector<MV>& vmv) const
     }
 }
 
-void BD::RemoveChecks(vector<MV>& vmv) const
+void BD::RemoveChecks(vector<MV>& vmv) 
 {
     size_t imvTo = 0;
     for (size_t imv = 0; imv < vmv.size(); imv++) {
-        BD bdT(*this);
-        bdT.MakeMv(vmv[imv]);
-        int icpKing = bdT.IcpFindKing(~bdT.ccpToMove);
-        if (!bdT.FIsAttacked(icpKing, bdT.ccpToMove))
+        BD bdSav = *this;
+        MakeMv(vmv[imv]);
+        int icpKing = IcpFindKing(~ccpToMove);
+        if (!FIsAttacked(icpKing, ccpToMove))
             vmv[imvTo++] = vmv[imv];
+        UndoMv(vmv[imv]);
+        assert(*this == bdSav);
     }
     vmv.resize(imvTo);
 }
@@ -90,17 +92,17 @@ void BD::MoveGenPawn(int icpFrom, vector<MV>& vmv) const
     int icpTo = icpFrom + dicp;
 
     /* regular forward moves anmd double first moves */
-    if (acp[icpTo] == cpEmpty) {
+    if (acpbd[icpTo].cp() == cpEmpty) {
         AddPawnMoves(icpFrom, icpTo, vmv);
         int raFrom = ra(SqFromIcp(icpFrom));
-        if (raFrom == RaPawns(ccpToMove) && acp[icpTo + dicp] == cpEmpty)
+        if (raFrom == RaPawns(ccpToMove) && acpbd[icpTo + dicp].cp() == cpEmpty)
             vmv.emplace_back(icpFrom, icpTo + dicp); // can't be a promotion 
     }
 
     /* captures, including en passant */
-    if (ccp(acp[icpTo-1]) == ~ccpToMove || SqFromIcp(icpTo-1) == sqEnPassant)
+    if (acpbd[icpTo-1].ccp == ~ccpToMove || icpTo-1 == IcpFromSq(sqEnPassant))
         AddPawnMoves(icpFrom, icpTo-1, vmv);
-    if (ccp(acp[icpTo+1]) == ~ccpToMove || SqFromIcp(icpTo+1) == sqEnPassant)
+    if (acpbd[icpTo+1].ccp == ~ccpToMove || icpTo+1 == IcpFromSq(sqEnPassant))
         AddPawnMoves(icpFrom, icpTo+1, vmv);
 }
 
@@ -155,18 +157,18 @@ void BD::AddCastle(int icpKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, 
 
     int dicp = icpRookFrom < icpRookTo ? 1 : -1;
     for (int icp = icpRookFrom + dicp; icp != icpRookTo; icp += dicp)
-        if (icp != icpKingFrom && acp[icp] != cpEmpty)
+        if (icp != icpKingFrom && acpbd[icp].cp() != cpEmpty)
             return;
-    if (icpRookTo != icpKingFrom && acp[icpRookTo] != cpEmpty)
+    if (icpRookTo != icpKingFrom && acpbd[icpRookTo].cp() != cpEmpty)
         return;
 
     /* only blank squares or the rook between the king and its final destination */
 
     dicp = icpKingFrom < icpKingTo ? 1 : -1;
     for (int icp = icpKingFrom + dicp; icp != icpKingTo; icp += dicp)
-        if (icp != icpRookFrom && acp[icp] != cpEmpty)
+        if (icp != icpRookFrom && acpbd[icp].cp() != cpEmpty)
             return;
-    if (icpKingTo != icpRookFrom && acp[icpKingTo] != cpEmpty)
+    if (icpKingTo != icpRookFrom && acpbd[icpKingTo].cp() != cpEmpty)
         return;
 
     /* king can't move through attack - note this does not check the final square */
@@ -210,7 +212,7 @@ void BD::MoveGenSlider(int icpFrom, const int adicp[], int cdicp, vector<MV>& vm
     for (int idicp = 0; idicp < cdicp; idicp++) {
         int dicp = adicp[idicp];
         for (int icpTo = icpFrom + dicp; ; icpTo += dicp) {
-            CP cp = acp[icpTo];
+            CP cp = acpbd[icpTo].cp();
             if (cp == cpInvalid || ccp(cp) == ccpToMove)
                 break;
             vmv.emplace_back(icpFrom, icpTo);
@@ -231,7 +233,7 @@ void BD::MoveGenSingle(int icpFrom, const int adicp[], int cdicp, vector<MV>& vm
 {
     for (int idicp = 0; idicp < cdicp; idicp++) {
         int icpTo = icpFrom + adicp[idicp];
-        CP cp = acp[icpTo];
+        CP cp = acpbd[icpTo].cp();
         if (cp == cpEmpty || ccp(cp) == ~ccpToMove)
             vmv.emplace_back(icpFrom, icpTo);
     }
@@ -261,7 +263,7 @@ bool BD::FIsAttacked(int icpAttacked, CCP ccpBy) const
 bool BD::FIsAttackedBySingle(int icpAttacked, CP cp, const int adicp[], int cdicp) const
 {
     for (int idicp = 0; idicp < cdicp; idicp++) {
-        if (acp[icpAttacked + adicp[idicp]] == cp)
+        if (acpbd[icpAttacked + adicp[idicp]].cp() == cp)
             return true;
     }
     return false;
@@ -272,9 +274,9 @@ bool BD::FIsAttackedBySlider(int icpAttacked, CP cp1, CP cp2, const int adicp[],
     for (int idicp = 0; idicp < size(adicpBishop); idicp++) {
         int dicp = adicp[idicp];
         for (int icp = icpAttacked + dicp; ; icp += dicp) {
-            if (acp[icp] == cp1 || acp[icp] == cp2)
+            if (acpbd[icp].cp() == cp1 || acpbd[icp].cp() == cp2)
                 return true;
-            if (acp[icp] != cpEmpty)
+            if (acpbd[icp].cp() != cpEmpty)
                 break;
         }
     }
@@ -291,7 +293,7 @@ int BD::IcpFindKing(CCP ccp) const
 {
     /* YIKES! - this is really slow */
     for (int icp = 10*2; icp < 10*10; icp++)
-        if (acp[icp] == Cp(ccp, tcpKing))
+        if (acpbd[icp].ccp == ccp && acpbd[icp].tcp  == tcpKing)
             return icp;
     assert(false); 
     return -1;
