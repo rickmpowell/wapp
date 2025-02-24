@@ -15,7 +15,7 @@
 #define cmdNewGame 16
 #define cmdDisableBoard 17
 #define cmdFlipBoard 18
- per#define cmdTestPerft 19
+#define cmdTestPerft 19
 #define cmdTestDivide 20
 
 /*
