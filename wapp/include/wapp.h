@@ -113,11 +113,11 @@ public:
     bool FExecuteMenuCmd(int cmd);
     void InitMenuCmds(void);
     void InitPopupMenuCmds(HMENU hmenu);
-    void InitMenuCmd(HMENU hmenu, int cmd, unique_ptr<ICMD>& pcmd);
+    void InitMenuCmd(HMENU hmenu, int cmd, const unique_ptr<ICMD>& pcmd);
     bool FVerifyMenuCmdsRegistered(void) const;
     bool FVerifySubMenuCmdsRegistered(HMENU hmenu) const;
 
-    bool FExecuteCmd(unique_ptr<ICMD>& picmd);
+    bool FExecuteCmd(const ICMD& icmd);
     
     /* error messages */
 

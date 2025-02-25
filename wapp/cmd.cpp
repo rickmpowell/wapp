@@ -35,7 +35,7 @@ bool IWAPP::FExecuteMenuCmd(int cmd)
     auto it = mpcmdpicmdMenu.find(cmd);
     if (it == mpcmdpicmdMenu.end() || it->second == nullptr)
         return false;
-    return FExecuteCmd(it->second);
+    return FExecuteCmd(*it->second);
 }
 
 /*
@@ -44,14 +44,14 @@ bool IWAPP::FExecuteMenuCmd(int cmd)
  *  Takes the command and executes it.
  */
 
-bool IWAPP::FExecuteCmd(unique_ptr<ICMD>& picmd)
+bool IWAPP::FExecuteCmd(const ICMD& icmd)
 {
     /* we don't need to clone the command for this particular implementation, but 
        other command stream features require a clone operation here, so, for testing
        purposes, we clone in this code just to force command implementation to 
        correctly implement the clone operation */
     
-    unique_ptr<ICMD> picmdClone(picmd->clone());
+    unique_ptr<ICMD> picmdClone(icmd.clone());
     bool fResult = picmdClone->Execute();
 
     return fResult;
@@ -112,7 +112,7 @@ void IWAPP::InitPopupMenuCmds(HMENU hmenu)
  *  change the text of the menu item.
  */
 
-void IWAPP::InitMenuCmd(HMENU hmenu, int cmd, unique_ptr<ICMD>& pcmd)
+void IWAPP::InitMenuCmd(HMENU hmenu, int cmd, const unique_ptr<ICMD>& pcmd)
 {
     MENUITEMINFOW mi = { sizeof(mi) };
     mi.fMask = MIIM_STATE;

@@ -48,7 +48,7 @@ void CTL::EndDrag(const PT& pt, unsigned mk)
 {
     cdsCur = cdsNone;
     if (RcInterior().FContainsPt(pt)) {
-        iwapp.FExecuteCmd(pcmd);
+        iwapp.FExecuteCmd(*pcmd);
         cdsCur = cdsHover;
     }
     Redraw();
