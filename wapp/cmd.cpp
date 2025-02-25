@@ -45,16 +45,60 @@ bool IWAPP::FExecuteMenuCmd(int cmd)
  */
 
 bool IWAPP::FExecuteCmd(const ICMD& icmd)
-{
-    /* we don't need to clone the command for this particular implementation, but 
-       other command stream features require a clone operation here, so, for testing
-       purposes, we clone in this code just to force command implementation to 
-       correctly implement the clone operation */
-    
-    unique_ptr<ICMD> picmdClone(icmd.clone());
-    bool fResult = picmdClone->Execute();
+{  
+    unique_ptr<ICMD> pcmdClone(icmd.clone());
+    bool fResult = pcmdClone->Execute();
+
+    if (pcmdClone->FUndoable()) {
+        vpcmdUndo.emplace_back(move(pcmdClone));
+        vpcmdRedo.clear();
+    }
 
     return fResult;
+}
+
+bool IWAPP::FUndoCmd(void)
+{
+    if (vpcmdUndo.size() == 0)
+        return false;
+
+    unique_ptr<ICMD> pcmd = move(vpcmdUndo.back());
+    vpcmdUndo.pop_back();
+    bool fResult = pcmd->Undo();
+    vpcmdRedo.emplace_back(move(pcmd));
+
+    return fResult;
+}
+
+bool IWAPP::FRedoCmd(void)
+{
+    if (vpcmdRedo.size() == 0)
+        return false;
+
+    unique_ptr<ICMD> pcmd = move(vpcmdRedo.back());
+    vpcmdRedo.pop_back();
+    bool fResult = pcmd->Redo();
+    vpcmdUndo.emplace_back(move(pcmd));
+
+    return fResult;
+}
+
+bool IWAPP::FTopUndoCmd(ICMD*& pcmd)
+{
+    pcmd = nullptr;
+    if (vpcmdUndo.size() == 0)
+        return false;
+    pcmd = vpcmdUndo.back().get();
+    return true;
+}
+
+bool IWAPP::FTopRedoCmd(ICMD*& pcmd)
+{
+    pcmd = nullptr;
+    if (vpcmdRedo.size() == 0)
+        return false;
+    pcmd = vpcmdRedo.back().get();
+    return true;
 }
 
 /*
@@ -157,6 +201,25 @@ bool IWAPP::FVerifySubMenuCmdsRegistered(HMENU hmenu) const
 
 /*
  *  Base CMD implementation. These are mostly dummy stubs 
+ */
+
+int ICMD::Undo(void)
+{
+    return Execute();
+}
+
+int ICMD::Redo(void)
+{
+    return Execute();
+}
+
+bool ICMD::FUndoable(void) const
+{
+    return false;
+}
+
+/*
+ *  Strings and state
  */
 
 bool ICMD::FEnabled(void) const

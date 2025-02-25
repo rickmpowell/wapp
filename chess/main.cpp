@@ -97,14 +97,34 @@ CMDEXECUTE(CMDEXIT)
  *  CMDNEWGAME - starts a new game
  */
 
-CMDEXECUTE(CMDNEWGAME)
+CMD_DECLARE(CMDNEWGAME)
 {
-    /* TODO: can we invent an interface here that automatically calls MoveGen? */
-    wapp.bd.InitFromFen(fenStartPos);
-    wapp.bd.MoveGen(wapp.wnboard.vmv);
-    wapp.wnboard.Redraw();
-    return 1;
-}
+public:
+    CMDNEWGAME(WAPP& wapp) : CMD(wapp) {}
+
+    virtual int Execute(void) override {
+        bdUndo = wapp.bd;
+        /* TODO: can we invent an interface here that automatically calls MoveGen? */
+        wapp.bd.InitFromFen(fenStartPos);
+        wapp.bd.MoveGen(wapp.wnboard.vmv);
+        wapp.wnboard.Redraw();
+        return 1;
+    }
+
+    virtual int Undo(void) override {
+        wapp.bd = bdUndo;
+        wapp.bd.MoveGen(wapp.wnboard.vmv);
+        wapp.wnboard.Redraw();
+        return 1;
+    }
+
+    virtual bool FUndoable(void) const override {
+        return true;
+    }
+
+private:
+    BD bdUndo;
+};
 
 /*
  *  CMDDISABLE - toggles the disable state of the board
@@ -122,6 +142,10 @@ public:
 
     virtual bool FMenuWs(wstring & ws) const override {
         ws = wapp.WsLoad(wapp.wnboard.FEnabled() ? rssDisableBoard : rssEnableBoard);
+        return true;
+    }
+
+    virtual bool FUndoable(void) const override {
         return true;
     }
 };
@@ -154,11 +178,23 @@ int CMDMAKEMOVE::Execute(void)
     return 1;
 }
 
+int CMDMAKEMOVE::Undo(void)
+{
+    wapp.bd.UndoMv(mv);
+    wapp.bd.MoveGen(wapp.wnboard.vmv);
+    wapp.wnboard.Redraw();
+    return 1;
+}
+
+bool CMDMAKEMOVE::FUndoable(void) const
+{
+    return true;
+}
+
 void CMDMAKEMOVE::SetMv(MV mv)
 {
     this->mv = mv;
 }
-
 
 /*
  *  CMDUNDO
@@ -170,11 +206,12 @@ public:
     CMDUNDO(WAPP& wapp) : CMD(wapp) {}
 
     virtual int Execute(void) override {
-        return 1;
+        return wapp.FUndoCmd();
     }
 
     virtual bool FEnabled(void) const override {
-        return false;
+        ICMD* pcmd;
+        return wapp.FTopUndoCmd(pcmd);
     }
 };
 
@@ -188,11 +225,12 @@ public:
     CMDREDO(WAPP& wapp) : CMD(wapp) {}
 
     virtual int Execute(void) override {
-        return 1;
+        return wapp.FRedoCmd();
     }
 
     virtual bool FEnabled(void) const override {
-        return false;
+        ICMD* pcmd;
+        return wapp.FTopRedoCmd(pcmd);
     }
 };
 
@@ -252,12 +290,11 @@ public:
         }
     }
 
-    int Execute(void) {
+    virtual int Execute(void) override {
         try {
             iclipstream is(wapp);
-            BD bd;
-            bd.InitFromFen(is);
-            wapp.bd = bd;
+            bdUndo.InitFromFen(is);
+            swap(wapp.bd, bdUndo);
             wapp.bd.MoveGen(wapp.wnboard.vmv);
             wapp.wnboard.Redraw();
         }
@@ -266,16 +303,44 @@ public:
         }
         return 1;
     }
+
+    virtual int Undo(void) override {
+        swap(wapp.bd, bdUndo);
+        wapp.bd.MoveGen(wapp.wnboard.vmv);
+        wapp.wnboard.Redraw();
+        return 1;
+    }
+
+    virtual int Redo(void) override {
+        return Undo();
+    }
+
+    bool FUndoable(void) const override {
+        return true;
+    }
+
+private:
+    BD bdUndo;
 };
 
 /*
  *  CMDFLIPBOARD - The flipboard command, called from menus and buttons
  */
 
-int CMDFLIPBOARD::Execute(void)
+int CMDFLIPBOARD::Execute(void) 
 {
     wapp.wnboard.FlipCcp();
     return 1;
+}
+
+int CMDFLIPBOARD::Undo(void)
+{
+    return Execute();
+}
+
+bool CMDFLIPBOARD::FUndoable(void) const
+{
+    return true;
 }
 
 /*

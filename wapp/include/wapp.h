@@ -35,13 +35,6 @@ class IWAPP : public APP, public WNDMAIN, public WN
 {
     friend class WN;
 
-private:
-    vector<unique_ptr<FILTERMSG>> vpfm;
-    map<int, unique_ptr<ICMD>> mpcmdpicmdMenu;
-
-    WN* pwnDrag;
-    WN* pwnHover;
-
 public:
     IWAPP(void);
     virtual ~IWAPP();
@@ -118,6 +111,10 @@ public:
     bool FVerifySubMenuCmdsRegistered(HMENU hmenu) const;
 
     bool FExecuteCmd(const ICMD& icmd);
+    bool FUndoCmd(void);
+    bool FRedoCmd(void);
+    bool FTopUndoCmd(ICMD*& pcmd);
+    bool FTopRedoCmd(ICMD*& pcmd);
     
     /* error messages */
 
@@ -129,6 +126,15 @@ public:
     virtual int MsgPump(void);
     void PushFilterMsg(FILTERMSG* pmf);
     bool FFilterMsg(MSG& msg);
+
+private:
+    vector<unique_ptr<FILTERMSG>> vpfm;
+    map<int, unique_ptr<ICMD>> mpcmdpicmdMenu;
+    vector<unique_ptr<ICMD>> vpcmdUndo;
+    vector<unique_ptr<ICMD>> vpcmdRedo;
+
+    WN* pwnDrag;
+    WN* pwnHover;
 };
 
 /*
@@ -178,9 +184,11 @@ public:
  *  Some Direct2D guard classes
  */
 
- /*
-  *  TF text alignment
-  */
+/*
+ *  GUARDTFALIGNMENT
+ *
+ *  Temporarily set and restore the text alignment in the text format.
+ */
 
 class GUARDTFALIGNMENT
 {
@@ -200,6 +208,8 @@ public:
 
 /*
  *  DC transform
+ * 
+ *  Temporarily set and restore the coordinate transform matrix in the DC.
  */
 
 struct GUARDDCTRANSFORM
@@ -221,6 +231,8 @@ public:
 
 /*
  *  DC antialias mode
+ * 
+ *  Temporarily save and restore the antialiasing mode in the DC.
  */
 
 struct GUARDDCAA

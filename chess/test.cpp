@@ -48,18 +48,30 @@ WNTEST& WNTEST::operator << (const wstring& ws)
 }
 
 /*
- *  WNAPP::RunTest
+ *  WNAPP::RunPerft
+ * 
+ *  Runs the perft test.
  */
 
 void WAPP::RunPerft(void)
 {
+    wnboard.Enable(false);
     wntest.clear();
-    for (int depth = 1; depth <= 7; depth++)
-        wntest << wstring(L"Perft ") + to_wstring(depth) + L": " + to_wstring(CmvPerft(depth));
+    for (int depth = 1; depth <= 6; depth++) {
+        auto tmStart = chrono::high_resolution_clock::now();
+        uint64_t cmv = CmvPerft(depth);
+        chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tmStart;
+
+        wntest << wstring(L"Perft ") + to_wstring(depth) + L": " + to_wstring(cmv);
+        wntest << L"  Time: " + to_wstring(dtm.count()) + L" s";
+        wntest << L"  kMoves/s: " + to_wstring((uint32_t)round((float)cmv / dtm.count() / 1000.0f));
+    }
+    wnboard.Enable(true);
 }
 
 void WAPP::RunDivide(void)
 {
+    wnboard.Enable(false);
     wntest.clear();
 
     int depth = 7;
@@ -75,6 +87,8 @@ void WAPP::RunDivide(void)
         bd.UndoMv(mv);
     }
     wntest << L"Total: " + to_wstring(cmv);
+
+    wnboard.Enable(true);
 }
 
 uint64_t WAPP::CmvPerft(int depth)

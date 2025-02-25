@@ -43,7 +43,12 @@ class ICMD
 public:
     virtual ~ICMD() = default;
     virtual ICMD* clone(void) const = 0;
+    
     virtual int Execute(void) = 0;
+    virtual int Undo(void);
+    virtual int Redo(void);
+    virtual bool FUndoable(void) const;
+
     virtual bool FEnabled(void) const;
     virtual bool FChecked(void) const;
     virtual bool FToolTipWs(wstring& wsTip) const;

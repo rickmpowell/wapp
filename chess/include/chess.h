@@ -174,15 +174,25 @@ inline WAPP& Wapp(IWAPP& iwapp) {
  *  Declare commands that we need in multiple compilation units
  */
 
-CMDEXECUTE_DECLARE(CMDFLIPBOARD);
+CMD_DECLARE(CMDFLIPBOARD)
+{
+public:
+    CMDFLIPBOARD(WAPP& wapp) : CMD(wapp) {}
+
+    virtual int Execute(void) override;
+    virtual int Undo(void) override;
+    virtual bool FUndoable(void) const;
+};
 
 CMD_DECLARE(CMDMAKEMOVE)
 {
 public:
     CMDMAKEMOVE(WAPP& wapp) : CMD(wapp) {}
-
     void SetMv(MV mv);
+
     virtual int Execute(void) override;
+    virtual int Undo(void) override;
+    virtual bool FUndoable(void) const override;
 
 private:
     MV mv = MV(sqNil, sqNil);
