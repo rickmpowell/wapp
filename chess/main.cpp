@@ -143,6 +143,24 @@ CMDEXECUTE(CMDTESTDIVIDE)
 }
 
 /*
+ *  CMDMAKEMOVE
+ */
+
+int CMDMAKEMOVE::Execute(void) 
+{
+    wapp.bd.MakeMv(mv);
+    wapp.bd.MoveGen(wapp.wnboard.vmv);
+    wapp.wnboard.Redraw();
+    return 1;
+}
+
+void CMDMAKEMOVE::SetMv(MV mv)
+{
+    this->mv = mv;
+}
+
+
+/*
  *  CMDUNDO
  */
 

@@ -104,6 +104,14 @@ struct CPBD
         tcp = cpNew & 7;
         ccp = cpNew >> 3;
     }
+
+    bool operator == (const CPBD& cpbd) const {
+        return tcp == cpbd.tcp && ccp == cpbd.ccp;
+    }
+
+    bool operator != (const CPBD& cpbd) const {
+        return !(*this == cpbd);
+    }
 };
 
 
@@ -134,8 +142,8 @@ inline uint8_t Sq(int fi, int ra) {
     return (ra << 3) | fi;
 }
 
-constexpr uint8_t sqNil = 0xc0;
-constexpr uint8_t sqMax = raMax * fiMax;
+constexpr SQ sqNil = 0xc0;
+constexpr SQ sqMax = raMax * fiMax;
 
 string to_string(SQ sq);
 wstring to_wstring(SQ sq);
@@ -393,8 +401,11 @@ public:
     string FenRender(void) const;
 
     bool operator == (const BD& bd) const {
-        return memcmp(acpbd, bd.acpbd, sizeof(acpbd)) == 0 &&
-            ccpToMove == bd.ccpToMove &&
+        for (int icpbd = 0; icpbd < size(acpbd); icpbd++)
+            if (acpbd[icpbd] != bd.acpbd[icpbd])
+                return false;
+
+        return ccpToMove == bd.ccpToMove &&
             csCur == bd.csCur &&
             sqEnPassant == bd.sqEnPassant;
     }

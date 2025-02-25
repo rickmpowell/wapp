@@ -19,7 +19,8 @@ PNGX WNBOARD::pngPieces(rspngChessPieces);
 WNBOARD::WNBOARD(WN* pwnParent, BD& bd) : 
     WN(pwnParent), 
     bd(bd),
-    btnFlip(this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f')
+    btnFlip(this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f'),
+    pcmdMakeMove(make_unique<CMDMAKEMOVE>((WAPP&)iwapp))
 {
     bd.MoveGen(vmv);
 }
@@ -329,9 +330,10 @@ void WNBOARD::EndDrag(const PT& pt, unsigned mk)
 {
     SQ sqHit;
     MV mvHit;
+    /* REVIEW: need a convention for returning values */
     if (FSqFromPt(sqHit, pt) && FLegalSqTo(sqDragFrom, sqHit, mvHit)) {
-        bd.MakeMv(mvHit);
-        bd.MoveGen(vmv);
+        pcmdMakeMove->SetMv(mvHit);
+        iwapp.FExecuteCmd(*pcmdMakeMove);
     }
     cpDrag = cpEmpty;
     sqDragFrom = sqDragTo = sqNil;

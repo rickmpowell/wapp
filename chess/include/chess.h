@@ -10,6 +10,7 @@
 #include "board.h"
 #include <sstream>
 #include <iostream>
+class CMDMAKEMOVE;
 
 /*
  *  WNBOARD 
@@ -19,36 +20,10 @@
 
 class WNBOARD : public WN
 {
-    BD& bd;
 public:
     vector<MV> vmv;
-
     static PNGX pngPieces;
 
-private:
-    BTNCH btnFlip;
-
-    CCP ccpView = ccpWhite;  // orientation of the board, black or white
-    
-    float angleDraw = 0.0f;    // and to draw during flipping
-    SQ sqHoverCur = sqNil;
-    SQ sqDragFrom = sqNil, sqDragTo = sqNil;
-    CP cpDrag = cpEmpty;  // piece we're dragging
-    PT ptDrag = PT(0, 0);
-    PT dptDrag = PT(0,0); // offset from the mouse cursor of the initial drag hit
-
-    /* metrics for drawing */
-
-    float dxySquare, dxyBorder, dxyOutline, dyLabels;
-    RC rcSquares;
-    const float wBorderPerInterior = 0.08f; // ratio of the size of of border to the total board size
-    const float dxyBorderMin = 20.0f;   // minimum board border size
-    const float wOutlinePerBorder = 0.0625f;    // ratio of width of outline width to the wideth of the boarder
-    const float dxyOutlineMin = 1.5f;   // minimum outline width
-    const float wLabelsPerBorder = 0.35f;   // ratio of the size of labels to the size of the border
-    const float dyLabelsMin = 12.0f;    // minimum label font size
-
-public:
     WNBOARD(WN* pwnParent, BD& bd);
  
     virtual CO CoText(void) const override;
@@ -66,6 +41,31 @@ public:
     void FlipCcp(void);
 
 private:
+    BTNCH btnFlip;
+    unique_ptr<CMDMAKEMOVE> pcmdMakeMove;
+
+    BD& bd;
+    CCP ccpView = ccpWhite;  // orientation of the board, black or white
+
+    float angleDraw = 0.0f;    // and to draw during flipping
+    SQ sqHoverCur = sqNil;
+    SQ sqDragFrom = sqNil, sqDragTo = sqNil;
+    CP cpDrag = cpEmpty;  // piece we're dragging
+    PT ptDrag = PT(0, 0);
+    PT dptDrag = PT(0, 0); // offset from the mouse cursor of the initial drag hit
+
+    /* metrics for drawing */
+
+    float dxySquare, dxyBorder, dxyOutline, dyLabels;
+    RC rcSquares;
+    const float wBorderPerInterior = 0.08f; // ratio of the size of of border to the total board size
+    const float dxyBorderMin = 20.0f;   // minimum board border size
+    const float wOutlinePerBorder = 0.0625f;    // ratio of width of outline width to the wideth of the boarder
+    const float dxyOutlineMin = 1.5f;   // minimum outline width
+    const float wLabelsPerBorder = 0.35f;   // ratio of the size of labels to the size of the border
+    const float dyLabelsMin = 12.0f;    // minimum label font size
+
+
     void DrawBorder(void);
     void DrawSquares(void);
     void DrawPieces(void);
@@ -83,10 +83,6 @@ private:
 
 class WNTEST : public WN
 {
-    TITLEBAR titlebar;
-    vector<wstring> vws;
-    RC rcClient;
-
 public:
     WNTEST(WN* pwnParent);
 
@@ -95,6 +91,11 @@ public:
 
     void clear(void);
     WNTEST& operator << (const wstring& ws);
+
+private:
+    TITLEBAR titlebar;
+    vector<wstring> vws;
+    RC rcClient;
 };
 
 /*
@@ -110,14 +111,9 @@ public:
     WNBOARD wnboard;
     WNTEST wntest;
 
-    const float wMarginPerWindow = 0.02f; // ratio of the size of of margin to the total window size
-    const float dxyMarginMax = 4.0f;    // maximum margin around the board
-    const float dxySquareMin = 25.0f;   // minimum size of a single square
-
     CURS cursArrow;
     CURS cursHand;
 
-public:
     WAPP(const wstring& wsCmd, int sw);
  
     virtual void RegisterMenuCmds(void) override;
@@ -128,6 +124,11 @@ public:
     void RunPerft(void);
     void RunDivide(void);
     uint64_t CmvPerft(int depth);
+
+private:
+    const float wMarginPerWindow = 0.02f; // ratio of the size of of margin to the total window size
+    const float dxyMarginMax = 4.0f;    // maximum margin around the board
+    const float dxySquareMin = 25.0f;   // minimum size of a single square
 };
 
 inline WAPP& Wapp(IWAPP& iwapp) {
@@ -174,3 +175,15 @@ inline WAPP& Wapp(IWAPP& iwapp) {
  */
 
 CMDEXECUTE_DECLARE(CMDFLIPBOARD);
+
+CMD_DECLARE(CMDMAKEMOVE)
+{
+public:
+    CMDMAKEMOVE(WAPP& wapp) : CMD(wapp) {}
+
+    void SetMv(MV mv);
+    virtual int Execute(void) override;
+
+private:
+    MV mv = MV(sqNil, sqNil);
+};

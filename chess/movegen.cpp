@@ -75,7 +75,9 @@ void BD::RemoveChecks(vector<MV>& vmv)
 {
     size_t imvTo = 0;
     for (size_t imv = 0; imv < vmv.size(); imv++) {
+#ifndef NDEBUG
         BD bdSav = *this;
+#endif
         MakeMv(vmv[imv]);
         int icpKing = IcpFindKing(~ccpToMove);
         if (!FIsAttacked(icpKing, ccpToMove))
