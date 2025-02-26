@@ -237,7 +237,7 @@ bool ICMD::FToolTipWs(wstring& wsTip) const
     return false;
 }
 
-bool ICMD::FMenuWs(wstring& wsMenu) const
+bool ICMD::FMenuWs(wstring& wsMenu, CMS cms) const
 {
     return false;
 }

@@ -122,6 +122,11 @@ public:
         return true;
     }
 
+    virtual bool FMenuWs(wstring& ws, CMS cms) const override {
+        ws = wapp.WsLoad(rssNewGame);
+        return true;
+    }
+
 private:
     BD bdUndo;
 };
@@ -140,8 +145,8 @@ public:
         return 1;
     }
 
-    virtual bool FMenuWs(wstring & ws) const override {
-        ws = wapp.WsLoad(wapp.wnboard.FEnabled() ? rssDisableBoard : rssEnableBoard);
+    virtual bool FMenuWs(wstring & ws, CMS cms) const override {
+        ws = wapp.WsLoad(wapp.wnboard.FEnabled() != (cms == CMS::Undo) ? rssDisableBoard : rssEnableBoard);
         return true;
     }
 
@@ -191,6 +196,11 @@ bool CMDMAKEMOVE::FUndoable(void) const
     return true;
 }
 
+bool CMDMAKEMOVE::FMenuWs(wstring& ws, ICMD::CMS cms) const {
+    ws = to_wstring(mv);
+    return true;
+}
+
 void CMDMAKEMOVE::SetMv(MV mv)
 {
     this->mv = mv;
@@ -213,6 +223,15 @@ public:
         ICMD* pcmd;
         return wapp.FTopUndoCmd(pcmd);
     }
+
+    virtual bool FMenuWs(wstring& ws, ICMD::CMS cms) const override {
+        ICMD* pcmd;
+        wstring wsCmd;
+        if (!wapp.FTopUndoCmd(pcmd) || !pcmd->FMenuWs(wsCmd, CMS::Undo))
+            wsCmd = L"";
+        ws = vformat(wapp.WsLoad(rssUndo), make_wformat_args(wsCmd));
+        return true;
+    }
 };
 
 /*
@@ -232,6 +251,16 @@ public:
         ICMD* pcmd;
         return wapp.FTopRedoCmd(pcmd);
     }
+
+    virtual bool FMenuWs(wstring& ws, ICMD::CMS cms) const override {
+        wstring wsCmd;
+        ICMD* pcmd;
+        if (!wapp.FTopRedoCmd(pcmd) || !pcmd->FMenuWs(wsCmd, CMS::Undo))
+            wsCmd = L"";
+        ws = vformat(wapp.WsLoad(rssRedo), make_wformat_args(wsCmd));
+        return true;
+    }
+
 };
 
 /*
@@ -319,6 +348,11 @@ public:
         return true;
     }
 
+    virtual bool FMenuWs(wstring& ws, ICMD::CMS cms) const override {
+        ws = wapp.WsLoad(rssPaste);
+        return true;
+    }
+
 private:
     BD bdUndo;
 };
@@ -326,6 +360,7 @@ private:
 /*
  *  CMDFLIPBOARD - The flipboard command, called from menus and buttons
  */
+
 
 int CMDFLIPBOARD::Execute(void) 
 {
@@ -342,6 +377,12 @@ bool CMDFLIPBOARD::FUndoable(void) const
 {
     return true;
 }
+
+bool CMDFLIPBOARD::FMenuWs(wstring& ws, ICMD::CMS cms) const {
+    ws = wapp.WsLoad(rssFlipBoard);
+    return true;
+}
+
 
 /*
  *  WAPP::RegisterMenuCmds

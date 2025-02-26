@@ -40,6 +40,15 @@ class WAPP;
 
 class ICMD 
 {
+protected:
+
+    enum class CMS
+    {
+        Regular,
+        Undo,
+        Redo
+    };
+
 public:
     virtual ~ICMD() = default;
     virtual ICMD* clone(void) const = 0;
@@ -52,7 +61,7 @@ public:
     virtual bool FEnabled(void) const;
     virtual bool FChecked(void) const;
     virtual bool FToolTipWs(wstring& wsTip) const;
-    virtual bool FMenuWs(wstring& wsMenu) const;
+    virtual bool FMenuWs(wstring& wsMenu, CMS cms = CMS::Regular) const;
 };
 
 /*

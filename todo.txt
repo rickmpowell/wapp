@@ -1,10 +1,8 @@
-  Add Undo and Redo stacks to command processor
   Move Translate/DispatchMessage into a base message pump filter
   Redesign menus and CMDs to build on the fly and use CMD to populate text of MENUITEMs
   Redesign accelerator tables to build on the fly using CMDs
   Implement test framework for MoveGen, MakeMv, UndoMv
   Gather up a test suite of FENs 
-  Add a timer to perft test
   Add closebox to titlebars
   Perft test driver
   Click-move-click move interface
@@ -20,7 +18,10 @@
   Add chess clock 
   Have New Game prompt for player and side
   Implement simple dialog box class
-  Convert about box to dialob box
+  Convert about box to dialog box
+  Add Undo/Redo menu strings
+* Add a timer to perft test
+* Add Undo and Redo stacks to command processor
 * Implement real MakeMv and UndoMv
 * Implement MoveGen in chess program
 * Implement cached/invalidation of Direct2D device-dependent drawing objects

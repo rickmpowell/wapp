@@ -182,6 +182,8 @@ public:
     virtual int Execute(void) override;
     virtual int Undo(void) override;
     virtual bool FUndoable(void) const;
+    virtual bool FMenuWs(wstring& ws, ICMD::CMS cms) const override;
+
 };
 
 CMD_DECLARE(CMDMAKEMOVE)
@@ -193,6 +195,7 @@ public:
     virtual int Execute(void) override;
     virtual int Undo(void) override;
     virtual bool FUndoable(void) const override;
+    virtual bool FMenuWs(wstring& ws, CMS cms) const override; 
 
 private:
     MV mv = MV(sqNil, sqNil);

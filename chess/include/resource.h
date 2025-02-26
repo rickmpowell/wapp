@@ -31,6 +31,11 @@
 #define rssFirstUnused 16
 #define rssEnableBoard 17
 #define rssDisableBoard 18
+#define rssUndo 19
+#define rssRedo 20
+#define rssPaste 21
+#define rssNewGame 22
+#define rssFlipBoard 23
 
 #define rssErrPasteFailed 128
 #define rssErrCopyFailed 129
