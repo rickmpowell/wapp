@@ -13,11 +13,11 @@
  *  Piece direction offsets in the raw board array
  */
 
-static const int adicpBishop[] = { -11, -9, 9, 11 };
-static const int adicpRook[] = { -10, -1, 1, 10 };
-static const int adicpKnight[] = { -21, -19, -12, -8, 8, 12, 19, 21 };
-static const int adicpKing[] = { -11, -10, -9, -1, 1, 9, 10, 11 };
-static const int adicpPawn[] = { 9, 11, -11, -9 };  /* first 2 are white, second 2 are black */
+static const int adicpbdBishop[] = { -11, -9, 9, 11 };
+static const int adicpbdRook[] = { -10, -1, 1, 10 };
+static const int adicpbdKnight[] = { -21, -19, -12, -8, 8, 12, 19, 21 };
+static const int adicpbdKing[] = { -11, -10, -9, -1, 1, 9, 10, 11 };
+static const int adicpbdPawn[] = { 9, 11, -11, -9 };  /* first 2 are white, second 2 are black */
 
 /*
  *  BD::MoveGen
@@ -31,38 +31,41 @@ static const int adicpPawn[] = { 9, 11, -11, -9 };  /* first 2 are white, second
  *  intermeidate move list.
  */
 
-void BD::MoveGen(vector<MV>& vmv)
+void BD::MoveGen(VMV& vmv)
 {
     MoveGenPseudo(vmv);
     RemoveChecks(vmv);
 }
 
-void BD::MoveGenPseudo(vector<MV>& vmv) const
+void BD::MoveGenPseudo(VMV& vmv) const
 {
+    Validate();
+
     vmv.clear();
-    for (SQ sq = 0; sq < sqMax; sq++) {
-        int icpFrom = IcpFromSq(sq);
-        CP cp = acpbd[icpFrom].cp();
-        if (ccp(cp) != ccpToMove)
+    vmv.reserve(256);
+
+    for (int icp = 0; icp < icpMax; icp++) {
+        int icpbdFrom = aicpbd[ccpToMove][icp];
+        if (icpbdFrom == -1)
             continue;
-        switch (tcp(cp)) {
+        switch (acpbd[icpbdFrom].tcp) {
         case tcpPawn:
-            MoveGenPawn(icpFrom, vmv);
+            MoveGenPawn(icpbdFrom, vmv);
             break;
         case tcpKnight:
-            MoveGenSingle(icpFrom, adicpKnight, size(adicpKnight), vmv);
+            MoveGenSingle(icpbdFrom, adicpbdKnight, size(adicpbdKnight), vmv);
             break;
         case tcpBishop:
-            MoveGenSlider(icpFrom, adicpBishop, size(adicpBishop), vmv);
+            MoveGenSlider(icpbdFrom, adicpbdBishop, size(adicpbdBishop), vmv);
             break;
         case tcpRook:
-            MoveGenSlider(icpFrom, adicpRook, size(adicpRook), vmv);
+            MoveGenSlider(icpbdFrom, adicpbdRook, size(adicpbdRook), vmv);
             break;
-        case tcpQueen: /* in some sense, a queen is a sliding king */
-            MoveGenSlider(icpFrom, adicpKing, size(adicpKing), vmv);
+        case tcpQueen: /* a queen is a sliding king */
+            MoveGenSlider(icpbdFrom, adicpbdKing, size(adicpbdKing), vmv);
             break;
         case tcpKing:
-            MoveGenKing(icpFrom, vmv);
+            MoveGenKing(icpbdFrom, vmv);
             break;
         default:
             assert(false);
@@ -71,54 +74,50 @@ void BD::MoveGenPseudo(vector<MV>& vmv) const
     }
 }
 
-void BD::RemoveChecks(vector<MV>& vmv) 
+void BD::RemoveChecks(VMV& vmv) 
 {
-    size_t imvTo = 0;
-    for (size_t imv = 0; imv < vmv.size(); imv++) {
-#ifndef NDEBUG
-        BD bdSav = *this;
-#endif
+    int imvTo = 0;
+    for (int imv = 0; imv < vmv.size(); imv++) {
         MakeMv(vmv[imv]);
-        int icpKing = IcpFindKing(~ccpToMove);
-        if (!FIsAttacked(icpKing, ccpToMove))
+        int icpbdKing = IcpbdFindKing(~ccpToMove);
+        if (!FIsAttacked(icpbdKing, ccpToMove))
             vmv[imvTo++] = vmv[imv];
         UndoMv(vmv[imv]);
-        assert(*this == bdSav);
     }
     vmv.resize(imvTo);
 }
 
-void BD::MoveGenPawn(int icpFrom, vector<MV>& vmv) const
+void BD::MoveGenPawn(int icpbdFrom, VMV& vmv) const
 {
-    int dicp = (ccpToMove == ccpWhite) ? 10 : -10;
-    int icpTo = icpFrom + dicp;
+    int dicpbd = (ccpToMove == ccpWhite) ? 10 : -10;
+    int icpbdTo = icpbdFrom + dicpbd;
 
     /* regular forward moves anmd double first moves */
-    if (acpbd[icpTo].cp() == cpEmpty) {
-        AddPawnMoves(icpFrom, icpTo, vmv);
-        int raFrom = ra(SqFromIcp(icpFrom));
-        if (raFrom == RaPawns(ccpToMove) && acpbd[icpTo + dicp].cp() == cpEmpty)
-            vmv.emplace_back(icpFrom, icpTo + dicp); // can't be a promotion 
+    if (acpbd[icpbdTo].cp() == cpEmpty) {
+        AddPawnMoves(icpbdFrom, icpbdTo, vmv);
+        int raFrom = ra(SqFromIcpbd(icpbdFrom));
+        if (raFrom == RaPawns(ccpToMove) && acpbd[icpbdTo + dicpbd].cp() == cpEmpty)
+            vmv.emplace_back(icpbdFrom, icpbdTo + dicpbd); // can't be a promotion 
     }
 
     /* captures, including en passant */
-    if (acpbd[icpTo-1].ccp == ~ccpToMove || icpTo-1 == IcpFromSq(sqEnPassant))
-        AddPawnMoves(icpFrom, icpTo-1, vmv);
-    if (acpbd[icpTo+1].ccp == ~ccpToMove || icpTo+1 == IcpFromSq(sqEnPassant))
-        AddPawnMoves(icpFrom, icpTo+1, vmv);
+    if (acpbd[icpbdTo-1].ccp == ~ccpToMove || icpbdTo-1 == IcpbdFromSq(sqEnPassant))
+        AddPawnMoves(icpbdFrom, icpbdTo-1, vmv);
+    if (acpbd[icpbdTo+1].ccp == ~ccpToMove || icpbdTo+1 == IcpbdFromSq(sqEnPassant))
+        AddPawnMoves(icpbdFrom, icpbdTo+1, vmv);
 }
 
-void BD::MoveGenKing(int icpFrom, vector<MV>& vmv) const
+void BD::MoveGenKing(int icpbdFrom, VMV& vmv) const
 {
-    MoveGenSingle(icpFrom, adicpKing, size(adicpKing), vmv);
+    MoveGenSingle(icpbdFrom, adicpbdKing, size(adicpbdKing), vmv);
 
     /* castling - we make an attempt to do a general Chess960 castle */
 
    int raBack = RaBack(ccpToMove);
     if (csCur & Cs(csKing, ccpToMove))
-        AddCastle(icpFrom, fiG, fiKingRook, fiF, csKing, vmv);
+        AddCastle(icpbdFrom, fiG, fiKingRook, fiF, csKing, vmv);
     if (csCur & Cs(csQueen, ccpToMove))
-        AddCastle(icpFrom, fiC, fiQueenRook, fiD, csQueen, vmv);
+        AddCastle(icpbdFrom, fiC, fiQueenRook, fiD, csQueen, vmv);
 }
 
 /*
@@ -146,28 +145,28 @@ void BD::MoveGenKing(int icpFrom, vector<MV>& vmv) const
  *      King can't move through check, or be in check.
  */
 
-void BD::AddCastle(int icpKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, CS csMove, vector<MV>& vmv) const
+void BD::AddCastle(int icpbdKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, CS csMove, VMV& vmv) const
 {
     /* NOTE: this all gets simpler with bitboards */
 
-    int raBack = ra(SqFromIcp(icpKingFrom));
-    int icpKingTo = Icp(fiKingTo, raBack);
-    int icpRookFrom = Icp(fiRookFrom, raBack);
-    int icpRookTo = Icp(fiRookTo, raBack);
+    int raBack = ra(SqFromIcpbd(icpbdKingFrom));
+    int icpKingTo = Icpbd(fiKingTo, raBack);
+    int icpRookFrom = Icpbd(fiRookFrom, raBack);
+    int icpRookTo = Icpbd(fiRookTo, raBack);
 
     /* only blank squares or the king between the rook and its final destination */
 
     int dicp = icpRookFrom < icpRookTo ? 1 : -1;
     for (int icp = icpRookFrom + dicp; icp != icpRookTo; icp += dicp)
-        if (icp != icpKingFrom && acpbd[icp].cp() != cpEmpty)
+        if (icp != icpbdKingFrom && acpbd[icp].cp() != cpEmpty)
             return;
-    if (icpRookTo != icpKingFrom && acpbd[icpRookTo].cp() != cpEmpty)
+    if (icpRookTo != icpbdKingFrom && acpbd[icpRookTo].cp() != cpEmpty)
         return;
 
     /* only blank squares or the rook between the king and its final destination */
 
-    dicp = icpKingFrom < icpKingTo ? 1 : -1;
-    for (int icp = icpKingFrom + dicp; icp != icpKingTo; icp += dicp)
+    dicp = icpbdKingFrom < icpKingTo ? 1 : -1;
+    for (int icp = icpbdKingFrom + dicp; icp != icpKingTo; icp += dicp)
         if (icp != icpRookFrom && acpbd[icp].cp() != cpEmpty)
             return;
     if (icpKingTo != icpRookFrom && acpbd[icpKingTo].cp() != cpEmpty)
@@ -175,11 +174,11 @@ void BD::AddCastle(int icpKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, 
 
     /* king can't move through attack - note this does not check the final square */
 
-    for (int icp = icpKingFrom; icp != icpKingTo; icp += dicp)
+    for (int icp = icpbdKingFrom; icp != icpKingTo; icp += dicp)
         if (FIsAttacked(icp, ~ccpToMove))
             return;
 
-    vmv.emplace_back(icpKingFrom, icpKingTo, csMove);
+    vmv.emplace_back(icpbdKingFrom, icpKingTo, csMove);
 }
 
 /*
@@ -189,16 +188,16 @@ void BD::AddCastle(int icpKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, 
  *  the four promotion possibilities.
  */
 
-void BD::AddPawnMoves(int icpFrom, int icpTo, vector<MV>& vmv) const
+void BD::AddPawnMoves(int icpbdFrom, int icpbdTo, VMV& vmv) const
 {
-    int raTo = ra(SqFromIcp(icpTo));
+    int raTo = ra(SqFromIcpbd(icpbdTo));
     if (raTo != RaPromote(ccpToMove))
-        vmv.emplace_back(icpFrom, icpTo);
+        vmv.emplace_back(icpbdFrom, icpbdTo);
     else {
-        vmv.emplace_back(icpFrom, icpTo, tcpQueen);
-        vmv.emplace_back(icpFrom, icpTo, tcpRook);
-        vmv.emplace_back(icpFrom, icpTo, tcpBishop);
-        vmv.emplace_back(icpFrom, icpTo, tcpKnight);
+        vmv.emplace_back(icpbdFrom, icpbdTo, tcpQueen);
+        vmv.emplace_back(icpbdFrom, icpbdTo, tcpRook);
+        vmv.emplace_back(icpbdFrom, icpbdTo, tcpBishop);
+        vmv.emplace_back(icpbdFrom, icpbdTo, tcpKnight);
     }
 }
 
@@ -209,15 +208,15 @@ void BD::AddPawnMoves(int icpFrom, int icpTo, vector<MV>& vmv) const
  *  direction
  */
 
-void BD::MoveGenSlider(int icpFrom, const int adicp[], int cdicp, vector<MV>& vmv) const
+void BD::MoveGenSlider(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const
 {
-    for (int idicp = 0; idicp < cdicp; idicp++) {
-        int dicp = adicp[idicp];
-        for (int icpTo = icpFrom + dicp; ; icpTo += dicp) {
-            CP cp = acpbd[icpTo].cp();
+    for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
+        int dicpbd = adicpbd[idicpbd];
+        for (int icpbdTo = icpbdFrom + dicpbd; ; icpbdTo += dicpbd) {
+            CP cp = acpbd[icpbdTo].cp();
             if (cp == cpInvalid || ccp(cp) == ccpToMove)
                 break;
-            vmv.emplace_back(icpFrom, icpTo);
+            vmv.emplace_back(icpbdFrom, icpbdTo);
             if (ccp(cp) == ~ccpToMove)
                 break;
         }
@@ -231,14 +230,19 @@ void BD::MoveGenSlider(int icpFrom, const int adicp[], int cdicp, vector<MV>& vm
  *  of offsets.
  */
 
-void BD::MoveGenSingle(int icpFrom, const int adicp[], int cdicp, vector<MV>& vmv) const
+void BD::MoveGenSingle(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const
 {
-    for (int idicp = 0; idicp < cdicp; idicp++) {
-        int icpTo = icpFrom + adicp[idicp];
-        CP cp = acpbd[icpTo].cp();
+    for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
+        int icpbdTo = icpbdFrom + adicpbd[idicpbd];
+        CP cp = acpbd[icpbdTo].cp();
         if (cp == cpEmpty || ccp(cp) == ~ccpToMove)
-            vmv.emplace_back(icpFrom, icpTo);
+            vmv.emplace_back(icpbdFrom, icpbdTo);
     }
+}
+
+bool BD::FInCheck(CCP ccp) const
+{
+    return FIsAttacked(IcpbdFindKing(ccp), ~ccp);
 }
 
 /*
@@ -247,38 +251,38 @@ void BD::MoveGenSingle(int icpFrom, const int adicp[], int cdicp, vector<MV>& vm
  *  Checks if the square is under attack by a piece of color ccpBy.
  */
 
-bool BD::FIsAttacked(int icpAttacked, CCP ccpBy) const
+bool BD::FIsAttacked(int icpbdAttacked, CCP ccpBy) const
 {
-    if (FIsAttackedBySingle(icpAttacked, Cp(ccpBy, tcpPawn), &adicpPawn[(~ccpBy)*2], 2))
+    if (FIsAttackedBySingle(icpbdAttacked, Cp(ccpBy, tcpPawn), &adicpbdPawn[(~ccpBy)*2], 2))
         return true;
-    if (FIsAttackedBySlider(icpAttacked, Cp(ccpBy, tcpBishop), Cp(ccpBy, tcpQueen), adicpBishop, size(adicpBishop)))
+    if (FIsAttackedBySlider(icpbdAttacked, Cp(ccpBy, tcpBishop), Cp(ccpBy, tcpQueen), adicpbdBishop, size(adicpbdBishop)))
         return true;
-    if (FIsAttackedBySlider(icpAttacked, Cp(ccpBy, tcpRook), Cp(ccpBy, tcpQueen), adicpRook, size(adicpRook)))
+    if (FIsAttackedBySlider(icpbdAttacked, Cp(ccpBy, tcpRook), Cp(ccpBy, tcpQueen), adicpbdRook, size(adicpbdRook)))
         return true;
-    if (FIsAttackedBySingle(icpAttacked, Cp(ccpBy, tcpKnight), adicpKnight, size(adicpKnight)))
+    if (FIsAttackedBySingle(icpbdAttacked, Cp(ccpBy, tcpKnight), adicpbdKnight, size(adicpbdKnight)))
         return true;
-    if (FIsAttackedBySingle(icpAttacked, Cp(ccpBy, tcpKing), adicpKing, size(adicpKing)))
+    if (FIsAttackedBySingle(icpbdAttacked, Cp(ccpBy, tcpKing), adicpbdKing, size(adicpbdKing)))
         return true;
     return false;
 }
 
-bool BD::FIsAttackedBySingle(int icpAttacked, CP cp, const int adicp[], int cdicp) const
+bool BD::FIsAttackedBySingle(int icpbdAttacked, CP cp, const int adicpbd[], int cdicpbd) const
 {
-    for (int idicp = 0; idicp < cdicp; idicp++) {
-        if (acpbd[icpAttacked + adicp[idicp]].cp() == cp)
+    for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
+        if (acpbd[icpbdAttacked + adicpbd[idicpbd]].cp() == cp)
             return true;
     }
     return false;
 }
 
-bool BD::FIsAttackedBySlider(int icpAttacked, CP cp1, CP cp2, const int adicp[], int cdicp) const
+bool BD::FIsAttackedBySlider(int icpbdAttacked, CP cp1, CP cp2, const int adicpbd[], int cdicpbd) const
 {
-    for (int idicp = 0; idicp < size(adicpBishop); idicp++) {
-        int dicp = adicp[idicp];
-        for (int icp = icpAttacked + dicp; ; icp += dicp) {
-            if (acpbd[icp].cp() == cp1 || acpbd[icp].cp() == cp2)
+    for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
+        int dicpbd = adicpbd[idicpbd];
+        for (int icpbd = icpbdAttacked + dicpbd; ; icpbd += dicpbd) {
+            if (acpbd[icpbd].cp() == cp1 || acpbd[icpbd].cp() == cp2)
                 return true;
-            if (acpbd[icp].cp() != cpEmpty)
+            if (acpbd[icpbd].cp() != cpEmpty)
                 break;
         }
     }
@@ -286,18 +290,35 @@ bool BD::FIsAttackedBySlider(int icpAttacked, CP cp1, CP cp2, const int adicp[],
 }
 
 /*
- *  BD::IcpFromKing
+ *  BD::IcpbdFromKing
  * 
  *  Finds the position of the king on the board
  */
 
-int BD::IcpFindKing(CCP ccp) const
+int BD::IcpbdFindKing(CCP ccp) const
 {
-    /* YIKES! - this is really slow */
-    for (int icp = 10*2; icp < 10*10; icp++)
-        if (acpbd[icp].ccp == ccp && acpbd[icp].tcp  == tcpKing)
-            return icp;
+   for (int icp = 0; icp < icpMax; icp++) {
+        int icpbd = aicpbd[ccp][icp];
+        if (icpbd != -1 && acpbd[icpbd].tcp == tcpKing)
+            return icpbd;
+    }
     assert(false); 
+    return -1;
+}
+
+/*
+ *  BD::IcpUnused
+ * 
+ *  Finds an unused slot in the piece table. This arranges the table so the
+ *  king is always in aicpbd[0]. And since the king can never be removed from the
+ *  game, it will remain in aicpbd[0] forever.
+ */
+
+int BD::IcpUnused(int ccp, int tcpHint) const {
+    static const int mptcpicpHint[] = { 0, 8, 6, 4, 2, 1, 0 };
+    for (int icp = mptcpicpHint[tcpHint]; ; icp = (icp+1) % icpMax)
+        if (aicpbd[ccp][icp] == -1)
+            return icp;
     return -1;
 }
 

@@ -21,11 +21,13 @@ class CMDMAKEMOVE;
 class WNBOARD : public WN
 {
 public:
-    vector<MV> vmv;
+    VMV vmv;
     static PNGX pngPieces;
 
     WNBOARD(WN* pwnParent, BD& bd);
  
+    void BdChanged(void);
+
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
 
@@ -65,7 +67,6 @@ private:
     const float wLabelsPerBorder = 0.35f;   // ratio of the size of labels to the size of the border
     const float dyLabelsMin = 12.0f;    // minimum label font size
 
-
     void DrawBorder(void);
     void DrawSquares(void);
     void DrawPieces(void);
@@ -81,7 +82,7 @@ private:
  *  Test window
  */
 
-class WNTEST : public WN
+class WNTEST : public WNSTREAM
 {
 public:
     WNTEST(WN* pwnParent);
@@ -90,8 +91,8 @@ public:
     virtual void Draw(const RC& rcUpdate) override;
 
     void clear(void);
-    WNTEST& operator << (const wstring& ws);
-
+    virtual void ReceiveStream(const wstring& ws) override;
+ 
 private:
     TITLEBAR titlebar;
     vector<wstring> vws;

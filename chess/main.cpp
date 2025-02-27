@@ -106,15 +106,13 @@ public:
         bdUndo = wapp.bd;
         /* TODO: can we invent an interface here that automatically calls MoveGen? */
         wapp.bd.InitFromFen(fenStartPos);
-        wapp.bd.MoveGen(wapp.wnboard.vmv);
-        wapp.wnboard.Redraw();
+        wapp.wnboard.BdChanged();
         return 1;
     }
 
     virtual int Undo(void) override {
         wapp.bd = bdUndo;
-        wapp.bd.MoveGen(wapp.wnboard.vmv);
-        wapp.wnboard.Redraw();
+        wapp.wnboard.BdChanged();
         return 1;
     }
 
@@ -178,16 +176,14 @@ CMDEXECUTE(CMDTESTDIVIDE)
 int CMDMAKEMOVE::Execute(void) 
 {
     wapp.bd.MakeMv(mv);
-    wapp.bd.MoveGen(wapp.wnboard.vmv);
-    wapp.wnboard.Redraw();
+    wapp.wnboard.BdChanged();
     return 1;
 }
 
 int CMDMAKEMOVE::Undo(void)
 {
     wapp.bd.UndoMv(mv);
-    wapp.bd.MoveGen(wapp.wnboard.vmv);
-    wapp.wnboard.Redraw();
+    wapp.wnboard.BdChanged();
     return 1;
 }
 
@@ -224,11 +220,11 @@ public:
         return wapp.FTopUndoCmd(pcmd);
     }
 
-    virtual bool FMenuWs(wstring& ws, ICMD::CMS cms) const override {
+    virtual bool FMenuWs(wstring& ws, CMS cms) const override {
         ICMD* pcmd;
         wstring wsCmd;
-        if (!wapp.FTopUndoCmd(pcmd) || !pcmd->FMenuWs(wsCmd, CMS::Undo))
-            wsCmd = L"";
+        if (wapp.FTopUndoCmd(pcmd))
+            pcmd->FMenuWs(wsCmd, CMS::Undo);
         ws = vformat(wapp.WsLoad(rssUndo), make_wformat_args(wsCmd));
         return true;
     }
@@ -252,15 +248,14 @@ public:
         return wapp.FTopRedoCmd(pcmd);
     }
 
-    virtual bool FMenuWs(wstring& ws, ICMD::CMS cms) const override {
+    virtual bool FMenuWs(wstring& ws, CMS cms) const override {
         wstring wsCmd;
         ICMD* pcmd;
-        if (!wapp.FTopRedoCmd(pcmd) || !pcmd->FMenuWs(wsCmd, CMS::Undo))
-            wsCmd = L"";
+        if (wapp.FTopRedoCmd(pcmd))
+            pcmd->FMenuWs(wsCmd, CMS::Redo);
         ws = vformat(wapp.WsLoad(rssRedo), make_wformat_args(wsCmd));
         return true;
     }
-
 };
 
 /*
@@ -324,8 +319,7 @@ public:
             iclipstream is(wapp);
             bdUndo.InitFromFen(is);
             swap(wapp.bd, bdUndo);
-            wapp.bd.MoveGen(wapp.wnboard.vmv);
-            wapp.wnboard.Redraw();
+            wapp.wnboard.BdChanged();
         }
         catch (ERR err) {
             wapp.Error(ERRAPP(rssErrPasteFailed), err);
@@ -335,8 +329,7 @@ public:
 
     virtual int Undo(void) override {
         swap(wapp.bd, bdUndo);
-        wapp.bd.MoveGen(wapp.wnboard.vmv);
-        wapp.wnboard.Redraw();
+        wapp.wnboard.BdChanged();
         return 1;
     }
 

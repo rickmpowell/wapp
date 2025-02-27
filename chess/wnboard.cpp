@@ -25,6 +25,12 @@ WNBOARD::WNBOARD(WN* pwnParent, BD& bd) :
     bd.MoveGen(vmv);
 }
 
+void WNBOARD::BdChanged(void)
+{
+    bd.MoveGen(vmv);
+    Redraw();
+}
+
 /*
  *  CO::CoBack and CO::CoText
  *
@@ -177,10 +183,10 @@ void WNBOARD::DrawSquares(void)
                 continue;
             brMove.SetCo(CoAverage(coBack, coBlack));
             PT ptCenter = RcFromSq(sq).ptCenter();
-            if (bd[sq].cp() == cpEmpty)
-                FillEll(ELL(ptCenter, dxySquare * 0.25f), brMove);
-            else
+            if (bd[sq].cp() != cpEmpty || (sq == bd.sqEnPassant && bd[mv.sqFrom].tcp == tcpPawn))
                 FillGeom(geomCross, ptCenter, dxySquare / (2 * dxyCrossFull), 45, brMove);
+            else
+                FillEll(ELL(ptCenter, dxySquare * 0.25f), brMove);
         }
     }    
 }
@@ -248,7 +254,7 @@ bool WNBOARD::FSqFromPt(SQ& sq, const PT& pt) const
 
 bool WNBOARD::FLegalSqFrom(SQ sqFrom) const
 {
-    for (MV mv : vmv) {
+    for (const MV& mv : vmv) {
         if (mv.sqFrom == sqFrom)
             return true;
     }

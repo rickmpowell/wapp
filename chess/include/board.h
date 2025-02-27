@@ -19,6 +19,7 @@ enum CCP : uint8_t
 {
     ccpWhite = 0,
     ccpBlack = 1,
+    ccpMax = 2, // kind of weird, but will make more sense with a non-mailbox board representation
     ccpEmpty = 2,
     ccpInvalid = 3
 };
@@ -85,15 +86,15 @@ struct CPBD
 {
     uint16_t tcp : 3,
         ccp : 2,
-        icpd : 5;
+        icp : 4;
 
-    CPBD(void) : ccp(ccpInvalid), tcp(tcpMax), icpd(0) {
+    CPBD(void) : ccp(ccpInvalid), tcp(tcpMax), icp(0) {
     }
 
-    CPBD(CCP ccp, TCP tcp) : ccp(ccp), tcp(tcp), icpd(0) {
+    CPBD(CCP ccp, TCP tcp, int icp) : ccp(ccp), tcp(tcp), icp(icp) {
     }
 
-    CPBD(CP cp) : tcp(cp & 7), ccp(cp >> 3), icpd(0) {
+    CPBD(CP cp, int icp) : tcp(cp & 7), ccp(cp >> 3), icp(icp) {
     }
 
     CP cp(void) const {
@@ -113,8 +114,6 @@ struct CPBD
         return !(*this == cpbd);
     }
 };
-
-
 
 /*
  *  SQ square type
@@ -262,16 +261,16 @@ inline CS Cs(CS cs, CCP ccp) {
  *  map between squares an internal index into the board table
  */
 
-inline SQ SqFromIcp(int icp) {
-    return Sq(icp%10 - 1, (icp-10*2)/10);
+inline SQ SqFromIcpbd(int icpbd) {
+    return Sq(icpbd%10 - 1, (icpbd-10*2)/10);
 }
 
-inline int Icp(int fi, int ra) {
+inline int Icpbd(int fi, int ra) {
     return (2 + ra) * 10 + fi + 1;
 }
 
-inline int IcpFromSq(SQ sq) {
-    return Icp(fi(sq), ra(sq));
+inline int IcpbdFromSq(SQ sq) {
+    return Icpbd(fi(sq), ra(sq));
 }
 
 /*
@@ -301,12 +300,12 @@ public:
         sqFrom(sqFrom), sqTo(sqTo), tcpPromote(tcpPromote), csMove(csNone) {
     }
     
-    MV(int icpFrom, int icpTo, TCP tcpPromote = tcpNone) : 
-        sqFrom(SqFromIcp(icpFrom)), sqTo(SqFromIcp(icpTo)), tcpPromote(tcpPromote), csMove(csNone) {
+    MV(int icpbdFrom, int icpbdTo, TCP tcpPromote = tcpNone) : 
+        sqFrom(SqFromIcpbd(icpbdFrom)), sqTo(SqFromIcpbd(icpbdTo)), tcpPromote(tcpPromote), csMove(csNone) {
     }
 
-    MV(int icpFrom, int icpTo, CS csMove) :
-        sqFrom(SqFromIcp(icpFrom)), sqTo(SqFromIcp(icpTo)), tcpPromote(tcpNone), csMove(csMove) {
+    MV(int icpbdFrom, int icpbdTo, CS csMove) :
+        sqFrom(SqFromIcpbd(icpbdFrom)), sqTo(SqFromIcpbd(icpbdTo)), tcpPromote(tcpNone), csMove(csMove) {
     }
     
     bool fIsNil(void) const { 
@@ -319,6 +318,68 @@ public:
 
 wstring to_wstring(MV mv);
 string to_string(MV mv);
+
+/*
+ *  VMV - Move list type.
+ * 
+ *  This has the same interface as vector, but is highly-optimized for chess
+ *  piece list. Assumes there are fewer than 256 moves per positin, which should
+ *  be plenty.
+ *
+ *  Has limited functionality. Basically only Iteration, indexing, and emplace_back.
+ */
+
+class VMV {
+
+public:
+    class iterator
+    {
+    public:
+        iterator(MV* pmv) : pmvCur(pmv) {}
+        MV& operator * () const { return *pmvCur; }
+        iterator& operator ++ () { ++pmvCur; return *this; }
+        iterator operator ++ (int) { iterator it = *this;  pmvCur++; return it; }
+        bool operator != (const iterator& it) const { return pmvCur != it.pmvCur; }
+        bool operator == (const iterator& it) const { return pmvCur == it.pmvCur; }
+    private:
+        MV* pmvCur;
+    };
+
+    class citerator
+    {
+    public:
+        citerator(const MV* pmv) : pmvCur(pmv) {}
+        const MV& operator * () const { return *pmvCur; }
+        citerator& operator ++ () { ++pmvCur; return *this; }
+        citerator operator ++ (int) { citerator it = *this;  pmvCur++; return it; }
+        bool operator != (const citerator& it) const { return pmvCur != it.pmvCur; }
+        bool operator == (const citerator& it) const { return pmvCur == it.pmvCur; }
+    private:
+        const MV* pmvCur;
+    };
+
+    int size(void) const { return imvMac; }
+    MV& operator [] (int imv) { return amv[imv]; }
+    MV operator [] (int imv) const { return amv[imv]; }
+    iterator begin(void) { return iterator(&amv[0]); }
+    iterator end(void) { return iterator(&amv[imvMac]); }
+    citerator begin(void) const { return citerator(&amv[0]); }
+    citerator end(void) const { return citerator(&amv[imvMac]); }
+    void clear(void) { imvMac = 0; }
+    void resize(int cmv) { imvMac = cmv; }
+    void reserve(int cmv) { assert(cmv == 256); }   // we're fixed size 
+
+    template <typename... ARGS>
+    void emplace_back(ARGS&&... args) {
+        new (&amv[imvMac]) MV(forward<ARGS>(args)...);
+        ++imvMac;
+    }
+
+private:
+    MV amv[256];
+    int imvMac = 0;
+
+};
 
 /*
  *  BD class
@@ -342,7 +403,9 @@ private:
     static const string_view sParseCastle;
 
 public:
-    CPBD acpbd[12*10];  // 8x8 plus 4 guard ranks and 2 guard files
+    CPBD acpbd[(raMax+4)*(fiMax+2)];  // 8x8 plus 4 guard ranks and 2 guard files
+    static constexpr int icpMax = 16;
+    int aicpbd[ccpMax][icpMax];  // ccp x piece index -> offset into acpbd array
     CCP ccpToMove = ccpWhite;
     CS csCur = csNone;
     SQ sqEnPassant = sqNil;
@@ -354,19 +417,19 @@ public:
     void EmptyAcpbd(void);
 
     inline CPBD operator[](SQ sq) const {
-        return acpbd[IcpFromSq(sq)];
+        return acpbd[IcpbdFromSq(sq)];
     }
 
     inline CPBD& operator[](SQ sq) {
-        return acpbd[IcpFromSq(sq)];
+        return acpbd[IcpbdFromSq(sq)];
     }
 
     inline CPBD& operator()(int fi, int ra) {
-        return acpbd[Icp(fi, ra)];
+        return acpbd[Icpbd(fi, ra)];
     }
 
     inline const CPBD& operator()(int fi, int ra) const {
-        return acpbd[Icp(fi, ra)];
+        return acpbd[Icpbd(fi, ra)];
     }
 
     /* make and undo move */
@@ -376,22 +439,11 @@ public:
 
     /* move generation */
 
-    void MoveGen(vector<MV>& vmv);
-    void MoveGenPseudo(vector<MV>& vmv) const;
-    void RemoveChecks(vector<MV>& vmv);
+    void MoveGen(VMV& vmv);
+    void MoveGenPseudo(VMV& vmv) const;
 
-    void MoveGenPawn(int icpFrom, vector<MV>& vmv) const;
-    void MoveGenKing(int icpFrom, vector<MV>& vmv) const;
-    void MoveGenSingle(int icpFrom, const int adicp[], int cdicp, vector<MV>& vmv) const;
-    void MoveGenSlider(int icpFrom, const int adicp[], int cdicp, vector<MV>& vmv) const;
-    void AddPawnMoves(int icpFrom, int icpTo, vector<MV>& vmv) const;
-    void AddCastle(int icpKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, CS csMove, vector<MV>& vmv) const;
-
+    bool FInCheck(CCP ccp) const;
     bool FIsAttacked(int icpAttacked, CCP ccpBy) const;
-    bool FIsAttackedBySingle(int icpAttacked, CP cp, const int adicp[], int cdicp) const;
-    bool FIsAttackedBySlider(int icpAttacked, CP cp1, CP cp2, const int adicp[], int cdicp) const;
-
-    int IcpFindKing(CCP ccpKing) const;
 
     /* FEN reading and writing */
 
@@ -400,13 +452,25 @@ public:
     void RenderFen(ostream& os) const;
     string FenRender(void) const;
 
-    bool operator == (const BD& bd) const {
-        for (int icpbd = 0; icpbd < size(acpbd); icpbd++)
-            if (acpbd[icpbd] != bd.acpbd[icpbd])
-                return false;
+private:
+    void RemoveChecks(VMV& vmv);
 
-        return ccpToMove == bd.ccpToMove &&
-            csCur == bd.csCur &&
-            sqEnPassant == bd.sqEnPassant;
-    }
+    void MoveGenPawn(int icpFrom, VMV& vmv) const;
+    void MoveGenKing(int icpFrom, VMV& vmv) const;
+    void MoveGenSingle(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const;
+    void MoveGenSlider(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const;
+    void AddPawnMoves(int icpFrom, int icpTo, VMV& vmv) const;
+    void AddCastle(int icpKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, CS csMove, VMV& vmv) const;
+
+    bool FIsAttackedBySingle(int icpAttacked, CP cp, const int adicp[], int cdicp) const;
+    bool FIsAttackedBySlider(int icpAttacked, CP cp1, CP cp2, const int adicp[], int cdicp) const;
+
+    int IcpbdFindKing(CCP ccpKing) const;
+    int IcpUnused(int ccp, int tcpHint) const;
+
+#ifndef NDEBUG
+    void Validate(void) const;
+#else
+    inline void Validate(void) const {}
+#endif
 };

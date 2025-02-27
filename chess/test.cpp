@@ -5,7 +5,7 @@
 
 #include "chess.h"
 
-WNTEST::WNTEST(WN* pwnParent) : WN(pwnParent),
+WNTEST::WNTEST(WN* pwnParent) : WNSTREAM(pwnParent),
     titlebar(this, L"Tests")
 {
 }
@@ -40,11 +40,10 @@ void WNTEST::clear(void)
     Redraw();
 }
 
-WNTEST& WNTEST::operator << (const wstring& ws)
+void WNTEST::ReceiveStream(const wstring& ws)
 {
     vws.push_back(ws);
     Redraw();
-    return *this;
 }
 
 /*
@@ -62,9 +61,9 @@ void WAPP::RunPerft(void)
         uint64_t cmv = CmvPerft(depth);
         chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tmStart;
 
-        wntest << wstring(L"Perft ") + to_wstring(depth) + L": " + to_wstring(cmv);
-        wntest << L"  Time: " + to_wstring(dtm.count()) + L" s";
-        wntest << L"  kMoves/s: " + to_wstring((uint32_t)round((float)cmv / dtm.count() / 1000.0f));
+        wntest << L"Perft " << depth << L": " << cmv << endl;
+        wntest << L"  Time: " << (uint32_t)round(dtm.count() * 1000.0f) << L" ms" << endl;
+        wntest << L"  moves/ms: " << (uint32_t)round((float)cmv / dtm.count() / 1000.0f) << endl;
     }
     wnboard.Enable(true);
 }
@@ -75,18 +74,18 @@ void WAPP::RunDivide(void)
     wntest.clear();
 
     int depth = 7;
-    vector<MV> vmv;
+    VMV vmv;
     bd.MoveGen(vmv);
     uint64_t cmv = 0;
-    wntest << L"Divide depth " + to_wstring(depth);
+    wntest << L"Divide depth " << depth << endl;
     for (MV& mv : vmv) {
         bd.MakeMv(mv);
         uint64_t cmvMove = CmvPerft(depth - 1);
-        wntest << L" " + to_wstring(mv) + L" " + to_wstring(cmvMove);
+        wntest << L"  " << (wstring)mv << L" " << cmvMove << endl;
         cmv += cmvMove;
         bd.UndoMv(mv);
     }
-    wntest << L"Total: " + to_wstring(cmv);
+    wntest << L"Total: " << cmv << endl;
 
     wnboard.Enable(true);
 }
@@ -95,12 +94,13 @@ uint64_t WAPP::CmvPerft(int depth)
 {
     if (depth == 0)
         return 1;
-    vector<MV> vmv;
+    VMV vmv;
     uint64_t cmv = 0;
-    bd.MoveGen(vmv);
+    bd.MoveGenPseudo(vmv);
     for (MV mv : vmv) {
         bd.MakeMv(mv);
-        cmv += CmvPerft(depth - 1);
+        if (!bd.FInCheck(~bd.ccpToMove))
+            cmv += CmvPerft(depth - 1);
         bd.UndoMv(mv);
     }
     return cmv;

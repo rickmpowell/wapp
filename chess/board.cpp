@@ -26,16 +26,30 @@ BD::BD(const string& fen)
 }
 
 void BD::EmptyAcpbd(void) {
-    for (int icp = 0; icp < 10 * 2; icp++) {
+
+    /* fill guard squares with invalid pieces */
+
+    for (int icp = 0; icp < (fiMax+2) * 2; icp++) {
         acpbd[icp].cp(cpInvalid);
-        acpbd[10*10+icp].cp(cpInvalid);
+        acpbd[(fiMax+2)*(raMax+2)+icp].cp(cpInvalid);
     }
-    for (int ra = 0; ra < 8; ra++) {
-        acpbd[(ra+2)*10].cp(cpInvalid);
-        acpbd[(ra+2)*10+9].cp(cpInvalid);
+    for (int ra = 0; ra < raMax; ra++) {
+        acpbd[(ra+2)*(fiMax+2)].cp(cpInvalid);
+        acpbd[(ra+2)*(fiMax+2)+(fiMax-1)].cp(cpInvalid);
     }
+    
+    /* fill play area with empty squares */
+
     for (SQ sq = 0; sq < sqMax; sq++)
         (*this)[sq].cp(cpEmpty);
+
+    /* and none of the pieces are on the board */
+
+    for (int ccp = 0; ccp < ccpMax; ccp++)
+        for (int icp = 0; icp < icpMax; icp++)
+            aicpbd[ccp][icp] = -1;
+
+    Validate();
 }
 
 /*
@@ -46,14 +60,16 @@ void BD::EmptyAcpbd(void) {
 
 void BD::MakeMv(MV& mv)
 {
+    Validate();
+
     assert(mv.sqFrom != sqNil && mv.sqTo != sqNil);
 
     mv.csSav = csCur;
     mv.sqEnPassantSav = sqEnPassant;
-    CP cpMove = (*this)[mv.sqFrom].cp();
+    CPBD cpbdMove = (*this)[mv.sqFrom];
     SQ sqTake = mv.sqTo;
 
-    if (tcp(cpMove) == tcpPawn) {
+    if (cpbdMove.tcp == tcpPawn) {
         /* keep track of en passant possibility */
         if (abs(mv.sqFrom - mv.sqTo) == 16)
             sqEnPassant = (mv.sqFrom + mv.sqTo) / 2;
@@ -63,13 +79,13 @@ void BD::MakeMv(MV& mv)
                 sqTake += ccpToMove == ccpWhite ? -8 : 8;
             /* promotions */
             else if (mv.tcpPromote != tcpNone)
-                cpMove = Cp(ccp(cpMove), mv.tcpPromote);
+                cpbdMove.tcp = mv.tcpPromote;
             sqEnPassant = sqNil;
         }
     }
     else {
         sqEnPassant = sqNil;
-        if (tcp(cpMove) == tcpRook) {
+        if (cpbdMove.tcp == tcpRook) {
             /* clear castle state if we move a rook */
             int raBack = RaBack(ccpToMove);
             if (mv.sqFrom == Sq(fiQueenRook, raBack))
@@ -77,7 +93,7 @@ void BD::MakeMv(MV& mv)
             else if (mv.sqFrom == Sq(fiKingRook, raBack))
                 csCur &= ~Cs(csKing, ccpToMove);
         }
-        else if (tcp(cpMove) == tcpKing) {
+        else if (cpbdMove.tcp == tcpKing) {
             /* after the king moves, no castling is allowed */
             csCur &= ~Cs(csKing|csQueen, ccpToMove);
             /* castle moves have the from/to of the king part of the move */
@@ -85,15 +101,23 @@ void BD::MakeMv(MV& mv)
                emptying/placing is important */
             int raBack = RaBack(ccpToMove);
             if (mv.csMove & csQueen) {
-                (*this)(fiQueenRook, raBack) = (*this)[mv.sqFrom] = cpEmpty;
-                (*this)(fiD, raBack) = Cp(ccpToMove, tcpRook);
-                (*this)[mv.sqTo] = cpMove;
+                CPBD cpbdRook = acpbd[IcpbdFromSq(Sq(fiQueenRook, raBack))];
+                (*this)(fiQueenRook, raBack) = CPBD(cpEmpty, 0);
+                (*this)[mv.sqFrom] = CPBD(cpEmpty, 0);
+                (*this)(fiD, raBack) = cpbdRook;
+                (*this)[mv.sqTo] = cpbdMove;
+                aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqTo);
+                aicpbd[ccpToMove][cpbdRook.icp] = IcpbdFromSq(Sq(fiD, raBack));
                 goto Done;
             }
             if (mv.csMove & csKing) {
-                (*this)(fiKingRook, raBack) = (*this)[mv.sqFrom] = cpEmpty;
-                (*this)(fiF, raBack) = Cp(ccpToMove, tcpRook);
-                (*this)[mv.sqTo] = cpMove;
+                CPBD cpbdRook = acpbd[IcpbdFromSq(Sq(fiKingRook, raBack))];
+                (*this)(fiKingRook, raBack) = CPBD(cpEmpty, 0);
+                (*this)[mv.sqFrom] = CPBD(cpEmpty, 0);
+                (*this)(fiF, raBack) = cpbdRook;
+                (*this)[mv.sqTo] = cpbdMove;
+                aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqTo);
+                aicpbd[ccpToMove][cpbdRook.icp] = IcpbdFromSq(Sq(fiF, raBack));
                 goto Done;
             }
         }
@@ -101,16 +125,22 @@ void BD::MakeMv(MV& mv)
     
     /* remove piece we're taking */
     if ((*this)[sqTake].cp() != cpEmpty) {
+        int icpTake = (*this)[sqTake].icp;
         mv.cpTake = (*this)[sqTake].cp();
-        (*this)[sqTake].cp(cpEmpty);
+        (*this)[sqTake] = CPBD(cpEmpty, 0);
+        aicpbd[~ccpToMove][icpTake] = -1;
     }
 
     /* and finally we move the piece */
-    (*this)[mv.sqFrom].cp(cpEmpty);
-    (*this)[mv.sqTo].cp(cpMove);
+    
+    (*this)[mv.sqFrom] = CPBD(cpEmpty, 0);
+    (*this)[mv.sqTo] = cpbdMove;
+    aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqTo);
 
 Done:
     ccpToMove = ~ccpToMove;
+    
+    Validate();
 }
 
 /*
@@ -119,37 +149,64 @@ Done:
 
 void BD::UndoMv(MV& mv)
 {
+    Validate();
+
     ccpToMove = ~ccpToMove;
     csCur = mv.csSav;
     sqEnPassant = mv.sqEnPassantSav;
 
-    CP cpMove = (*this)[mv.sqTo].cp();
+    CPBD cpbdMove = (*this)[mv.sqTo];
     if (mv.tcpPromote != tcpNone)
-        cpMove = Cp(ccpToMove, tcpPawn);
+        cpbdMove.tcp = tcpPawn;
 
     if (mv.cpTake != cpEmpty) {
-        SQ sqTake = mv.sqTo;
         if (mv.sqTo == mv.sqEnPassantSav) {
+            SQ sqTake = mv.sqTo;
+            int icpTake = IcpUnused(~ccpToMove, tcp(mv.cpTake));
             sqTake += ccpToMove == ccpWhite ? -8 : 8;
-            (*this)[mv.sqTo] = cpEmpty;
+            (*this)[sqTake] = CPBD(mv.cpTake, icpTake);
+            (*this)[mv.sqTo] = CPBD(cpEmpty, 0);
+            (*this)[mv.sqFrom] = cpbdMove;
+            aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqFrom);
+            aicpbd[~ccpToMove][icpTake] = IcpbdFromSq(sqTake);
         }
-        (*this)[sqTake] = mv.cpTake;
+        else {
+            int icpTake = IcpUnused(~ccpToMove, tcp(mv.cpTake));
+            (*this)[mv.sqTo] = CPBD(mv.cpTake, icpTake);
+            (*this)[mv.sqFrom] = cpbdMove;
+            aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqFrom);
+            aicpbd[~ccpToMove][icpTake] = IcpbdFromSq(mv.sqTo);
+        }
     }
     else if (mv.csMove & csKing) {
         int raBack = RaBack(ccpToMove);
-        (*this)[mv.sqTo] = (*this)(fiF, raBack) = cpEmpty;
-        (*this)(fiKingRook, raBack) = Cp(ccpToMove, tcpRook);
+        int icpRook = (*this)(fiF, raBack).icp;
+        CPBD cpbdRook = acpbd[aicpbd[ccpToMove][icpRook]];
+        (*this)[mv.sqTo] = CPBD(cpEmpty, 0);
+        (*this)(fiF, raBack) = CPBD(cpEmpty, 0);
+        (*this)(fiKingRook, raBack) = cpbdRook;
+        (*this)[mv.sqFrom] = cpbdMove;
+        aicpbd[ccpToMove][icpRook] = IcpbdFromSq(Sq(fiKingRook, raBack));
+        aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqFrom);
     }
     else if (mv.csMove & csQueen) {
         int raBack = RaBack(ccpToMove);
-        (*this)[mv.sqTo] = (*this)(fiD, raBack) = cpEmpty;
-        (*this)(fiQueenRook, raBack) = Cp(ccpToMove, tcpRook);
+        int icpRook = (*this)(fiD, raBack).icp;
+        CPBD cpbdRook = acpbd[aicpbd[ccpToMove][icpRook]];
+        (*this)[mv.sqTo] = CPBD(cpEmpty, 0);
+        (*this)(fiD, raBack) = CPBD(cpEmpty, 0);
+        (*this)(fiQueenRook, raBack) = cpbdRook;
+        (*this)[mv.sqFrom] = cpbdMove;
+        aicpbd[ccpToMove][icpRook] = IcpbdFromSq(Sq(fiKingRook, raBack));
+        aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqFrom);
     }
     else {
-        (*this)[mv.sqTo] = cpEmpty;
+        (*this)[mv.sqTo] = CPBD(cpEmpty, 0);
+        (*this)[mv.sqFrom] = cpbdMove;
+        aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqFrom);
     }
 
-    (*this)[mv.sqFrom] = cpMove;
+    Validate();
 }
 
 /*
@@ -211,8 +268,11 @@ void BD::InitFromFen(istream& is)
             sq = Sq(0, --ra);
         else if (ich >= 16) // numbers, mean skip squares
             sq += ich - 16;
-        else if (sq < sqMax)
-            (*this)[sq++] = ich;   // otherwise the offset matches the value of the chess piece
+        else if (sq < sqMax) {
+            int icp = IcpUnused(ccp(ich), tcp(ich));
+            aicpbd[ccp(ich)][icp] = IcpbdFromSq(sq);
+            (*this)[sq++] = CPBD(ich, icp);   // otherwise the offset matches the value of the chess piece
+        }
         else
             throw ERRAPP(rssErrFenParse, WsFromS(sBoard));
     }
@@ -251,6 +311,8 @@ void BD::InitFromFen(istream& is)
     halfmoveClock = stoi(sHalfMove);
     fullmoveNumber = stoi(sFullMove);
     */
+
+    Validate();
 }
 
 /*
@@ -274,6 +336,8 @@ void BD::RenderFen(ostream& os) const
 
 string BD::FenRender(void) const
 {
+    Validate();
+
     string fen;
 
     /* render the board */
@@ -318,3 +382,34 @@ string BD::FenRender(void) const
 
     return fen;
 }
+
+/*
+ *  BD::Validate
+ * 
+ *  Checks that the board is not corrupt. 
+ */
+
+#ifndef NDEBUG
+void BD::Validate(void) const
+{
+    /* check guard squares */
+    /* check empty squares */
+    /* check occupied squares */
+
+    for (int ccp = 0; ccp < ccpMax; ccp++)
+        for (int icp = 0; icp < icpMax; icp++) {
+            int icpbd = aicpbd[ccp][icp];
+            if (icpbd == -1)
+                continue;
+            assert(acpbd[icpbd].ccp == ccp);
+            assert(acpbd[icpbd].icp == icp);
+        }
+    for (SQ sq = 0; sq < sqMax; sq++) {
+        if ((*this)[sq].cp() == cpEmpty)
+            continue;
+        int icp = (*this)[sq].icp;
+        int ccp = (*this)[sq].ccp;
+        assert(IcpbdFromSq(sq) == aicpbd[ccp][icp]);
+    }
+}
+#endif
