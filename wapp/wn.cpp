@@ -316,3 +316,30 @@ void WN::SetDefCurs(void)
     CURS cursArrow(iwapp, IDC_ARROW);
     SetCurs(cursArrow);
 }
+
+/*
+ *  WNSTREAM
+ */
+
+wnstreambuf::wnstreambuf(WNSTREAM& wnstream) : wnstream(wnstream)
+{
+}
+
+unsigned short wnstreambuf::overflow(unsigned short wch)
+{
+    if (wch == WEOF)
+        return wch;
+    if (wch == L'\n') {
+        wnstream.ReceiveStream(buffer);
+        buffer.clear();
+    }
+    else {
+        buffer.push_back(static_cast<wchar_t>(wch));
+    }
+    return wch;
+}
+
+WNSTREAM::WNSTREAM(WN* pwnParent) : WN(pwnParent), wostream(&sb), sb(*this)
+{
+}
+

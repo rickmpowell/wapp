@@ -88,3 +88,35 @@ public:
     virtual void SetDefCurs(void);
     void SetCurs(const CURS& curs);
 };
+
+/*
+ *  WNSTREAM
+ *  
+ *  A window that accepts an output stream. Yeah, kind of weird, but
+ *  generally useful in a couple cases, and allows us to send formatted
+ *  text directly to a window.
+ */
+
+class WNSTREAM;
+
+class wnstreambuf : public wstreambuf
+{
+public:
+    wnstreambuf(void) = default;
+    wnstreambuf(WNSTREAM& wnstream);
+    int_type overflow(int_type wch) override;
+
+private:
+    WNSTREAM& wnstream;
+    wstring buffer;
+};
+
+class WNSTREAM : public WN, public wostream
+{
+public:
+    WNSTREAM(WN* pwnParent);
+    virtual void ReceiveStream(const wstring& ws) = 0;
+
+private:
+    wnstreambuf sb;
+};
