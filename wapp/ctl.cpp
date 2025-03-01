@@ -11,8 +11,8 @@
  *  Base control
  */
 
-CTL::CTL(WN* pwnParent, ICMD* pcmd) : 
-    WN(pwnParent), 
+CTL::CTL(WN& wnParent, ICMD* pcmd) : 
+    WN(wnParent), 
     pcmd(pcmd),
     cdsCur(cdsNone)
 {
@@ -58,8 +58,8 @@ void CTL::EndDrag(const PT& pt, unsigned mk)
  *  BTN
  */
 
-BTN::BTN(WN* pwnParent, ICMD* pcmd) : 
-    CTL(pwnParent, pcmd)
+BTN::BTN(WN& wnParent, ICMD* pcmd) : 
+    CTL(wnParent, pcmd)
 {
 }
 
@@ -104,8 +104,8 @@ void BTN::Draw(const RC& rcUpdate)
  *  BTNCH control
  */
 
-BTNCH::BTNCH(WN* pwnParent, ICMD* pcmd, wchar_t ch) :
-    BTN(pwnParent, pcmd),
+BTNCH::BTNCH(WN& wnParent, ICMD* pcmd, wchar_t ch) :
+    BTN(wnParent, pcmd),
     chImage(ch)
 {
 }
@@ -126,8 +126,8 @@ void BTNCH::Layout(void)
  *  TITLEBAR
  */
 
-TITLEBAR::TITLEBAR(WN* pwnParent, const wstring& wsTitle) :
-    WN(pwnParent), wsTitle(wsTitle), tf(*this, L"Verdana", 15, TF::weightBold)
+TITLEBAR::TITLEBAR(WN& wnParent, const wstring& wsTitle) :
+    WN(wnParent), wsTitle(wsTitle), tf(*this, L"Verdana", 15, TF::weightBold)
 {
 }
 

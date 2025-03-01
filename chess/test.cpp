@@ -1,12 +1,18 @@
 
 /*
  *  test.cpp
+ * 
+ *  The test panel on the desktop, along with some of the testing primitives.
  */
 
 #include "chess.h"
 
-WNTEST::WNTEST(WN* pwnParent) : WNSTREAM(pwnParent),
-    titlebar(this, L"Tests")
+WNTEST::WNTEST(WN& wnParent) : 
+    WNSTREAM(wnParent), 
+    SCROLLER((WN&)*this),
+    titlebar(*this, L"Tests"), 
+    tfTest(*this, L"Verdana", 12.0f),
+    dyLine(0.0f)
 {
 }
 
@@ -18,32 +24,79 @@ void WNTEST::Layout(void)
     rc.bottom = rc.top + sz.height;
     titlebar.SetBounds(rc);
 
-    rcClient = rcInt;
-    rcClient.top = rc.bottom;
+    rc.top = rc.bottom;
+    rc.bottom = rcInt.bottom;
+    SetView(rc);
+
+    dyLine = SzFromWs(L"ag", tfTest).height + 2.0f;
 }
 
 void WNTEST::Draw(const RC& rcUpdate)
 {
-    TF tf(*this, L"Verdana", 12);
-    wstring ws(L"a1g7q");
-    RC rc = rcClient;
-    rc.bottom = rc.top + SzFromWs(ws, tf).height + 2.0f;
-    for (wstring& ws : vws) {
-        DrawWs(ws, tf, rc);
-        rc += SZ(0.0f, rc.dyHeight());
-    }
+    DrawView(rcUpdate & RcView());
 }
 
 void WNTEST::clear(void)
 {
     vws.clear();
-    Redraw();
+    SetViewOffset(PT(0, 0));
+    SetContentLines(1);
 }
 
 void WNTEST::ReceiveStream(const wstring& ws)
 {
     vws.push_back(ws);
+    SetContentLines(vws.size());
+}
+
+void WNTEST::DrawView(const RC& rcUpdate)
+{
+    wstring ws;
+    RC rcLine(RcView());
+    int iwsFirst = IwsFromY(rcLine.top);
+    rcLine.top = YFromIws(iwsFirst);    // back up to start of line
+    for (int iws = iwsFirst; iws < vws.size(); iws++) {
+        rcLine.bottom = rcLine.top + dyLine;
+        DrawWs(vws[iws], tfTest, rcLine);
+        rcLine.top = rcLine.bottom;
+        if (rcLine.top > RcView().bottom)
+            break;
+    }
+}
+
+/*
+ *  Handles mouse wheeling over the scrollable area 
+ */
+
+void WNTEST::Wheel(const PT& pt, int dwheel)
+{
+    if (!RcView().FContainsPt(pt) || vws.size() <= 1)
+        return;
+    dwheel /= 120;
+    int iwsFirst = (int)(roundf((RccView().top - RccContent().top) / dyLine));
+    iwsFirst = clamp(iwsFirst - dwheel, 0, (int)vws.size() - 1);
+    float ycTop = RccContent().top + iwsFirst * dyLine;
+    SetViewOffset(PT(0.0f, ycTop));
     Redraw();
+}
+
+void WNTEST::SetContentLines(size_t cws)
+{
+    SetContent(RC(PT(0), SZ(RcView().dxWidth(), cws*dyLine)));
+    float yc = RccView().bottom + 
+        dyLine * ceilf((RccContent().bottom - RccView().bottom)/dyLine);
+    FMakeVis(PT(0.0f, yc));
+    Redraw();
+}
+
+int WNTEST::IwsFromY(float y) const
+{
+    return (int)floorf((y - RcContent().top) / dyLine);
+}
+
+float WNTEST::YFromIws(int iws) const
+{
+    return RcContent().top + iws * dyLine;
 }
 
 /*
@@ -56,7 +109,7 @@ void WAPP::RunPerft(void)
 {
     wnboard.Enable(false);
     wntest.clear();
-    for (int depth = 1; depth <= 6; depth++) {
+    for (int depth = 1; depth <= 5; depth++) {
         auto tmStart = chrono::high_resolution_clock::now();
         uint64_t cmv = CmvPerft(depth);
         chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tmStart;
@@ -73,7 +126,7 @@ void WAPP::RunDivide(void)
     wnboard.Enable(false);
     wntest.clear();
 
-    int depth = 7;
+    int depth = 4;
     VMV vmv;
     bd.MoveGen(vmv);
     uint64_t cmv = 0;

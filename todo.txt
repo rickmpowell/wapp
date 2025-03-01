@@ -8,7 +8,6 @@
   Click-move-click move interface
   Implement global game state machine
   Write a simple resource manager for handling things like graphics
-  Write a scrolling window class
   Implement a scrollbar
   Implement a movelist
   Add a play AI option
@@ -19,7 +18,9 @@
   Have New Game prompt for player and side
   Implement simple dialog box class
   Convert about box to dialog box
-  Add Undo/Redo menu strings
+* Write a scrolling window class
+* Optimize movegen/makemove/undomove to use piece location array
+* Add Undo/Redo menu strings
 * Add a timer to perft test
 * Add Undo and Redo stacks to command processor
 * Implement real MakeMv and UndoMv

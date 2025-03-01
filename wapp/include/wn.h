@@ -47,10 +47,8 @@ protected:
 
 public:
     WN(IWAPP& iwapp, WN* pwnParent = nullptr);
-    WN(WN* pwnParent);
+    WN(WN& wnParent);
     virtual ~WN();
-    void AddChild(WN* pwnChild);
-    void RemoveChild(WN* pwnChild);
 
     void SetBounds(const RC& rcpNew);
     virtual void Layout(void);
@@ -72,10 +70,8 @@ public:
     virtual void TransparentErase(const RC& rcUpdate, DRO dro);
     void Redraw(void);
     void Redraw(const RC& rcUpdate, DRO dro);
-    void RedrawRcg(RC rcgUpdate, DRO dro);
+
     void DrawWithChildren(const RC& rcgUpdate, DRO dro);
-    void DrawNoChildren(const RC& rcgUpdate, DRO dro);
-    void DrawOverlappedSiblings(const RC& rcgUpdate);
 
     bool FWnFromPt(const PT& ptg, WN*& pwn);
     bool FDragging(void) const;
@@ -85,8 +81,59 @@ public:
     virtual void BeginDrag(const PT& pt, unsigned mk);
     virtual void Drag(const PT& pt, unsigned mk);
     virtual void EndDrag(const PT& pt, unsigned mk);
+    virtual void Wheel(const PT& pt, int dwheel);
+
     virtual void SetDefCurs(void);
     void SetCurs(const CURS& curs);
+
+private:
+    void AddChild(WN* pwnChild);
+    void RemoveChild(WN* pwnChild);
+
+    void RedrawRcg(RC rcgUpdate, DRO dro);
+    void DrawNoChildren(const RC& rcgUpdate, DRO dro);
+    void DrawOverlappedSiblings(const RC& rcgUpdate);
+};
+
+/*
+ *  SCROLLER
+ * 
+ *  A scrollable interior. Multiple inherit into a WN to implement
+ *  scrolling area, with a conetent and view rectangle.
+ */
+
+class SCROLLER
+{
+public:
+    SCROLLER(WN& wnOwner);
+    SCROLLER(SCROLLER&) = delete;
+    SCROLLER& operator = (const SCROLLER&) = delete;
+
+    void SetView(const RC& rcNew);
+    void SetContent(const RC& rccContent);
+    RC RcContent(void) const;
+    RC RcView(void) const;
+    RC RccContent(void) const;
+    RC RccView(void) const;
+
+    bool FMakeVis(const PT& ptcShow);
+    void Scroll(const PT& dpt);
+    void SetViewOffset(const PT& ptc);
+    
+    /* transformations between local and content rectangles */
+
+    PT PtcFromPt(const PT& pt) const;
+    PT PtFromPtc(const PT& ptc) const;
+    RC RccFromRc(const RC& rc) const;
+    RC RcFromRcc(const RC& rcc) const;
+
+ //   virtual void DrawView(const RC& rcUpdate) = 0;
+
+private:
+    WN& wnOwner;
+    RC rccContent;
+    RC rcView;
+    PT ptcViewOffset; // point within the content rectangle of the top-left corner of the view
 };
 
 /*
@@ -104,7 +151,7 @@ class wnstreambuf : public wstreambuf
 public:
     wnstreambuf(void) = default;
     wnstreambuf(WNSTREAM& wnstream);
-    int_type overflow(int_type wch) override;
+    unsigned short overflow(unsigned short wch) override;
 
 private:
     WNSTREAM& wnstream;
@@ -114,7 +161,7 @@ private:
 class WNSTREAM : public WN, public wostream
 {
 public:
-    WNSTREAM(WN* pwnParent);
+    WNSTREAM(WN& wnParent);
     virtual void ReceiveStream(const wstring& ws) = 0;
 
 private:

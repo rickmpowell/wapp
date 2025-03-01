@@ -162,6 +162,7 @@
     <ClCompile Include="board.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="movegen.cpp" />
+    <ClCompile Include="newgame.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="wnboard.cpp" />
   </ItemGroup>
@@ -179,6 +180,7 @@
     <ResourceCompile Include="resources\chess.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="resources\Chess_Pieces_Sprite.svg" />
   </ItemGroup>
   <ItemGroup>

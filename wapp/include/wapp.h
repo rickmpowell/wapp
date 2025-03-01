@@ -76,6 +76,7 @@ public:
     virtual void OnMouseMove(const PT& ptg, unsigned mk) override;
     virtual void OnMouseDown(const PT& ptg, unsigned mk) override;
     virtual void OnMouseUp(const PT& ptg, unsigned mk) override;
+    virtual void OnMouseWheel(const PT& ptg, int dwheel) override;
     virtual int OnCommand(int cmd) override;
     //virtual void OnInitMenu(void) override;
     virtual void OnInitMenuPopup(HMENU hmenu) override;

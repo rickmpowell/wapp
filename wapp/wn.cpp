@@ -17,14 +17,13 @@ WN::WN(IWAPP& iwapp, WN* pwnParent) :
         pwnParent->AddChild(this);
 }
 
-WN::WN(WN* pwnParent) :
-    DC(pwnParent->iwapp),
-    pwnParent(pwnParent),
+WN::WN(WN& wnParent) :
+    DC(wnParent.iwapp),
+    pwnParent(&wnParent),
     fVisible(true),
     fEnabled(true)
 {
-    assert(pwnParent);
-    pwnParent->AddChild(this);
+    wnParent.AddChild(this);
 }
 
 WN::~WN()
@@ -66,11 +65,19 @@ void WN::RemoveChild(WN* pwnChild)
  *  The coordinates of the SetBounds are relative to the parent of the WN element, while
  *  the DC keeps the bounds relative to the top-level item
  */
+
 void WN::SetBounds(const RC& rcpNew)
 {
     DC::SetBounds(pwnParent ? pwnParent->RcgFromRc(rcpNew) : rcpNew);
     Layout();
 }
+
+/*
+ *  WN::Layout
+ * 
+ *  Notification sent when the bounds of the window change. Window implementations should
+ *  layout child windows in this notification
+ */
 
 void WN::Layout(void)
 {
@@ -79,8 +86,10 @@ void WN::Layout(void)
 void WN::Show(bool fShow)
 {
     fVisible = fShow;
-    pwnParent->Layout();
-    pwnParent->Redraw();
+    if (pwnParent) {
+        pwnParent->Layout();
+        pwnParent->Redraw();
+    }
 }
 
 bool WN::FVisible(void) const
@@ -145,7 +154,7 @@ void WN::Erase(const RC& rcUpdate, DRO dro)
 }
 
 /*
- *  WN::TransparentWindow
+ *  WN::TransparentErase
  *
  *  WNs with transparent backgrounds should call this function in their
  *  Erase, which ensures parent windows that might be show through transparent
@@ -206,11 +215,11 @@ void WN::RedrawRcg(RC rcgUpdate, DRO dro)
 {
     if (!fVisible)
         return;
-    /* EndDraw's rectangle is an integer-based RECT, not a Direct2D float rectangle. That
+    /* Present's rectangle is an integer-based RECT, not a Direct2D float rectangle. That
        means we must expand the update rectangle to its encompassing integer boundaries.
        And that means potentially redrawing this WN's parent to fill those partial pixels.
-       This is potentially very expensive, so we do this we absolutely must. Applications
-       that care about performance integer-align WNs */
+       This is potentially very expensive, so we do this only when we absolutely must. 
+       Applications that care about performance should integer-align WNs */
     if (rcgUpdate.FRoundUp()) {
         assert(pwnParent);  // the top-most WN is guaranteed to be integer-aligned
         pwnParent->RedrawRcg(rcgUpdate, dro);
@@ -301,6 +310,10 @@ void WN::EndDrag(const PT& pt, unsigned mk)
 {
 }
 
+void WN::Wheel(const PT& pt, int dwheel)
+{
+}
+
 bool WN::FDragging(void) const
 {
     return this == iwapp.pwnDrag;
@@ -318,7 +331,108 @@ void WN::SetDefCurs(void)
 }
 
 /*
+ *  SCROLLER
+ * 
+ *  A scrollable interior section.
+ */
+
+SCROLLER::SCROLLER(WN& wnOwner) :
+    wnOwner(wnOwner),
+    rcView(0,0,0,0),
+    rccContent(0,0,0,0), 
+    ptcViewOffset(0)
+{
+}
+
+void SCROLLER::SetView(const RC& rcNew)
+{
+    rcView = rcNew;
+}
+
+void SCROLLER::SetContent(const RC& rccNew)
+{
+    rccContent = rccNew;
+}
+
+RC SCROLLER::RcContent(void) const
+{
+    return RcFromRcc(rccContent);
+}
+
+RC SCROLLER::RcView(void) const
+{
+    return rcView;
+}
+
+RC SCROLLER::RccContent(void) const
+{
+    return rccContent;
+}
+
+RC SCROLLER::RccView(void) const
+{
+    return RccFromRc(rcView);
+}
+
+PT SCROLLER::PtcFromPt(const PT& pt) const
+{
+    return pt + (ptcViewOffset - rcView.ptTopLeft());
+}
+
+PT SCROLLER::PtFromPtc(const PT& ptc) const
+{
+    return ptc - (ptcViewOffset - rcView.ptTopLeft());
+}
+
+RC SCROLLER::RccFromRc(const RC& rc) const
+{
+    return rc + (ptcViewOffset - rcView.ptTopLeft());
+}
+
+RC SCROLLER::RcFromRcc(const RC& rcc) const
+{
+    return rcc - (ptcViewOffset - rcView.ptTopLeft());
+}
+
+/*
+ *  WNSCROLL::FMakeVis
+ * 
+ *  Makes the point relative to the content data visible within the view.
+ *  Returns true if any scrolling happened.
+ */
+
+bool SCROLLER::FMakeVis(const PT& ptcShow)
+{
+    RC rccView = RccFromRc(rcView);
+    if (ptcShow.y < rccView.top) {
+        Scroll(PT(0.0f, rccView.top - ptcShow.y));
+        return true;
+    }
+    else if (ptcShow.y > rccView.bottom) {
+        Scroll(PT(0.0f, ptcShow.y - rccView.bottom));
+        return true;
+    }
+    return false;
+}
+
+void SCROLLER::SetViewOffset(const PT& ptc)
+{
+    ptcViewOffset = ptc;
+}
+
+void SCROLLER::Scroll(const PT& dpt)
+{
+    ptcViewOffset += dpt;
+    /* TODO: optimize this redraw - this is potentially really bad */
+    wnOwner.Redraw();
+}
+
+/*
  *  WNSTREAM
+ * 
+ *  This is a little bit weird, but this is a WN that accepts an ostream. Lines
+ *  are passed along to ReceiveStream where they can be processed and potenmtially 
+ *  drawn.
  */
 
 wnstreambuf::wnstreambuf(WNSTREAM& wnstream) : wnstream(wnstream)
@@ -339,7 +453,7 @@ unsigned short wnstreambuf::overflow(unsigned short wch)
     return wch;
 }
 
-WNSTREAM::WNSTREAM(WN* pwnParent) : WN(pwnParent), wostream(&sb), sb(*this)
+WNSTREAM::WNSTREAM(WN& wnParent) : WN(wnParent), wostream(&sb), sb(*this)
 {
 }
 

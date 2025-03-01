@@ -20,7 +20,7 @@
  *  The main application entry point
  */
 
-int APIENTRY wWinMain(HINSTANCE hinst, HINSTANCE hinstPrev, LPWSTR wsCmd, int sw)
+int APIENTRY wWinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hinstPrev, _In_ LPWSTR wsCmd, _In_ int sw)
 {
     try {
         return Run(wsCmd, sw);
@@ -165,6 +165,7 @@ void WND::DestroyWnd(void)
 {
     ::DestroyWindow(hwnd);
     assert(hwnd == NULL);   // WndProc should clear this on the WM_DESTROY
+    hwnd = NULL;
 }
 
 void WND::ShowWnd(int sw)
@@ -212,7 +213,7 @@ LRESULT CALLBACK WND::WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
         return 0;
 
     case WM_SIZE:
-        pwnd->OnSize(SZ(LOWORD(lParam), HIWORD(lParam)));
+        pwnd->OnSize(SZ(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
         break;
 
     case WM_PAINT:
@@ -224,17 +225,24 @@ LRESULT CALLBACK WND::WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
         return 0;
 
     case WM_MOUSEMOVE:
-        pwnd->OnMouseMove(PT(LOWORD(lParam), HIWORD(lParam)), (unsigned)wParam);
+        pwnd->OnMouseMove(PT(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)), (unsigned)wParam);
         return 0;
 
     case WM_LBUTTONDOWN:
-        pwnd->OnMouseDown(PT(LOWORD(lParam), HIWORD(lParam)), MK_LBUTTON);
+        pwnd->OnMouseDown(PT(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)), MK_LBUTTON);
         return 0;
 
     case WM_LBUTTONUP:
-        pwnd->OnMouseUp(PT(LOWORD(lParam), HIWORD(lParam)), MK_LBUTTON);
+        pwnd->OnMouseUp(PT(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)), MK_LBUTTON);
         return 0;
 
+    case WM_MOUSEWHEEL:
+    {
+        POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+        ::ScreenToClient(hwnd, &pt);
+        pwnd->OnMouseWheel(pt, GET_WHEEL_DELTA_WPARAM(wParam));
+        return 0;
+    }
     case WM_COMMAND:
         if (pwnd->OnCommand(LOWORD(wParam)))
             return 0;
@@ -292,6 +300,10 @@ void WND::OnMouseDown(const PT& ptg, unsigned mk)
 }
 
 void WND::OnMouseUp(const PT& ptg, unsigned mk)
+{
+}
+
+void WND::OnMouseWheel(const PT& pt, int dwheel)
 {
 }
 

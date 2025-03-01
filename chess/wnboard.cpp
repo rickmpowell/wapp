@@ -16,11 +16,12 @@ PNGX WNBOARD::pngPieces(rspngChessPieces);
   *  The board UI element
   */
 
-WNBOARD::WNBOARD(WN* pwnParent, BD& bd) : 
-    WN(pwnParent), 
+WNBOARD::WNBOARD(WN& wnParent, BD& bd) : 
+    WN(wnParent), 
     bd(bd),
-    btnFlip(this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f'),
-    pcmdMakeMove(make_unique<CMDMAKEMOVE>((WAPP&)iwapp))
+    btnFlip(*this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f'),
+    pcmdMakeMove(make_unique<CMDMAKEMOVE>((WAPP&)iwapp)),
+    dxyBorder(0.0f), dxyOutline(0.0f), dyLabels(0.0f), dxySquare(0.0f)
 {
     bd.MoveGen(vmv);
 }
@@ -356,19 +357,18 @@ void WNBOARD::EndDrag(const PT& pt, unsigned mk)
 void WNBOARD::FlipCcp(void)
 {
     /* animate the turning over a 1/2 second time period */
-    
+
     float angleStart = angleDraw;
     float angleEnd = angleStart - 180.0f;
     constexpr chrono::milliseconds dtmTotal(500);
     auto tmStart = chrono::high_resolution_clock::now();
-    
-    chrono::duration<float> dtm;
-    assert(angleEnd < angleStart);  // this loop assumes rotating in a negative angle 
-    for ( ; angleDraw > angleEnd; angleDraw = angleStart + (angleEnd - angleStart) * dtm / dtmTotal) {
-        Redraw();
-        dtm = chrono::high_resolution_clock::now() - tmStart;
-    }
 
+    assert(angleEnd < angleStart);  // this loop assumes rotating in a negative angle 
+    while (angleDraw > angleEnd) {
+        Redraw();
+        chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tmStart;
+        angleDraw = angleStart + (angleEnd - angleStart) * dtm / dtmTotal;
+    }
     angleDraw = angleStart;
     ccpView = ~ccpView;
     Redraw();

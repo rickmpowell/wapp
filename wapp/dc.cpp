@@ -279,47 +279,47 @@ CO DC::CoText(void) const
  *  Drawing primitives
  */
 
-void DC::FillRc(const RC& rc, const BR& br)
+void DC::FillRc(const RC& rc, const BR& br) const
 {
     RC rcg = RcgFromRc(rc);
     iwapp.pdc2->FillRectangle(&rcg, br);
 }
 
-void DC::FillRc(const RC& rc, CO coFill)
+void DC::FillRc(const RC& rc, CO coFill) const
 {
     if (coFill == coNil)
         coFill = CoText();
     FillRc(rc, brScratch.SetCo(coFill));
 }
 
-void DC::FillRcBack(const RC& rc)
+void DC::FillRcBack(const RC& rc) const
 {
     RC rcg = RcgFromRc(rc);
     iwapp.pdc2->FillRectangle(&rcg, brScratch.SetCo(CoBack()));
 }
 
-void DC::DrawRc(const RC& rc, CO co, float dxyStroke)
+void DC::DrawRc(const RC& rc, CO co, float dxyStroke) const
 {
     if (co == coNil)
         co = CoText();
     DrawRc(rc, brScratch.SetCo(co), dxyStroke);
 }
 
-void DC::DrawRc(const RC& rc, const BR& br, float dxyStroke)
+void DC::DrawRc(const RC& rc, const BR& br, float dxyStroke) const
 {
     RC rcg = RcgFromRc(rc);
     rcg.Inflate(SZ(-dxyStroke/2));
     iwapp.pdc2->DrawRectangle(&rcg, br, dxyStroke);
 }
 
-void DC::FillEll(const ELL& ellFill, CO coFill)
+void DC::FillEll(const ELL& ellFill, CO coFill) const
 {
     if (coFill == coNil)
         coFill = CoText();
     FillEll(ellFill, brScratch.SetCo(coFill));
 }
 
-void DC::FillEll(const ELL& ellFill, const BR& brFill)
+void DC::FillEll(const ELL& ellFill, const BR& brFill) const
 {
     ELL ellg = ellFill.EllOffset(PtgFromPt(PT(0, 0)));
     iwapp.pdc2->FillEllipse(&ellg, brFill);
@@ -336,26 +336,26 @@ void DC::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float
     iwapp.pdc2->FillGeometry(geom, brFill);
 }
 
-void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText)
+void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText) const
 {
     RC rcg = RcgFromRc(rc);
     iwapp.pdc2->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText);
 }
 
-void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText)
+void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText) const
 {
     if (coText == coNil)
         coText = CoText();
     DrawWs(ws, tf, rc, brScratch.SetCo(coText));
 }
 
-void DC::DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, const BR& brText)
+void DC::DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const
 {
     GUARDTFALIGNMENT sav(tf, DWRITE_TEXT_ALIGNMENT_CENTER);
     DrawWs(ws, tf, rc, brText);
 }
 
-void DC::DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText)
+void DC::DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText) const
 {
     if (coText == coNil)
         coText = CoText();
@@ -372,7 +372,7 @@ SZ DC::SzFromWs(const wstring& ws, const TF& tf) const
     return SZ(dtm.width, dtm.height);
 }
 
-void DC::DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity)
+void DC::DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity) const
 {
     iwapp.pdc2->DrawBitmap(bmp,
                            RcgFromRc(rcTo),

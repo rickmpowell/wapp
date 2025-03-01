@@ -27,8 +27,8 @@ int Run(const wstring& wsCmd, int sw)
 
 WAPP::WAPP(const wstring& wsCmd, int sw) : 
     bd(fenStartPos),
-    wnboard(this, bd),
-    wntest(this),
+    wnboard(*this, bd),
+    wntest(*this),
     cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND)
 {
     CreateWnd(rssAppTitle);

@@ -185,6 +185,14 @@ void IWAPP::OnMouseUp(const PT& ptg, unsigned mk)
     SetDrag(nullptr, ptg, mk);
 }
 
+void IWAPP::OnMouseWheel(const PT& ptg, int dwheel)
+{
+    WN* pwnHit = nullptr;
+    if (!FWnFromPt(ptg, pwnHit))
+        return;
+    pwnHit->Wheel(pwnHit->PtFromPtg(ptg), dwheel);
+}
+
 int IWAPP::OnCommand(int cmd)
 {
     return FExecuteMenuCmd(cmd);
@@ -325,7 +333,7 @@ wstring IWAPP::WsFromErr(ERR err) const
                          nullptr,
                          err,
                          MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                         s,
+                         (LPWSTR)&s,
                          0,
                          nullptr);
         if (s) {

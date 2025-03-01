@@ -505,11 +505,11 @@ public:
     }
     
     operator RECT() const {
-        RECT rect;
-        rect.left = (long)floorf(left);
-        rect.top = (long)floorf(top);
-        rect.right = (long)ceilf(right);
-        rect.bottom = (long)ceilf(bottom);
+        RECT rect = {
+            (long)floorf(left),
+            (long)floorf(top),
+            (long)ceilf(right),
+            (long)ceilf(bottom) };
         return rect;
     }
 };

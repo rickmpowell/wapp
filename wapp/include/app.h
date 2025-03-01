@@ -126,6 +126,7 @@ public:
     virtual void OnMouseMove(const PT& ptg, unsigned mk);
     virtual void OnMouseDown(const PT& ptg, unsigned mk);
     virtual void OnMouseUp(const PT& ptg, unsigned mk);
+    virtual void OnMouseWheel(const PT& ptg, int dwheel);
     virtual void OnPaint(void);
     virtual int OnCommand(int cmd);
     virtual void OnInitMenu(void);
@@ -201,7 +202,7 @@ public:
 
     // don't do reset on these move operations so cbData copies too
 
-    resource_ptr(resource_ptr&& ptr) : hData(ptr.hData), pData(ptr.pData), cbData(ptr.cbData) {
+    resource_ptr(resource_ptr&& ptr) noexcept : hData(ptr.hData), pData(ptr.pData), cbData(ptr.cbData) {
         ptr.release();
     }
 
@@ -252,11 +253,11 @@ public:
         return pData;
     }
 
-    HGLOBAL handle(void) noexcept {
+    HGLOBAL handle(void) const noexcept {
         return hData;
     }
 
-    unsigned size(void) noexcept {
+    unsigned size(void) const noexcept {
         return cbData;
     }
 };
@@ -298,7 +299,7 @@ public:
         reset(ptr.release());
     }
 
-    global_ptr& operator = (global_ptr&& ptr) {
+    global_ptr& operator = (global_ptr&& ptr) noexcept {
         if (this != &ptr)
             reset(ptr.release());
         return *this;

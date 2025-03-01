@@ -31,7 +31,7 @@ protected:
     CDS cdsCur;
 
 public:
-    CTL(WN* pwnParent, ICMD* pcmd);
+    CTL(WN& wnParent, ICMD* pcmd);
     virtual ~CTL();
 
     virtual void Enter(const PT& pt) override;
@@ -50,7 +50,7 @@ public:
 class BTN : public CTL  
 {
 public:
-    BTN(WN* pwnParent, ICMD* pcmd);
+    BTN(WN& wnParent, ICMD* pcmd);
     virtual ~BTN() = default;
 
     virtual CO CoBack(void) const override;
@@ -69,7 +69,7 @@ class BTNCH : public BTN
     wchar_t chImage;
 
 public:
-    BTNCH(WN* pwnParent, ICMD* pcmd, wchar_t ch);
+    BTNCH(WN& wnParent, ICMD* pcmd, wchar_t ch);
     virtual ~BTNCH() = default;
 
     virtual void Draw(const RC& rcUpdate) override;
@@ -86,7 +86,7 @@ class TITLEBAR : public WN
     TF tf;
 
 public:
-    TITLEBAR(WN* pwnParent, const wstring& wsTitle);
+    TITLEBAR(WN& wnParent, const wstring& wsTitle);
     virtual ~TITLEBAR() = default;
 
     virtual CO CoBack(void) const override;

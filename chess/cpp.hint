@@ -1,0 +1,5 @@
+
+#define CMD_DECLARE(C)
+#define CMDEXECUTE_DECLARE(C)
+#define CMDEXECUTE(C)
+#define REGMENUCMD(i, C)

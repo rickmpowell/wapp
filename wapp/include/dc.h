@@ -189,22 +189,22 @@ public:
 
     /* drawing primitives */
 
-    void FillRc(const RC& rcFill, CO coFill = coNil);
-    void FillRc(const RC& rcFill, const BR& br);
-    void FillRcBack(const RC& rcFill);
-    void DrawRc(const RC& rc, CO co = coNil, float dxyStroke = 1.0f);
-    void DrawRc(const RC& rc, const BR& br, float dxyStroke = 1.0f);
-    void FillEll(const ELL& ellFill, CO coFill = coNil);
-    void FillEll(const ELL& ellFill, const BR& br);
+    void FillRc(const RC& rcFill, CO coFill = coNil) const;
+    void FillRc(const RC& rcFill, const BR& br) const;
+    void FillRcBack(const RC& rcFill) const;
+    void DrawRc(const RC& rc, CO co = coNil, float dxyStroke = 1.0f) const;
+    void DrawRc(const RC& rc, const BR& br, float dxyStroke = 1.0f) const;
+    void FillEll(const ELL& ellFill, CO coFill = coNil) const;
+    void FillEll(const ELL& ellFill, const BR& br) const;
     void FillGeom(const GEOM& geomFill, const PT& ptOffset, const SZ& szScale, float angle, BR& br);
 
-    void DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText);
-    void DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText = coNil);
-    void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, const BR& brText);
-    void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil);
+    void DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText) const;
+    void DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText = coNil) const;
+    void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const;
+    void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil) const;
     SZ SzFromWs(const wstring& ws, const TF& tf) const;
 
-    void DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity);
+    void DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity) const;
 
     /* drawing object management */
 

@@ -24,7 +24,7 @@ public:
     VMV vmv;
     static PNGX pngPieces;
 
-    WNBOARD(WN* pwnParent, BD& bd);
+    WNBOARD(WN& wnParent, BD& bd);
  
     void BdChanged(void);
 
@@ -79,24 +79,33 @@ private:
 };
 
 /*
- *  Test window
+ *  Test window, which is currently just displaying a scrollable log
  */
 
-class WNTEST : public WNSTREAM
+class WNTEST : public WNSTREAM, public SCROLLER
 {
 public:
-    WNTEST(WN* pwnParent);
+    WNTEST(WN& wnParent);
 
     virtual void Layout(void) override;
     virtual void Draw(const RC& rcUpdate) override;
+    virtual void DrawView(const RC& rcUpdate);
+
+    virtual void Wheel(const PT& pt, int dwheel) override;
 
     void clear(void);
     virtual void ReceiveStream(const wstring& ws) override;
- 
+
 private:
     TITLEBAR titlebar;
     vector<wstring> vws;
-    RC rcClient;
+
+    TF tfTest;
+    float dyLine;
+
+    void SetContentLines(size_t cws);
+    int IwsFromY(float y) const;
+    float YFromIws(int iws) const;
 };
 
 /*
