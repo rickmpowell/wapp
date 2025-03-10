@@ -14,12 +14,18 @@
 CTL::CTL(WN& wnParent, ICMD* pcmd) : 
     WN(wnParent), 
     pcmd(pcmd),
-    cdsCur(cdsNone)
+    cdsCur(CDS::None),
+    tf(*this, L"Verdana", 12.0f)
 {
 }
 
 CTL::~CTL()
 {
+}
+
+void CTL::SetFont(const wstring& ws, float dyHeight, TF::WEIGHT weight, TF::STYLE style)
+{
+    tf.Set(*this, ws, dyHeight, weight, style);
 }
 
 /*
@@ -28,30 +34,75 @@ CTL::~CTL()
 
 void CTL::Enter(const PT& pt)
 {
-    cdsCur = FDragging() ? cdsExecute : cdsHover;
+    cdsCur = FDragging() ? CDS::Execute : CDS::Hover;
     Redraw();
 }
 
 void CTL::Leave(const PT& pt)
 {
-    cdsCur = FDragging() ? cdsCancel : cdsNone;
+    cdsCur = FDragging() ? CDS::Cancel : CDS::None;
     Redraw();
 }
 
 void CTL::BeginDrag(const PT& pt, unsigned mk)
 {
-    cdsCur = cdsExecute;
+    cdsCur = CDS::Execute;
     Redraw();
 }
 
 void CTL::EndDrag(const PT& pt, unsigned mk)
 {
-    cdsCur = cdsNone;
+    cdsCur = CDS::None;
     if (RcInterior().FContainsPt(pt)) {
-        iwapp.FExecuteCmd(*pcmd);
-        cdsCur = cdsHover;
+        iwapp.vpevd.back()->FExecuteCmd(*pcmd);
+        cdsCur = CDS::Hover;
     }
     Redraw();
+}
+
+/*
+ *  static controls
+ */
+
+STATIC::STATIC(WN& wnParent, const wstring& ws) :
+    CTL(wnParent, nullptr),
+    ws(ws)
+{
+}
+
+STATIC::~STATIC()
+{
+}
+
+void STATIC::Draw(const RC& rcUpdate)
+{
+    DrawWsCenterXY(ws, tf, RcInterior());
+}
+
+CO STATIC::CoText(void) const
+{
+    return pwnParent->CoText();
+}
+
+CO STATIC::CoBack(void) const
+{
+    return pwnParent->CoBack();
+}
+
+void STATIC::Enter(const PT& pt)
+{
+}
+
+void STATIC::Leave(const PT& pt) 
+{
+}
+
+void STATIC::BeginDrag(const PT& pt, unsigned mk)
+{
+}
+
+void STATIC::EndDrag(const PT& pt, unsigned mk)
+{
 }
 
 /*
@@ -67,27 +118,27 @@ CO BTN::CoText(void) const
 {
     CO co = coRed;
     switch (cdsCur) {
-    case cdsHover:
+    case CDS::Hover:
         return co.CoSetValue(0.75f);
-    case cdsCancel:
-    case cdsDisabled:
+    case CDS::Cancel:
+    case CDS::Disabled:
         return co.CoGrayscale();
-    case cdsExecute: 
+    case CDS::Execute: 
         return co;
     default: 
         break;
     }
-    return coBlack;
+    return pwnParent->CoText();
 }
 
 CO BTN::CoBack(void) const
 {
     CO co(pwnParent->CoBack());
     switch (cdsCur) {
-    case cdsCancel: 
-    case cdsDisabled:
+    case CDS::Cancel: 
+    case CDS::Disabled:
         return co.CoGrayscale();
-    case cdsExecute:
+    case CDS::Execute:
         return co.CoSetValue(0.99f);
     default: 
         break;
@@ -113,11 +164,32 @@ BTNCH::BTNCH(WN& wnParent, ICMD* pcmd, wchar_t ch) :
 void BTNCH::Draw(const RC& rcUpdate)
 {
     wstring ws(1, chImage);
-    TF tf(*this, L"Verdana", RcInterior().dyHeight() * 0.8f, TF::weightBold);
-    DrawWsCenter(ws, tf, RcInterior());
+    DrawWsCenterXY(ws, tf, RcInterior());
 }
 
 void BTNCH::Layout(void)
+{
+    /* TODO: size the font to fill the rectangle */
+}
+
+/*
+ *  BTNWS
+ * 
+ *  Button with a piece of text as its image
+ */
+
+BTNWS::BTNWS(WN& wnParent, ICMD* pcmd, const wstring& wsImage) :
+    BTN(wnParent, pcmd),
+    wsImage(wsImage)
+{
+}
+
+void BTNWS::Draw(const RC& rcUpdate)
+{
+    DrawWsCenterXY(wsImage, tf, RcInterior());
+}
+
+void BTNWS::Layout(void)
 {
     /* TODO: size the font to fill the rectangle */
 }
@@ -127,7 +199,7 @@ void BTNCH::Layout(void)
  */
 
 TITLEBAR::TITLEBAR(WN& wnParent, const wstring& wsTitle) :
-    WN(wnParent), wsTitle(wsTitle), tf(*this, L"Verdana", 15, TF::weightBold)
+    WN(wnParent), wsTitle(wsTitle), tf(*this, L"Verdana", 15, TF::WEIGHT::Bold)
 {
 }
 

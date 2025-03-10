@@ -17,11 +17,11 @@
 IWAPP::IWAPP(void) : 
     APP(),
     WNDMAIN((APP&)*this), 
-    WN(*this, nullptr),
-    pwnDrag(nullptr), pwnHover(nullptr)
+    WN(*this, nullptr)
 {
     prtc = make_unique<RTCFLIP>(*this);
     RebuildAllDidos();
+    vpevd.emplace_back(make_unique<EVD>(*this));
 }
 
 IWAPP::~IWAPP()
@@ -141,6 +141,7 @@ void IWAPP::OnSize(const SZ& sz)
 
 void IWAPP::OnPaint(void)
 {
+    assert(fVisible);
     PAINTSTRUCT ps;
     ::BeginPaint(hwnd, &ps);
     BeginDraw();
@@ -151,46 +152,22 @@ void IWAPP::OnPaint(void)
 
 void IWAPP::OnMouseMove(const PT& ptg, unsigned mk)
 {
-    WN* pwnHit = nullptr;
-    FWnFromPt(ptg, pwnHit);
-
-    if (pwnDrag) {
-         if (pwnHit != pwnDrag) // while hovering, restrict hover to the drag source or null
-            pwnHit = nullptr;
-        SetHover(pwnHit, ptg);
-        if (pwnHit)
-            pwnHit->Drag(pwnHit->PtFromPtg(ptg), mk);
-    }
-    else {
-        if (mk & (MK_LBUTTON | MK_MBUTTON | MK_RBUTTON))
-            return;
-        SetHover(pwnHit, ptg);
-        if (pwnHit)
-            pwnHit->Hover(pwnHit->PtFromPtg(ptg));
-    }
+    vpevd.back()->OnMouseMove(ptg, mk);
 }
 
 void IWAPP::OnMouseDown(const PT& ptg, unsigned mk)
 {
-    WN* pwnHit = nullptr;
-    if (!FWnFromPt(ptg, pwnHit))
-        return;
-    ::SetCapture(hwnd);
-    SetDrag(pwnHit, ptg, mk);
+    vpevd.back()->OnMouseDown(ptg, mk);
 }
 
 void IWAPP::OnMouseUp(const PT& ptg, unsigned mk)
 {
-    ::ReleaseCapture();
-    SetDrag(nullptr, ptg, mk);
+    vpevd.back()->OnMouseUp(ptg, mk);
 }
 
 void IWAPP::OnMouseWheel(const PT& ptg, int dwheel)
 {
-    WN* pwnHit = nullptr;
-    if (!FWnFromPt(ptg, pwnHit))
-        return;
-    pwnHit->Wheel(pwnHit->PtFromPtg(ptg), dwheel);
+    vpevd.back()->OnMouseWheel(ptg, dwheel);
 }
 
 int IWAPP::OnCommand(int cmd)
@@ -254,32 +231,6 @@ void IWAPP::EndDraw(const RC& rcUpdate)
 
 void IWAPP::Draw(const RC& rcUpdate)
 {
-}
-
-/*
- *  Mouse handling
- */
-
-void IWAPP::SetDrag(WN* pwn, const PT& ptg, unsigned mk)
-{
-    if (pwn == pwnDrag)
-        return;
-    if (pwnDrag)
-        pwnDrag->EndDrag(pwnDrag->PtFromPtg(ptg), mk);
-    pwnDrag = pwn;
-    if (pwnDrag)
-        pwnDrag->BeginDrag(pwnDrag->PtFromPtg(ptg), mk);
-}
-
-void IWAPP::SetHover(WN* pwn, const PT& ptg)
-{
-    if (pwn == pwnHover)
-        return;
-    if (pwnHover)
-        pwnHover->Leave(pwnHover->PtFromPtg(ptg));
-    pwnHover = pwn;
-    if (pwnHover)
-        pwnHover->Enter(pwnHover->PtFromPtg(ptg));
 }
 
 /*

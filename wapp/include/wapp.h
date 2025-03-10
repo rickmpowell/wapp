@@ -13,6 +13,7 @@
 #include "app.h"
 #include "rt.h"
 #include "wn.h"
+#include "ev.h"
 
 class FILTERMSG;
 class ICMD;
@@ -95,11 +96,6 @@ public:
     virtual void EndDraw(const RC& rcUpdate) override;
     virtual void Draw(const RC& rcUpdate) override;
     
-    /* mouse handling */
-
-    void SetDrag(WN* pwn, const PT& ptg, unsigned mk);
-    void SetHover(WN* pwn, const PT& ptg);
-
     /* Menu commands */
 
     virtual void RegisterMenuCmds(void);
@@ -110,13 +106,7 @@ public:
     void InitMenuCmd(HMENU hmenu, int cmd, const unique_ptr<ICMD>& pcmd);
     bool FVerifyMenuCmdsRegistered(void) const;
     bool FVerifySubMenuCmdsRegistered(HMENU hmenu) const;
-
-    bool FExecuteCmd(const ICMD& icmd);
-    bool FUndoCmd(void);
-    bool FRedoCmd(void);
-    bool FTopUndoCmd(ICMD*& pcmd);
-    bool FTopRedoCmd(ICMD*& pcmd);
-    
+  
     /* error messages */
 
     wstring WsFromErr(ERR err) const;
@@ -131,11 +121,9 @@ public:
 private:
     vector<unique_ptr<FILTERMSG>> vpfm;
     map<int, unique_ptr<ICMD>> mpcmdpicmdMenu;
-    vector<unique_ptr<ICMD>> vpcmdUndo;
-    vector<unique_ptr<ICMD>> vpcmdRedo;
-
-    WN* pwnDrag;
-    WN* pwnHover;
+ 
+public: /* TODO: make this private */
+    vector<unique_ptr<EVD>> vpevd;  // event dispatch stack
 };
 
 /*

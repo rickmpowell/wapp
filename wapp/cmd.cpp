@@ -35,16 +35,16 @@ bool IWAPP::FExecuteMenuCmd(int cmd)
     auto it = mpcmdpicmdMenu.find(cmd);
     if (it == mpcmdpicmdMenu.end() || it->second == nullptr)
         return false;
-    return FExecuteCmd(*it->second);
+    return vpevd.back()->FExecuteCmd(*it->second);
 }
 
 /*
- *  IWAPP::FExecuteCmd
+ *  EVD::FExecuteCmd
  * 
  *  Takes the command and executes it.
  */
 
-bool IWAPP::FExecuteCmd(const ICMD& icmd)
+bool EVD::FExecuteCmd(const ICMD& icmd)
 {  
     unique_ptr<ICMD> pcmdClone(icmd.clone());
     bool fResult = pcmdClone->Execute();
@@ -57,7 +57,7 @@ bool IWAPP::FExecuteCmd(const ICMD& icmd)
     return fResult;
 }
 
-bool IWAPP::FUndoCmd(void)
+bool EVD::FUndoCmd(void)
 {
     if (vpcmdUndo.size() == 0)
         return false;
@@ -70,7 +70,7 @@ bool IWAPP::FUndoCmd(void)
     return fResult;
 }
 
-bool IWAPP::FRedoCmd(void)
+bool EVD::FRedoCmd(void)
 {
     if (vpcmdRedo.size() == 0)
         return false;
@@ -83,7 +83,7 @@ bool IWAPP::FRedoCmd(void)
     return fResult;
 }
 
-bool IWAPP::FTopUndoCmd(ICMD*& pcmd)
+bool EVD::FTopUndoCmd(ICMD*& pcmd)
 {
     pcmd = nullptr;
     if (vpcmdUndo.size() == 0)
@@ -92,7 +92,7 @@ bool IWAPP::FTopUndoCmd(ICMD*& pcmd)
     return true;
 }
 
-bool IWAPP::FTopRedoCmd(ICMD*& pcmd)
+bool EVD::FTopRedoCmd(ICMD*& pcmd)
 {
     pcmd = nullptr;
     if (vpcmdRedo.size() == 0)
@@ -139,7 +139,7 @@ void IWAPP::InitMenuCmds(void)
 void IWAPP::InitPopupMenuCmds(HMENU hmenu)
 {
     MENU menu(hmenu);
-    for (MENUITEMINFOW mii : menu) {
+    for (MENUITEMINFOW& mii : menu) {
         if (mii.wID == 0 || mii.hSubMenu) // MFT_SEPARATOR isn't reliable
             continue;
         auto it = mpcmdpicmdMenu.find(mii.wID);
@@ -176,8 +176,9 @@ void IWAPP::InitMenuCmd(HMENU hmenu, int cmd, const unique_ptr<ICMD>& pcmd)
  *
  *  This is a debug check to be used in your menu registration code that you
  *  can use in an assert to verify that you correctly registered all the
- *  menu items in your menus.
+ *  menu items in your Windows menus.
  */
+
 bool IWAPP::FVerifyMenuCmdsRegistered(void) const
 {
     return FVerifySubMenuCmdsRegistered(::GetMenu(hwnd));
@@ -219,7 +220,7 @@ bool ICMD::FUndoable(void) const
 }
 
 /*
- *  Strings and state
+ *  Command strings and state
  */
 
 bool ICMD::FEnabled(void) const

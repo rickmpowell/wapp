@@ -38,6 +38,7 @@
 #include <array>
 #include <vector>
 #include <map>
+#include <stack>
 #include <algorithm>
 #include <iterator>
 #include <memory>

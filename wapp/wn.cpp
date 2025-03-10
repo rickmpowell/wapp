@@ -83,6 +83,11 @@ void WN::Layout(void)
 {
 }
 
+SZ WN::SzRequestLayout(void) const
+{
+    return SZ(800.0f, 600.0f);
+}
+
 void WN::Show(bool fShow)
 {
     fVisible = fShow;
@@ -94,7 +99,10 @@ void WN::Show(bool fShow)
 
 bool WN::FVisible(void) const
 {
-    return fVisible;
+    for (const WN* pwn = this; pwn != nullptr; pwn = pwn->pwnParent)
+        if (!pwn->fVisible)
+            return false;
+    return true;
 }
 
 void WN::Enable(bool fEnable)
@@ -213,7 +221,7 @@ void WN::Redraw(const RC& rcUpdate, DRO dro)
 
 void WN::RedrawRcg(RC rcgUpdate, DRO dro)
 {
-    if (!fVisible)
+    if (!FVisible())
         return;
     /* Present's rectangle is an integer-based RECT, not a Direct2D float rectangle. That
        means we must expand the update rectangle to its encompassing integer boundaries.
@@ -234,18 +242,19 @@ void WN::RedrawRcg(RC rcgUpdate, DRO dro)
 
 void WN::DrawWithChildren(const RC& rcgUpdate, DRO dro)
 {
-    if (!fVisible)
-        return;
+    assert(fVisible);
     RC rcg = rcgUpdate & rcgBounds;
     if (!rcg)
         return;
     DrawNoChildren(rcg, dro);
     for (WN* pwn : vpwnChildren)
-        pwn->DrawWithChildren(rcg, droParentDrawn);
+        if (pwn->fVisible)
+            pwn->DrawWithChildren(rcg, droParentDrawn);
 }
 
 void WN::DrawNoChildren(const RC& rcgUpdate, DRO dro)
 {
+    assert(fVisible);
     iwapp.pdc2->PushAxisAlignedClip(rcgUpdate, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 
     RC rcDraw = RcFromRcg(rcgUpdate);
@@ -262,7 +271,7 @@ void WN::DrawOverlappedSiblings(const RC& rcgUpdate)
 
     bool fFoundUs = false;
     for (WN* pwn : pwnParent->vpwnChildren) {
-        if (fFoundUs)
+        if (fFoundUs && pwn->fVisible)
             pwn->DrawWithChildren(pwn->rcgBounds & rcgUpdate, droParentNotDrawn);
         else if (pwn == this)
             fFoundUs = true;
@@ -278,8 +287,8 @@ bool WN::FWnFromPt(const PT& ptg, WN*& pwn)
 {
     if (!fVisible || !rcgBounds.FContainsPt(ptg))
         return false;
-    for (WN* pwnChild : vpwnChildren)
-        if (pwnChild->FWnFromPt(ptg, pwn))
+    for (auto itpwn = vpwnChildren.rbegin(); itpwn != vpwnChildren.rend(); ++itpwn)
+        if ((*itpwn)->FWnFromPt(ptg, pwn))
             return true;
     pwn = this;
     return true;
@@ -316,7 +325,7 @@ void WN::Wheel(const PT& pt, int dwheel)
 
 bool WN::FDragging(void) const
 {
-    return this == iwapp.pwnDrag;
+    return iwapp.vpevd.back()->FDragging(this);
 }
 
 void WN::SetCurs(const CURS& curs)

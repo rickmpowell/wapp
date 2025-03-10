@@ -17,19 +17,6 @@
 
 class CTL : public WN
 {
-protected:
-    unique_ptr<ICMD> pcmd;
-
-protected:
-    enum CDS {
-        cdsNone,
-        cdsHover,
-        cdsCancel,
-        cdsExecute,
-        cdsDisabled
-    };
-    CDS cdsCur;
-
 public:
     CTL(WN& wnParent, ICMD* pcmd);
     virtual ~CTL();
@@ -38,6 +25,45 @@ public:
     virtual void Leave(const PT& pt) override;
     virtual void BeginDrag(const PT& pt, unsigned mk) override;
     virtual void EndDrag(const PT& pt, unsigned mk) override;
+    virtual void SetFont(const wstring& ws, float dyHeight, TF::WEIGHT weight = TF::WEIGHT::Normal, TF::STYLE style = TF::STYLE::Normal);
+
+protected:
+    unique_ptr<ICMD> pcmd;
+
+    enum class CDS
+    {
+        None,
+        Hover,
+        Cancel,
+        Execute,
+        Disabled
+    };
+    CDS cdsCur;
+    TF tf;
+};
+
+/*
+ *  static controls
+ */
+
+class STATIC : public CTL
+{
+public:
+    STATIC(WN& wnParent, const wstring& ws);
+    virtual ~STATIC();
+
+    virtual CO CoBack(void) const override;
+    virtual CO CoText(void) const override;
+
+    virtual void Draw(const RC& rcUpdate) override;
+
+    virtual void Enter(const PT& pt) override;
+    virtual void Leave(const PT& pt) override;
+    virtual void BeginDrag(const PT& pt, unsigned mk) override;
+    virtual void EndDrag(const PT& pt, unsigned mk) override;
+
+private:
+    wstring ws;
 };
 
 /*
@@ -75,6 +101,24 @@ public:
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
 };
+
+/*
+ *  BTNWS
+ * 
+ *  Button with a line of text for its image
+ */
+
+class BTNWS : public BTN
+{
+    wstring wsImage;
+
+public:
+    BTNWS(WN& wnParent, ICMD* pcmd, const wstring& ws);
+    virtual ~BTNWS() = default;
+
+    virtual void Draw(const RC& rcUpdate) override;
+    virtual void Layout(void) override;
+ };
 
 /*
  *  TITLEBAR

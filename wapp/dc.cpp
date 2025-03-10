@@ -83,15 +83,20 @@ GEOM::GEOM(DC& dc, const vector<PT>& vpt)
  *  Text objects
  */
 
-TF::TF(DC& dc, const wstring& szFace, float dyHeight, WEIGHT weight, STYLE style) 
+TF::TF(DC& dc, const wstring& wsFace, float dyHeight, WEIGHT weight, STYLE style) 
 {
-    dc.iwapp.pfactdwr->CreateTextFormat(szFace.c_str(), nullptr,
-                                       weight == weightBold ? DWRITE_FONT_WEIGHT_BOLD : DWRITE_FONT_WEIGHT_NORMAL,
-                                       style == styleItalic ? DWRITE_FONT_STYLE_ITALIC : DWRITE_FONT_STYLE_NORMAL,
-                                       DWRITE_FONT_STRETCH_NORMAL,
-                                       dyHeight,
-                                       L"",
-                                       &ptf);
+    Set(dc, wsFace, dyHeight, weight, style);
+}
+
+void TF::Set(DC& dc, const wstring& wsFace, float dyHeight, WEIGHT weight, STYLE style)
+{
+    dc.iwapp.pfactdwr->CreateTextFormat(wsFace.c_str(), nullptr,
+                                        weight == WEIGHT::Bold ? DWRITE_FONT_WEIGHT_BOLD : DWRITE_FONT_WEIGHT_NORMAL,
+                                        style == STYLE::Italic ? DWRITE_FONT_STYLE_ITALIC : DWRITE_FONT_STYLE_NORMAL,
+                                        DWRITE_FONT_STRETCH_NORMAL,
+                                        dyHeight,
+                                        L"",
+                                        &ptf);
 }
 
 TF::operator IDWriteTextFormat* () const 
@@ -336,6 +341,20 @@ void DC::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float
     iwapp.pdc2->FillGeometry(geom, brFill);
 }
 
+void DC::Line(const PT& pt1, const PT& pt2, CO co, float dxyStroke) const
+{
+    if (co == coNil)
+        co = CoText();
+    Line(pt1, pt2, brScratch.SetCo(co), dxyStroke);
+}
+
+void DC::Line(const PT& pt1, const PT& pt2, const BR& br, float dxyStroke) const
+{
+    PT ptg1 = PtgFromPt(pt1);
+    PT ptg2 = PtgFromPt(pt2);
+    iwapp.pdc2->DrawLine(ptg1, ptg2, br, dxyStroke);
+}
+
 void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText) const
 {
     RC rcg = RcgFromRc(rc);
@@ -362,6 +381,42 @@ void DC::DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText) const
     DrawWsCenter(ws, tf, rc, brScratch.SetCo(coText));
 }
 
+/*
+ *  DC::DrawWsCenterXY
+ * 
+ *  Centers the text horizontally and vertically within the rectangle. Where centered
+ *  vertidally means the x-height of the text is centered, with ascenders and descenders
+ *  ignored. This will not be well centered for some text in some fonts, but it should
+ *  work for most text.
+ */
+
+void DC::DrawWsCenterXY(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const
+{
+    RC rcg = RcgFromRc(rc);
+    com_ptr<IDWriteTextLayout> ptxl;
+    iwapp.pfactdwr->CreateTextLayout(ws.c_str(), (UINT32)ws.size(),
+                                     tf, 
+                                     rcg.dxWidth(), rcg.dyHeight(), 
+                                     &ptxl);
+    DWRITE_TEXT_METRICS dtm;
+    ptxl->GetMetrics(&dtm);
+    DWRITE_LINE_METRICS dlm;
+    UINT32 cdlm;
+    ptxl->GetLineMetrics(&dlm, 1, &cdlm);
+    FM fm(FmFromTf(tf));
+    float ygTop = (rcg.top + rcg.bottom + fm.dyXHeight) / 2 - dlm.baseline + (fm.dyDescent/2);
+    float xgLeft = (rcg.left + rcg.right - dtm.width) / 2;
+    iwapp.pdc2->DrawTextLayout(PT(xgLeft, ygTop), ptxl.Get(), brText);
+}
+
+void DC::DrawWsCenterXY(const wstring& ws, TF& tf, const RC& rc, CO coText) const
+{
+    if (coText == coNil)
+        coText = CoText();
+    DrawWsCenterXY(ws, tf, rc, brScratch.SetCo(coText));
+}
+
+
 SZ DC::SzFromWs(const wstring& ws, const TF& tf) const
 {
     com_ptr<IDWriteTextLayout> ptxl;
@@ -370,6 +425,31 @@ SZ DC::SzFromWs(const wstring& ws, const TF& tf) const
     DWRITE_TEXT_METRICS dtm;
     ptxl->GetMetrics(&dtm);
     return SZ(dtm.width, dtm.height);
+}
+
+FM DC::FmFromTf(const TF& tf) const
+{
+    FM fm(0);
+
+    com_ptr<IDWriteFontCollection> pcollection;
+    tf.ptf->GetFontCollection(&pcollection);
+    com_ptr<IDWriteFontFamily> pfamily;
+    pcollection->GetFontFamily(0, &pfamily);
+    com_ptr<IDWriteFont> pfont;
+    pfamily->GetFont(0, &pfont);
+    com_ptr<IDWriteFontFace> pface;
+    pfont->CreateFontFace(&pface);
+    DWRITE_FONT_METRICS dfm;
+    pface->GetMetrics(&dfm);
+
+    float dyFont = tf.ptf->GetFontSize() / (float)dfm.designUnitsPerEm;
+    fm.dyAscent = (float)dfm.ascent * dyFont;
+    fm.dyDescent = (float)dfm.descent * dyFont;
+    fm.dyXHeight = (float)dfm.xHeight * dyFont;
+    fm.dyCapHeight = (float)dfm.capHeight * dyFont;
+    fm.dyLineGap = (float)dfm.lineGap * dyFont;
+
+    return fm;
 }
 
 void DC::DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity) const

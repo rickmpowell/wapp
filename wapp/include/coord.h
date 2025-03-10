@@ -99,6 +99,14 @@ public:
     SZ& operator *= (float w) {
         return Scale(w);
     }
+
+    SZ operator / (float w) const {
+        return SzScale(1.0f/w);
+    }
+
+    SZ& operator /= (float w) {
+        return Scale(1.0f/w);
+    }
 };
 
 /*
@@ -288,6 +296,14 @@ public:
         return PT((left+right)/2, (top+bottom)/2);
     }
 
+    float yCenter(void) const {
+        return (top + bottom) / 2;
+    }
+
+    float xCenter(void) const {
+        return (left + right) / 2;
+    }
+
     float dxWidth(void) const {
         return right - left;
     }
@@ -360,6 +376,14 @@ public:
         return *this;
     }
 
+    RC& Inflate(float dx, float dy) {
+        left -= dx;
+        right += dx;
+        top -= dy;
+        bottom += dy;
+        return *this;
+    }
+
     RC RcInflate(const SZ& sz) const {
         return RC(*this).Inflate(sz);
     }
@@ -414,6 +438,12 @@ public:
 
     RC RcCenterDx(float dx) const {
         return RC(*this).CenterDx(dx);
+    }
+
+    RC& SetSz(const SZ& sz) {
+        right = left + sz.width;
+        bottom = top + sz.height;
+        return *this;
     }
 
     operator int() const {

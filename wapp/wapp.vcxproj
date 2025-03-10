@@ -164,6 +164,7 @@
     <ClInclude Include="include\dc.h" />
     <ClInclude Include="include\dlg.h" />
     <ClInclude Include="include\err.h" />
+    <ClInclude Include="include\ev.h" />
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\id.h" />
     <ClInclude Include="include\rt.h" />
@@ -178,6 +179,7 @@
     <ClCompile Include="ctl.cpp" />
     <ClCompile Include="dc.cpp" />
     <ClCompile Include="dlg.cpp" />
+    <ClCompile Include="ev.cpp" />
     <ClCompile Include="rt.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="wapp.cpp" />

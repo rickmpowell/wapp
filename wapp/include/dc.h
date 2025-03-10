@@ -48,15 +48,15 @@ public:
 class TF
 {
 public:
-    enum WEIGHT
+    enum class WEIGHT
     {
-        weightNormal,
-        weightBold
+        Normal,
+        Bold
     };
-    enum STYLE
+    enum class STYLE
     {
-        styleNormal,
-        styleItalic
+        Normal,
+        Italic
     };
 
 public:
@@ -64,8 +64,11 @@ public:
 
 public:
     TF(DC& dc, const wstring& wsFace, float dyHeight,
-       WEIGHT weight = weightNormal, STYLE = styleNormal);
+       WEIGHT weight = WEIGHT::Normal, STYLE = STYLE::Normal);
     operator IDWriteTextFormat* () const;
+
+    void Set(DC& dc, const wstring& wsFace, float dyHeight,
+             WEIGHT weight = WEIGHT::Normal, STYLE = STYLE::Normal);
 };
 
 /*
@@ -157,6 +160,18 @@ public:
     virtual void purge(void) override;
 };
 
+/*
+ *  FM - font metrics
+ */
+
+struct FM
+{
+    float dyAscent;
+    float dyDescent;
+    float dyLineGap;
+    float dyCapHeight;
+    float dyXHeight;
+};
 
 /*
  *  Drawing context class
@@ -198,11 +213,17 @@ public:
     void FillEll(const ELL& ellFill, const BR& br) const;
     void FillGeom(const GEOM& geomFill, const PT& ptOffset, const SZ& szScale, float angle, BR& br);
 
+    void Line(const PT& pt1, const PT& pt2, CO co = coNil, float dxyStroke = 1.0f) const;
+    void Line(const PT& pt1, const PT& pt2, const BR& br, float dxyStroke = 1.0f) const;
+
     void DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText) const;
     void DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText = coNil) const;
     void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const;
     void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil) const;
+    void DrawWsCenterXY(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const;
+    void DrawWsCenterXY(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil) const;
     SZ SzFromWs(const wstring& ws, const TF& tf) const;
+    FM FmFromTf(const TF& tf) const;
 
     void DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity) const;
 
