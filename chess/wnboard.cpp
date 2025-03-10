@@ -91,6 +91,7 @@ void WNBOARD::Layout(void)
 
     PT ptBotRight(RcInterior().ptBotRight() - SZ(8.0f));
     btnFlip.SetBounds(RC(ptBotRight - SZ(dxyBorder - 16.0f - 2*dxyOutline), ptBotRight));
+    btnFlip.SetFont(wsFontUI, btnFlip.RcInterior().dyHeight() * 0.9f);
 }
 
 /*
@@ -132,14 +133,14 @@ void WNBOARD::DrawBorder(void)
     /* draw the labels */
 
     if (dyLabels >= dyLabelsMin) {
-        TF tf(*this, L"Verdana", dyLabels, TF::weightBold);
+        TF tf(*this, wsFontUI, dyLabels, TF::WEIGHT::Bold);
         float dy = SzFromWs(wstring(L"g8"), tf).height;
         for (int ra = 0; ra < raMax; ra++)
-            DrawWsCenter(wstring(1, '1' + ra), tf,
-                         RcFromSq(Sq(0, ra)).LeftRight(0, rcSquares.left).CenterDy(dy));
+            DrawWsCenterXY(wstring(1, '1' + ra), tf,
+                         RcFromSq(Sq(0, ra)).LeftRight(0, rcSquares.left));
         for (int fi = 0; fi < fiMax; fi++)
-            DrawWsCenter(wstring(1, 'a' + fi), tf,
-                         RcFromSq(Sq(fi, 0)).TopBottom(rcSquares.bottom, RcInterior().bottom).CenterDy(dy));
+            DrawWsCenterXY(wstring(1, 'a' + fi), tf,
+                         RcFromSq(Sq(fi, 0)).TopBottom(rcSquares.bottom, RcInterior().bottom));
     }
 }
 
@@ -337,10 +338,10 @@ void WNBOARD::EndDrag(const PT& pt, unsigned mk)
 {
     SQ sqHit;
     MV mvHit;
-    /* REVIEW: need a convention for returning values */
+    /* REVIEW: need a convention for which parameter returns values */
     if (FSqFromPt(sqHit, pt) && FLegalSqTo(sqDragFrom, sqHit, mvHit)) {
         pcmdMakeMove->SetMv(mvHit);
-        iwapp.FExecuteCmd(*pcmdMakeMove);
+        iwapp.vpevd.back()->FExecuteCmd(*pcmdMakeMove);
     }
     cpDrag = cpEmpty;
     sqDragFrom = sqDragTo = sqNil;

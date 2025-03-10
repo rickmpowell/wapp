@@ -66,5 +66,8 @@
     <ClInclude Include="include\board.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\newgame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

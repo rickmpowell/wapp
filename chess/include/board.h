@@ -273,6 +273,10 @@ inline int IcpbdFromSq(SQ sq) {
     return Icpbd(fi(sq), ra(sq));
 }
 
+inline int IcpbdFromSq(int fi, int ra) {
+    return Icpbd(fi, ra);
+}
+
 /*
  *  MV class
  * 
@@ -414,7 +418,7 @@ public:
     BD(void);
     BD(const string& fen);
 
-    void EmptyAcpbd(void);
+    void Empty(void);
 
     inline CPBD operator[](SQ sq) const {
         return acpbd[IcpbdFromSq(sq)];

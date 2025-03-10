@@ -11,7 +11,7 @@ WNTEST::WNTEST(WN& wnParent) :
     WNSTREAM(wnParent), 
     SCROLLER((WN&)*this),
     titlebar(*this, L"Tests"), 
-    tfTest(*this, L"Verdana", 12.0f),
+    tfTest(*this, wsFontUI, 12.0f),
     dyLine(0.0f)
 {
 }

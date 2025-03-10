@@ -29,6 +29,7 @@ WAPP::WAPP(const wstring& wsCmd, int sw) :
     bd(fenStartPos),
     wnboard(*this, bd),
     wntest(*this),
+    wnnewgame(*this),
     cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND)
 {
     CreateWnd(rssAppTitle);
@@ -103,10 +104,16 @@ public:
     CMDNEWGAME(WAPP& wapp) : CMD(wapp) {}
 
     virtual int Execute(void) override {
+
+
+        wapp.wnboard.Enable(false);
+        SZ sz = wapp.wnnewgame.SzRequestLayout();
+        wapp.wnnewgame.SetBounds(RC(wapp.RcInterior().ptCenter() - sz/2.0f, sz));
+        wapp.wnnewgame.Show(true);
+
         bdUndo = wapp.bd;
-        /* TODO: can we invent an interface here that automatically calls MoveGen? */
-        wapp.bd.InitFromFen(fenStartPos);
-        wapp.wnboard.BdChanged();
+        //wapp.bd.InitFromFen(fenStartPos);
+        //wapp.wnboard.BdChanged();
         return 1;
     }
 
@@ -212,18 +219,18 @@ public:
     CMDUNDO(WAPP& wapp) : CMD(wapp) {}
 
     virtual int Execute(void) override {
-        return wapp.FUndoCmd();
+        return wapp.vpevd.back()->FUndoCmd();
     }
 
     virtual bool FEnabled(void) const override {
         ICMD* pcmd;
-        return wapp.FTopUndoCmd(pcmd);
+        return wapp.vpevd.back()->FTopUndoCmd(pcmd);
     }
 
     virtual bool FMenuWs(wstring& ws, CMS cms) const override {
         ICMD* pcmd;
         wstring wsCmd;
-        if (wapp.FTopUndoCmd(pcmd))
+        if (wapp.vpevd.back()->FTopUndoCmd(pcmd))
             pcmd->FMenuWs(wsCmd, CMS::Undo);
         ws = vformat(wapp.WsLoad(rssUndo), make_wformat_args(wsCmd));
         return true;
@@ -240,18 +247,18 @@ public:
     CMDREDO(WAPP& wapp) : CMD(wapp) {}
 
     virtual int Execute(void) override {
-        return wapp.FRedoCmd();
+        return wapp.vpevd.back()->FRedoCmd();
     }
 
     virtual bool FEnabled(void) const override {
         ICMD* pcmd;
-        return wapp.FTopRedoCmd(pcmd);
+        return wapp.vpevd.back()->FTopRedoCmd(pcmd);
     }
 
     virtual bool FMenuWs(wstring& ws, CMS cms) const override {
         wstring wsCmd;
         ICMD* pcmd;
-        if (wapp.FTopRedoCmd(pcmd))
+        if (wapp.vpevd.back()->FTopRedoCmd(pcmd))
             pcmd->FMenuWs(wsCmd, CMS::Redo);
         ws = vformat(wapp.WsLoad(rssRedo), make_wformat_args(wsCmd));
         return true;

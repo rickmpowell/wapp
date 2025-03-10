@@ -186,6 +186,7 @@
   <ItemGroup>
     <ClInclude Include="include\board.h" />
     <ClInclude Include="include\chess.h" />
+    <ClInclude Include="include\newgame.h" />
     <ClInclude Include="include\resource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

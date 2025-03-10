@@ -17,7 +17,7 @@ const char fenStartPos[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
 
 BD::BD(void)
 {
-    EmptyAcpbd();
+    Empty();
 }
 
 BD::BD(const string& fen)
@@ -25,7 +25,7 @@ BD::BD(const string& fen)
     InitFromFen(fen);
 }
 
-void BD::EmptyAcpbd(void) {
+void BD::Empty(void) {
 
     /* fill guard squares with invalid pieces */
 
@@ -60,8 +60,6 @@ void BD::EmptyAcpbd(void) {
 
 void BD::MakeMv(MV& mv)
 {
-    Validate();
-
     assert(mv.sqFrom != sqNil && mv.sqTo != sqNil);
 
     mv.csSav = csCur;
@@ -101,23 +99,23 @@ void BD::MakeMv(MV& mv)
                emptying/placing is important */
             int raBack = RaBack(ccpToMove);
             if (mv.csMove & csQueen) {
-                CPBD cpbdRook = acpbd[IcpbdFromSq(Sq(fiQueenRook, raBack))];
+                CPBD cpbdRook = acpbd[IcpbdFromSq(fiQueenRook, raBack)];
                 (*this)(fiQueenRook, raBack) = CPBD(cpEmpty, 0);
                 (*this)[mv.sqFrom] = CPBD(cpEmpty, 0);
                 (*this)(fiD, raBack) = cpbdRook;
                 (*this)[mv.sqTo] = cpbdMove;
                 aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqTo);
-                aicpbd[ccpToMove][cpbdRook.icp] = IcpbdFromSq(Sq(fiD, raBack));
+                aicpbd[ccpToMove][cpbdRook.icp] = IcpbdFromSq(fiD, raBack);
                 goto Done;
             }
             if (mv.csMove & csKing) {
-                CPBD cpbdRook = acpbd[IcpbdFromSq(Sq(fiKingRook, raBack))];
+                CPBD cpbdRook = acpbd[IcpbdFromSq(fiKingRook, raBack)];
                 (*this)(fiKingRook, raBack) = CPBD(cpEmpty, 0);
                 (*this)[mv.sqFrom] = CPBD(cpEmpty, 0);
                 (*this)(fiF, raBack) = cpbdRook;
                 (*this)[mv.sqTo] = cpbdMove;
                 aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqTo);
-                aicpbd[ccpToMove][cpbdRook.icp] = IcpbdFromSq(Sq(fiF, raBack));
+                aicpbd[ccpToMove][cpbdRook.icp] = IcpbdFromSq(fiF, raBack);
                 goto Done;
             }
         }
@@ -149,8 +147,6 @@ Done:
 
 void BD::UndoMv(MV& mv)
 {
-    Validate();
-
     ccpToMove = ~ccpToMove;
     csCur = mv.csSav;
     sqEnPassant = mv.sqEnPassantSav;
@@ -186,7 +182,7 @@ void BD::UndoMv(MV& mv)
         (*this)(fiF, raBack) = CPBD(cpEmpty, 0);
         (*this)(fiKingRook, raBack) = cpbdRook;
         (*this)[mv.sqFrom] = cpbdMove;
-        aicpbd[ccpToMove][icpRook] = IcpbdFromSq(Sq(fiKingRook, raBack));
+        aicpbd[ccpToMove][icpRook] = IcpbdFromSq(fiKingRook, raBack);
         aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqFrom);
     }
     else if (mv.csMove & csQueen) {
@@ -197,7 +193,7 @@ void BD::UndoMv(MV& mv)
         (*this)(fiD, raBack) = CPBD(cpEmpty, 0);
         (*this)(fiQueenRook, raBack) = cpbdRook;
         (*this)[mv.sqFrom] = cpbdMove;
-        aicpbd[ccpToMove][icpRook] = IcpbdFromSq(Sq(fiKingRook, raBack));
+        aicpbd[ccpToMove][icpRook] = IcpbdFromSq(fiQueenRook, raBack);
         aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqFrom);
     }
     else {
@@ -214,7 +210,7 @@ void BD::UndoMv(MV& mv)
  *  standard simple representation of the chess board state. 
  */
 
-int IchFind(const string_view& s, char ch)
+static int IchFind(const string_view& s, char ch)
 {
     size_t ich = s.find(ch);
     if (ich == string::npos)
@@ -259,7 +255,7 @@ void BD::InitFromFen(istream& is)
 
     /* parse the board */
 
-    EmptyAcpbd();
+    Empty();
     int ich;
     int ra = raMax-1;
     SQ sq = Sq(0, ra);

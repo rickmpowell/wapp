@@ -12,6 +12,8 @@
 #include <iostream>
 class CMDMAKEMOVE;
 
+inline constexpr wchar_t wsFontUI[] = L"Segoe UI";
+
 /*
  *  WNBOARD 
  *
@@ -108,6 +110,8 @@ private:
     float YFromIws(int iws) const;
 };
 
+#include "newgame.h"
+
 /*
  *  WAPP
  * 
@@ -120,6 +124,7 @@ public:
     BD bd;
     WNBOARD wnboard;
     WNTEST wntest;
+    WNNEWGAME wnnewgame;
 
     CURS cursArrow;
     CURS cursHand;
