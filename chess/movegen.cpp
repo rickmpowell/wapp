@@ -328,19 +328,17 @@ int BD::IcpUnused(int ccp, int tcpHint) const {
 
 wstring to_wstring(SQ sq)
 {
-    wchar_t awch[4], * pwch = awch;
+    wchar_t awch[4] = { 0 }, * pwch = awch;
     *pwch++ = L'a' + fi(sq);
     *pwch++ = L'1' + ra(sq);
-    *pwch = 0;
     return awch;
 }
 
 string to_string(SQ sq)
 {
-    char ach[4], * pch = ach;
+    char ach[4] = { 0 }, * pch = ach;
     *pch++ = 'a' + fi(sq);
     *pch++ = '1' + ra(sq);
-    *pch = 0;
     return ach;
 }
 
@@ -358,14 +356,13 @@ MV::operator wstring () const
 {
     if (fIsNil())
         return L"-";
-    wchar_t awch[8], * pwch = awch;
+    wchar_t awch[8] = { 0 }, * pwch = awch;
     *pwch++ = L'a' + fi(sqFrom);
     *pwch++ = L'1' + ra(sqFrom);
     *pwch++ = L'a' + fi(sqTo);
     *pwch++ = L'1' + ra(sqTo);
     if (tcpPromote != tcpNone) 
         *pwch++ = L" pnbrqk"[tcpPromote];
-    *pwch = 0;
     return awch;
 }
 
@@ -373,13 +370,12 @@ MV::operator string () const
 {
     if (fIsNil())
         return "-";
-    char ach[8], * pch = ach;
+    char ach[8] = { 0 }, * pch = ach;
     *pch++ = 'a' + fi(sqFrom);
     *pch++ = '1' + ra(sqFrom);
     *pch++ = 'a' + fi(sqTo);
     *pch++ = '1' + ra(sqTo);
     if (tcpPromote != tcpNone)
         *pch++ = " pnbrqk"[tcpPromote];
-    *pch = 0;
     return ach;
 }

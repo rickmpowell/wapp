@@ -324,6 +324,14 @@ public:
         return *this;
     }
 
+    RC& Offset(float dx, float dy) {
+        left += dx;
+        right += dx;
+        top += dy;
+        bottom += dy;
+        return *this;
+    }
+
     RC RcOffset(const SZ& sz) const {
         return RC(*this).Offset(sz);
     }
@@ -438,6 +446,18 @@ public:
 
     RC RcCenterDx(float dx) const {
         return RC(*this).CenterDx(dx);
+    }
+
+    RC RcSetLeft(float x) const {
+        RC rc(*this);
+        rc.left = x;
+        return rc;
+    }
+
+    RC RcSetRight(float x) const {
+        RC rc(*this);
+        rc.right = x;
+        return rc;
     }
 
     RC& SetSz(const SZ& sz) {
@@ -569,6 +589,13 @@ public:
         radiusX = radiusY = dxyRadius;
     }
 
+    ELL(const RC& rcBounds) {
+        point.x = rcBounds.xCenter();
+        point.y = rcBounds.yCenter();
+        radiusX = rcBounds.dxWidth() / 2;
+        radiusY = rcBounds.dyHeight() / 2;
+    }
+
     ELL& Offset(float dx, float dy) {
         point.x += dx;
         point.y += dy;
@@ -585,5 +612,11 @@ public:
         ELL ell = *this;
         ell.Offset(pt);
         return ell;
+    }
+
+    ELL& Inflate(const SZ& sz) {
+        radiusX += sz.width;
+        radiusY += sz.height;
+        return *this;
     }
 };

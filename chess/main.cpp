@@ -29,7 +29,7 @@ WAPP::WAPP(const wstring& wsCmd, int sw) :
     bd(fenStartPos),
     wnboard(*this, bd),
     wntest(*this),
-    wnnewgame(*this),
+    dlgnewgame(*this),
     cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND)
 {
     CreateWnd(rssAppTitle);
@@ -104,17 +104,19 @@ public:
     CMDNEWGAME(WAPP& wapp) : CMD(wapp) {}
 
     virtual int Execute(void) override {
-
-
-        wapp.wnboard.Enable(false);
-        SZ sz = wapp.wnnewgame.SzRequestLayout();
-        wapp.wnnewgame.SetBounds(RC(wapp.RcInterior().ptCenter() - sz/2.0f, sz));
-        wapp.wnnewgame.Show(true);
-
-        bdUndo = wapp.bd;
-        //wapp.bd.InitFromFen(fenStartPos);
-        //wapp.wnboard.BdChanged();
+        if (FRunDlg()) {
+            bdUndo = wapp.bd;
+            wapp.bd.InitFromFen(fenStartPos);
+            wapp.wnboard.BdChanged();
+        }
         return 1;
+    }
+
+    virtual int FRunDlg(void) override {
+        wapp.wnboard.Enable(false);
+        int val = wapp.dlgnewgame.DlgMsgPump();
+        wapp.wnboard.Enable(true);
+        return val;
     }
 
     virtual int Undo(void) override {
@@ -134,30 +136,6 @@ public:
 
 private:
     BD bdUndo;
-};
-
-/*
- *  CMDDISABLE - toggles the disable state of the board
- */
-
-CMD_DECLARE(CMDDISABLE)
-{
-public:
-    CMDDISABLE(WAPP& wapp) : CMD(wapp) {}
-
-    virtual int Execute(void) override {
-        wapp.wnboard.Enable(!wapp.wnboard.FEnabled());
-        return 1;
-    }
-
-    virtual bool FMenuWs(wstring & ws, CMS cms) const override {
-        ws = wapp.WsLoad(wapp.wnboard.FEnabled() != (cms == CMS::Undo) ? rssDisableBoard : rssEnableBoard);
-        return true;
-    }
-
-    virtual bool FUndoable(void) const override {
-        return true;
-    }
 };
 
 /*
@@ -396,7 +374,6 @@ void WAPP::RegisterMenuCmds(void)
 {
     REGMENUCMD(cmdNewGame, CMDNEWGAME);
     REGMENUCMD(cmdFlipBoard, CMDFLIPBOARD);
-    REGMENUCMD(cmdDisableBoard, CMDDISABLE);
     REGMENUCMD(cmdExit, CMDEXIT);
  
     REGMENUCMD(cmdUndo, CMDUNDO);

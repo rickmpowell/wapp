@@ -122,6 +122,7 @@ public:
     virtual void OnCreate(void);
     virtual void OnDestroy(void);
     virtual void OnDisplayChange(void);
+    virtual void OnShow(bool fShow);
     virtual void OnSize(const SZ& sz);
     virtual void OnMouseMove(const PT& ptg, unsigned mk);
     virtual void OnMouseDown(const PT& ptg, unsigned mk);

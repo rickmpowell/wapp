@@ -47,7 +47,7 @@ protected:
 
 public:
     WN(IWAPP& iwapp, WN* pwnParent = nullptr);
-    WN(WN& wnParent);
+    WN(WN& wnParent, bool fVisible = true);
     virtual ~WN();
 
     void SetBounds(const RC& rcpNew);

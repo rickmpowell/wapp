@@ -15,6 +15,17 @@ class CMDMAKEMOVE;
 inline constexpr wchar_t wsFontUI[] = L"Segoe UI";
 
 /*
+ *  Time control section
+ */
+
+struct TMS
+{
+    int dmvTotal;   // -1 for the remainder of the game
+    int minTotal;
+    int secMoveInc;
+};
+
+/*
  *  WNBOARD 
  *
  *  The board UI element on the screen
@@ -75,7 +86,7 @@ private:
     void DrawDrag(void);
     RC RcFromSq(int sq) const;
     RC RcPiecesFromCp(CP cp) const;
-    bool FSqFromPt(SQ& sq, const PT& pt) const;
+    bool FPtToSq(const PT& pt, SQ& sq) const;
     bool FLegalSqFrom(SQ sq) const;
     bool FLegalSqTo(SQ sqFrom, SQ sqTo, MV& mvHit) const;
 };
@@ -124,7 +135,7 @@ public:
     BD bd;
     WNBOARD wnboard;
     WNTEST wntest;
-    WNNEWGAME wnnewgame;
+    DLGNEWGAME dlgnewgame;
 
     CURS cursArrow;
     CURS cursHand;
@@ -198,7 +209,6 @@ public:
     virtual int Undo(void) override;
     virtual bool FUndoable(void) const;
     virtual bool FMenuWs(wstring& ws, ICMD::CMS cms) const override;
-
 };
 
 CMD_DECLARE(CMDMAKEMOVE)

@@ -242,3 +242,8 @@ bool ICMD::FMenuWs(wstring& wsMenu, CMS cms) const
 {
     return false;
 }
+
+int ICMD::FRunDlg(void)
+{
+    return 1;
+}

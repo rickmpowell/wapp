@@ -72,6 +72,7 @@ public:
     virtual void OnCreate(void) override;
     virtual void OnDestroy(void) override;
     virtual void OnDisplayChange(void) override;
+    virtual void OnShow(bool fShow) override;
     virtual void OnSize(const SZ& sz) override;
     virtual void OnPaint(void) override;
     virtual void OnMouseMove(const PT& ptg, unsigned mk) override;

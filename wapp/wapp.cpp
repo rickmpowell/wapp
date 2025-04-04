@@ -102,6 +102,7 @@ void IWAPP::PurgeDidos(void)
 
 void IWAPP::CreateWnd(const wstring& wsTitle, int ws, PT pt, SZ sz)
 {
+    fVisible = (ws & WS_VISIBLE) != 0;
     WNDMAIN::CreateWnd(wsTitle, ws, pt, sz);
     if (GetMenu(hwnd) != NULL)
         RegisterMenuCmds();
@@ -137,6 +138,13 @@ void IWAPP::OnSize(const SZ& sz)
     PurgeAllDddos();
     RebuildAllDddos();
     SetBounds(RC(PT(0), sz));
+}
+
+void IWAPP::OnShow(bool fShow)
+{
+    fVisible = fShow;
+    if (fVisible)
+        Layout();
 }
 
 void IWAPP::OnPaint(void)
@@ -192,7 +200,7 @@ void IWAPP::OnInitMenuPopup(HMENU hmenu)
 
 void IWAPP::Show(bool fShow)
 {
-    ::ShowWindow(hwnd, fShow ? SW_SHOW : SW_HIDE);
+    ShowWnd(fShow ? SW_SHOW : SW_HIDE);
 }
 
 /*

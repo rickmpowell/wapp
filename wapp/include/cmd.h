@@ -62,6 +62,8 @@ public:
     virtual bool FChecked(void) const;
     virtual bool FToolTipWs(wstring& wsTip) const;
     virtual bool FMenuWs(wstring& wsMenu, CMS cms = CMS::Regular) const;
+
+    virtual int FRunDlg(void);
 };
 
 /*

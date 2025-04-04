@@ -216,6 +216,10 @@ LRESULT CALLBACK WND::WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
         pwnd->OnSize(SZ(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
         break;
 
+    case WM_SHOWWINDOW:
+        pwnd->OnShow((bool)wParam);
+        break;
+
     case WM_PAINT:
         pwnd->OnPaint();
         return 0;
@@ -277,6 +281,10 @@ void WND::OnDestroy(void)
 }
 
 void WND::OnDisplayChange(void)
+{
+}
+
+void WND::OnShow(bool fShow)
 {
 }
 

@@ -326,9 +326,24 @@ void DC::FillEll(const ELL& ellFill, CO coFill) const
 
 void DC::FillEll(const ELL& ellFill, const BR& brFill) const
 {
-    ELL ellg = ellFill.EllOffset(PtgFromPt(PT(0, 0)));
+    ELL ellg = ellFill.EllOffset(PtgFromPt(PT(0)));
     iwapp.pdc2->FillEllipse(&ellg, brFill);
 }
+
+void DC::DrawEll(const ELL& ell, CO co, float dxyStroke) const
+{
+    if (co == coNil)
+        co = CoText();
+    DrawEll(ell, brScratch.SetCo(co), dxyStroke);
+}
+
+void DC::DrawEll(const ELL& ell, const BR& br, float dxyStroke) const
+{
+    ELL ellg = ell.EllOffset(PtgFromPt(PT(0)));
+    ellg.Inflate(SZ(-dxyStroke/2));
+    iwapp.pdc2->DrawEllipse(&ellg, br, dxyStroke);
+}
+
 
 void DC::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float angle, BR& brFill)
 {
@@ -416,6 +431,28 @@ void DC::DrawWsCenterXY(const wstring& ws, TF& tf, const RC& rc, CO coText) cons
     DrawWsCenterXY(ws, tf, rc, brScratch.SetCo(coText));
 }
 
+void DC::DrawWsCenterY(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const
+{
+    RC rcg = RcgFromRc(rc);
+    com_ptr<IDWriteTextLayout> ptxl;
+    iwapp.pfactdwr->CreateTextLayout(ws.c_str(), (UINT32)ws.size(),
+                                     tf,
+                                     rcg.dxWidth(), rcg.dyHeight(),
+                                     &ptxl);
+    DWRITE_LINE_METRICS dlm;
+    UINT32 cdlm;
+    ptxl->GetLineMetrics(&dlm, 1, &cdlm);
+    FM fm(FmFromTf(tf));
+    float ygTop = (rcg.top + rcg.bottom + fm.dyXHeight) / 2 - dlm.baseline + (fm.dyDescent/2);
+    iwapp.pdc2->DrawTextLayout(PT(rcg.left, ygTop), ptxl.Get(), brText);
+}
+
+void DC::DrawWsCenterY(const wstring& ws, TF& tf, const RC& rc, CO coText) const
+{
+    if (coText == coNil)
+        coText = CoText();
+    DrawWsCenterY(ws, tf, rc, brScratch.SetCo(coText));
+}
 
 SZ DC::SzFromWs(const wstring& ws, const TF& tf) const
 {

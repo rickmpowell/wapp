@@ -232,12 +232,12 @@ RC WNBOARD::RcFromSq(int sq) const
 }
 
 /*
- *  WNBOARD::FSqFromPt
+ *  WNBOARD::FPtToSq
  * 
  *  Returns the square the point is in
  */
 
-bool WNBOARD::FSqFromPt(SQ& sq, const PT& pt) const
+bool WNBOARD::FPtToSq(const PT& pt, SQ& sq) const
 {
     if (!rcSquares.FContainsPt(pt))
         return false;
@@ -285,7 +285,7 @@ bool WNBOARD::FLegalSqTo(SQ sqFrom, SQ sqTo, MV& mvHit) const
 void WNBOARD::Hover(const PT& pt)
 {
     SQ sqHit;
-    if (FSqFromPt(sqHit, pt) && FLegalSqFrom(sqHit))
+    if (FPtToSq(pt, sqHit) && FLegalSqFrom(sqHit))
         SetCurs(Wapp(iwapp).cursHand);
     else {
         SetCurs(Wapp(iwapp).cursArrow);
@@ -311,7 +311,7 @@ void WNBOARD::SetDefCurs(void)
 void WNBOARD::BeginDrag(const PT& pt, unsigned mk)
 {
     SQ sqHit;
-    if (!FSqFromPt(sqHit, pt) || !FLegalSqFrom(sqHit))
+    if (!FPtToSq(pt, sqHit) || !FLegalSqFrom(sqHit))
         return;
     sqDragFrom = sqDragTo = sqHit;
     sqHoverCur = sqNil;
@@ -325,7 +325,7 @@ void WNBOARD::Drag(const PT& pt, unsigned mk)
 {
     SQ sqHit = sqNil;
     MV mvHit;
-    if (!FSqFromPt(sqHit, pt) || !FLegalSqTo(sqDragFrom, sqHit, mvHit))
+    if (!FPtToSq(pt, sqHit) || !FLegalSqTo(sqDragFrom, sqHit, mvHit))
         sqHit = sqNil;
     if (sqDragTo != sqHit || pt != ptDrag) {
         ptDrag = pt;
@@ -338,8 +338,7 @@ void WNBOARD::EndDrag(const PT& pt, unsigned mk)
 {
     SQ sqHit;
     MV mvHit;
-    /* REVIEW: need a convention for which parameter returns values */
-    if (FSqFromPt(sqHit, pt) && FLegalSqTo(sqDragFrom, sqHit, mvHit)) {
+    if (FPtToSq(pt, sqHit) && FLegalSqTo(sqDragFrom, sqHit, mvHit)) {
         pcmdMakeMove->SetMv(mvHit);
         iwapp.vpevd.back()->FExecuteCmd(*pcmdMakeMove);
     }

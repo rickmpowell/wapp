@@ -13,7 +13,6 @@
 #define cmdPaste 7
 
 #define cmdNewGame 16
-#define cmdDisableBoard 17
 #define cmdFlipBoard 18
 #define cmdTestPerft 19
 #define cmdTestDivide 20
@@ -29,13 +28,11 @@
  */
 
 #define rssFirstUnused 16
-#define rssEnableBoard 17
-#define rssDisableBoard 18
-#define rssUndo 19
-#define rssRedo 20
-#define rssPaste 21
-#define rssNewGame 22
-#define rssFlipBoard 23
+#define rssUndo 17
+#define rssRedo 18
+#define rssPaste 19
+#define rssNewGame 20
+#define rssFlipBoard 21
 
 #define rssErrPasteFailed 128
 #define rssErrCopyFailed 129

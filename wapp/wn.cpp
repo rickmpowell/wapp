@@ -10,17 +10,17 @@
 WN::WN(IWAPP& iwapp, WN* pwnParent) : 
     DC(iwapp), 
     pwnParent(pwnParent),
-    fVisible(true),
+    fVisible(pwnParent != nullptr),
     fEnabled(true)
 {
     if (pwnParent)
         pwnParent->AddChild(this);
 }
 
-WN::WN(WN& wnParent) :
+WN::WN(WN& wnParent, bool fVisible) :
     DC(wnParent.iwapp),
     pwnParent(&wnParent),
-    fVisible(true),
+    fVisible(fVisible),
     fEnabled(true)
 {
     wnParent.AddChild(this);
@@ -90,11 +90,12 @@ SZ WN::SzRequestLayout(void) const
 
 void WN::Show(bool fShow)
 {
+    if (fVisible == fShow)
+        return;
     fVisible = fShow;
-    if (pwnParent) {
-        pwnParent->Layout();
+    /* TODO: do a minimal redraw */
+    if (pwnParent)
         pwnParent->Redraw();
-    }
 }
 
 bool WN::FVisible(void) const

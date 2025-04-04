@@ -317,7 +317,7 @@ void BD::InitFromFen(istream& is)
  *  Turns a BD into a FEN string.
  */
 
-string FenEmpties(int& csqEmpty) {
+static string FenEmpties(int& csqEmpty) {
     if (csqEmpty == 0)
         return "";
     int csq = csqEmpty;

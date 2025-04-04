@@ -51,10 +51,8 @@ CO WAPP::CoBack(void) const
 
 void WAPP::Draw(const RC& rcUpdate)
 {
-    wstring wsText(WsLoad(rssHelloWorld));
     TF tf(*this, L"Verdana", RcInterior().dyHeight() * 0.2f);
-    SZ szText = SzFromWs(wsText, tf);
-    DrawWsCenter(wsText, tf, RcInterior().CenterDy(szText.height));
+    DrawWsCenterXY(WsLoad(rssHelloWorld), tf, RcInterior());
 }
 
 /*

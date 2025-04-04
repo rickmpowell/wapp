@@ -211,6 +211,8 @@ public:
     void DrawRc(const RC& rc, const BR& br, float dxyStroke = 1.0f) const;
     void FillEll(const ELL& ellFill, CO coFill = coNil) const;
     void FillEll(const ELL& ellFill, const BR& br) const;
+    void DrawEll(const ELL& ell, CO co = coNil, float dxyStroke = 1.0f) const;
+    void DrawEll(const ELL& ell, const BR& br, float dxyStroke = 1.0f) const;
     void FillGeom(const GEOM& geomFill, const PT& ptOffset, const SZ& szScale, float angle, BR& br);
 
     void Line(const PT& pt1, const PT& pt2, CO co = coNil, float dxyStroke = 1.0f) const;
@@ -220,6 +222,8 @@ public:
     void DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText = coNil) const;
     void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const;
     void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil) const;
+    void DrawWsCenterY(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const;
+    void DrawWsCenterY(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil) const;
     void DrawWsCenterXY(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const;
     void DrawWsCenterXY(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil) const;
     SZ SzFromWs(const wstring& ws, const TF& tf) const;
