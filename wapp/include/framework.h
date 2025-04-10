@@ -44,6 +44,8 @@
 #include <memory>
 #include <format>
 #include <chrono>
+#include <sstream>
+#include <iostream>
 
 using namespace std;
 using namespace D2D1;
@@ -51,4 +53,3 @@ using namespace Microsoft::WRL;
 
 template <typename T>
 using com_ptr = ComPtr<T>;
-

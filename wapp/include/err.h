@@ -20,8 +20,6 @@ const unsigned facilityApp = 0x0100;
 
 class ERR
 {
-    HRESULT hr;
-    wstring wsArg;
 public:
     ERR(HRESULT hr, const wstring& wsArg = L"") : hr(hr), wsArg(wsArg) {}
     bool fApp(void) const { return HRESULT_FACILITY(hr) == facilityApp; }
@@ -29,7 +27,10 @@ public:
     wstring& wsVar(void) { return wsArg; }
     int code(void) const { return HRESULT_CODE(hr); }
     operator HRESULT() const { return hr; }
-    
+
+private:
+    HRESULT hr;
+    wstring wsArg;
 };
 
 /*

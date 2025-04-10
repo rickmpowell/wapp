@@ -39,6 +39,23 @@
 #define rssErrFenParse 130
 #define rssErrFenParseUnexpectedChar 131
 #define rssErrFenParseMissingPart 132
+#define rssErrChoosePlayerType 133
+#define rssErrChooseAILevel 134
+#define rssErrProvideHumanName 135
+
+#define rssColor 256
+#define rssWhite 256
+#define rssBlack 257
+
+#define rssBulb 1024
+
+#define rssNewGameTitle 1025
+#define rssNewGameInstructions 1026
+#define rssTimeBullet 1027
+#define rssTimeBlitz 1028
+#define rssTimeRapid 1029
+#define rssTimeClassical 1030
+#define rssTimeCustom 1031
 
 /*
  *  Dialogs

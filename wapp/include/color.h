@@ -57,6 +57,17 @@ public:
         return *this;
     }
 
+    CO operator / (float scale) const {
+        return CO(r/scale, g/scale, b/scale);
+    }
+
+    CO& operator /= (float scale) {
+        r /= scale;
+        g /= scale;
+        b /= scale;
+        return *this;
+    }
+
     CO& SetHue(float hue);
     CO& SetSaturation(float sat);
     CO& SetValue(float val);

@@ -8,123 +8,173 @@
 
 #include "wapp.h"
 
+class DLGNEWGAME;
+
 /*
- *  WNNEWGAMECOLOR
- * 
- *  A little color box in the New Game dialog
+ *  Interface to the dialog
  */
 
-class SELNEWGAMECOLOR : public SELECTORWS
+enum class NGCC
 {
-public:
-    SELNEWGAMECOLOR(VSELECTOR& vselParent, const wstring& wsIcon);
-    virtual CO CoBack(void) const override;
-    virtual CO CoText(void) const override;
+    None = -1,
+    White = 0,
+    Black = 1,
+    Random = 2,
 };
 
-class SELNEWGAMELEVEL : public SELECTORWS
+struct DATAPLAYER
+{
+    NGCC ngcc;
+    int ngcp;
+    int lvlComputer;
+    wstring wsNameHuman;
+};
+
+class SELLEVEL : public SELECTORWS
 {
 public:
-    SELNEWGAMELEVEL(VSELECTOR& vselParent, int lvl);
+    SELLEVEL(VSELECTOR& vselParent, int lvl);
     virtual SZ SzRequestLayout(void) const override;
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
 };
 
-class VSELNEWGAMELEVEL : public VSELECTOR
+class VSELLEVEL : public VSELECTOR
 {
 public:
-    VSELNEWGAMELEVEL(WN& wn, ICMD* pcmd, const wstring& wsLabel);
+    VSELLEVEL(WN& wn, ICMD* pcmd, const wstring& wsLabel);
     virtual void Layout(void) override;
 };
 
-class VSELNEWGAMECOLOR : public VSELECTOR
+/*
+ *  VSELPLAYER
+ * 
+ *  A player box in the New Game dialog
+ */
+
+class SELPLAYER: public SELECTORWS
 {
 public:
-    enum class NGCC
-    {
-        None = -1,
-        White = 0,
-        Black = 1,
-        Random = 2,
-    };
-
-    struct NGCDATA
-    {
-        NGCC ngcc;
-        int ngcp;
-        int lvlComputer;
-        wstring wsNameHuman;
-    };
-
-    VSELNEWGAMECOLOR(WN& wn, ICMD* pcmd, NGCC ngcc, const wstring& wsName);
-    
-    virtual CO CoBack(void) const override;
+    SELPLAYER(VSELECTOR& vselParent, const wstring& wsIcon);
     virtual CO CoText(void) const override;
+    virtual CO CoBack(void) const override;
+};
+
+class VSELPLAYER : public VSELECTOR
+{
+public:
+    VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, NGCC ngcc, const wstring& wsName);
+
+    virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(void) const override;
 
-    NGCDATA GetData(void) const;
-    void SetData(const NGCDATA& ngcdata);
+    virtual void Validate(void);
+
+    DATAPLAYER DataGet(void) const;
+    void SetData(const DATAPLAYER& dataplayer);
     void SetLevel(int lvl);
 
     NGCC ngcc;
+    DLGNEWGAME& dlg;
 
 private:
-    SELNEWGAMECOLOR selHuman;
-    SELNEWGAMECOLOR selComputer;
+    SELPLAYER selHuman;
+    SELPLAYER selComputer;
     EDIT editName;
-    VSELNEWGAMELEVEL vselLevel;
+    VSELLEVEL vsellevel;
     BTNCH btnAISettings;
 };
 
 /*
- *  SELNEWGAMETIME
+ *  SELTIME
  * 
  *  Time control option in the New Game chooser.
  */
 
-class SELNEWGAMETIME : public SELECTOR
+class VSELTIME;
+
+class SELTIME : public SELECTOR
 {
 public:
-    SELNEWGAMETIME(VSELECTOR& vsel, const vector<TMS>& vtms, const wstring& szLabel);
+    SELTIME(VSELTIME& vsel, int rssLabel);
 
-    virtual CO CoBack(void) const override;
     virtual CO CoText(void) const override;
+    virtual CO CoBack(void) const override;
     virtual void DrawLabel(const RC& rcLabel) override;
     virtual SZ SzLabel(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(void) const override;
 
+private:
+    TF tfLabel;
+};
+
+class SELTIMECYCLE : public SELTIME
+{
+public:
+    SELTIMECYCLE(VSELTIME& vsel, const vector<TMS>& vtms, int rssLabel);
+    virtual void Draw(const RC& rcUpdate) override;
+    virtual void Layout(void) override;
+
     void Next(void);
     void Prev(void);
 
 private:
-    TF tfLabel;
+    BTNNEXT btnnext;
+    BTNPREV btnprev;
     vector<TMS> vtms;
     int itmsCur;
-    BTNPREV btnprev;
-    BTNNEXT btnnext;
 };
 
-class VSELNEWGAMETIME : public VSELECTOR
+class SELTIMECUSTOM : public SELTIME
 {
 public:
-    VSELNEWGAMETIME(WN& wnParent, ICMD* pcmd);
+    SELTIMECUSTOM(VSELTIME& vsel, int rssLabel);
+    virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(void) const override;
 
 private:
-    SELNEWGAMETIME selBullet;
-    SELNEWGAMETIME selBlitz;
-    SELNEWGAMETIME selRapid;
-    SELNEWGAMETIME selClassical;
-    SELNEWGAMETIME selCustom;
+    BTNCH btn;
 };
 
+class VSELTIME : public VSELECTOR
+{
+public:
+    VSELTIME(DLGNEWGAME& dlg, ICMD* pcmd);
+    virtual void Layout(void) override;
+    virtual SZ SzRequestLayout(void) const override;
+    
+    virtual void Validate(void) override;
+
+    DLGNEWGAME& dlg;
+
+private:
+    SELTIMECYCLE selBullet;
+    SELTIMECYCLE selBlitz;
+    SELTIMECYCLE selRapid;
+    SELTIMECYCLE selClassical;
+    SELTIMECUSTOM selCustom;
+};
+
+/*
+ *  BTNRANDOM
+ * 
+ *  Our random chess side color toggle button. We just do some custom drawing here
+ */
+
+class BTNRANDOM : public BTN
+{
+public:
+    BTNRANDOM(WN& wnParent, ICMD* pcmd);
+    virtual void Draw(const RC& rcUpdate) override;
+    virtual void Erase(const RC& rcUpdate, DRO dro) override;
+    virtual void Layout(void) override;
+
+};
 
 /*
  *  DLGNEWGAME
@@ -143,18 +193,20 @@ public:
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(void) const override;
 
+    virtual void Validate(void) override;
+
+    unique_ptr<DLG> pdlgSettings;
+
     STATIC staticTitle;
     BTNCLOSE btnclose;
     STATICL staticInstruct;
-    VSELNEWGAMECOLOR vselWhite;
-    VSELNEWGAMECOLOR vselBlack;
-    BTNWS btnSettings;
-    VSELNEWGAMETIME vseltime;
+    VSELPLAYER vselWhite;
+    VSELPLAYER vselBlack;
     BTNWS btnSwap;
-    BTNWS btnRandom;
+    BTNRANDOM btnrandom;
+    BTNWS btnSettings;
+    VSELTIME vseltime;
     BTNWS btnStart;
-
-    unique_ptr<DLG> pdlgSettings;
 };
 
 /*

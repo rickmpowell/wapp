@@ -26,8 +26,8 @@ int Run(const wstring& wsCmd, int sw)
  */
 
 WAPP::WAPP(const wstring& wsCmd, int sw) : 
-    bd(fenStartPos),
-    wnboard(*this, bd),
+    game(*this, fenStartPos),
+    wnboard(*this, game.bd),
     wntest(*this),
     dlgnewgame(*this),
     cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND)
@@ -105,8 +105,8 @@ public:
 
     virtual int Execute(void) override {
         if (FRunDlg()) {
-            bdUndo = wapp.bd;
-            wapp.bd.InitFromFen(fenStartPos);
+            bdUndo = wapp.game.bd;
+            wapp.game.bd.InitFromFen(fenStartPos);
             wapp.wnboard.BdChanged();
         }
         return 1;
@@ -120,7 +120,7 @@ public:
     }
 
     virtual int Undo(void) override {
-        wapp.bd = bdUndo;
+        wapp.game.bd = bdUndo;
         wapp.wnboard.BdChanged();
         return 1;
     }
@@ -160,14 +160,14 @@ CMDEXECUTE(CMDTESTDIVIDE)
 
 int CMDMAKEMOVE::Execute(void) 
 {
-    wapp.bd.MakeMv(mv);
+    wapp.game.bd.MakeMv(mv);
     wapp.wnboard.BdChanged();
     return 1;
 }
 
 int CMDMAKEMOVE::Undo(void)
 {
-    wapp.bd.UndoMv(mv);
+    wapp.game.bd.UndoMv(mv);
     wapp.wnboard.BdChanged();
     return 1;
 }
@@ -272,7 +272,7 @@ CMDEXECUTE(CMDCOPY)
 {
     try {
         oclipstream os(wapp, CF_TEXT);
-        wapp.bd.RenderFen(os);
+        wapp.game.bd.RenderFen(os);
     }
     catch (ERR err) {
         wapp.Error(ERRAPP(rssErrCopyFailed), err);
@@ -303,7 +303,7 @@ public:
         try {
             iclipstream is(wapp);
             bdUndo.InitFromFen(is);
-            swap(wapp.bd, bdUndo);
+            swap(wapp.game.bd, bdUndo);
             wapp.wnboard.BdChanged();
         }
         catch (ERR err) {
@@ -313,7 +313,7 @@ public:
     }
 
     virtual int Undo(void) override {
-        swap(wapp.bd, bdUndo);
+        swap(wapp.game.bd, bdUndo);
         wapp.wnboard.BdChanged();
         return 1;
     }

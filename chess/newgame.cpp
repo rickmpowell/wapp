@@ -6,89 +6,100 @@
  */
 
 #include "chess.h"
+#include "resource.h"
+
+constexpr float valueDlgTextHilite = 0.95f;
+constexpr float valueDlgBackDark = 0.25f;
+constexpr float valueDlgBackLight = 0.5f;
 
 /*
- &  CMDCOLOR 
+ &  CMDPLAYER 
  *
- *  Selecting a player in the color boxes
+ *  Selecting a player in the player boxes
  */
 
-class CMDCOLOR : public CMD<CMDCOLOR, WAPP>
+class CMDPLAYER : public CMD<CMDPLAYER, WAPP>
 {
 public:
-    CMDCOLOR(WAPP& wapp, VSELNEWGAMECOLOR& vselcolor) :
-        CMD(wapp),
-        vselcolor(vselcolor)
-    {
-    }
+    CMDPLAYER(DLGNEWGAME& dlg, VSELPLAYER& vsel) : CMD(Wapp(dlg.iwapp)), vsel(vsel) { }
 
-    virtual int Execute(void) override
-    {
-        vselcolor.Layout();
-        vselcolor.Redraw();
+    virtual int Execute(void) override {
+        /* force entire thing to relayout and redraw so we get human/ai options redisplayed */
+        vsel.Layout();
         return 1;
     }
  
 private:
-    VSELNEWGAMECOLOR& vselcolor;
+    VSELPLAYER& vsel;
 };
 
-CMDEXECUTE(CMDSTART)
-{
-    wapp.dlgnewgame.EndDlg(1);
-    return 1;
-}
+/*
+ *  CMDSWAP
+ * 
+ *  Swaps black and white players in the new game dialog
+ */
 
-
-class CMDCANCEL : public CMD<CMDCANCEL, WAPP>
+class CMDSWAP : public CMD<CMDSWAP, WAPP>
 {
 public:
-    CMDCANCEL(WAPP& wapp, DLG& dlg) :
-        CMD(wapp),
-        dlg(dlg)
-    {
-    }
+    CMDSWAP(DLGNEWGAME& dlg) : CMD(Wapp(dlg.iwapp)), dlg(dlg) {}
 
-    virtual int Execute(void) override
-    {
-        dlg.EndDlg(0);
+    virtual int Execute(void) override {
+        DATAPLAYER dataplayer = dlg.vselWhite.DataGet();
+        dlg.vselWhite.SetData(dlg.vselBlack.DataGet());
+        dlg.vselWhite.Layout();
+        dlg.vselWhite.Redraw();
+        dlg.vselBlack.SetData(dataplayer);
+        dlg.vselBlack.Layout();
+        dlg.vselBlack.Redraw();
         return 1;
     }
 
-private:
-    DLG& dlg;
+protected:
+    DLGNEWGAME& dlg;
 };
 
-CMDEXECUTE(CMDSWAP)
-{
-    VSELNEWGAMECOLOR::NGCDATA ngcdata = wapp.dlgnewgame.vselWhite.GetData();
-    wapp.dlgnewgame.vselWhite.SetData(wapp.dlgnewgame.vselBlack.GetData());
-    wapp.dlgnewgame.vselBlack.SetData(ngcdata);
+/*
+ *  CMDRANDOM
+ * 
+ *  Toggles between random and non-random side picker in new game dialog
+ */
 
-    wapp.dlgnewgame.vselWhite.Redraw();
-    wapp.dlgnewgame.vselBlack.Redraw();
-    return 1;
-}
-
-CMDEXECUTE(CMDRANDOM)
+class CMDRANDOM : public CMD<CMDRANDOM, WAPP>
 {
-    if (wapp.dlgnewgame.vselWhite.ngcc == VSELNEWGAMECOLOR::NGCC::Random) {
-        wapp.dlgnewgame.vselWhite.ngcc = VSELNEWGAMECOLOR::NGCC::White;
-        wapp.dlgnewgame.vselBlack.ngcc = VSELNEWGAMECOLOR::NGCC::Black;
+public:
+    CMDRANDOM(DLGNEWGAME& dlg) : CMD(Wapp(dlg.iwapp)), dlg(dlg) {}
+
+    virtual int Execute(void) override {
+        if (dlg.vselWhite.ngcc == NGCC::Random) {
+            dlg.vselWhite.ngcc = NGCC::White;
+            dlg.vselBlack.ngcc = NGCC::Black;
+        }
+        else {
+            dlg.vselWhite.ngcc = NGCC::Random;
+            dlg.vselBlack.ngcc = NGCC::Random;
+        }
+        dlg.vselWhite.Layout();
+        dlg.vselBlack.Layout();
+        dlg.vselWhite.Redraw();
+        dlg.vselBlack.Redraw();
+        return 1;
     }
-    else {
-        wapp.dlgnewgame.vselWhite.ngcc = VSELNEWGAMECOLOR::NGCC::Random;
-        wapp.dlgnewgame.vselBlack.ngcc = VSELNEWGAMECOLOR::NGCC::Random;
-    }
-    wapp.dlgnewgame.vselWhite.Redraw();
-    wapp.dlgnewgame.vselBlack.Redraw();
-    return 1;
-}
+
+protected:
+    DLGNEWGAME& dlg;
+};
+
+/*
+ *  CMDGAMESETTINGS
+ * 
+ *  Brings up the game settings dialog box from the new game dialog
+ */
 
 class CMDGAMESETTINGS : public CMD<CMDGAMESETTINGS, WAPP>
 {
 public:
-    CMDGAMESETTINGS(WAPP& wapp) : CMD(wapp) { }
+    CMDGAMESETTINGS(DLGNEWGAME& dlg) : CMD(Wapp(dlg.iwapp)), dlg(dlg) {}
 
     virtual int Execute(void) override {
         FRunDlg();
@@ -96,59 +107,111 @@ public:
     }
     
     virtual int FRunDlg(void) override {
-        wapp.dlgnewgame.pdlgSettings = make_unique<DLGGAMESETTINGS>(wapp);
-        int val = wapp.dlgnewgame.pdlgSettings->DlgMsgPump();
-        wapp.dlgnewgame.pdlgSettings = nullptr;
+        dlg.pdlgSettings = make_unique<DLGGAMESETTINGS>(wapp);
+        int val = dlg.pdlgSettings->DlgMsgPump();
+        dlg.pdlgSettings = nullptr;
         return val;
     }
+
+protected:
+    DLGNEWGAME& dlg;
 };
+
+class CMDCUSTOMTIME : public CMD<CMDCUSTOMTIME, WAPP>
+{
+public:
+    CMDCUSTOMTIME(DLGNEWGAME& dlg) : 
+        CMD(Wapp(dlg.iwapp)), 
+        dlg(dlg) {}
+
+    virtual int Execute(void) override {
+        FRunDlg();
+        return 1;
+    }
+
+    virtual int FRunDlg(void) override {
+        dlg.pdlgSettings = make_unique<DLGTIMESETTINGS>(wapp);
+        int val = dlg.pdlgSettings->DlgMsgPump();
+        dlg.pdlgSettings = nullptr;
+        return val;
+    }
+
+protected:
+    DLGNEWGAME& dlg;
+};
+
+/*
+ *  CMDTIMENEXT and CMDTIMEPREV
+ * 
+ *  Cyeles throuigh the time options in the various time control option buttons
+ */
 
 class CMDTIMENEXT : public CMD<CMDTIMENEXT, WAPP>
 {
 public:
-    CMDTIMENEXT(WAPP& wapp, SELNEWGAMETIME& selngt) :
-        CMD(wapp),
-        selngt(selngt)
-    {
-    }
+    CMDTIMENEXT(DLGNEWGAME& dlg, SELTIMECYCLE& sel) : CMD(Wapp(dlg.iwapp)), sel(sel) { }
 
-    virtual int Execute(void) override
-    {
-        selngt.Next();
+    virtual int Execute(void) override {
+        sel.Next();
         return 1;
     }
 
 protected:
-    SELNEWGAMETIME& selngt;
+    SELTIMECYCLE& sel;
 };
 
 class CMDTIMEPREV : public CMDTIMENEXT
 {
 public:
-    CMDTIMEPREV(WAPP& wapp, SELNEWGAMETIME& selngt) : CMDTIMENEXT(wapp, selngt) { }
+    CMDTIMEPREV(DLGNEWGAME& dlg, SELTIMECYCLE& sel) : CMDTIMENEXT(dlg, sel) { }
 
-    virtual int Execute(void) override
-    {
-        selngt.Prev();
+    /* TODO: canw we create another CMD template to do this clone for us? */
+    virtual ICMD* clone(void) const override {
+        return new CMDTIMEPREV(*this);
+    }
+
+    virtual int Execute(void) override {
+        sel.Prev();
         return 1;
     }
 };
 
-CMDEXECUTE(CMDNEWGAMETIME)
-{
-    wapp.dlgnewgame.vseltime.Layout();
-    return 1;
-}
+/*
+ *  CMDTIME
+ * 
+ *  Forces the time control options to relayout
+ */
 
-CMDEXECUTE(CMDNEWGAMELEVEL)
+class CMDTIME : public CMD<CMDTIME, WAPP>
 {
-    return 1;
-}
+public:
+    CMDTIME(DLGNEWGAME& dlg) : CMD(Wapp(dlg.iwapp)), dlg(dlg) {}
+
+    virtual int Execute(void) override {
+        dlg.vseltime.Layout();
+        return 1;
+    }
+protected:
+    DLGNEWGAME& dlg;
+};
+
+class CMDLEVEL : public CMD<CMDLEVEL, WAPP>
+{
+public:
+    CMDLEVEL(DLGNEWGAME& dlg, VSELPLAYER& vsel) : CMD(Wapp(dlg.iwapp)), vsel(vsel) {}
+
+    virtual int Execute(void) override {
+        return 1;
+    }
+
+protected:
+    VSELPLAYER& vsel;
+};
 
 class CMDAISETTINGS : public CMD<CMDAISETTINGS, WAPP>
 {
 public:
-    CMDAISETTINGS(WAPP& wapp) : CMD(wapp) {}
+    CMDAISETTINGS(DLGNEWGAME& dlg, VSELPLAYER& vsel) : CMD(Wapp(dlg.iwapp)), vsel(vsel) { }
 
     virtual int Execute(void) override {
         FRunDlg();
@@ -156,32 +219,15 @@ public:
     };
 
     virtual int FRunDlg(void) override {
-        wapp.dlgnewgame.pdlgSettings = make_unique<DLGAISETTINGS>(wapp);
-        int val = wapp.dlgnewgame.pdlgSettings->DlgMsgPump();
-        wapp.dlgnewgame.pdlgSettings = nullptr;
+        vsel.dlg.pdlgSettings = make_unique<DLGAISETTINGS>(wapp);
+        int val = vsel.dlg.pdlgSettings->DlgMsgPump();
+        vsel.dlg.pdlgSettings = nullptr;
         return val;
-    }
-};
-
-class CMDOK : public CMD<CMDOK, WAPP>
-{
-public:
-    CMDOK(WAPP& wapp, DLG& dlg) :
-        CMD(wapp),
-        dlg(dlg)
-    {
-    }
-
-    virtual int Execute(void) override
-    {
-        dlg.EndDlg(1);
-        return 1;
     }
 
 protected:
-    DLG& dlg;
+    VSELPLAYER& vsel;
 };
-
 
 /*
  *  NEWGAME dialog
@@ -191,16 +237,16 @@ protected:
 
 DLGNEWGAME::DLGNEWGAME(WN& wnParent) :
     DLG(wnParent),
-    staticTitle(*this, L"New Game"),
-    btnclose(*this, new CMDCANCEL(Wapp(iwapp), *this)),
-    staticInstruct(*this, L"Assign either the human or an AI computer engine for each player, and choose the time controls for the game. Clock starts when Start is pressed.", L"\U0001F4A1"),
-    btnSettings(*this, new CMDGAMESETTINGS(Wapp(iwapp)), L"\u2699", L"Standard Timed Chess"),
-    vselWhite(*this, new CMDCOLOR(Wapp(iwapp), vselWhite), VSELNEWGAMECOLOR::NGCC::White, L"Rick Powell"),
-    vselBlack(*this, new CMDCOLOR(Wapp(iwapp), vselBlack), VSELNEWGAMECOLOR::NGCC::Black, L"Hazel the Dog"),
-    btnSwap(*this, new CMDSWAP(Wapp(iwapp)), L"\U0001F501"),
-    btnRandom(*this, new CMDRANDOM(Wapp(iwapp)), L"\U0001F500"),
-    vseltime(*this, new CMDNEWGAMETIME(Wapp(iwapp))),
-    btnStart(*this, new CMDSTART(Wapp(iwapp)), L"Start \U0001F846"),
+    staticTitle(*this, rssNewGameTitle),
+    btnclose(*this, new CMDCANCEL(*this)),
+    staticInstruct(*this, rssNewGameInstructions, rssBulb),
+    vselWhite(*this, new CMDPLAYER(*this, vselWhite), NGCC::White, L"Rick Powell"),
+    vselBlack(*this, new CMDPLAYER(*this, vselBlack), NGCC::Black, L"Hazel the Dog"),
+    btnSwap(*this, new CMDSWAP(*this), L"\u21c4"),
+    btnrandom(*this, new CMDRANDOM(*this)),
+    btnSettings(*this, new CMDGAMESETTINGS(*this), L"\u2699", L"Standard Timed Chess"),
+    vseltime(*this, new CMDTIME(*this)),
+    btnStart(*this, new CMDOK(*this), L"Start \U0001F846"),
     pdlgSettings(nullptr)
 {
     vselWhite.SetLevel(3);
@@ -209,7 +255,7 @@ DLGNEWGAME::DLGNEWGAME(WN& wnParent) :
 
 constexpr float dxyBtnSwap = 36.0f;
 constexpr float dxyDlgPadding = 48.0f;
-constexpr float dxNewGameDlg = 840.0f;
+constexpr float dxNewGameDlg = 848.0f;
 constexpr float dyNewGameDlg = 640.0f;
 constexpr float dxyNewGameGutter = 24.0f;
 
@@ -235,7 +281,7 @@ void DLGNEWGAME::Layout(void)
     rc.bottom = rc.top + staticInstruct.SzRequestLayout().height * 2;
     staticInstruct.SetBounds(rc);
     
-    /* position the color pickers */
+    /* position the player pickers */
     rc.top = rc.bottom + dxyNewGameGutter; 
     rc.SetSz(vselWhite.SzRequestLayout());
     vselWhite.SetBounds(rc);
@@ -248,9 +294,9 @@ void DLGNEWGAME::Layout(void)
     rcSwap.bottom = rcSwap.top + dxyBtnSwap;
     btnSwap.SetBounds(rcSwap);
     rcSwap += PT(0.0f, rcSwap.dyHeight() + dxyNewGameGutter);
-    btnRandom.SetBounds(rcSwap);
+    btnrandom.SetBounds(rcSwap);
     btnSwap.SetFont(wsFontUI, btnSwap.RcInterior().dyHeight() * 0.95f);
-    btnRandom.SetFont(wsFontUI, btnRandom.RcInterior().dyHeight() * 0.95f);
+    btnrandom.SetFont(wsFontUI, btnrandom.RcInterior().dyHeight() * 0.95f, TF::WEIGHT::Bold);
 
     /* position settings */
     btnSettings.SetFont(L"Segoe UI Symbol", 24.0f);
@@ -276,61 +322,57 @@ SZ DLGNEWGAME::SzRequestLayout(void) const
     return SZ(dxNewGameDlg, dyNewGameDlg);
 }
 
+void DLGNEWGAME::Validate(void)
+{
+    vselWhite.Validate();
+    vselBlack.Validate();
+    btnSettings.Validate();
+    vseltime.Validate();
+}
+
 /*
- *  VSELNEWGAMECOLOR
+ *  VSELPLAYER
  */
 
-SELNEWGAMECOLOR::SELNEWGAMECOLOR(VSELECTOR& vsel, const wstring& wsIcon) :
+SELPLAYER::SELPLAYER(VSELECTOR& vsel, const wstring& wsIcon) :
     SELECTORWS(vsel, wsIcon)
 {
 }
 
-CO SELNEWGAMECOLOR::CoText(void) const
+CO SELPLAYER::CoText(void) const
 {
-    switch (cdsCur) {
-    case CDS::Hover:
-    case CDS::Execute:
-        return coWhite;
-    default:
-        break;
-    }
-    return pwnParent->CoText();
+    CO co(pwnParent->CoText());
+    if (cdsCur == CDS::Hover || cdsCur == CDS::Execute)
+        co = pwnParent->CoBack().CoSetValue(valueDlgTextHilite);
+    return co;
 }
 
-CO SELNEWGAMECOLOR::CoBack(void) const
+CO SELPLAYER::CoBack(void) const
 {
-    switch (cdsCur) {
-    case CDS::Hover:
-    case CDS::Execute:
-        return coDlgBackLight;
-    default:
-        break;
-    }
-    return coDlgBackDark;
+    CO co(pwnParent->CoBack());
+    if (cdsCur == CDS::Hover || cdsCur == CDS::Execute)
+        co.SetValue(valueDlgBackLight);
+    return co;
 }
 
-VSELNEWGAMECOLOR::VSELNEWGAMECOLOR(WN& wnParent, ICMD* pcmd, NGCC ngcc, const wstring& wsName) :
-    VSELECTOR(wnParent, pcmd),
+VSELPLAYER::VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, NGCC ngcc, const wstring& wsName) :
+    VSELECTOR(dlg , pcmd),
+    dlg(dlg),
     selHuman(*this, L"\U0001F464"),     // human profile emoji
     selComputer(*this, L"\U0001F5A5"),   // desktop computer emoji
     editName(*this, wsName, L"Name:"),
-    vselLevel(*this, new CMDNEWGAMELEVEL(Wapp(iwapp)), L"Level:"),
-    btnAISettings(*this, new CMDAISETTINGS(Wapp(iwapp)), L'\u2699'),
+    vsellevel(*this, new CMDLEVEL(dlg, *this), L"Level:"),
+    btnAISettings(*this, new CMDAISETTINGS(dlg, *this), L'\u2699'),
     ngcc(ngcc)
 {
 }
 
-CO VSELNEWGAMECOLOR::CoBack(void) const
+CO VSELPLAYER::CoBack(void) const
 {
-    return coDlgBackDark;
+    return pwnParent->CoBack().CoSetValue(valueDlgBackDark);
 }
 
-CO VSELNEWGAMECOLOR::CoText(void) const
-{
-    return pwnParent->CoText();
-}
-
-void VSELNEWGAMECOLOR::Layout(void)
+void VSELPLAYER::Layout(void)
 {
     RC rcInt(RcInterior());
     float dx = (rcInt.dxWidth() - 2*64.0f - 16.0f) / 2;
@@ -347,36 +389,34 @@ void VSELNEWGAMECOLOR::Layout(void)
     rc.right = rcInt.right - 12.0f;
     
     editName.SetFont(wsFontUI, 16.0f);
-    vselLevel.SetFont(wsFontUI, 16.0f);
+    vsellevel.SetFont(wsFontUI, 16.0f);
     btnAISettings.SetFont(L"Segoe UI Symbol", 26.0f);
     
     editName.SetBounds(rc);
-    vselLevel.SetBounds(rc);
+    vsellevel.SetBounds(rc);
     btnAISettings.SetBounds(rc.RcSetLeft(rc.right - rc.dyHeight()));
  
     editName.Show(GetSelectorCur() == 0);
-    vselLevel.Show(GetSelectorCur() == 1);
+    vsellevel.Show(GetSelectorCur() == 1);
     btnAISettings.Show(GetSelectorCur() == 1);
 }
 
-SZ VSELNEWGAMECOLOR::SzRequestLayout(void) const
+SZ VSELPLAYER::SzRequestLayout(void) const
 {
     RC rc(pwnParent->RcInterior());
     return SZ((rc.dxWidth() - 2*dxyDlgPadding - dxyBtnSwap - 2*dxyNewGameGutter) / 2, 200.0f);
 }
 
-void VSELNEWGAMECOLOR::Draw(const RC& rcUpdate)
+void VSELPLAYER::Draw(const RC& rcUpdate)
 {
+    CO aco[] = { coWhite, coBlack };
     RC rc(PT(0.0f), SZ(RcInterior().dxWidth(), 36.0f));
     TF tf(*this, wsFontUI, 24.0f);
     switch (ngcc) {
     case NGCC::White:
-        FillRc(rc, coWhite);
-        DrawWsCenterXY(L"White", tf, rc, coBlack);
-        break;
     case NGCC::Black:
-        FillRc(rc, coBlack);
-        DrawWsCenterXY(L"Black", tf, rc, coWhite);
+        FillRc(rc, aco[(int)ngcc]);
+        DrawWsCenterXY(WsCapitalizeFirst(iwapp.WsLoad(rssColor + (int)ngcc)), tf, rc, aco[(int)ngcc ^ 1]);
         break;
     case NGCC::Random:
         DrawWsCenterXY(L"Random Color", tf, rc);
@@ -384,76 +424,99 @@ void VSELNEWGAMECOLOR::Draw(const RC& rcUpdate)
     }
 }
 
-VSELNEWGAMECOLOR::NGCDATA VSELNEWGAMECOLOR::GetData(void) const
+void VSELPLAYER::Validate(void)
 {
-    NGCDATA ngcdata;
-    ngcdata.ngcp = GetSelectorCur();
-    ngcdata.lvlComputer = vselLevel.GetSelectorCur();
-    ngcdata.wsNameHuman = editName.WsText();
-    return ngcdata;
+    wstring wsPlayer = L"player";
+    switch (ngcc) {
+    case NGCC::White: 
+    case NGCC::Black: 
+        wsPlayer = iwapp.WsLoad(rssColor+(int)ngcc); break;
+    default: break;
+    }
+
+    switch (GetSelectorCur()) {
+    case 0:
+        if (editName.WsText().size() == 0)
+            throw ERRAPP(rssErrProvideHumanName, wsPlayer);
+        break;
+    case 1:
+        if (!inrange(vsellevel.GetSelectorCur(), 0, 9))
+            throw ERRAPP(rssErrChooseAILevel, wsPlayer);
+        break;
+    default:
+        throw ERRAPP(rssErrChoosePlayerType, wsPlayer);
+    }
 }
 
-void VSELNEWGAMECOLOR::SetData(const NGCDATA& ngcdata)
+DATAPLAYER VSELPLAYER::DataGet(void) const
 {
-    SetSelectorCur(ngcdata.ngcp);
-    vselLevel.SetSelectorCur(ngcdata.lvlComputer);
-    editName.SetText(ngcdata.wsNameHuman);
+    DATAPLAYER dataplayer;
+    dataplayer.ngcp = GetSelectorCur();
+    dataplayer.lvlComputer = vsellevel.GetSelectorCur();
+    dataplayer.wsNameHuman = editName.WsText();
+    return dataplayer;
 }
 
-void VSELNEWGAMECOLOR::SetLevel(int lvl)
+void VSELPLAYER::SetData(const DATAPLAYER& dataplayer)
 {
-    vselLevel.SetSelectorCur(lvl);
+    SetSelectorCur(dataplayer.ngcp);
+    vsellevel.SetSelectorCur(dataplayer.lvlComputer);
+    editName.SetText(dataplayer.wsNameHuman);
+}
+
+void VSELPLAYER::SetLevel(int lvl)
+{
+    vsellevel.SetSelectorCur(lvl);
 }
 
 /*
- *  VSELNEWGAMELEVEL
+ *  VSELLEVEL
  */
 
-SELNEWGAMELEVEL::SELNEWGAMELEVEL(VSELECTOR& vsel, int lvl) :
+SELLEVEL::SELLEVEL(VSELECTOR& vsel, int lvl) :
     SELECTORWS(vsel, to_wstring(lvl))
 {
 }
 
-CO SELNEWGAMELEVEL::CoText(void) const
+CO SELLEVEL::CoText(void) const
 {
-    return pwnParent->CoText();
+    CO co(pwnParent->CoText());
+    if (cdsCur == CDS::Hover || cdsCur == CDS::Execute)
+        co = pwnParent->CoBack().CoSetValue(valueDlgTextHilite);
+    return co;
 }
 
-CO SELNEWGAMELEVEL::CoBack(void) const
+CO SELLEVEL::CoBack(void) const
 {
-    switch (cdsCur) {
-    case CDS::Hover:
-    case CDS::Execute:
-        return coDlgBackLight;
-    default:
-        break;
-    }
-    return coDlgBackDark;
+    CO co(pwnParent->CoBack());
+    if (cdsCur == CDS::Hover || cdsCur == CDS::Execute)
+        co.SetValue(valueDlgBackLight);
+    return co;
 }
 
-void SELNEWGAMELEVEL::Draw(const RC& rcUpdate)
+void SELLEVEL::Draw(const RC& rcUpdate)
 {
     if (fSelected)
         DrawRc(RcInterior(), CoText(), 2.0f);
     DrawWsCenter(wsImage, tf, RcInterior());
 }
 
-SZ SELNEWGAMELEVEL::SzRequestLayout(void) const
+SZ SELLEVEL::SzRequestLayout(void) const
 {
     SZ sz(SzFromWs(wsImage, tf));
     return SZ(sz.width+5.0f, sz.height+3.0f);
 }
 
-VSELNEWGAMELEVEL::VSELNEWGAMELEVEL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel) :
+VSELLEVEL::VSELLEVEL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel) :
     VSELECTOR(wnParent, pcmd, wsLabel)
 {
     for (int isel = 1; isel <= 10; isel++) {
-        SELECTOR* psel = new SELNEWGAMELEVEL(*this, isel);
+        SELECTOR* psel = new SELLEVEL(*this, isel);
         psel->SetFont(wsFontUI, 15.0f);
     }
 }
 
-void VSELNEWGAMELEVEL::Layout(void)
+void VSELLEVEL::Layout(void)
 {
     RC rc(PT(0.0f), vpselector.back()->SzRequestLayout());
     if (rc.right > rc.bottom)
@@ -471,56 +534,45 @@ void VSELNEWGAMELEVEL::Layout(void)
 }
 
 /*
- *  SELNEWGAMETIME
+ *  SELTIME
  * 
- *  Time control
+ *  The individual time control selectors, which are not only selectors, but also cycle 
+ *  through multiple options
  */
 
-SELNEWGAMETIME::SELNEWGAMETIME(VSELECTOR& vsel, const vector<TMS>& vtms, const wstring& szLabel) :
-    SELECTOR(vsel, szLabel),
-    btnnext(*this, new CMDTIMENEXT(Wapp(iwapp), *this), false),
-    btnprev(*this, new CMDTIMEPREV(Wapp(iwapp), *this), false),
-    vtms(vtms),
-    itmsCur(0),
+SELTIME::SELTIME(VSELTIME& vsel, int rssLabel) :
+    SELECTOR(vsel, rssLabel),
     tfLabel(*this, wsFontUI, 14.0f)
 {
 }
 
-CO SELNEWGAMETIME::CoText(void) const
+CO SELTIME::CoText(void) const
 {
-    switch (cdsCur) {
-    case CDS::Hover:
-    case CDS::Execute:
-        return coWhite;
-    default:
-        break;
-    }
-    return pwnParent->CoText();
+    CO co(pwnParent->CoText());
+    if (cdsCur == CDS::Hover || cdsCur == CDS::Execute)
+        co = pwnParent->CoBack().CoSetValue(valueDlgTextHilite);
+    return co;
 }
 
-CO SELNEWGAMETIME::CoBack(void) const
+CO SELTIME::CoBack(void) const
 {
-    switch (cdsCur) {
-    case CDS::Hover:
-    case CDS::Execute:
-        return pwnParent->CoBack();
-    default:
-        break;
-    }
-    return coDlgBackDark;
+    CO co(pwnParent->CoBack());
+    if (cdsCur != CDS::Hover && cdsCur != CDS::Execute)
+        co.SetValue(valueDlgBackDark);
+    return co;
 }
 
-void SELNEWGAMETIME::DrawLabel(const RC& rcLabel)
+void SELTIME::DrawLabel(const RC& rcLabel)
 {
     DrawWsCenterXY(wsLabel, tfLabel, rcLabel);
 }
 
-SZ SELNEWGAMETIME::SzLabel(void) const
+SZ SELTIME::SzLabel(void) const
 {
     return SzFromWs(wsLabel, tfLabel);
 }
 
-void SELNEWGAMETIME::Draw(const RC& rcUpdate)
+void SELTIME::Draw(const RC& rcUpdate)
 {
     if (fSelected)
         DrawRc(RcInterior(), CoText(), 4.0f);
@@ -530,66 +582,115 @@ void SELNEWGAMETIME::Draw(const RC& rcUpdate)
     rc.top += 10.0f;
     rc.bottom = rc.top + SzLabel().height;
     DrawLabel(rc);
-    
-    rc.top = rc.bottom;
-    rc.bottom = rcInt.bottom - 12.0f;
-    if (vtms[itmsCur].minTotal > 0) {
-        wstring ws = to_wstring(vtms[itmsCur].minTotal) + L"+" + to_wstring(vtms[itmsCur].secMoveInc);
-        DrawWsCenterXY(ws, tf, rc);
-    }
 }
 
-void SELNEWGAMETIME::Layout(void)
+void SELTIME::Layout(void)
 {
     SetFont(wsFontUI, 32.0f);
-    RC rc(RcInterior());
-    rc.Inflate(-4.0f);
-    rc.top += 12.0f;
-    btnprev.SetBounds(rc.RcSetRight(rc.left + 28.0f));
-    btnnext.SetBounds(rc.RcSetLeft(rc.right - 28.0f));
-    btnnext.Show(vtms.size() > 1 && fSelected);
-    btnprev.Show(vtms.size() > 1 && fSelected);
 }
 
-SZ SELNEWGAMETIME::SzRequestLayout(void) const
+SZ SELTIME::SzRequestLayout(void) const
 {
     RC rc(pwnParent->RcInterior());
     return SZ((rc.dxWidth() - 12.0f*4)/5, rc.dyHeight());
 }
 
-void SELNEWGAMETIME::Next(void)
+/*
+ *  SELTIMECUSTOM
+ */
+
+SELTIMECUSTOM::SELTIMECUSTOM(VSELTIME& vsel, int rssLabel) :
+    SELTIME(vsel, rssLabel),
+    btn(*this, new CMDCUSTOMTIME(vsel.dlg), L'\u23f1')
+{
+}
+
+void SELTIMECUSTOM::Draw(const RC& rcUpdate)
+{
+    SELTIME::Draw(rcUpdate);
+}
+
+void SELTIMECUSTOM::Layout(void)
+{
+    SELTIME::Layout();
+    RC rc(RcInterior());
+    rc.top += 30.0f;
+    rc.bottom -= 10.0f;
+    rc.CenterDx(rc.dyHeight());
+    btn.SetBounds(rc);
+    btn.SetFont(L"Segoe UI Symbol", rc.dyHeight() * 0.75f);
+    btn.Show(fSelected);
+}
+
+/*
+ *  SELTIMECYCLE
+ */
+
+SELTIMECYCLE::SELTIMECYCLE(VSELTIME& vsel, const vector<TMS>& vtms, int rssLabel) :
+    SELTIME(vsel, rssLabel),
+    btnnext(*this, new CMDTIMENEXT(vsel.dlg, *this), false),
+    btnprev(*this, new CMDTIMEPREV(vsel.dlg, *this), false),
+    vtms(vtms),
+    itmsCur(0)
+{
+}
+
+void SELTIMECYCLE::Draw(const RC& rcUpdate)
+{
+    SELTIME::Draw(rcUpdate);
+    RC rc(RcInterior());
+    rc.top += 30.0f;
+    wstring ws = to_wstring(vtms[itmsCur].minTotal) + L"+" + to_wstring(vtms[itmsCur].secMoveInc);
+    DrawWsCenter(ws, tf, rc);
+}
+
+void SELTIMECYCLE::Layout(void)
+{
+    SELTIME::Layout();
+    RC rc(RcInterior());
+    rc.Inflate(-4.0f);
+    rc.top += 12.0f;
+    btnprev.SetBounds(rc.RcSetRight(rc.left + 28.0f));
+    btnnext.SetBounds(rc.RcSetLeft(rc.right - 28.0f));
+    btnnext.Show(fSelected);
+    btnprev.Show(fSelected);
+}
+
+void SELTIMECYCLE::Next(void)
 {
     itmsCur = (itmsCur + 1) % static_cast<int>(vtms.size());
     Redraw();
 }
 
-void SELNEWGAMETIME::Prev(void)
+void SELTIMECYCLE::Prev(void)
 {
     itmsCur = (itmsCur - 1 + static_cast<int>(vtms.size())) % static_cast<int>(vtms.size());
     Redraw();
 }
 
 /*
- *
+ *  VSELTIME
+ * 
+ *  THe new dialog's game time control list
  */
 
 vector<TMS> vtmsBullet = { {-1,1,0}, {-1,1,1}, { -1,2,1 } };
 vector<TMS> vtmsBlitz = { {-1,3,0}, {-1,3,2}, {-1,5,0} };
 vector<TMS> vtmsRapid = { {-1,10,0}, {-1,10,5}, {-1,15,10} };
 vector<TMS> vtmsClassical = { {-1,30,0}, {-1,30,20} };
-vector<TMS> vtmsCustom = { {-1, -1, -1} };
 
-VSELNEWGAMETIME::VSELNEWGAMETIME(WN& wnParent, ICMD* pcmd) :
-    VSELECTOR(wnParent, pcmd),
-    selBullet(*this, vtmsBullet, L"Bullet"),          // 1+0, 2+1
-    selBlitz(*this, vtmsBlitz, L"Blitz"),            // 3+0, 3+2, 5+0
-    selRapid(*this, vtmsRapid, L"Rapid"),           // 10+0, 10+5, 15+10
-    selClassical(*this, vtmsClassical, L"Classical"),  // 30+0, 30+20
-    selCustom(*this, vtmsCustom, L"Custom")
+VSELTIME::VSELTIME(DLGNEWGAME& dlg, ICMD* pcmd) :
+    VSELECTOR(dlg, pcmd),
+    dlg(dlg),
+    selBullet(*this, vtmsBullet, rssTimeBullet),          // 1+0, 2+1
+    selBlitz(*this, vtmsBlitz, rssTimeBlitz),            // 3+0, 3+2, 5+0
+    selRapid(*this, vtmsRapid, rssTimeRapid),           // 10+0, 10+5, 15+10
+    selClassical(*this, vtmsClassical, rssTimeClassical),  // 30+0, 30+20
+    selCustom(*this, rssTimeCustom)
 {
 }
 
-void VSELNEWGAMETIME::Layout(void)
+void VSELTIME::Layout(void)
 {
     RC rcSel = RC(PT(0), selCustom.SzRequestLayout());
     selBullet.SetBounds(rcSel);
@@ -603,10 +704,14 @@ void VSELNEWGAMETIME::Layout(void)
     selCustom.SetBounds(rcSel);
 }
 
-SZ VSELNEWGAMETIME::SzRequestLayout(void) const
+SZ VSELTIME::SzRequestLayout(void) const
 {
     RC rc(pwnParent->RcInterior());
     return SZ(rc.dxWidth() - 2*dxyDlgPadding, 92.0f);
+}
+
+void VSELTIME::Validate(void)
+{
 }
 
 /*
@@ -616,8 +721,8 @@ SZ VSELNEWGAMETIME::SzRequestLayout(void) const
 DLGAISETTINGS::DLGAISETTINGS(WN& wnParent) :
     DLG(wnParent),
     staticTitle(*this, L"AI Settings"),
-    btnclose(*this, new CMDCANCEL(Wapp(iwapp), *this)),
-    btnOK(*this, new CMDOK(Wapp(iwapp), *this), L"OK")
+    btnclose(*this, new CMDCANCEL(*this)),
+    btnOK(*this, new CMDOK(*this), L"OK")
 {
 }
 
@@ -656,8 +761,8 @@ SZ DLGAISETTINGS::SzRequestLayout(void) const
 DLGGAMESETTINGS::DLGGAMESETTINGS(WN& wnParent) :
     DLG(wnParent),
     staticTitle(*this, L"Game Settings"),
-    btnclose(*this, new CMDCANCEL(Wapp(iwapp),*this)),
-    btnOK(*this, new CMDOK(Wapp(iwapp), *this), L"OK")
+    btnclose(*this, new CMDCANCEL(*this)),
+    btnOK(*this, new CMDOK(*this), L"OK")
 {
 }
 
@@ -696,8 +801,8 @@ SZ DLGGAMESETTINGS::SzRequestLayout(void) const
 DLGTIMESETTINGS::DLGTIMESETTINGS(WN& wnParent) :
     DLG(wnParent),
     staticTitle(*this, L"Custom Time Settings"),
-    btnclose(*this, new CMDCANCEL(Wapp(iwapp), *this)),
-    btnOK(*this, new CMDOK(Wapp(iwapp), *this), L"OK")
+    btnclose(*this, new CMDCANCEL(*this)),
+    btnOK(*this, new CMDOK(*this), L"OK")
 {
 }
 
@@ -727,4 +832,37 @@ void DLGTIMESETTINGS::Layout(void)
 SZ DLGTIMESETTINGS::SzRequestLayout(void) const
 {
     return SZ(600.0f, 200.0f);
+}
+
+/*
+ *  BTNRANDOM
+ * 
+ *  Our little random color toggle button
+ */
+
+BTNRANDOM::BTNRANDOM(WN& wnParent, ICMD* pcmd) :
+    BTN(wnParent, pcmd)
+{
+}
+
+void BTNRANDOM::Draw(const RC& rcUpdate)
+{
+    RC rc(RcInterior());
+    FillRc(rc.RcSetRight(rc.ptCenter().x), coWhite);
+    FillRc(rc.RcSetLeft(rc.ptCenter().x), coBlack);
+
+    float dxy = 1.75f;
+    for (int x = -1; x <= 1; x++)
+        for (int y = -1; y <= 1; y++) 
+            DrawWsCenterXY(L"?", tf, rc + PT(x*dxy, y*dxy), coBlack);
+
+    DrawWsCenterXY(L"?", tf, rc);
+}
+
+void BTNRANDOM::Erase(const RC& rcUpdate, DRO dro)
+{
+}
+
+void BTNRANDOM::Layout(void)
+{
 }

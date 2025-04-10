@@ -292,8 +292,8 @@ void BD::InitFromFen(istream& is)
     if (sEnPassant == "-")
         sqEnPassant = sqNil;
     else if (sEnPassant.length() == 2 &&
-             in_range(sEnPassant[0], 'a', 'h') &&
-             in_range(sEnPassant[1], '1', '8'))
+             inrange(sEnPassant[0], 'a', 'h') &&
+             inrange(sEnPassant[1], '1', '8'))
         sqEnPassant = Sq(sEnPassant[0]-'a', sEnPassant[1]-'1');
     else
         throw ERRAPP(rssErrFenParse, WsFromS(sEnPassant));

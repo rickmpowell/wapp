@@ -1,4 +1,13 @@
-  Move Translate/DispatchMessage into a base message pump filter
+  Can we make dialog boxes Windows HWNDs?
+  Convert New Game dialog to use resources
+  Implement real edit controls
+  Implement Game Options dialog
+  Implement Custome Time Control dialog
+  Implement AI settings dialog
+  Implement simple player that handles humans and AI
+  Make New Game dialog take inputs and change outputs
+  Make modal dialog boxes disable parent windows more systematically
+  In New Game dialog, clicking on custom time control, while dialog up, click on cutom time control again. cresh on dialog coming down.
   Redesign menus and CMDs to build on the fly and use CMD to populate text of MENUITEMs
   Redesign accelerator tables to build on the fly using CMDs
   Implement test framework for MoveGen, MakeMv, UndoMv
@@ -15,9 +24,9 @@
   Add quiescent search
   Add iterative deepening
   Add chess clock 
-  Have New Game prompt for player and side
-  Implement simple dialog box class
   Convert about box to dialog box
+* Have New Game prompt for player and side
+* Implement simple dialog box class
 * Write a scrolling window class
 * Optimize movegen/makemove/undomove to use piece location array
 * Add Undo/Redo menu strings

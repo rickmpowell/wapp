@@ -71,6 +71,8 @@ public:
     virtual void TransparentErase(const RC& rcUpdate, DRO dro);
     void Redraw(void);
     void Redraw(const RC& rcUpdate, DRO dro);
+    virtual CO CoText(void) const override;
+    virtual CO CoBack(void) const override;
 
     void DrawWithChildren(const RC& rcgUpdate, DRO dro);
 

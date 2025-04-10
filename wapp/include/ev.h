@@ -26,6 +26,8 @@ public:
     EVD(WN& wnOwner);
     virtual ~EVD();
 
+    void DestroyedWn(WN* pwn);
+
     /* raw mouse input */
 
     virtual void OnMouseMove(const PT& ptg, int mk);

@@ -1,6 +1,8 @@
 
 /*
+ *  ev.cpp
  *
+ *  Our event abstraction.
  */
 
 #include "wapp.h"
@@ -17,8 +19,20 @@ EVD::~EVD()
 {
 }
 
+void EVD::DestroyedWn(WN* pwn)
+{
+    /* REVIEW: is this a situation where a shared_ptr might be useful? */
+    if (pwn == pwnFocus)
+        pwnFocus = nullptr;
+    if (pwn == pwnDrag)
+        pwnDrag = nullptr;
+    if (pwn == pwnHover)
+        pwnHover = nullptr;
+}
+
 /*
- *  raw mouse handling 
+ *  raw mouse handling, which we translate into the more useful drag and hover. Note that dragging does not 
+ *  require the mouse button tbe down during the drag, but it is terminated by a mouse up.
  */
 
 void EVD::OnMouseMove(const PT& ptg, int mk)
@@ -64,6 +78,10 @@ void EVD::OnMouseWheel(const PT& ptg, int dwheel)
         return;
     pwnHit->Wheel(pwnHit->PtFromPtg(ptg), dwheel);
 }
+
+/*
+ *  drag and hover mouse handling. 
+ */
 
 void EVD::SetDrag(WN* pwn, const PT& ptg, unsigned mk)
 {

@@ -19,6 +19,7 @@ class CTL : public WN
 {
 public:
     CTL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel = L"", bool fVisible = true);
+    CTL(WN& wnParent, ICMD* pcmd, int rssLabel, bool fVisible = true);
     virtual ~CTL() = default;
 
     virtual void SetLabel(const wstring& wsLabel);
@@ -31,6 +32,8 @@ public:
     virtual void BeginDrag(const PT& pt, unsigned mk) override;
     virtual void EndDrag(const PT& pt, unsigned mk) override;
     virtual void SetFont(const wstring& ws, float dyHeight, TF::WEIGHT weight = TF::WEIGHT::Normal, TF::STYLE style = TF::STYLE::Normal);
+
+    virtual void Validate(void);
 
 protected:
     unique_ptr<ICMD> pcmd;
@@ -56,6 +59,7 @@ class STATIC : public CTL
 {
 public:
     STATIC(WN& wnParent, const wstring& wsImage, const wstring& wsLabel = L"", bool fVisible = true);
+    STATIC(WN& wnParent, int rssImage, int rssLabel = -1, bool fVisible = true);
     virtual ~STATIC() = default;
 
     virtual CO CoBack(void) const override;
@@ -77,6 +81,7 @@ class STATICL : public STATIC
 {
 public:
     STATICL(WN& wnParent, const wstring& wsImage, const wstring& wsLabel=L"", bool fVisible = true);
+    STATICL(WN& wnParent, int rssImage, const int rssLabel = -1, bool fVisible = true);
     virtual ~STATICL() = default;
     virtual void Draw(const RC& rcUpdate) override;
 };
@@ -145,6 +150,12 @@ private:
     wstring wsImage;
  };
 
+/*
+ *  BTNCLOSE
+ * 
+ *  A close button for use in titlebars and dialogs
+ */
+
 class BTNCLOSE : public BTN
 {
 public:
@@ -155,6 +166,12 @@ public:
     virtual void Erase(const RC& rcUpdate, DRO dro) override;
     virtual void Layout(void) override;
 };
+
+/*
+ *  BTNNEXT
+ * 
+ *  A next button, just a little arrow pointing to the right
+ */
 
 class BTNNEXT : public BTN
 {
@@ -167,6 +184,12 @@ public:
     virtual void Erase(const RC& rcUpdate, DRO dro) override;
     virtual void Layout(void) override;
 };
+
+/*
+ *  BTNPREV
+ * 
+ *  A previous button, just a little arrow pointing to the left
+ */
 
 class BTNPREV : public BTNNEXT
 {
@@ -209,6 +232,7 @@ class SELECTOR : public BTN
 {
 public:
     SELECTOR(VSELECTOR& vselParent, const wstring& wsLabel = L"");
+    SELECTOR(VSELECTOR& vselParent, int rssLabel);
     virtual ~SELECTOR() = default;
     void SetSelected(bool fSelected);
 

@@ -28,6 +28,9 @@ WN::WN(WN& wnParent, bool fVisible) :
 
 WN::~WN()
 {
+    if (iwapp.vpevd.size() > 0)
+        iwapp.vpevd.back()->DestroyedWn(this);
+
     /* unlink children */
 
     for (WN* pwnChild : vpwnChildren)
@@ -180,6 +183,22 @@ void WN::TransparentErase(const RC& rcUpdate, DRO dro)
     if (dro == droParentDrawn || !pwnParent)
         return;
     pwnParent->DrawNoChildren(RcgFromRc(rcUpdate), droParentNotDrawn); 
+}
+
+CO WN::CoBack(void) const
+{
+    if (pwnParent)
+        return pwnParent->CoBack();
+    else
+        return coWhite;
+}
+
+CO WN::CoText(void) const
+{
+    if (pwnParent)
+        return pwnParent->CoText();
+    else
+        return coBlack;
 }
 
 /*

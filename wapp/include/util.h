@@ -13,12 +13,14 @@
  */
 
 wstring WsFromS(const string& s);
+wstring WsCapitalizeFirst(const wstring& ws);
+
 
 /*
- *  in_range
+ *  inrange
  */
 
 template <typename T>
-bool in_range(const T& t, const T& tFirst, const T& tLast) {
+bool inrange(const T& t, const T& tFirst, const T& tLast) {
     return t >= tFirst && t <= tLast;
 }

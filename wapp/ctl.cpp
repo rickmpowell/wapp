@@ -20,6 +20,15 @@ CTL::CTL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel, bool fVisible) :
 {
 }
 
+CTL::CTL(WN& wnParent, ICMD* pcmd, int rssLabel, bool fVisible) :
+    WN(wnParent, fVisible),
+    wsLabel(rssLabel == -1 ? L"" : wnParent.iwapp.WsLoad(rssLabel)),
+    pcmd(pcmd),
+    cdsCur(CDS::None),
+    tf(*this, L"Verdana", 12.0f)
+{
+}
+
 void CTL::SetFont(const wstring& ws, float dyHeight, TF::WEIGHT weight, TF::STYLE style)
 {
     tf.Set(*this, ws, dyHeight, weight, style);
@@ -82,12 +91,30 @@ void CTL::EndDrag(const PT& pt, unsigned mk)
 }
 
 /*
+ *  CTL::Validate
+ * 
+ *  Validates the control and prepares for dialogs to be dismissed. Throws
+ *  an ERR exception on validation failures. After validation, data can be
+ *  retrieved from the control.
+ */
+
+void CTL::Validate(void)
+{
+}
+
+/*
  *  static controls
  */
 
 STATIC::STATIC(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, bool fVisible) :
     CTL(wnParent, nullptr, wsLabel, fVisible),
     wsImage(wsImage)
+{
+}
+
+STATIC::STATIC(WN& wnParent, int rssImage, int rssLabel, bool fVisible) :
+    CTL(wnParent, nullptr, rssLabel, fVisible),
+    wsImage(wnParent.iwapp.WsLoad(rssImage))
 {
 }
 
@@ -129,6 +156,11 @@ void STATIC::EndDrag(const PT& pt, unsigned mk)
 
 STATICL::STATICL(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, bool fVisible) :
     STATIC(wnParent, wsImage, wsLabel, fVisible)
+{
+}
+
+STATICL::STATICL(WN& wnParent, int rssImage, int rssLabel, bool fVisible) :
+    STATIC(wnParent, rssImage, rssLabel, fVisible)
 {
 }
 
@@ -380,7 +412,18 @@ SZ TITLEBAR::SzRequestLayout(void) const
  */
 
 SELECTOR::SELECTOR(VSELECTOR& vselParent, const wstring& wsLabel) : 
-    BTN(vselParent, new CMDSELECTOR(vselParent, *this), wsLabel),
+    BTN(vselParent, 
+        new CMDSELECTOR(vselParent, *this), 
+        wsLabel),
+    fSelected(false)
+{
+    vselParent.AddSelector(*this);
+}
+
+SELECTOR::SELECTOR(VSELECTOR& vselParent, int rssLabel) :
+    BTN(vselParent, 
+        new CMDSELECTOR(vselParent, *this), 
+        vselParent.iwapp.WsLoad(rssLabel)),
     fSelected(false)
 {
     vselParent.AddSelector(*this);
@@ -409,7 +452,6 @@ SZ SELECTORWS::SzRequestLayout(void) const
 {
     return SzFromWs(wsImage, tf);
 }
-
 
 VSELECTOR::VSELECTOR(WN& wnParent, ICMD* pcmd, const wstring& wsLabel) :
     CTL(wnParent, pcmd, wsLabel),

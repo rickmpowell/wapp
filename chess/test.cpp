@@ -36,6 +36,16 @@ void WNTEST::Draw(const RC& rcUpdate)
     DrawView(rcUpdate & RcView());
 }
 
+CO WNTEST::CoText(void) const
+{
+    return coBlack;
+}
+
+CO WNTEST::CoBack(void) const
+{
+    return coWhite;
+}
+
 void WNTEST::clear(void)
 {
     vws.clear();
@@ -128,15 +138,15 @@ void WAPP::RunDivide(void)
 
     int depth = 4;
     VMV vmv;
-    bd.MoveGen(vmv);
+    game.bd.MoveGen(vmv);
     uint64_t cmv = 0;
     wntest << L"Divide depth " << depth << endl;
     for (MV& mv : vmv) {
-        bd.MakeMv(mv);
+        game.bd.MakeMv(mv);
         uint64_t cmvMove = CmvPerft(depth - 1);
         wntest << L"  " << (wstring)mv << L" " << cmvMove << endl;
         cmv += cmvMove;
-        bd.UndoMv(mv);
+        game.bd.UndoMv(mv);
     }
     wntest << L"Total: " << cmv << endl;
 
@@ -149,12 +159,12 @@ uint64_t WAPP::CmvPerft(int depth)
         return 1;
     VMV vmv;
     uint64_t cmv = 0;
-    bd.MoveGenPseudo(vmv);
+    game.bd.MoveGenPseudo(vmv);
     for (MV mv : vmv) {
-        bd.MakeMv(mv);
-        if (!bd.FInCheck(~bd.ccpToMove))
+        game.bd.MakeMv(mv);
+        if (!game.bd.FInCheck(~game.bd.ccpToMove))
             cmv += CmvPerft(depth - 1);
-        bd.UndoMv(mv);
+        game.bd.UndoMv(mv);
     }
     return cmv;
 }

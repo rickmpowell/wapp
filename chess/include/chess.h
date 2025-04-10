@@ -7,15 +7,15 @@
  */
 
 #include "wapp.h"
-#include "board.h"
-#include <sstream>
-#include <iostream>
+#include "game.h"
+
 class CMDMAKEMOVE;
 
 inline constexpr wchar_t wsFontUI[] = L"Segoe UI";
 
 /*
- *  Time control section
+ *  Time control section. Time control for the game
+ *  is just an array/vector of these things.
  */
 
 struct TMS
@@ -34,9 +34,6 @@ struct TMS
 class WNBOARD : public WN
 {
 public:
-    VMV vmv;
-    static PNGX pngPieces;
-
     WNBOARD(WN& wnParent, BD& bd);
  
     void BdChanged(void);
@@ -54,6 +51,10 @@ public:
     virtual void EndDrag(const PT& pt, unsigned mk) override;
 
     void FlipCcp(void);
+
+public:
+    VMV vmv;
+    static PNGX pngPieces;
 
 private:
     BTNCH btnFlip;
@@ -103,6 +104,8 @@ public:
     virtual void Layout(void) override;
     virtual void Draw(const RC& rcUpdate) override;
     virtual void DrawView(const RC& rcUpdate);
+    virtual CO CoText(void) const override;
+    virtual CO CoBack(void) const override;
 
     virtual void Wheel(const PT& pt, int dwheel) override;
 
@@ -132,7 +135,7 @@ private:
 class WAPP : public IWAPP
 {
 public:
-    BD bd;
+    GAME game;
     WNBOARD wnboard;
     WNTEST wntest;
     DLGNEWGAME dlgnewgame;

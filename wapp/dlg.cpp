@@ -2,7 +2,40 @@
 /*
  *  dlg.cpp
  * 
- *  Dialog boxes
+ *  Dialog boxes.
+ * 
+ *  Dialogs work by taking input parameters in a structure, which is used to
+ *  populate the dialog controls, and returns the same structure filled in
+ *  with updated values.
+ * 
+ *  Error checking is performed prior to dismissing a dialog and the dialog
+ *  is not dismissed until the errors are clear. This implies it's possible
+ *  for the dialog to contain values that are not legal during intermediate
+ *  stages, so errors need to detected and handled cleanly, and "illegal"
+ *  states are not unusual in normal operation.
+ * 
+ *  Best practices:
+ *      Implement custom controls that represent the types/classes in the 
+ *          application.
+ *      The custom controls include decoders, parsers, error detection, 
+ *          and may hold state in both raw and parsed (i.e., typed) formats
+ *      In cases where multiple controls need consistency between them, 
+ *          (i.e., error checking is not contained inside a single control
+ *          itself), consistency checking should be performed in the dialog 
+ *          box, not the controls.
+ * 
+ *  Controls should implement
+ *      SetData - takes application-specific data type
+ *      ErrParseData - parses the raw data into app-specific type, reports
+ *          errors on failures
+ *      DataGet - Returns the applicatoin-specific data
+ *      These are not virtual function, since the types are app-specific.
+ *          Naming is just a convention.
+ *  
+ *  Dialogs should implement
+ *      constructor with the object we're operating on as a parameter
+ *      ErrValidate - validation routine
+ *      ExtractData - moves the data from the dialog into the app object
  */
 
 #include "wapp.h"
@@ -61,12 +94,12 @@ void DLG::ShowCentered(void)
 
 CO DLG::CoText(void) const
 {
-    return coWhite;
+    return coDlgText;
 }
 
 CO DLG::CoBack(void) const
 {
-    return coDlgBackLight;
+    return coDlgBack;
 }
 
 void DLG::Draw(const RC& rcUpate)
@@ -79,6 +112,10 @@ void DLG::EndDlg(int val)
     Show(false);
     fEnd = true;
     this->val = val;
+}
+
+void DLG::Validate(void)
+{
 }
 
 int DLG::DlgMsgPump(void)
