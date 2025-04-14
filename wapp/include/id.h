@@ -25,3 +25,4 @@
  */
 
 #define rssAppTitle 1
+#define rssInstructionBulb 2

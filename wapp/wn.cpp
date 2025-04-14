@@ -86,7 +86,7 @@ void WN::Layout(void)
 {
 }
 
-SZ WN::SzRequestLayout(void) const
+SZ WN::SzRequestLayout(const RC& rcWithin) const
 {
     return SZ(800.0f, 600.0f);
 }

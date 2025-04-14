@@ -13,14 +13,37 @@
  *  CTL base class
  * 
  *  The base class used for all controls, which just implements common functionality.
+ * 
+ *  TODO: every CTL creates a font. There must be a more efficient way.
+ *  TODO: need to formalize how labels work and layout 
  */
+
+enum class LCTL
+{
+    None = 0,
+    SizeToContent,
+    SizeToFit
+};
 
 class CTL : public WN
 {
 public:
-    CTL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel = L"", bool fVisible = true);
-    CTL(WN& wnParent, ICMD* pcmd, int rssLabel, bool fVisible = true);
+    CTL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel, bool fVisible = true);
+    CTL(WN& wnParent, ICMD* pcmd, int rssLabel = -1, bool fVisible = true);
     virtual ~CTL() = default;
+
+    virtual void SetFont(const wstring& ws, float dyHeight = 12, TF::WEIGHT weight = TF::WEIGHT::Normal, TF::STYLE style = TF::STYLE::Normal);
+    virtual void SetFontHeight(float dyHeight);
+    virtual TF& TfGet(void);
+
+    virtual void SetLayout(LCTL lctl);
+    virtual RC RcContent(void) const;
+    virtual void SetPadding(const PAD& pad);
+    virtual void SetBorder(const PAD& border);
+    virtual void SetMargin(const PAD& margin);
+
+    virtual CO CoBorder(void) const;
+    virtual void DrawBorder(void);
 
     virtual void SetLabel(const wstring& wsLabel);
     virtual wstring WsLabel(void) const;
@@ -31,8 +54,7 @@ public:
     virtual void Leave(const PT& pt) override;
     virtual void BeginDrag(const PT& pt, unsigned mk) override;
     virtual void EndDrag(const PT& pt, unsigned mk) override;
-    virtual void SetFont(const wstring& ws, float dyHeight, TF::WEIGHT weight = TF::WEIGHT::Normal, TF::STYLE style = TF::STYLE::Normal);
-
+    
     virtual void Validate(void);
 
 protected:
@@ -47,8 +69,12 @@ protected:
         Execute = 3,
         Disabled = 4
     };
-    CDS cdsCur;
+    CDS cdsCur = CDS::None;
     TF tf;
+    LCTL lctl = LCTL::None;
+    PAD pad;
+    PAD border;
+    PAD margin;
 };
 
 /*
@@ -58,7 +84,8 @@ protected:
 class STATIC : public CTL
 {
 public:
-    STATIC(WN& wnParent, const wstring& wsImage, const wstring& wsLabel = L"", bool fVisible = true);
+    STATIC(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, bool fVisible = true);
+    STATIC(WN& wnParent, const wstring& wsImage, int rssLabel = -1, bool fVisible = true);
     STATIC(WN& wnParent, int rssImage, int rssLabel = -1, bool fVisible = true);
     virtual ~STATIC() = default;
 
@@ -66,7 +93,7 @@ public:
     virtual CO CoText(void) const override;
 
     virtual void Draw(const RC& rcUpdate) override;
-    virtual SZ SzRequestLayout(void) const override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 
     virtual void Enter(const PT& pt) override;
     virtual void Leave(const PT& pt) override;
@@ -80,17 +107,21 @@ protected:
 class STATICL : public STATIC
 {
 public:
-    STATICL(WN& wnParent, const wstring& wsImage, const wstring& wsLabel=L"", bool fVisible = true);
-    STATICL(WN& wnParent, int rssImage, const int rssLabel = -1, bool fVisible = true);
+    STATICL(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, bool fVisible = true);
+    STATICL(WN& wnParent, const wstring& wsImage, int rssLabel = -1, bool fVisible = true);
+    STATICL(WN& wnParent, int rssImage, int rssLabel = 1, bool fVisible = true);
     virtual ~STATICL() = default;
+
     virtual void Draw(const RC& rcUpdate) override;
 };
 
 class STATICR : public STATIC
 {
 public:
-    STATICR(WN& wnParent, const wstring& wsImage, const wstring& wsLabel=L"", bool fVisible = true);
+    STATICR(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, bool fVisible = true);
+    STATICR(WN& wnParent, const wstring& wsImage, int rssLabel = -1, bool fVisible = true);
     virtual ~STATICR() = default;
+
     virtual void Draw(const RC& rcUpdate) override;
 };
 
@@ -104,7 +135,8 @@ public:
 class BTN : public CTL  
 {
 public:
-    BTN(WN& wnParent, ICMD* pcmd, const wstring& wsLabel = L"", bool fVisible = true);
+    BTN(WN& wnParent, ICMD* pcmd, const wstring& wsLabel, bool fVisible = true);
+    BTN(WN& wnParent, ICMD* pcmd, int rssLabel = -1, bool fVisible = true);
     virtual ~BTN() = default;
 
     virtual CO CoBack(void) const override;
@@ -121,13 +153,15 @@ public:
 class BTNCH : public BTN
 {
 public:
-    BTNCH(WN& wnParent, ICMD* pcmd, wchar_t ch, const wstring& wsLabel = L"", bool fVisible = true);
+    BTNCH(WN& wnParent, ICMD* pcmd, wchar_t ch, const wstring& wsLabel, bool fVisible = true);
+    BTNCH(WN& wnParent, ICMD* pcmd, wchar_t ch, int rssLabel = -1, bool fVisible = true);
     virtual ~BTNCH() = default;
 
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 
-private:
+protected:
     wchar_t chImage;
 };
 
@@ -140,11 +174,13 @@ private:
 class BTNWS : public BTN
 {
 public:
-    BTNWS(WN& wnParent, ICMD* pcmd, const wstring& ws, const wstring& wsLabel = L"", bool fVisible = true);
+    BTNWS(WN& wnParent, ICMD* pcmd, const wstring& ws, const wstring& wsLabel, bool fVisible = true);
+    BTNWS(WN& wnParent, ICMD* pcmd, const wstring& ws, int rssLabel = -1, bool fVisible = true);
     virtual ~BTNWS() = default;
 
     virtual void Draw(const RC& rcUpdate) override;
-    virtual SZ SzRequestLayout(void) const override;
+    virtual void Layout(void) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 
 private:
     wstring wsImage;
@@ -162,9 +198,10 @@ public:
     BTNCLOSE(WN& wnParent, ICMD* pcmd, bool fVsible = true);
     virtual ~BTNCLOSE() = default;
 
-    virtual void Draw(const RC& rcUpdate) override;
     virtual void Erase(const RC& rcUpdate, DRO dro) override;
+    virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 };
 
 /*
@@ -183,6 +220,7 @@ public:
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Erase(const RC& rcUpdate, DRO dro) override;
     virtual void Layout(void) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 };
 
 /*
@@ -213,39 +251,45 @@ public:
     virtual CO CoBack(void) const override;
     virtual CO CoText(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
-    virtual SZ SzRequestLayout(void) const;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const;
 
 private:
     wstring wsTitle;
     TF tf;
 };
 
-class VSELECTOR;
+class VSEL;
 
 /*
- *  SELECTOR
+ *  SEL
  * 
  *  An individual control in a selector option group
  */
 
-class SELECTOR : public BTN
+class SEL : public BTN
 {
 public:
-    SELECTOR(VSELECTOR& vselParent, const wstring& wsLabel = L"");
-    SELECTOR(VSELECTOR& vselParent, int rssLabel);
-    virtual ~SELECTOR() = default;
+    SEL(VSEL& vselParent, const wstring& wsLabel);
+    SEL(VSEL& vselParent, int rssLabel = -1);
+    virtual ~SEL() = default;
+
+    virtual void Layout(void) override;
+
     void SetSelected(bool fSelected);
 
 protected:
     bool fSelected;
 };
 
-class SELECTORWS : public SELECTOR
+class SELWS : public SEL
 {
 public:
-    SELECTORWS(VSELECTOR& vselParent, const wstring& ws);
+    SELWS(VSEL& vselParent, const wstring& ws);
+    virtual ~SELWS() = default;
+
     virtual void Draw(const RC& rcUpdate) override;
-    virtual SZ SzRequestLayout(void) const override;
+    virtual void Layout(void) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 
 protected:
     wstring wsImage;
@@ -258,7 +302,7 @@ protected:
 class CMDSELECTOR : public ICMD
 {
 public:
-    CMDSELECTOR(VSELECTOR& vsel, SELECTOR& sel);
+    CMDSELECTOR(VSEL& vsel, SEL& sel);
     CMDSELECTOR(const CMDSELECTOR& cmd) = default;
     CMDSELECTOR& operator = (const CMDSELECTOR& cmd) = default;
 
@@ -266,30 +310,30 @@ public:
     virtual int Execute(void) override;
 
 private:
-    VSELECTOR& vsel;
-    SELECTOR& sel;
+    VSEL& vsel;
+    SEL& sel;
 };
 
-class VSELECTOR : public CTL
+class VSEL : public CTL
 {
+    friend class SEL;
+
 public:
-    VSELECTOR(WN& wnParent, ICMD* pcmd, const wstring& wsLabel = L"");
-    virtual ~VSELECTOR() = default;
+    VSEL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel);
+    VSEL(WN& wnParent, ICMD* pcmd, int rssLabel = -1);
+    virtual ~VSEL() = default;
 
     virtual void Draw(const RC& rcUpdate) override;
 
-    void AddSelector(SELECTOR& selector);
-    void SetSelectorCur(int iselector);
+    void AddSelector(SEL& sel);
+    void SetSelectorCur(int isel);
     int GetSelectorCur(void) const;
 
-    virtual void Select(SELECTOR& sel);
-
-    virtual CO CoBack(void) const;
-    virtual CO CoText(void) const;
+    virtual void Select(SEL& sel);
 
 protected:
-    vector<SELECTOR*> vpselector;
-    int ipselectorSel;
+    vector<SEL*> vpsel;
+    int ipselSel;
 };
 
 /*
@@ -299,13 +343,15 @@ protected:
 class EDIT : public CTL
 {
 public:
-    EDIT(WN& wnParent, const wstring& wsText, const wstring& wsLabel = L"");
+    EDIT(WN& wnParent, const wstring& wsText, const wstring& wsLabel);
+    EDIT(WN& wnParent, const wstring& wsText, int rssLabel = -1);
     virtual ~EDIT(void) = default;
 
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
-    virtual SZ SzRequestLayout(void) const override;
+    virtual void Layout(void) override;
+    virtual SZ SzRequestLayout(const RC& rcWIthin) const override;
 
     virtual wstring WsText(void) const;
     virtual void SetText(const wstring& ws);

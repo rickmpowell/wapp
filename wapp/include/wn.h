@@ -52,7 +52,7 @@ public:
 
     void SetBounds(const RC& rcpNew);
     virtual void Layout(void);
-    virtual SZ SzRequestLayout(void) const;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const;
 
     virtual void Show(bool fShow = true);
     virtual bool FVisible(void) const;

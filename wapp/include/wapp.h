@@ -168,6 +168,7 @@ public:
 };
 
 #include "dlg.h"
+#include "len.h"
 #include "clip.h"
 
 /*

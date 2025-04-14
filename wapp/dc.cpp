@@ -85,6 +85,7 @@ GEOM::GEOM(DC& dc, const vector<PT>& vpt)
 
 TF::TF(DC& dc, const wstring& wsFace, float dyHeight, WEIGHT weight, STYLE style) 
 {
+    assert(dyHeight > 0);
     Set(dc, wsFace, dyHeight, weight, style);
 }
 
@@ -97,6 +98,15 @@ void TF::Set(DC& dc, const wstring& wsFace, float dyHeight, WEIGHT weight, STYLE
                                         dyHeight,
                                         L"",
                                         &ptf);
+}
+
+void TF::SetHeight(DC& dc, float dyHeight)
+{
+    WCHAR wsFamily[64];
+    ptf->GetFontFamilyName(wsFamily , size(wsFamily));
+    WEIGHT weight = (ptf->GetFontWeight() >= DWRITE_FONT_WEIGHT_BOLD) ? WEIGHT::Bold : WEIGHT::Normal;
+    STYLE style = ptf->GetFontStyle() == DWRITE_FONT_STYLE_ITALIC ? STYLE::Italic : STYLE::Normal;
+    Set(dc, wsFamily, dyHeight, weight, style);
 }
 
 TF::operator IDWriteTextFormat* () const 
@@ -454,11 +464,13 @@ void DC::DrawWsCenterY(const wstring& ws, TF& tf, const RC& rc, CO coText) const
     DrawWsCenterY(ws, tf, rc, brScratch.SetCo(coText));
 }
 
-SZ DC::SzFromWs(const wstring& ws, const TF& tf) const
+SZ DC::SzFromWs(const wstring& ws, const TF& tf, float dxWidth) const
 {
+    if (dxWidth < 0.0f)
+        dxWidth = 32767.0f;
     com_ptr<IDWriteTextLayout> ptxl;
     iwapp.pfactdwr->CreateTextLayout(ws.c_str(), (UINT32)ws.size(),
-                                   tf, 32767.0f, 32767.0f, &ptxl);
+                                   tf, dxWidth, 32767.0f, &ptxl);
     DWRITE_TEXT_METRICS dtm;
     ptxl->GetMetrics(&dtm);
     return SZ(dtm.width, dtm.height);

@@ -29,7 +29,6 @@ WAPP::WAPP(const wstring& wsCmd, int sw) :
     game(*this, fenStartPos),
     wnboard(*this, game.bd),
     wntest(*this),
-    dlgnewgame(*this),
     cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND)
 {
     CreateWnd(rssAppTitle);
@@ -66,7 +65,7 @@ void WAPP::Layout(void)
     wnboard.SetBounds(rc);
 
     rc.left = rc.right + dxyMargin;
-    rc.right = rc.left + 300.0f;
+    rc.right = rc.left + 300;
     wntest.SetBounds(rc);
 }
 
@@ -114,7 +113,8 @@ public:
 
     virtual int FRunDlg(void) override {
         wapp.wnboard.Enable(false);
-        int val = wapp.dlgnewgame.DlgMsgPump();
+        unique_ptr<DLG> pdlg = make_unique<DLGNEWGAME>(wapp);
+        int val = pdlg->DlgMsgPump();
         wapp.wnboard.Enable(true);
         return val;
     }

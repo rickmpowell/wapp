@@ -16,7 +16,7 @@ CTL::CTL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel, bool fVisible) :
     wsLabel(wsLabel),
     pcmd(pcmd),
     cdsCur(CDS::None),
-    tf(*this, L"Verdana", 12.0f)
+    tf(*this, L"Verdana", 12)
 {
 }
 
@@ -25,13 +25,23 @@ CTL::CTL(WN& wnParent, ICMD* pcmd, int rssLabel, bool fVisible) :
     wsLabel(rssLabel == -1 ? L"" : wnParent.iwapp.WsLoad(rssLabel)),
     pcmd(pcmd),
     cdsCur(CDS::None),
-    tf(*this, L"Verdana", 12.0f)
+    tf(*this, L"Verdana", 12)
 {
 }
 
 void CTL::SetFont(const wstring& ws, float dyHeight, TF::WEIGHT weight, TF::STYLE style)
 {
     tf.Set(*this, ws, dyHeight, weight, style);
+}
+
+void CTL::SetFontHeight(float dyHeight)
+{
+    tf.SetHeight(*this, dyHeight);
+}
+
+TF& CTL::TfGet(void)
+{
+    return tf;
 }
 
 void CTL::SetLabel(const wstring& wsNew)
@@ -47,7 +57,7 @@ wstring CTL::WsLabel(void) const
 SZ CTL::SzLabel(void) const
 {
     if (wsLabel.size() == 0)
-        return SZ(0.0f);
+        return SZ(0);
 
     return SzFromWs(wsLabel, tf);
 }
@@ -90,6 +100,24 @@ void CTL::EndDrag(const PT& pt, unsigned mk)
     Redraw();
 }
 
+CO CTL::CoBorder(void) const
+{
+    return CoText();
+}
+
+/*
+ *  CTL::DrawBorder
+ * 
+ *  Draws the border around a control
+ */
+
+void CTL::DrawBorder(void)
+{
+    /* variable borders not implemented yet */
+    assert(border.top == border.bottom && border.left == border.right && border.top == border.left);
+    DrawRc(RcInterior(), CoBorder(), border.top);
+}
+
 /*
  *  CTL::Validate
  * 
@@ -102,12 +130,43 @@ void CTL::Validate(void)
 {
 }
 
+void CTL::SetLayout(LCTL lctl)
+{
+    this->lctl = lctl;
+}
+
+void CTL::SetPadding(const PAD& pad)
+{
+    this->pad = pad;
+}
+
+void CTL::SetBorder(const PAD& border)
+{
+    this->border = border;
+}
+
+void CTL::SetMargin(const PAD& margin)
+{
+    this->margin = margin;
+}
+
+RC CTL::RcContent(void) const
+{
+    return RcInterior().Unpad(pad+border);
+}
+
 /*
  *  static controls
  */
 
 STATIC::STATIC(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, bool fVisible) :
     CTL(wnParent, nullptr, wsLabel, fVisible),
+    wsImage(wsImage)
+{
+}
+
+STATIC::STATIC(WN& wnParent, const wstring& wsImage, int rssLabel, bool fVisible) :
+    CTL(wnParent, nullptr, rssLabel, fVisible),
     wsImage(wsImage)
 {
 }
@@ -120,12 +179,15 @@ STATIC::STATIC(WN& wnParent, int rssImage, int rssLabel, bool fVisible) :
 
 void STATIC::Draw(const RC& rcUpdate)
 {
-    DrawWsCenterXY(wsImage, tf, RcInterior());
+    DrawWsCenterXY(wsImage, tf, RcContent());
 }
 
-SZ STATIC::SzRequestLayout(void) const
+SZ STATIC::SzRequestLayout(const RC& rcWithin) const
 {
-    return SzFromWs(wsImage, tf);
+    SZ szLabel(SzLabel());
+    SZ szText(SzFromWs(wsImage, tf, rcWithin.dxWidth()));
+    float dxLabel = szLabel.width > 0 ? szLabel.width + szLabel.height * 0.5f : 0;
+    return SZ(dxLabel + szText.width, max(szLabel.height, szText.height));
 }
 
 CO STATIC::CoText(void) const
@@ -159,6 +221,11 @@ STATICL::STATICL(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, b
 {
 }
 
+STATICL::STATICL(WN& wnParent, const wstring& wsImage, int rssLabel, bool fVisible) :
+    STATIC(wnParent, wsImage, rssLabel, fVisible)
+{
+}
+
 STATICL::STATICL(WN& wnParent, int rssImage, int rssLabel, bool fVisible) :
     STATIC(wnParent, rssImage, rssLabel, fVisible)
 {
@@ -166,7 +233,7 @@ STATICL::STATICL(WN& wnParent, int rssImage, int rssLabel, bool fVisible) :
 
 void STATICL::Draw(const RC& rcUpdate)
 {
-    RC rc(RcInterior());
+    RC rc(RcContent());
     if (wsLabel.size() > 0) {
         SZ szLabel(SzLabel());
         float x = rc.left + szLabel.width;
@@ -181,10 +248,15 @@ STATICR::STATICR(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, b
 {
 }
 
+STATICR::STATICR(WN& wnParent, const wstring& wsImage, int rssLabel, bool fVisible) :
+    STATIC(wnParent, wsImage, rssLabel, fVisible)
+{
+}
+
 void STATICR::Draw(const RC& rcUpdate)
 {
     GUARDTFALIGNMENT sav(tf, DWRITE_TEXT_ALIGNMENT_TRAILING);
-    DrawWs(wsImage, tf, RcInterior());
+    DrawWs(wsImage, tf, RcContent());
 }
 
 /*
@@ -193,6 +265,11 @@ void STATICR::Draw(const RC& rcUpdate)
 
 BTN::BTN(WN& wnParent, ICMD* pcmd, const wstring& wsLabel, bool fVisible) : 
     CTL(wnParent, pcmd, wsLabel, fVisible)
+{
+}
+
+BTN::BTN(WN& wnParent, ICMD* pcmd, int rssLabel, bool fVisible) :
+    CTL(wnParent, pcmd, rssLabel, fVisible)
 {
 }
 
@@ -230,12 +307,12 @@ CO BTN::CoBack(void) const
 
 void BTN::Draw(const RC& rcUpdate)
 {
-    RC rc(RcInterior());
+    RC rc(RcContent());
     /* labels on buttons are to the right of the button */
     if (wsLabel.size() > 0) {
         float x = rc.right - SzLabel().width;
         DrawLabel(rc.RcSetLeft(x));
-        rc.right = x - 4.0f;
+        rc.right = x - 4;
     }
     DrawRc(rc);
 }
@@ -250,21 +327,34 @@ BTNCH::BTNCH(WN& wnParent, ICMD* pcmd, wchar_t ch, const wstring& wsLabel, bool 
 {
 }
 
+BTNCH::BTNCH(WN& wnParent, ICMD* pcmd, wchar_t ch, int rssLabel, bool fVisible) :
+    BTN(wnParent, pcmd, rssLabel, fVisible),
+    chImage(ch)
+{
+}
+
 void BTNCH::Draw(const RC& rcUpdate)
 {
     wstring ws(1, chImage);
-    RC rc(RcInterior());
+    RC rc(RcContent());
     if (wsLabel.size() > 0) {
         float x = rc.right - SzLabel().width;
         DrawLabel(rc.RcSetLeft(x));
-        rc.right = x - 4.0f;
+        rc.right = x - 4;
     }
     DrawWsCenterXY(ws, tf, rc);
 }
 
+SZ BTNCH::SzRequestLayout(const RC& rc) const
+{
+    wstring ws(1, chImage);
+    return SzFromWs(ws, tf);
+}
+
 void BTNCH::Layout(void)
 {
-    /* TODO: size the font to fill the rectangle */
+    if (lctl == LCTL::SizeToFit)
+        SetFontHeight(RcContent().dyHeight());
 }
 
 /*
@@ -279,9 +369,15 @@ BTNWS::BTNWS(WN& wnParent, ICMD* pcmd, const wstring& wsImage, const wstring& ws
 {
 }
 
+BTNWS::BTNWS(WN& wnParent, ICMD* pcmd, const wstring& wsImage, int rssLabel, bool fVisible) :
+    BTN(wnParent, pcmd, rssLabel, fVisible),
+    wsImage(wsImage)
+{
+}
+
 void BTNWS::Draw(const RC& rcUpdate)
 {
-    RC rc(RcInterior());
+    RC rc(RcContent());
     if (wsLabel.size() > 0) {
         SZ szLabel(SzLabel());
         float x = rc.right - szLabel.width;
@@ -291,7 +387,13 @@ void BTNWS::Draw(const RC& rcUpdate)
     DrawWsCenterXY(wsImage, tf, rc);
 }
 
-SZ BTNWS::SzRequestLayout(void) const
+void BTNWS::Layout(void)
+{
+    if (lctl == LCTL::SizeToFit)
+        SetFontHeight(RcContent().dyHeight());
+}
+
+SZ BTNWS::SzRequestLayout(const RC& rcWithin) const
 {
     SZ sz(SzFromWs(wsImage, tf));
     if (wsLabel.size() > 0) {
@@ -310,6 +412,8 @@ SZ BTNWS::SzRequestLayout(void) const
 BTNCLOSE::BTNCLOSE(WN& wnParent, ICMD* pcmd, bool fVisible) :
     BTN(wnParent, pcmd, L"", fVisible)
 {
+    SetLayout(LCTL::SizeToFit);
+    SetFont(L"Segoe UI Symbol", 12, TF::WEIGHT::Bold);
 }
 
 void BTNCLOSE::Erase(const RC& rcUpdate, DRO dro)
@@ -319,17 +423,22 @@ void BTNCLOSE::Erase(const RC& rcUpdate, DRO dro)
 
 void BTNCLOSE::Draw(const RC& rcUpdate)
 {
-    RC rcInt(RcInterior());
+    RC rcInt(RcContent());
     FillEll(rcInt, coWhite);
     CO co = cdsCur == CDS::Hover || cdsCur == CDS::Execute ? coRed : coDarkRed;
     FillEll(rcInt.RcInflate(-2.8f), co);
-    DrawWsCenterXY(L"\u2716", tf, rcInt, coWhite);
+    DrawWsCenterXY(L"\u2716", tf, rcInt, coWhite);  // cross
 }
 
 void BTNCLOSE::Layout(void)
 {
-    RC rc(RcInterior());
-    SetFont(L"Segoe UI Symbol", rc.dyHeight() * 0.55f, TF::WEIGHT::Bold);
+    if (lctl == LCTL::SizeToFit)
+        SetFontHeight(RcContent().dyHeight() * 0.55f);
+}
+
+SZ BTNCLOSE::SzRequestLayout(const RC& rc) const
+{
+    return SzFromWs(L"\u2716", tf) + SZ(2.8f);
 }
 
 /*
@@ -341,6 +450,8 @@ void BTNCLOSE::Layout(void)
 BTNNEXT::BTNNEXT(WN& wnParent, ICMD* pcmd, bool fVIsible) :
     BTN(wnParent, pcmd, L"", fVisible)
 {
+    SetLayout(LCTL::SizeToFit);
+    SetFont(L"Segoe UI Symbol");
 }
 
 CO BTNNEXT::CoText(void) const
@@ -350,7 +461,7 @@ CO BTNNEXT::CoText(void) const
 
 void BTNNEXT::Draw(const RC& rcUpdate)
 {
-    DrawWsCenterXY(L"\u23f5", tf, RcInterior());
+    DrawWsCenterXY(L"\u23f5", tf, RcContent());    // right triangle
 }
 
 void BTNNEXT::Erase(const RC& rcUpdate, DRO dro)
@@ -360,8 +471,13 @@ void BTNNEXT::Erase(const RC& rcUpdate, DRO dro)
 
 void BTNNEXT::Layout(void)
 {
-    RC rc(RcInterior());
-    SetFont(L"Segoe UI Symbol", rc.dxWidth() * 0.9f);
+    if (lctl == LCTL::SizeToFit)
+        SetFontHeight(RcContent().dxWidth() * 1.25f);
+}
+
+SZ BTNNEXT::SzRequestLayout(const RC& rc) const
+{
+    return SzFromWs(L"\u23f5", tf);
 }
 
 BTNPREV::BTNPREV(WN& wnParent, ICMD* pcmd, bool fVisible) :
@@ -371,7 +487,7 @@ BTNPREV::BTNPREV(WN& wnParent, ICMD* pcmd, bool fVisible) :
 
 void BTNPREV::Draw(const RC& rcUpdate)
 {
-    DrawWsCenterXY(L"\u23f4", tf, RcInterior());
+    DrawWsCenterXY(L"\u23f4", tf, RcContent());    // left triangle
 }
 
 /*
@@ -379,7 +495,9 @@ void BTNPREV::Draw(const RC& rcUpdate)
  */
 
 TITLEBAR::TITLEBAR(WN& wnParent, const wstring& wsTitle) :
-    WN(wnParent), wsTitle(wsTitle), tf(*this, L"Verdana", 15, TF::WEIGHT::Bold)
+    WN(wnParent), 
+    wsTitle(wsTitle), 
+    tf(*this, wsFontUI, 15, TF::WEIGHT::Bold)
 {
 }
 
@@ -395,23 +513,21 @@ CO TITLEBAR::CoText(void) const
 
 void TITLEBAR::Draw(const RC& rcUpdate)
 {
-    RC rc = RcInterior();
-    rc.left += 12.0f;
-    rc.top += 4.0f;
+    RC rc = RcInterior().Unpad(PAD(12, 4));
     DrawWs(wsTitle, tf, rc);
 }
 
-SZ TITLEBAR::SzRequestLayout(void) const
+SZ TITLEBAR::SzRequestLayout(const RC& rcWithin) const
 {
     SZ sz = SzFromWs(wsTitle, tf);
-    return SZ(-1.0f, sz.height + 8.0f);
+    return SZ(-1, sz.height + 8);
 }
 
 /*
- *  SELECTOR and VSELECTOR
+ *  SEL and VSEL
  */
 
-SELECTOR::SELECTOR(VSELECTOR& vselParent, const wstring& wsLabel) : 
+SEL::SEL(VSEL& vselParent, const wstring& wsLabel) : 
     BTN(vselParent, 
         new CMDSELECTOR(vselParent, *this), 
         wsLabel),
@@ -420,7 +536,7 @@ SELECTOR::SELECTOR(VSELECTOR& vselParent, const wstring& wsLabel) :
     vselParent.AddSelector(*this);
 }
 
-SELECTOR::SELECTOR(VSELECTOR& vselParent, int rssLabel) :
+SEL::SEL(VSEL& vselParent, int rssLabel) :
     BTN(vselParent, 
         new CMDSELECTOR(vselParent, *this), 
         vselParent.iwapp.WsLoad(rssLabel)),
@@ -429,81 +545,92 @@ SELECTOR::SELECTOR(VSELECTOR& vselParent, int rssLabel) :
     vselParent.AddSelector(*this);
 }
 
-void SELECTOR::SetSelected(bool fSelected)
+void SEL::Layout(void)
+{
+    if (lctl == LCTL::SizeToFit)
+        SetFontHeight(RcContent().dyHeight());
+}
+
+
+void SEL::SetSelected(bool fSelected)
 {
     this->fSelected = fSelected;
     Redraw();
 }
 
-SELECTORWS::SELECTORWS(VSELECTOR& vselParent, const wstring& wsImage) :
-    SELECTOR(vselParent),
+SELWS::SELWS(VSEL& vselParent, const wstring& wsImage) :
+    SEL(vselParent),
     wsImage(wsImage)
 {
+    SetFont(wsFontUI);
 }
 
-void SELECTORWS::Draw(const RC& rcUpdate)
+void SELWS::Draw(const RC& rcUpdate)
 {
     if (fSelected)
-        DrawRc(RcInterior(), CoText(), 4.0f);
-    DrawWsCenterXY(wsImage, tf, RcInterior());
+        DrawRc(RcInterior(), CoText(), 4);
+    DrawWsCenterXY(wsImage, tf, RcContent());
 }
 
-SZ SELECTORWS::SzRequestLayout(void) const
+SZ SELWS::SzRequestLayout(const RC& rcWithin) const
 {
     return SzFromWs(wsImage, tf);
 }
 
-VSELECTOR::VSELECTOR(WN& wnParent, ICMD* pcmd, const wstring& wsLabel) :
+void SELWS::Layout(void)
+{
+    if (lctl == LCTL::SizeToFit)
+        SetFontHeight(RcContent().dyHeight());
+}
+
+VSEL::VSEL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel) :
     CTL(wnParent, pcmd, wsLabel),
-    ipselectorSel(-1)
+    ipselSel(-1)
 {
 }
 
-void VSELECTOR::Draw(const RC& rcUpdate)
+VSEL::VSEL(WN& wnParent, ICMD* pcmd, int rssLabel) :
+    CTL(wnParent, pcmd, rssLabel),
+    ipselSel(-1)
 {
+}
+
+void VSEL::Draw(const RC& rcUpdate)
+{
+    /* TODO: what to do with padding */
     if (wsLabel.size() > 0) {
-        RC rc(RcInterior());
-        float x = rc.left + SzLabel().width;
+        RC rc(RcContent());
+        float x = rc.left + SzLabel().width + 4;
         DrawLabel(rc.RcSetRight(x));
     }
 }
 
-void VSELECTOR::AddSelector(SELECTOR& sel)
+void VSEL::AddSelector(SEL& sel)
 {
-    vpselector.push_back(&sel);
+    vpsel.push_back(&sel);
 }
 
-int VSELECTOR::GetSelectorCur(void) const
+int VSEL::GetSelectorCur(void) const
 {
-    return ipselectorSel;
+    return ipselSel;
 }
 
-void VSELECTOR::SetSelectorCur(int iselNew)
+void VSEL::SetSelectorCur(int iselNew)
 {
-    for (int ipsel = 0; ipsel < vpselector.size(); ipsel++)
-        vpselector[ipsel]->SetSelected(ipsel == iselNew);
-    ipselectorSel = iselNew;
+    for (int ipsel = 0; ipsel < vpsel.size(); ipsel++)
+        vpsel[ipsel]->SetSelected(ipsel == iselNew);
+    ipselSel = iselNew;
     iwapp.vpevd.back()->FExecuteCmd(*pcmd);
 }
 
-void VSELECTOR::Select(SELECTOR& sel)
+void VSEL::Select(SEL& sel)
 {
     int ipselNew = -1;
-    for (int ipsel = 0; ipsel < vpselector.size(); ipsel++) {
-        if (vpselector[ipsel] == &sel)
+    for (int ipsel = 0; ipsel < vpsel.size(); ipsel++) {
+        if (vpsel[ipsel] == &sel)
             ipselNew = ipsel;
     }
     SetSelectorCur(ipselNew);
-}
-
-CO VSELECTOR::CoBack(void) const
-{
-    return pwnParent->CoBack();
-}
-
-CO VSELECTOR::CoText(void) const
-{
-    return pwnParent->CoText();
 }
 
 /*
@@ -511,7 +638,7 @@ CO VSELECTOR::CoText(void) const
  *  was chosen.
  */
 
-CMDSELECTOR::CMDSELECTOR(VSELECTOR& vsel, SELECTOR& sel) : 
+CMDSELECTOR::CMDSELECTOR(VSEL& vsel, SEL& sel) : 
     vsel(vsel), sel(sel)
 {
 }
@@ -537,6 +664,12 @@ EDIT::EDIT(WN& wnParent, const wstring& wsText, const wstring& wsLabel) :
 {
 }
 
+EDIT::EDIT(WN& wnParent, const wstring& wsText, int rssLabel) :
+    CTL(wnParent, nullptr, rssLabel),
+    wsText(wsText)
+{
+}
+
 CO EDIT::CoText(void) const
 {
     return pwnParent->CoText();
@@ -549,19 +682,31 @@ CO EDIT::CoBack(void) const
 
 void EDIT::Draw(const RC& rcUpdate)
 {
+    /* TODO: figure out what to do with margins and padding here */
+
     RC rc(RcInterior());
     if (wsLabel.size() > 0) {
-        float x = rc.left + SzLabel().width;
+        float x = rc.left + SzLabel().width + 4;
         DrawLabel(rc.RcSetRight(x));
-        rc.left = x + 4.0f;
+        rc = RcContent();
+        rc.left = x;
     }
+    else 
+        rc = RcContent();
+
     FillRc(rc, coWhite);
-    DrawRc(rc, coBlack, 1.0f);
-    rc.Inflate(-8.0f, -2.0f);
+    DrawRc(rc, coBlack, 1);
+    rc.Unpad(PAD(8, 2));
     DrawWsCenterY(wsText, tf, rc, coBlack);
 }
 
-SZ EDIT::SzRequestLayout(void) const
+void EDIT::Layout(void)
+{
+    if (lctl == LCTL::SizeToFit)
+        SetFontHeight(RcContent().dyHeight() * 0.67f);
+}
+
+SZ EDIT::SzRequestLayout(const RC& rcWithin) const
 {
     return SzFromWs(wsText, tf);
 }

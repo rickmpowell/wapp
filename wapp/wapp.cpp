@@ -143,8 +143,6 @@ void IWAPP::OnSize(const SZ& sz)
 void IWAPP::OnShow(bool fShow)
 {
     fVisible = fShow;
-    if (fVisible)
-        Layout();
 }
 
 void IWAPP::OnPaint(void)

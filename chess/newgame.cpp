@@ -1,8 +1,8 @@
 
 /*
  *  newgame.cpp
- * 
  *  The New Game dialog box
+ * 
  */
 
 #include "chess.h"
@@ -11,6 +11,8 @@
 constexpr float valueDlgTextHilite = 0.95f;
 constexpr float valueDlgBackDark = 0.25f;
 constexpr float valueDlgBackLight = 0.5f;
+
+constexpr wchar_t wsIconSettings[] = L"\u2699";
 
 /*
  &  CMDPLAYER 
@@ -237,87 +239,52 @@ protected:
 
 DLGNEWGAME::DLGNEWGAME(WN& wnParent) :
     DLG(wnParent),
-    staticTitle(*this, rssNewGameTitle),
-    btnclose(*this, new CMDCANCEL(*this)),
-    staticInstruct(*this, rssNewGameInstructions, rssBulb),
-    vselWhite(*this, new CMDPLAYER(*this, vselWhite), NGCC::White, L"Rick Powell"),
-    vselBlack(*this, new CMDPLAYER(*this, vselBlack), NGCC::Black, L"Hazel the Dog"),
+    title(*this, rssNewGameTitle),
+    instruct(*this, rssNewGameInstructions),
+    vselWhite(*this, new CMDPLAYER(*this, vselWhite), NGCC::White, L"Rick Powell", 3),
+    vselBlack(*this, new CMDPLAYER(*this, vselBlack), NGCC::Black, L"Hazel the Dog", 3),
     btnSwap(*this, new CMDSWAP(*this), L"\u21c4"),
     btnrandom(*this, new CMDRANDOM(*this)),
-    btnSettings(*this, new CMDGAMESETTINGS(*this), L"\u2699", L"Standard Timed Chess"),
+    btnSettings(*this, new CMDGAMESETTINGS(*this), wsIconSettings, L"Standard Timed Chess"),
     vseltime(*this, new CMDTIME(*this)),
-    btnStart(*this, new CMDOK(*this), L"Start \U0001F846"),
+    btnStart(*this, L"Start \U0001F846"),
     pdlgSettings(nullptr)
 {
-    vselWhite.SetLevel(3);
-    vselBlack.SetLevel(3);
+    btnSettings.SetFont(wsFontSymbol, 24);
+    btnSwap.SetFont(wsFontUI, 12, TF::WEIGHT::Bold);
+    btnSwap.SetLayout(LCTL::SizeToFit);
+    btnrandom.SetLayout(LCTL::SizeToFit);
 }
 
-constexpr float dxyBtnSwap = 36.0f;
-constexpr float dxyDlgPadding = 48.0f;
-constexpr float dxNewGameDlg = 848.0f;
-constexpr float dyNewGameDlg = 640.0f;
-constexpr float dxyNewGameGutter = 24.0f;
+constexpr float dxyBtnSwap = 36;
+constexpr float dxNewGameDlg = 848;
+constexpr float dyNewGameDlg = 640;
 
 void DLGNEWGAME::Layout(void)
 {
-    RC rcInt(RcInterior());
+    LENDLG len(*this);
+    len.Position(title);
+    len.AdjustMarginDy(-dxyDlgGutter / 2);
+    len.Position(instruct);
 
-    /* position the title */
-    staticTitle.SetFont(wsFontUI, 40.0f, TF::WEIGHT::Bold);
-    RC rc = rcInt;
-    rc.Inflate(-dxyDlgPadding, -dxyDlgPadding/2);
-    rc.bottom = rc.top + staticTitle.SzRequestLayout().height;
-    staticTitle.SetBounds(rc);
-    RC rcClose(rc);
-    float dxyClose = rc.dyHeight() * 0.5f;
-    rcClose.left = rcClose.right - dxyClose;
-    rcClose.CenterDy(dxyClose);
-    btnclose.SetBounds(rcClose);
-
-    /* position instructions */
-    staticInstruct.SetFont(L"Segoe UI Symbol", 16.0f, TF::WEIGHT::Normal);
-    rc.top = rc.bottom + dxyNewGameGutter / 2;
-    rc.bottom = rc.top + staticInstruct.SzRequestLayout().height * 2;
-    staticInstruct.SetBounds(rc);
-    
-    /* position the player pickers */
-    rc.top = rc.bottom + dxyNewGameGutter; 
-    rc.SetSz(vselWhite.SzRequestLayout());
-    vselWhite.SetBounds(rc);
-    RC rcSwap(rc.right + dxyNewGameGutter, rc.top, rc.right + dxyNewGameGutter + dxyBtnSwap, rc.bottom);
-    rc += PT(rc.dxWidth() + 2*dxyNewGameGutter + dxyBtnSwap, 0.0f);
-    vselBlack.SetBounds(rc);
-
-    /* position the swap buttons between the color pickers */
-    rcSwap.top = rc.yCenter() - (2*dxyBtnSwap + dxyNewGameGutter) / 2;
-    rcSwap.bottom = rcSwap.top + dxyBtnSwap;
+    /* position the player pickers and swap buttons */
+    len.StartFlow();
+    len.PositionFlow(vselWhite);
+    RC rc(len.RcFlow());
+    RC rcSwap(rc.ptTopLeft(), SZ(dxyBtnSwap));
+    rcSwap += SZ(0, (rc.dyHeight() - (dxyBtnSwap + dxyDlgGutter + dxyBtnSwap)) / 2);
     btnSwap.SetBounds(rcSwap);
-    rcSwap += PT(0.0f, rcSwap.dyHeight() + dxyNewGameGutter);
-    btnrandom.SetBounds(rcSwap);
-    btnSwap.SetFont(wsFontUI, btnSwap.RcInterior().dyHeight() * 0.95f);
-    btnrandom.SetFont(wsFontUI, btnrandom.RcInterior().dyHeight() * 0.95f, TF::WEIGHT::Bold);
+    btnrandom.SetBounds(rcSwap + PT(0, rcSwap.dyHeight() + dxyDlgGutter));
+    len.AdjustMarginDx(dxyBtnSwap + dxyDlgGutter);
+    len.PositionFlow(vselBlack);
+    len.EndFlow();
 
-    /* position settings */
-    btnSettings.SetFont(L"Segoe UI Symbol", 24.0f);
-    rc = RC(PT(dxyDlgPadding, rc.bottom + dxyNewGameGutter), btnSettings.SzRequestLayout());
-    btnSettings.SetBounds(rc);
-
-    /* position time control options */
-    rc = RC(PT(dxyDlgPadding, rc.bottom + dxyNewGameGutter), vseltime.SzRequestLayout());
-    vseltime.SetBounds(rc);
-
-    /* position start button */
-    btnStart.SetFont(wsFontUI, 32.0f);
-    SZ szStart(btnStart.SzRequestLayout());
-    rc.top = rc.bottom + dxyNewGameGutter;
-    rc.bottom = rc.top + szStart.height + 2 * 8.0f;
-    rc.right = rcInt.right - dxyDlgPadding;
-    rc.left = rc.right - (szStart.width + 2*16.0f);
-    btnStart.SetBounds(rc);
+    len.Position(btnSettings);
+    len.Position(vseltime);
+    len.PositionOK(btnStart);
 }
 
-SZ DLGNEWGAME::SzRequestLayout(void) const
+SZ DLGNEWGAME::SzRequestLayout(const RC& rcWithin) const
 {
     return SZ(dxNewGameDlg, dyNewGameDlg);
 }
@@ -334,8 +301,8 @@ void DLGNEWGAME::Validate(void)
  *  VSELPLAYER
  */
 
-SELPLAYER::SELPLAYER(VSELECTOR& vsel, const wstring& wsIcon) :
-    SELECTORWS(vsel, wsIcon)
+SELPLAYER::SELPLAYER(VSEL& vsel, const wstring& wsIcon) :
+    SELWS(vsel, wsIcon)
 {
 }
 
@@ -355,16 +322,22 @@ CO SELPLAYER::CoBack(void) const
     return co;
 }
 
-VSELPLAYER::VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, NGCC ngcc, const wstring& wsName) :
-    VSELECTOR(dlg , pcmd),
+VSELPLAYER::VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, NGCC ngcc, const wstring& wsName, int level) :
+    VSEL(dlg , pcmd),
     dlg(dlg),
     selHuman(*this, L"\U0001F464"),     // human profile emoji
     selComputer(*this, L"\U0001F5A5"),   // desktop computer emoji
-    editName(*this, wsName, L"Name:"),
-    vsellevel(*this, new CMDLEVEL(dlg, *this), L"Level:"),
-    btnAISettings(*this, new CMDAISETTINGS(dlg, *this), L'\u2699'),
+    editName(*this, wsName, rssLabelName),
+    vsellevel(*this, new CMDLEVEL(dlg, *this), rssLabelLevel, level),
+    btnAISettings(*this, new CMDAISETTINGS(dlg, *this), wsIconSettings),
     ngcc(ngcc)
 {
+    selHuman.SetLayout(LCTL::SizeToFit);
+    selComputer.SetLayout(LCTL::SizeToFit);
+    btnAISettings.SetLayout(LCTL::SizeToFit);
+    editName.SetLayout(LCTL::SizeToFit);
+    vsellevel.SetLayout(LCTL::SizeToFit);
+    btnAISettings.SetFont(wsFontSymbol);
 }
 
 CO VSELPLAYER::CoBack(void) const
@@ -372,46 +345,46 @@ CO VSELPLAYER::CoBack(void) const
     return pwnParent->CoBack().CoSetValue(valueDlgBackDark);
 }
 
+const float dxyPlayerPadding = 12;
+const float dxyPlayerGutter = 16;
+const float dxPlayerMargin = 64;
+const float dyPlayer = 92;
+
 void VSELPLAYER::Layout(void)
 {
-    RC rcInt(RcInterior());
-    float dx = (rcInt.dxWidth() - 2*64.0f - 16.0f) / 2;
-    RC rc(PT(64.0f, 48.0f), SZ(dx, 92.0f));
+    float dxPlayer = (RcContent().dxWidth() - (dxPlayerMargin + dxyPlayerGutter + dxPlayerMargin)) / 2;
+    selHuman.SetPadding(PAD(dyPlayer * 0.20f));
+    selComputer.SetPadding(PAD(dyPlayer * 0.20f));
+    RC rc(PT(dxPlayerMargin, 48), SZ(dxPlayer, dyPlayer));
     selHuman.SetBounds(rc);
-    selHuman.SetFont(L"Segoe UI Emoji", (selHuman.RcInterior().dyHeight()-8.0f) * 0.67f);
-    rc += PT(rc.dxWidth() + 16.0f, 0.0f);
-    selComputer.SetBounds(rc);
-    selComputer.SetFont(L"Segoe UI Emoji", (selComputer.RcInterior().dyHeight()-8.0f) * 0.67f);
+    selComputer.SetBounds(rc + SZ(rc.dxWidth() + dxyPlayerGutter, 0));
+    
+    RC rcCont(RcContent());
+    rc = RC(dxyPlayerPadding, 
+            rc.bottom + dxyPlayerGutter,
+            rcCont.right - dxyPlayerPadding, 
+            rcCont.bottom - dxyPlayerPadding*1.5f);
+    float x = rc.right - rc.dyHeight();
+    editName.SetBounds(rc.RcSetRight(x));
+    vsellevel.SetBounds(rc.RcSetRight(x));
+    btnAISettings.SetBounds(rc.RcSetLeft(x));
 
-    rc.top = rc.bottom + 16.0f;
-    rc.bottom = rcInt.bottom - 16.0f;
-    rc.left = 12.0f;
-    rc.right = rcInt.right - 12.0f;
-    
-    editName.SetFont(wsFontUI, 16.0f);
-    vsellevel.SetFont(wsFontUI, 16.0f);
-    btnAISettings.SetFont(L"Segoe UI Symbol", 26.0f);
-    
-    editName.SetBounds(rc);
-    vsellevel.SetBounds(rc);
-    btnAISettings.SetBounds(rc.RcSetLeft(rc.right - rc.dyHeight()));
- 
     editName.Show(GetSelectorCur() == 0);
     vsellevel.Show(GetSelectorCur() == 1);
     btnAISettings.Show(GetSelectorCur() == 1);
 }
 
-SZ VSELPLAYER::SzRequestLayout(void) const
+SZ VSELPLAYER::SzRequestLayout(const RC& rcWithin) const
 {
     RC rc(pwnParent->RcInterior());
-    return SZ((rc.dxWidth() - 2*dxyDlgPadding - dxyBtnSwap - 2*dxyNewGameGutter) / 2, 200.0f);
+    return SZ((rc.dxWidth() - 2*dxyDlgPadding - dxyBtnSwap - 2*dxyDlgGutter) / 2, 196);
 }
 
 void VSELPLAYER::Draw(const RC& rcUpdate)
 {
     CO aco[] = { coWhite, coBlack };
-    RC rc(PT(0.0f), SZ(RcInterior().dxWidth(), 36.0f));
-    TF tf(*this, wsFontUI, 24.0f);
+    RC rc(PT(0), SZ(RcInterior().dxWidth(), 36));
+    TF tf(*this, wsFontUI, 24);
     switch (ngcc) {
     case NGCC::White:
     case NGCC::Black:
@@ -426,13 +399,10 @@ void VSELPLAYER::Draw(const RC& rcUpdate)
 
 void VSELPLAYER::Validate(void)
 {
-    wstring wsPlayer = L"player";
-    switch (ngcc) {
-    case NGCC::White: 
-    case NGCC::Black: 
-        wsPlayer = iwapp.WsLoad(rssColor+(int)ngcc); break;
-    default: break;
-    }
+    wstring wsPlayer = 
+                (ngcc == NGCC::White || ngcc == NGCC::Black) ?
+                iwapp.WsLoad(rssColor+(int)ngcc) :
+                L"player";
 
     switch (GetSelectorCur()) {
     case 0:
@@ -464,18 +434,18 @@ void VSELPLAYER::SetData(const DATAPLAYER& dataplayer)
     editName.SetText(dataplayer.wsNameHuman);
 }
 
-void VSELPLAYER::SetLevel(int lvl)
-{
-    vsellevel.SetSelectorCur(lvl);
-}
-
 /*
  *  VSELLEVEL
  */
 
-SELLEVEL::SELLEVEL(VSELECTOR& vsel, int lvl) :
-    SELECTORWS(vsel, to_wstring(lvl))
+const float dxyLevelBorder = 2;
+const float dxyLevelPadding = 1;
+
+SELLEVEL::SELLEVEL(VSEL& vsel, int lvl) :
+    SELWS(vsel, to_wstring(lvl))
 {
+    SetPadding(PAD(dxyLevelPadding)); 
+    SetBorder(PAD(dxyLevelBorder));
 }
 
 CO SELLEVEL::CoText(void) const
@@ -497,40 +467,49 @@ CO SELLEVEL::CoBack(void) const
 void SELLEVEL::Draw(const RC& rcUpdate)
 {
     if (fSelected)
-        DrawRc(RcInterior(), CoText(), 2.0f);
-    DrawWsCenter(wsImage, tf, RcInterior());
+        DrawRc(RcInterior(), CoText(), dxyLevelBorder);
+    VSEL* pvsel = static_cast<VSEL*>(pwnParent);
+    DrawWsCenterXY(wsImage, pvsel->TfGet(), RcInterior());  // use interior instead of content becuase "10" may not fit
 }
 
-SZ SELLEVEL::SzRequestLayout(void) const
+SZ SELLEVEL::SzRequestLayout(const RC& rcWithin) const
 {
-    SZ sz(SzFromWs(wsImage, tf));
-    return SZ(sz.width+5.0f, sz.height+3.0f);
+    VSEL* pvsel = static_cast<VSEL*>(pwnParent);
+    SZ sz(SzFromWs(wsImage, pvsel->TfGet()));
+    float dxy = max(sz.width, sz.height);
+    return SZ(dxy);
 }
 
-VSELLEVEL::VSELLEVEL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel) :
-    VSELECTOR(wnParent, pcmd, wsLabel)
+VSELLEVEL::VSELLEVEL(WN& wnParent, ICMD* pcmd, int rssLabel, int level) :
+    VSEL(wnParent, pcmd, rssLabel)
 {
     for (int isel = 1; isel <= 10; isel++) {
-        SELECTOR* psel = new SELLEVEL(*this, isel);
-        psel->SetFont(wsFontUI, 15.0f);
+        SEL* psel = new SELLEVEL(*this, isel);
+        psel->SetLayout(LCTL::SizeToFit);
     }
+    SetSelectorCur(level);
 }
 
 void VSELLEVEL::Layout(void)
 {
-    RC rc(PT(0.0f), vpselector.back()->SzRequestLayout());
-    if (rc.right > rc.bottom)
-        rc.bottom = rc.right;
+    RC rc(RcContent());
+    rc.right = rc.left + rc.dxWidth() / vpsel.size();
+    if (rc.dxWidth() > rc.dyHeight())
+        rc.right = rc.left + rc.dyHeight();
     else
-        rc.right = rc.bottom;
+        rc.bottom = rc.top + rc.dxWidth();  // should center this in the content area
+    SetFontHeight(rc.dyHeight() - 2*(dxyLevelBorder+dxyLevelPadding));
 
-    rc.Offset(SzLabel().width + 4.0f, 
-              (RcInterior().dyHeight() - rc.dyHeight()) / 2 + 2.5f);
-    
-    for (SELECTOR* psel : vpselector) {
+    rc.Offset(SzLabel().width + 4, 0.0);
+    for (SEL* psel : vpsel) {
         psel->SetBounds(rc);
-        rc += SZ(rc.dxWidth(), 0.0f);
+        rc += SZ(rc.dxWidth(), 0);
     }
+}
+
+void VSELLEVEL::DrawLabel(const RC& rcLabel)
+{
+    DrawWsCenterXY(wsLabel, tf, rcLabel);
 }
 
 /*
@@ -541,8 +520,8 @@ void VSELLEVEL::Layout(void)
  */
 
 SELTIME::SELTIME(VSELTIME& vsel, int rssLabel) :
-    SELECTOR(vsel, rssLabel),
-    tfLabel(*this, wsFontUI, 14.0f)
+    SEL(vsel, rssLabel),
+    tfLabel(*this, wsFontUI, 14)
 {
 }
 
@@ -575,24 +554,24 @@ SZ SELTIME::SzLabel(void) const
 void SELTIME::Draw(const RC& rcUpdate)
 {
     if (fSelected)
-        DrawRc(RcInterior(), CoText(), 4.0f);
+        DrawRc(RcInterior(), CoText(), 4);
 
     RC rcInt(RcInterior());
     RC rc = rcInt;
-    rc.top += 10.0f;
+    rc.top += 10;
     rc.bottom = rc.top + SzLabel().height;
     DrawLabel(rc);
 }
 
 void SELTIME::Layout(void)
 {
-    SetFont(wsFontUI, 32.0f);
+    SetFont(wsFontUI, 32);
 }
 
-SZ SELTIME::SzRequestLayout(void) const
+SZ SELTIME::SzRequestLayout(const RC& rcWithin) const
 {
     RC rc(pwnParent->RcInterior());
-    return SZ((rc.dxWidth() - 12.0f*4)/5, rc.dyHeight());
+    return SZ((rc.dxWidth() - 12 * 4)/5, rc.dyHeight());
 }
 
 /*
@@ -614,11 +593,11 @@ void SELTIMECUSTOM::Layout(void)
 {
     SELTIME::Layout();
     RC rc(RcInterior());
-    rc.top += 30.0f;
-    rc.bottom -= 10.0f;
+    rc.top += 30;
+    rc.bottom -= 10;
     rc.CenterDx(rc.dyHeight());
     btn.SetBounds(rc);
-    btn.SetFont(L"Segoe UI Symbol", rc.dyHeight() * 0.75f);
+    btn.SetFont(wsFontSymbol, rc.dyHeight() * 0.75f);
     btn.Show(fSelected);
 }
 
@@ -639,7 +618,7 @@ void SELTIMECYCLE::Draw(const RC& rcUpdate)
 {
     SELTIME::Draw(rcUpdate);
     RC rc(RcInterior());
-    rc.top += 30.0f;
+    rc.top += 30;
     wstring ws = to_wstring(vtms[itmsCur].minTotal) + L"+" + to_wstring(vtms[itmsCur].secMoveInc);
     DrawWsCenter(ws, tf, rc);
 }
@@ -648,10 +627,10 @@ void SELTIMECYCLE::Layout(void)
 {
     SELTIME::Layout();
     RC rc(RcInterior());
-    rc.Inflate(-4.0f);
-    rc.top += 12.0f;
-    btnprev.SetBounds(rc.RcSetRight(rc.left + 28.0f));
-    btnnext.SetBounds(rc.RcSetLeft(rc.right - 28.0f));
+    rc.Inflate(-4);
+    rc.top += 12;
+    btnprev.SetBounds(rc.RcSetRight(rc.left + 20));
+    btnnext.SetBounds(rc.RcSetLeft(rc.right - 20));
     btnnext.Show(fSelected);
     btnprev.Show(fSelected);
 }
@@ -680,7 +659,7 @@ vector<TMS> vtmsRapid = { {-1,10,0}, {-1,10,5}, {-1,15,10} };
 vector<TMS> vtmsClassical = { {-1,30,0}, {-1,30,20} };
 
 VSELTIME::VSELTIME(DLGNEWGAME& dlg, ICMD* pcmd) :
-    VSELECTOR(dlg, pcmd),
+    VSEL(dlg, pcmd),
     dlg(dlg),
     selBullet(*this, vtmsBullet, rssTimeBullet),          // 1+0, 2+1
     selBlitz(*this, vtmsBlitz, rssTimeBlitz),            // 3+0, 3+2, 5+0
@@ -692,22 +671,15 @@ VSELTIME::VSELTIME(DLGNEWGAME& dlg, ICMD* pcmd) :
 
 void VSELTIME::Layout(void)
 {
-    RC rcSel = RC(PT(0), selCustom.SzRequestLayout());
-    selBullet.SetBounds(rcSel);
-    rcSel += SZ(rcSel.dxWidth() + 12.0f, 0.0f);
-    selBlitz.SetBounds(rcSel);
-    rcSel += SZ(rcSel.dxWidth() + 12.0f, 0.0f);
-    selRapid.SetBounds(rcSel);
-    rcSel += SZ(rcSel.dxWidth() + 12.0f, 0.0f);
-    selClassical.SetBounds(rcSel);
-    rcSel += SZ(rcSel.dxWidth() + 12.0f, 0.0f);
-    selCustom.SetBounds(rcSel);
+    LEN len(*this, PAD(0), PAD(12, 0));
+    for (SEL* psel : vpsel)
+        len.PositionFlow(*psel);
 }
 
-SZ VSELTIME::SzRequestLayout(void) const
+SZ VSELTIME::SzRequestLayout(const RC& rcWithin) const
 {
     RC rc(pwnParent->RcInterior());
-    return SZ(rc.dxWidth() - 2*dxyDlgPadding, 92.0f);
+    return SZ(rc.dxWidth() - 2*dxyDlgPadding, 92);
 }
 
 void VSELTIME::Validate(void)
@@ -720,38 +692,25 @@ void VSELTIME::Validate(void)
 
 DLGAISETTINGS::DLGAISETTINGS(WN& wnParent) :
     DLG(wnParent),
-    staticTitle(*this, L"AI Settings"),
-    btnclose(*this, new CMDCANCEL(*this)),
-    btnOK(*this, new CMDOK(*this), L"OK")
+    title(*this, L"AI Settings"),
+    instruct(*this, rssAISettingsInstructions),
+    btnok(*this)
 {
 }
 
 void DLGAISETTINGS::Layout(void)
 {
-    /* position the title */
-    staticTitle.SetFont(wsFontUI, 40.0f, TF::WEIGHT::Bold);
-    RC rc = RcInterior();
-    rc.Inflate(-dxyDlgPadding, -dxyDlgPadding/2);
-    rc.bottom = rc.top + staticTitle.SzRequestLayout().height;
-    staticTitle.SetBounds(rc);
-    RC rcClose(rc);
-    float dxyClose = rc.dyHeight() * 0.5f;
-    rcClose.left = rcClose.right - dxyClose;
-    rcClose.CenterDy(dxyClose);
-    btnclose.SetBounds(rcClose);
+    LENDLG len(*this);
+    len.Position(title);
+    len.AdjustMarginDy(-dxyDlgGutter / 2);
+    len.Position(instruct);
 
-    btnOK.SetFont(wsFontUI, 24.0f);
-    rc = RcInterior();
-    rc.Inflate(-dxyDlgPadding);
-    SZ sz(btnOK.SzRequestLayout());
-    rc.left = rc.right - sz.width - 2*8.0f;
-    rc.top = rc.bottom - sz.height - 2*4.0f;
-    btnOK.SetBounds(rc);
+    len.PositionOK(btnok);
 }
 
-SZ DLGAISETTINGS::SzRequestLayout(void) const
+SZ DLGAISETTINGS::SzRequestLayout(const RC& rcWithin) const
 {
-    return SZ(600.0f, 200.0f);
+    return SZ(600, 600);
 }
 
 /*
@@ -760,38 +719,25 @@ SZ DLGAISETTINGS::SzRequestLayout(void) const
 
 DLGGAMESETTINGS::DLGGAMESETTINGS(WN& wnParent) :
     DLG(wnParent),
-    staticTitle(*this, L"Game Settings"),
-    btnclose(*this, new CMDCANCEL(*this)),
-    btnOK(*this, new CMDOK(*this), L"OK")
+    title(*this, L"Game Settings"),
+    instruct(*this, rssGameSettingsInstructions),
+    btnok(*this)
 {
 }
 
 void DLGGAMESETTINGS::Layout(void)
 {
-    /* position the title */
-    staticTitle.SetFont(wsFontUI, 40.0f, TF::WEIGHT::Bold);
-    RC rc = RcInterior();
-    rc.Inflate(-dxyDlgPadding, -dxyDlgPadding/2);
-    rc.bottom = rc.top + staticTitle.SzRequestLayout().height;
-    staticTitle.SetBounds(rc);
-    RC rcClose(rc);
-    float dxyClose = rc.dyHeight() * 0.5f;
-    rcClose.left = rcClose.right - dxyClose;
-    rcClose.CenterDy(dxyClose);
-    btnclose.SetBounds(rcClose);
+    LENDLG len(*this);
+    len.Position(title);
+    len.AdjustMarginDy(-dxyDlgGutter / 2);
+    len.Position(instruct);
 
-    btnOK.SetFont(wsFontUI, 24.0f);
-    rc = RcInterior();
-    rc.Inflate(-dxyDlgPadding);
-    SZ sz(btnOK.SzRequestLayout());
-    rc.left = rc.right - sz.width - 2*8.0f;
-    rc.top = rc.bottom - sz.height - 2*4.0f;
-    btnOK.SetBounds(rc);
+    len.PositionOK(btnok);
 }
 
-SZ DLGGAMESETTINGS::SzRequestLayout(void) const
+SZ DLGGAMESETTINGS::SzRequestLayout(const RC& rcWithin) const
 {
-    return SZ(600.0f, 200.0f);
+    return SZ(720, 240);
 }
 
 /*
@@ -800,38 +746,25 @@ SZ DLGGAMESETTINGS::SzRequestLayout(void) const
 
 DLGTIMESETTINGS::DLGTIMESETTINGS(WN& wnParent) :
     DLG(wnParent),
-    staticTitle(*this, L"Custom Time Settings"),
-    btnclose(*this, new CMDCANCEL(*this)),
-    btnOK(*this, new CMDOK(*this), L"OK")
+    title(*this, L"Custom Time Settings"),
+    instruct(*this, rssTimeControlInstructions),
+    btnok(*this)
 {
 }
 
 void DLGTIMESETTINGS::Layout(void)
 {
-    /* position the title */
-    staticTitle.SetFont(wsFontUI, 40.0f, TF::WEIGHT::Bold);
-    RC rc = RcInterior();
-    rc.Inflate(-dxyDlgPadding, -dxyDlgPadding/2);
-    rc.bottom = rc.top + staticTitle.SzRequestLayout().height;
-    staticTitle.SetBounds(rc);
-    RC rcClose(rc);
-    float dxyClose = rc.dyHeight() * 0.5f;
-    rcClose.left = rcClose.right - dxyClose;
-    rcClose.CenterDy(dxyClose);
-    btnclose.SetBounds(rcClose);
+    LENDLG len(*this);
+    len.Position(title);
+    len.AdjustMarginDy(-dxyDlgGutter / 2);
+    len.Position(instruct);
 
-    btnOK.SetFont(wsFontUI, 24.0f);
-    rc = RcInterior();
-    rc.Inflate(-dxyDlgPadding);
-    SZ sz(btnOK.SzRequestLayout());
-    rc.left = rc.right - sz.width - 2*8.0f;
-    rc.top = rc.bottom - sz.height - 2*4.0f;
-    btnOK.SetBounds(rc);
+    len.PositionOK(btnok);
 }
 
-SZ DLGTIMESETTINGS::SzRequestLayout(void) const
+SZ DLGTIMESETTINGS::SzRequestLayout(const RC& rcWithin) const
 {
-    return SZ(600.0f, 200.0f);
+    return SZ(800, 320);
 }
 
 /*
@@ -841,28 +774,39 @@ SZ DLGTIMESETTINGS::SzRequestLayout(void) const
  */
 
 BTNRANDOM::BTNRANDOM(WN& wnParent, ICMD* pcmd) :
-    BTN(wnParent, pcmd)
+    BTNCH(wnParent, pcmd, L'?')
 {
+    SetFont(wsFontUI, 12, TF::WEIGHT::Bold);
 }
 
-void BTNRANDOM::Draw(const RC& rcUpdate)
+CO BTNRANDOM::CoText(void) const
 {
-    RC rc(RcInterior());
-    FillRc(rc.RcSetRight(rc.ptCenter().x), coWhite);
-    FillRc(rc.RcSetLeft(rc.ptCenter().x), coBlack);
+    if (cdsCur == CDS::Execute)
+        return coRed;
+    if (cdsCur == CDS::Hover)
+        return coRed.CoSetValue(0.75f);
+    return coWhite;
+}
 
-    float dxy = 1.75f;
-    for (int x = -1; x <= 1; x++)
-        for (int y = -1; y <= 1; y++) 
-            DrawWsCenterXY(L"?", tf, rc + PT(x*dxy, y*dxy), coBlack);
-
-    DrawWsCenterXY(L"?", tf, rc);
+CO BTNRANDOM::CoBack(void) const
+{
+    return coBlack;
 }
 
 void BTNRANDOM::Erase(const RC& rcUpdate, DRO dro)
 {
+    RC rc(RcInterior());
+    FillRc(rc.RcSetRight(rc.ptCenter().x), coWhite);
+    FillRc(rc.RcSetLeft(rc.ptCenter().x), coBlack);
 }
 
-void BTNRANDOM::Layout(void)
+void BTNRANDOM::Draw(const RC& rcUpdate)
 {
+    /* draw an outline around the questoin mark */
+    RC rc(RcContent());
+    float dxy = 1.5f;
+    for (float angle = 0; angle < 2*numbers::pi; angle += (float)numbers::pi/32)
+        DrawWsCenterXY(wstring(1, chImage), tf, rc + SZ(sinf(angle), cosf(angle)) * dxy, coBlack);
+
+    BTNCH::Draw(rcUpdate);
 }

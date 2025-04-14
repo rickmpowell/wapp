@@ -34,6 +34,16 @@ public:
         this->height = (float)height;
     }
 
+    SZ(float width, int height) {
+        this->width = width;
+        this->height = (float)height;
+    }
+
+    SZ(int width, float height) {
+        this->width = (float)width;
+        this->height = height;
+    }
+
     SZ(int w) {
         width = height = (float)w;
     }
@@ -121,6 +131,7 @@ public:
     PT(void) {
     }
 
+    /* TODO: are all these permutations of types necssary?b */
     PT(float x, float y) {
         this->x = x;
         this->y = y;
@@ -129,6 +140,16 @@ public:
     PT(int x, int y) {
         this->x = (float)x;
         this->y = (float)y;
+    }
+
+    PT(float x, int y) {
+        this->x = x;
+        this->y = (float)y;
+    }
+
+    PT(int x, float y) {
+        this->x = (float)x;
+        this->y = y;
     }
 
     PT(int w) {
@@ -237,6 +258,38 @@ public:
 };
 
 /*
+ *  pAD - padding used for layout
+ */
+
+class PAD : public D2D1_RECT_F
+{
+public:
+    PAD(void) {
+        left = right = top = bottom = 0;
+    }
+
+    PAD(float dxy) {
+        left = right = top = bottom = dxy;
+    }
+
+    PAD(float dx, float dy) {
+        left = right = dx;
+        top = bottom = dy;
+    }
+
+    PAD(float left, float top, float right, float bottom) {
+        this->left = left;
+        this->top = top;
+        this->right = right;
+        this->bottom = bottom;
+    }
+
+    PAD operator + (const PAD& pad) const {
+        return PAD(left + pad.left, top + pad.top, right + pad.right, bottom + pad.bottom);
+    }
+};
+
+/*
  *  RC rectangle class
  * 
  *  Wrapper on the Direct2D floating point coordinate rectangle with numerous 
@@ -288,7 +341,7 @@ public:
         return PT(left, top);
     }
 
-    PT ptBotRight(void) const {
+    PT ptBottomRight(void) const {
         return PT(right, bottom);
     }
 
@@ -376,6 +429,26 @@ public:
         return RC(*this).TopBottom(top, bottom);
     }
 
+    RC& TopLeft(const PT& pt) {
+        this->left = pt.x;
+        this->top = pt.y;
+        return *this;
+    }
+
+    RC RcTopLeft(const PT& pt) const {
+        return RC(*this).TopLeft(pt);
+    }
+
+    RC& BottomRight(const PT& pt) {
+        this->right = pt.x;
+        this->bottom = pt.y;
+        return *this;
+    }
+
+    RC RcBottomRight(const PT& pt) const {
+        return RC(*this).BottomRight(pt);
+    }
+
     RC& Inflate(const SZ& sz) {
         left -= sz.width;
         right += sz.width;
@@ -402,6 +475,10 @@ public:
 
     RC RcInflate(float w) const {
         return RcInflate(SZ(w));
+    }
+
+    RC RcInflate(float dx, float dy) const {
+        return RcInflate(SZ(dx, dy));
     }
 
     RC& Intersect(const RC& rc) {
@@ -460,10 +537,28 @@ public:
         return rc;
     }
 
+    RC RcSetTop(float y) const {
+        RC rc(*this);
+        rc.top = y;
+        return rc;
+    }
+
+    RC RcSetBottom(float y) const {
+        RC rc(*this);
+        rc.bottom = y;
+        return rc;
+    }
+
     RC& SetSz(const SZ& sz) {
         right = left + sz.width;
         bottom = top + sz.height;
         return *this;
+    }
+
+    RC RcSetSz(const SZ& sz) const {
+        RC rc(*this);
+        rc.SetSz(sz);
+        return rc;
     }
 
     operator int() const {
@@ -553,6 +648,22 @@ public:
         *this = rcT;
         return true;
     }
+
+    RC& Pad(const PAD& pad) {
+        left -= pad.left;
+        top -= pad.top;
+        right += pad.right;
+        bottom += pad.bottom;
+        return *this;
+    }
+
+    RC& Unpad(const PAD& pad) {
+        left += pad.left;
+        top += pad.top;
+        right -= pad.right;
+        bottom -= pad.bottom;
+        return *this;
+    }
     
     operator RECT() const {
         RECT rect = {
@@ -603,9 +714,7 @@ public:
     }
 
     ELL& Offset(const PT& pt) {
-        point.x += pt.x;
-        point.y += pt.y;
-        return *this;
+        return Offset(pt.x, pt.y);
     }
 
     ELL EllOffset(const PT& pt) const {
@@ -620,3 +729,4 @@ public:
         return *this;
     }
 };
+

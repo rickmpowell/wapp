@@ -11,8 +11,6 @@
 
 class CMDMAKEMOVE;
 
-inline constexpr wchar_t wsFontUI[] = L"Segoe UI";
-
 /*
  *  Time control section. Time control for the game
  *  is just an array/vector of these things.
@@ -138,7 +136,6 @@ public:
     GAME game;
     WNBOARD wnboard;
     WNTEST wntest;
-    DLGNEWGAME dlgnewgame;
 
     CURS cursArrow;
     CURS cursHand;

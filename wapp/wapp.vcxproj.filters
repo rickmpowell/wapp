@@ -63,6 +63,9 @@
     <ClInclude Include="include\ev.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\len.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp">
@@ -96,6 +99,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ev.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="len.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

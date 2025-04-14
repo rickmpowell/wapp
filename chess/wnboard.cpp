@@ -23,6 +23,7 @@ WNBOARD::WNBOARD(WN& wnParent, BD& bd) :
     pcmdMakeMove(make_unique<CMDMAKEMOVE>((WAPP&)iwapp)),
     dxyBorder(0.0f), dxyOutline(0.0f), dyLabels(0.0f), dxySquare(0.0f)
 {
+    btnFlip.SetLayout(LCTL::SizeToFit);
     bd.MoveGen(vmv);
 }
 
@@ -89,9 +90,8 @@ void WNBOARD::Layout(void)
 
     /* position the rotation button */
 
-    PT ptBotRight(RcInterior().ptBotRight() - SZ(8.0f));
+    PT ptBotRight(RcInterior().ptBottomRight() - SZ(8.0f));
     btnFlip.SetBounds(RC(ptBotRight - SZ(dxyBorder - 16.0f - 2*dxyOutline), ptBotRight));
-    btnFlip.SetFont(wsFontUI, btnFlip.RcInterior().dyHeight() * 0.9f);
 }
 
 /*

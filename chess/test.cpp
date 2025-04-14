@@ -20,7 +20,7 @@ void WNTEST::Layout(void)
 {
     RC rcInt = RcInterior();
     RC rc = rcInt;
-    SZ sz = titlebar.SzRequestLayout();
+    SZ sz = titlebar.SzRequestLayout(rc);
     rc.bottom = rc.top + sz.height;
     titlebar.SetBounds(rc);
 

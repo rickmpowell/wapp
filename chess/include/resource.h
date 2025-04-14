@@ -47,8 +47,6 @@
 #define rssWhite 256
 #define rssBlack 257
 
-#define rssBulb 1024
-
 #define rssNewGameTitle 1025
 #define rssNewGameInstructions 1026
 #define rssTimeBullet 1027
@@ -56,6 +54,12 @@
 #define rssTimeRapid 1029
 #define rssTimeClassical 1030
 #define rssTimeCustom 1031
+#define rssLabelName 1032
+#define rssLabelLevel 1033
+
+#define rssAISettingsInstructions 1048
+#define rssGameSettingsInstructions 1049
+#define rssTimeControlInstructions 1050
 
 /*
  *  Dialogs

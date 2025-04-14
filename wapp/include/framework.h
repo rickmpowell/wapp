@@ -43,6 +43,7 @@
 #include <iterator>
 #include <memory>
 #include <format>
+#include <numbers>
 #include <chrono>
 #include <sstream>
 #include <iostream>

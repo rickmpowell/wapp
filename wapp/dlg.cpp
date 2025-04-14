@@ -39,6 +39,7 @@
  */
 
 #include "wapp.h"
+#include "id.h"
 
 /*
  *  Dialogs
@@ -75,9 +76,10 @@ int WND::Dialog(int rsd)
     return (int)::DialogBoxW(app.hinst, MAKEINTRESOURCE(rsd), hwnd, DlgProc);
 }
 
-
 /*
- *
+ *  DLG class
+ * 
+ *  The base class for the dialog.
  */
 
 DLG::DLG(WN& wnOwner) : 
@@ -87,8 +89,8 @@ DLG::DLG(WN& wnOwner) :
 
 void DLG::ShowCentered(void)
 {
-    SZ sz = SzRequestLayout();
-    SetBounds(RC(iwapp.RcInterior().ptCenter() - sz/2.0f, sz));
+    SZ sz = SzRequestLayout(RcInterior());
+    SetBounds(RC(iwapp.RcInterior().ptCenter() - sz/2, sz));
     Show(true);
 }
 
@@ -104,10 +106,10 @@ CO DLG::CoBack(void) const
 
 void DLG::Draw(const RC& rcUpate)
 {
-    DrawRc(RcInterior().RcInflate(-6.0f), CoAverage(CoText(), CoBack()), 2.0f);
+    DrawRc(RcInterior().RcInflate(-6), CoAverage(CoText(), CoBack()), 2);
 }
 
-void DLG::EndDlg(int val)
+void DLG::End(int val)
 {
     Show(false);
     fEnd = true;
@@ -134,4 +136,60 @@ int DLG::DlgMsgPump(void)
     Show(false);
     
     return val;
+}
+
+/*
+ *  TITLEDLG control
+ */
+
+TITLEDLG::TITLEDLG(DLG& dlg, const wstring& wsTitle) :
+    STATIC(dlg, wsTitle),
+    btnclose(*this, new CMDCANCEL(dlg))
+{
+    SetFont(wsFontUI, 40, TF::WEIGHT::Bold);
+}
+
+TITLEDLG::TITLEDLG(DLG& dlg, int rssTitle) : 
+    STATIC(dlg, rssTitle),
+    btnclose(*this, new CMDCANCEL(dlg))
+{
+    SetFont(wsFontUI, 40, TF::WEIGHT::Bold);
+}
+
+void TITLEDLG::Layout(void)
+{
+    RC rc(RcInterior());
+    RC rcClose(rc);
+    float dxyClose = rc.dyHeight() * 0.5f;
+    rcClose.left = rcClose.right - dxyClose;
+    rcClose.CenterDy(dxyClose);
+    btnclose.SetBounds(rcClose);
+}
+
+SZ TITLEDLG::SzRequestLayout(const RC& rcWithin) const
+{
+    SZ sz(SzFromWs(wsImage, tf));
+    sz.width = max(sz.width, rcWithin.dxWidth());
+    return sz;
+}
+
+/*
+ *  INSTRUCT control. A control for displaying short dialog instructions.
+ */
+
+INSTRUCT::INSTRUCT(DLG& dlg, const wstring& wsText) :
+    STATICL(dlg, wsText, rssInstructionBulb)
+{
+    SetFont(wsFontSymbol, 16);
+}
+
+INSTRUCT::INSTRUCT(DLG& dlg, int rssText) :
+    STATICL(dlg, rssText, rssInstructionBulb)
+{
+    SetFont(wsFontSymbol, 16);
+}
+
+void INSTRUCT::DrawLabel(const RC& rcLabel)
+{
+    DrawWsCenter(wsLabel, tf, rcLabel, coYellow);
 }
