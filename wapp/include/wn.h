@@ -51,6 +51,7 @@ public:
     virtual ~WN();
 
     void SetBounds(const RC& rcpNew);
+    RC RcBounds(void) const;
     virtual void Layout(void);
     virtual SZ SzRequestLayout(const RC& rcWithin) const;
 
@@ -66,15 +67,20 @@ public:
  
     virtual void BeginDraw(void);
     virtual void EndDraw(const RC& rcUpdate);
-    virtual void Draw(const RC& rcUpdate);
     virtual void Erase(const RC& rcUpdate, DRO dro);
+    virtual void Draw(const RC& rcUpdate);
     virtual void TransparentErase(const RC& rcUpdate, DRO dro);
+    
     void Redraw(void);
     void Redraw(const RC& rcUpdate, DRO dro);
+    void Relayout(void);
+    
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
 
     void DrawWithChildren(const RC& rcgUpdate, DRO dro);
+
+    /* mouse */
 
     bool FWnFromPt(const PT& ptg, WN*& pwn);
     bool FDragging(void) const;

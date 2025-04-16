@@ -55,13 +55,11 @@ CO WAPP::CoBack(void) const
 
 void WAPP::Layout(void)
 {
-    RC rcInt(RcInterior());
-
-    float dxyBoard = roundf(min(rcInt.dxWidth(), rcInt.dyHeight()));
-    float dxyMargin = roundf(max(dxyBoard*wMarginPerWindow, dxyMarginMax));
-    dxyBoard = max(dxyBoard - 2*dxyMargin, raMax*dxySquareMin);
-    
-    RC rc = RC(PT(dxyMargin), SZ(dxyBoard));
+    RC rc(RcInterior());
+    float dxyWindow = roundf(min(rc.dxWidth(), rc.dyHeight()));
+    float dxyMargin = roundf(max(dxyWindow*wMarginPerWindow, dxyMarginMax));
+    float dxyBoard = max(dxyWindow - 2*dxyMargin, raMax*dxySquareMin);
+    rc = RC(PT(dxyMargin), SZ(dxyBoard));
     wnboard.SetBounds(rc);
 
     rc.left = rc.right + dxyMargin;

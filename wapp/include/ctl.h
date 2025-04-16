@@ -43,6 +43,7 @@ public:
     virtual void SetMargin(const PAD& margin);
 
     virtual CO CoBorder(void) const;
+    virtual void Erase(const RC& rcUpdate, DRO dro) override;
     virtual void DrawBorder(void);
 
     virtual void SetLabel(const wstring& wsLabel);
@@ -217,8 +218,8 @@ public:
     virtual ~BTNNEXT() = default;
 
     virtual CO CoText(void) const override;
-    virtual void Draw(const RC& rcUpdate) override;
     virtual void Erase(const RC& rcUpdate, DRO dro) override;
+    virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 };
@@ -273,6 +274,7 @@ public:
     SEL(VSEL& vselParent, int rssLabel = -1);
     virtual ~SEL() = default;
 
+    virtual CO CoBorder(void) const override;
     virtual void Layout(void) override;
 
     void SetSelected(bool fSelected);

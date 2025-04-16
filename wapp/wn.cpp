@@ -75,6 +75,11 @@ void WN::SetBounds(const RC& rcpNew)
     Layout();
 }
 
+RC WN::RcBounds(void) const
+{
+    return pwnParent ? pwnParent->RcFromRcg(rcgBounds) : rcgBounds;
+}
+
 /*
  *  WN::Layout
  * 
@@ -237,6 +242,12 @@ void WN::Redraw(void)
 void WN::Redraw(const RC& rcUpdate, DRO dro)
 {
     RedrawRcg(RcgFromRc(rcUpdate), dro);
+}
+
+void WN::Relayout(void)
+{
+    Layout();
+    Redraw();
 }
 
 void WN::RedrawRcg(RC rcgUpdate, DRO dro)

@@ -19,6 +19,9 @@
 class SZ : public D2D1_SIZE_F
 {
 public:
+    SZ(void) {    // leave uninitialized
+    }
+
     SZ(const D2D1_SIZE_F& sz) {
         width = sz.width;
         height = sz.height;
@@ -343,6 +346,14 @@ public:
 
     PT ptBottomRight(void) const {
         return PT(right, bottom);
+    }
+
+    PT ptBottomLeft(void) const {
+        return PT(left, bottom);
+    }
+
+    PT ptTopRight(void) const {
+        return PT(right, top);
     }
 
     PT ptCenter(void) const {

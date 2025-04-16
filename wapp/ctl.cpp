@@ -105,6 +105,13 @@ CO CTL::CoBorder(void) const
     return CoText();
 }
 
+
+void CTL::Erase(const RC& rcUpdate, DRO dro)
+{
+    WN::Erase(rcUpdate, dro);
+    DrawBorder();
+}
+
 /*
  *  CTL::DrawBorder
  * 
@@ -115,6 +122,8 @@ void CTL::DrawBorder(void)
 {
     /* variable borders not implemented yet */
     assert(border.top == border.bottom && border.left == border.right && border.top == border.left);
+    if (border.top == 0)
+        return;
     DrawRc(RcInterior(), CoBorder(), border.top);
 }
 
@@ -545,12 +554,16 @@ SEL::SEL(VSEL& vselParent, int rssLabel) :
     vselParent.AddSelector(*this);
 }
 
+CO SEL::CoBorder(void) const
+{
+    return fSelected ? CoText() : coTransparent;
+}
+
 void SEL::Layout(void)
 {
     if (lctl == LCTL::SizeToFit)
         SetFontHeight(RcContent().dyHeight());
 }
-
 
 void SEL::SetSelected(bool fSelected)
 {
@@ -567,8 +580,6 @@ SELWS::SELWS(VSEL& vselParent, const wstring& wsImage) :
 
 void SELWS::Draw(const RC& rcUpdate)
 {
-    if (fSelected)
-        DrawRc(RcInterior(), CoText(), 4);
     DrawWsCenterXY(wsImage, tf, RcContent());
 }
 

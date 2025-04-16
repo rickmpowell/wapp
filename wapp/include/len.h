@@ -13,19 +13,33 @@
  * 
  *  THe layout engine class. 
  * 
- *  TODO: This class only lays out standard dialog boxes and is probably less than 
- *  optimal.
+ *  TODO: This class is probably less than optimal and somewhat ad hoc. We can
+ *  almost certainly improve it.
  */
+
+enum class CLEN
+{
+    None = 0,
+    Horizontal,
+    Vertical
+};
 
 class LEN
 {
 public:
     LEN(WN& wn, const PAD& pad, const PAD& margin);
+    LEN(const RC& rc, const PAD& pad, const PAD& margin);
+
     void Position(CTL& ctl);
+
     void StartFlow(void);
     void EndFlow(void);
-    void PositionFlow(CTL& ctl);
+    void PositionLeft(CTL& ctl);
+    void PositionRight(CTL& ctl);
     void PositionOK(CTL& ctl);
+
+    void StartCenter(CLEN clen);
+    void EndCenter(void);
 
     void AdjustMarginDy(float dy);
     void AdjustMarginDx(float dx);
@@ -33,10 +47,17 @@ public:
     RC RcFlow(void) const;
 
 private:
+    /* TODO: move margins into controls */
     PAD pad;
     PAD marginDef;
     RC rcWithin;
     RC rcFlow;
+
+    /* centering */
+    vector<CTL*> vpctl;
+    PT ptCenterStart;
+    float dyCenterTotal;
+    CLEN clen;
 };
 
 class LENDLG : public LEN

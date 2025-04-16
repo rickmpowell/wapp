@@ -56,10 +56,16 @@
 #define rssTimeCustom 1031
 #define rssLabelName 1032
 #define rssLabelLevel 1033
+#define rssStandardGame 1034
 
-#define rssAISettingsInstructions 1048
-#define rssGameSettingsInstructions 1049
-#define rssTimeControlInstructions 1050
+#define rssAISettingsTitle 1048
+#define rssAISettingsInstructions 1049
+
+#define rssGameSettingsTitle 1050
+#define rssGameSettingsInstructions 1051
+
+#define rssTimeControlTitle 1052
+#define rssTimeControlInstructions 1053
 
 /*
  *  Dialogs

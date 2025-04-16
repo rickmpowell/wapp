@@ -34,10 +34,11 @@ class SELLEVEL : public SELWS
 {
 public:
     SELLEVEL(VSEL& vselParent, int lvl);
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 };
 
 class VSELLEVEL : public VSEL
@@ -46,8 +47,9 @@ class VSELLEVEL : public VSEL
 
 public:
     VSELLEVEL(WN& wn, ICMD* pcmd, int rssLabel, int level);
-    virtual void Layout(void) override;
+
     virtual void DrawLabel(const RC& rcLabel);
+    virtual void Layout(void) override;
 };
 
 /*
@@ -75,12 +77,10 @@ public:
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 
     virtual void Validate(void);
-
     DATAPLAYER DataGet(void) const;
     void SetData(const DATAPLAYER& dataplayer);
 
     NGCC ngcc;
-    DLGNEWGAME& dlg;
 
 private:
     SELPLAYER selHuman;
@@ -105,10 +105,10 @@ public:
 
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
-    virtual void DrawLabel(const RC& rcLabel) override;
-    virtual SZ SzLabel(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
+    virtual void DrawLabel(const RC& rcLabel) override;
     virtual void Layout(void) override;
+    virtual SZ SzLabel(void) const override;
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 
 private:
@@ -119,6 +119,7 @@ class SELTIMECYCLE : public SELTIME
 {
 public:
     SELTIMECYCLE(VSELTIME& vsel, const vector<TMS>& vtms, int rssLabel);
+
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
 
@@ -136,6 +137,7 @@ class SELTIMECUSTOM : public SELTIME
 {
 public:
     SELTIMECUSTOM(VSELTIME& vsel, int rssLabel);
+
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
 
@@ -147,12 +149,11 @@ class VSELTIME : public VSEL
 {
 public:
     VSELTIME(DLGNEWGAME& dlg, ICMD* pcmd);
+
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
     
     virtual void Validate(void) override;
-
-    DLGNEWGAME& dlg;
 
 private:
     SELTIMECYCLE selBullet;
@@ -177,6 +178,7 @@ public:
     virtual CO CoBack(void) const override;
     virtual void Erase(const RC& rcUpdate, DRO dro) override;
     virtual void Draw(const RC& rcUpdate) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 };
 
 /*
@@ -197,8 +199,6 @@ public:
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 
     virtual void Validate(void) override;
-
-    unique_ptr<DLG> pdlgSettings;
 
     TITLEDLG title;
     INSTRUCT instruct;
