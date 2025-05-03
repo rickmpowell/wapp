@@ -11,6 +11,8 @@
 /*
  *  LEN class
  * 
+ *  This is an experimental ALPHA design.
+ * 
  *  THe layout engine class. 
  * 
  *  TODO: This class is probably less than optimal and somewhat ad hoc. We can

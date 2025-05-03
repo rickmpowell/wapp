@@ -38,6 +38,13 @@ public:
         this->a = a;
     }
 
+    constexpr CO(const CO& co, float a) {
+        this->r = co.r;
+        this->g = co.g;
+        this->b = co.b;
+        this->a = a;
+    }
+
     bool operator == (const CO& co) const {
         return r == co.r && g == co.g && b == co.b && a == co.a;
     }
@@ -345,10 +352,20 @@ inline const float hueCyan = 180.0f;
 inline const float hueBlue = 240.0f;
 inline const float hueMagenta = 300.0f;
 
+
+inline float RgbBlend(float a, float b, float t) {
+    return sqrt((1.0f-t)*a*a +
+                t*b*b);
+}
+
+inline CO CoBlend(CO co1, CO co2, float t) {
+    return CO(RgbBlend(co1.r, co2.r, t),
+              RgbBlend(co1.g, co2.g, t),
+              RgbBlend(co1.b, co2.b, t),
+              (1.0f-t)*co1.a + t*co2.a);
+}
 inline CO CoAverage(CO co1, CO co2)
 {
-    return CO((co1.r + co2.r)/2,
-              (co1.g + co2.g)/2,
-              (co1.b + co2.b)/2);
+    return CoBlend(co1, co2, 0.5f);
 }
 

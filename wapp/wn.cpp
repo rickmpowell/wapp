@@ -80,6 +80,16 @@ RC WN::RcBounds(void) const
     return pwnParent ? pwnParent->RcFromRcg(rcgBounds) : rcgBounds;
 }
 
+RC WN::RcNonClient(void) const
+{
+    return RcInterior();
+}
+
+RC WN::RcClient(void) const
+{
+    return RcInterior();
+}
+
 /*
  *  WN::Layout
  * 

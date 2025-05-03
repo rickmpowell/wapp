@@ -110,16 +110,19 @@ public:
 
 class GEOM
 {
-private:
-    com_ptr<ID2D1PathGeometry> pgeometry;
-
 public:
     GEOM(void) = default;
-    GEOM(DC& dc, const vector<PT>& vpt);
+    explicit GEOM(DC& dc, const vector<PT>& vpt);
+    explicit GEOM(DC& dc, const PT apt[], size_t cpt);
 
     operator ID2D1PathGeometry* () const {
         return pgeometry.Get();
     }
+
+protected:
+    void Init(DC& dc, const PT apt[], size_t cpt);
+
+    com_ptr<ID2D1PathGeometry> pgeometry;
 };
 
 /*
@@ -215,12 +218,15 @@ public:
     void DrawEll(const ELL& ell, CO co = coNil, float dxyStroke = 1) const;
     void DrawEll(const ELL& ell, const BR& br, float dxyStroke = 1) const;
     void FillGeom(const GEOM& geomFill, const PT& ptOffset, const SZ& szScale, float angle, BR& br);
+    void FillGeom(const GEOM& geomFill, const PT& ptOffset, const SZ& szScale, float angle, CO co);
 
     void Line(const PT& pt1, const PT& pt2, CO co = coNil, float dxyStroke = 1) const;
     void Line(const PT& pt1, const PT& pt2, const BR& br, float dxyStroke = 1) const;
 
     void DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText) const;
     void DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText = coNil) const;
+    void DrawWs(wstring_view ws, const TF& tf, const RC& rc, const BR& brText) const;
+    void DrawWs(wstring_view ws, const TF& tf, const RC& rc, CO coText = coNil) const;
     void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const;
     void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil) const;
     void DrawWsCenterY(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const;

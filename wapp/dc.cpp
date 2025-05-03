@@ -70,11 +70,21 @@ GEOM::GEOM(DC& dc, const vector<PT>& vpt)
     auto apt = make_unique<PT[]>(vpt.size());
     for (int ipt = 0; ipt < vpt.size(); ipt++)
         apt[ipt] = vpt[ipt];
+    Init(dc, apt.get(), vpt.size());
+}
+
+GEOM::GEOM(DC& dc, const PT apt[], size_t cpt)
+{
+    Init(dc, apt, cpt);
+}
+
+void GEOM::Init(DC& dc, const PT apt[], size_t cpt)
+{
     dc.iwapp.pfactd2->CreatePathGeometry(&pgeometry);
     com_ptr<ID2D1GeometrySink> psink;
     pgeometry->Open(&psink);
     psink->BeginFigure(apt[0], D2D1_FIGURE_BEGIN_FILLED);
-    psink->AddLines(&apt[1], static_cast<UINT32>(vpt.size()-1));
+    psink->AddLines(&apt[1], static_cast<UINT32>(cpt-1));
     psink->EndFigure(D2D1_FIGURE_END_CLOSED);
     psink->Close();
 }
@@ -366,6 +376,13 @@ void DC::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float
     iwapp.pdc2->FillGeometry(geom, brFill);
 }
 
+void DC::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float angle, CO coFill)
+{
+    if (coFill == coNil)
+        coFill = CoText();
+    FillGeom(geom, ptOffset, szScale, angle, brScratch.SetCo(coFill));
+}
+
 void DC::Line(const PT& pt1, const PT& pt2, CO co, float dxyStroke) const
 {
     if (co == coNil)
@@ -386,7 +403,20 @@ void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText)
     iwapp.pdc2->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText);
 }
 
+void DC::DrawWs(wstring_view ws, const TF& tf, const RC& rc, const BR& brText) const
+{
+    RC rcg = RcgFromRc(rc);
+    iwapp.pdc2->DrawText(ws.data(), (UINT32)ws.size(), tf, &rcg, brText);
+}
+
 void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText) const
+{
+    if (coText == coNil)
+        coText = CoText();
+    DrawWs(ws, tf, rc, brScratch.SetCo(coText));
+}
+
+void DC::DrawWs(wstring_view ws, const TF& tf, const RC& rc, CO coText) const
 {
     if (coText == coNil)
         coText = CoText();

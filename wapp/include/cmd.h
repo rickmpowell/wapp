@@ -21,6 +21,7 @@
 
 #include "framework.h"
 class WAPP;
+class DLG;
 
 /*
  *  ICMD class
@@ -63,7 +64,7 @@ public:
     virtual bool FToolTipWs(wstring& wsTip) const;
     virtual bool FMenuWs(wstring& wsMenu, CMS cms = CMS::Regular) const;
 
-    virtual int FRunDlg(void);
+    virtual int FRunDlg(DLG& dlg);
 };
 
 /*

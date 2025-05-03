@@ -81,9 +81,11 @@ private:
 
     void DrawBorder(void);
     void DrawSquares(void);
+    void DrawMoveHilites(void);
     void DrawPieces(void);
     void DrawDrag(void);
     RC RcFromSq(int sq) const;
+    RC RcFromSq(int fi, int ra) const;
     RC RcPiecesFromCp(CP cp) const;
     bool FPtToSq(const PT& pt, SQ& sq) const;
     bool FLegalSqFrom(SQ sq) const;
@@ -133,13 +135,6 @@ private:
 class WAPP : public IWAPP
 {
 public:
-    GAME game;
-    WNBOARD wnboard;
-    WNTEST wntest;
-
-    CURS cursArrow;
-    CURS cursHand;
-
     WAPP(const wstring& wsCmd, int sw);
  
     virtual void RegisterMenuCmds(void) override;
@@ -150,6 +145,16 @@ public:
     void RunPerft(void);
     void RunDivide(void);
     uint64_t CmvPerft(int depth);
+
+public:
+    GAME game;
+    WNBOARD wnboard;
+    WNTEST wntest;
+
+    CURS cursArrow;
+    CURS cursHand;
+
+    mt19937_64 rand;
 
 private:
     const float wMarginPerWindow = 0.02f; // ratio of the size of of margin to the total window size

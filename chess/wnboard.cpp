@@ -106,6 +106,7 @@ void WNBOARD::Draw(const RC& rcUpdate)
     GUARDDCTRANSFORM sav(*this, Matrix3x2F::Rotation(angleDraw, rcgBounds.ptCenter()));
     DrawBorder();
     DrawSquares();
+    DrawMoveHilites();
     DrawPieces();
     DrawDrag();
 }
@@ -125,23 +126,29 @@ void WNBOARD::DrawBorder(void)
 
     /* draw the outline */
 
-    if (dxyOutline > 0) {
-        FillRc(rcSquares.RcInflate(2*dxyOutline));
-        FillRcBack(rcSquares.RcInflate(dxyOutline));
-    }
+    if (dxyOutline > 0)
+        DrawRc(rcSquares.RcInflate(2*dxyOutline), CoText(), dxyOutline);
 
     /* draw the labels */
 
     if (dyLabels >= dyLabelsMin) {
         TF tf(*this, wsFontUI, dyLabels, TF::WEIGHT::Bold);
-        float dy = SzFromWs(wstring(L"g8"), tf).height;
         for (int ra = 0; ra < raMax; ra++)
             DrawWsCenterXY(wstring(1, '1' + ra), tf,
-                         RcFromSq(Sq(0, ra)).LeftRight(0, rcSquares.left));
+                         RcFromSq(0, ra).LeftRight(0, rcSquares.left));
         for (int fi = 0; fi < fiMax; fi++)
             DrawWsCenterXY(wstring(1, 'a' + fi), tf,
-                         RcFromSq(Sq(fi, 0)).TopBottom(rcSquares.bottom, RcInterior().bottom));
+                         RcFromSq(fi, 0).TopBottom(rcSquares.bottom, RcInterior().bottom));
     }
+
+    /* TEMPORARY - draw player names */
+
+    TF tf(*this, wsFontUI, dyLabels, TF::WEIGHT::Bold);
+    SZ sz(100, 30);
+    RC rc(RcFromSq(0, raMax-1).ptTopLeft() - PT(0, sz.height), sz); 
+    DrawWs(Wapp(iwapp).game.appl[~ccpView]->WsName(), tf, rc);
+    rc = RC(RcFromSq(0, 0).ptBottomLeft() + PT(0, sz.height), sz);
+    DrawWs(Wapp(iwapp).game.appl[ccpView]->WsName(), tf, rc);
 }
 
 /*
@@ -152,45 +159,42 @@ void WNBOARD::DrawBorder(void)
 
 void WNBOARD::DrawSquares(void)
 {
-    BR brMove(*this, coGray);
-    constexpr float dxyCrossFull = 20.0f;
-    constexpr float dxyCrossCenter = 4.0f;
-    static const vector<PT> vptCross = { {-dxyCrossCenter, -dxyCrossFull},
-                                         {dxyCrossCenter, -dxyCrossFull},
-                                         {dxyCrossCenter, -dxyCrossCenter},
-                                         {dxyCrossFull, -dxyCrossCenter},
-                                         {dxyCrossFull, dxyCrossCenter},
-                                         {dxyCrossCenter, dxyCrossCenter},
-                                         {dxyCrossCenter, dxyCrossFull},
-                                         {-dxyCrossCenter, dxyCrossFull},
-                                         {-dxyCrossCenter, dxyCrossCenter},
-                                         {-dxyCrossFull, dxyCrossCenter},
-                                         {-dxyCrossFull, -dxyCrossCenter},
-                                         {-dxyCrossCenter, -dxyCrossCenter},
-                                         {-dxyCrossCenter, -dxyCrossFull} };
-    GEOM geomCross(*this, vptCross);
-
     for (SQ sq = 0; sq < sqMax; sq++) {
         CO coBack((ra(sq) + fi(sq)) & 1 ? CoBack() : CoText());
-        if (sqDragFrom != sqNil) {
-            if (sq == sqDragFrom || sq == sqDragTo)
-                coBack = CoAverage(CoBack(), coDarkRed);
-        }
-        else if (sq == sqHoverCur)
-            coBack = CoAverage(CoBack(), coDarkRed);
+        if (sq == sqDragFrom || sq == sqDragTo || sq == sqHoverCur)
+            coBack = CoAverage(coBack, coRed);
         FillRc(RcFromSq(sq), coBack);
-    
-        for (MV mv : vmv) {
-            if (sq != mv.sqTo || (sqHoverCur != mv.sqFrom && sqDragFrom != mv.sqFrom))
-                continue;
-            brMove.SetCo(CoAverage(coBack, coBlack));
-            PT ptCenter = RcFromSq(sq).ptCenter();
-            if (bd[sq].cp() != cpEmpty || (sq == bd.sqEnPassant && bd[mv.sqFrom].tcp == tcpPawn))
-                FillGeom(geomCross, ptCenter, dxySquare / (2 * dxyCrossFull), 45, brMove);
-            else
-                FillEll(ELL(ptCenter, dxySquare * 0.25f), brMove);
-        }
-    }    
+    }
+}
+
+void WNBOARD::DrawMoveHilites(void)
+{
+    if (sqHoverCur == sqNil && sqDragFrom == sqNil)
+        return;
+
+    constexpr float dxyFull = 9;
+    constexpr float dxyCenter = 2;
+    static const PT aptCross[] = { {-dxyCenter, -dxyFull},   {dxyCenter,  -dxyFull},
+                                   { dxyCenter, -dxyCenter}, {dxyFull,    -dxyCenter},
+                                   { dxyFull,    dxyCenter}, {dxyCenter,   dxyCenter},
+                                   { dxyCenter,  dxyFull},   {-dxyCenter,  dxyFull},
+                                   {-dxyCenter,  dxyCenter}, {-dxyFull,    dxyCenter},
+                                   {-dxyFull,   -dxyCenter}, {-dxyCenter, -dxyCenter},
+                                   {-dxyCenter, -dxyFull} };
+    GEOM geomCross(*this, aptCross, size(aptCross));
+
+    SQ sqFrom(sqNil);
+    for (MV mv : vmv) {
+        if (mv.sqFrom == sqHoverCur || mv.sqFrom == sqDragFrom)
+            sqFrom = mv.sqFrom;
+        else if (mv.sqFrom != sqFrom)
+            continue;
+        PT ptCenter(RcFromSq(mv.sqTo).ptCenter());
+        if (bd[mv.sqTo].cp() != cpEmpty || (mv.sqTo == bd.sqEnPassant && bd[mv.sqFrom].tcp == tcpPawn))
+            FillGeom(geomCross, ptCenter, dxySquare / (2 * dxyFull), 45, CO(coBlack, 0.5f));
+        else
+            FillEll(ELL(ptCenter, dxySquare * 0.25f), CO(coBlack, 0.5f));
+    }
 }
 
 void WNBOARD::DrawPieces(void)
@@ -226,8 +230,13 @@ RC WNBOARD::RcPiecesFromCp(CP cp) const
 
 RC WNBOARD::RcFromSq(int sq) const
 {
-    PT pt = (ccpView == ccpWhite) ? PT(fi(sq), raMax-1-ra(sq)) : 
-                                    PT(fiMax-1-fi(sq), ra(sq));
+    return RcFromSq(fi(sq), ra(sq));
+}
+
+RC WNBOARD::RcFromSq(int fi, int ra) const
+{
+    PT pt = (ccpView == ccpWhite) ? PT(fi, raMax-1-ra) :
+        PT(fiMax-1-fi, ra);
     return RC(rcSquares.ptTopLeft() + pt*dxySquare, SZ(dxySquare));
 }
 
@@ -358,18 +367,18 @@ void WNBOARD::FlipCcp(void)
 {
     /* animate the turning over a 1/2 second time period */
 
-    float angleStart = angleDraw;
-    float angleEnd = angleStart - 180.0f;
-    constexpr chrono::milliseconds dtmTotal(500);
+    float angleEnd = -180;
+    constexpr chrono::milliseconds dtmTotal(900);
     auto tmStart = chrono::high_resolution_clock::now();
 
-    assert(angleEnd < angleStart);  // this loop assumes rotating in a negative angle 
     while (angleDraw > angleEnd) {
         Redraw();
         chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tmStart;
-        angleDraw = angleStart + (angleEnd - angleStart) * dtm / dtmTotal;
+        angleDraw = angleEnd * dtm / dtmTotal;
+        // this_thread::sleep_for(chrono::milliseconds(8));
     }
-    angleDraw = angleStart;
+
+    angleDraw = 0;
     ccpView = ~ccpView;
     Redraw();
 }

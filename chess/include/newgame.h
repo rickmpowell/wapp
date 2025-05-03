@@ -24,7 +24,8 @@ enum class NGCC
 
 struct DATAPLAYER
 {
-    NGCC ngcc = NGCC::None;
+    bool fModified = false;
+    CCP ccp;
     int ngcp = -1;
     int lvlComputer = 3;
     wstring wsNameHuman;
@@ -46,7 +47,7 @@ class VSELLEVEL : public VSEL
     friend class SELLEVEL;
 
 public:
-    VSELLEVEL(WN& wn, ICMD* pcmd, int rssLabel, int level);
+    VSELLEVEL(WN& wn, ICMD* pcmd, int rssLabel);
 
     virtual void DrawLabel(const RC& rcLabel);
     virtual void Layout(void) override;
@@ -69,7 +70,7 @@ public:
 class VSELPLAYER : public VSEL
 {
 public:
-    VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, NGCC ngcc, const wstring& wsName, int level);
+    VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CCP ccp, NGCC ngcc);
 
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
@@ -81,8 +82,10 @@ public:
     void SetData(const DATAPLAYER& dataplayer);
 
     NGCC ngcc;
+    bool fModified;
 
 private:
+    CCP ccp;
     SELPLAYER selHuman;
     SELPLAYER selComputer;
     EDIT editName;
@@ -193,7 +196,12 @@ class DLGNEWGAME : public DLG
     friend class CMDBLACK;
 
 public:
-    DLGNEWGAME(WN& wn);
+    DLGNEWGAME(WN& wn, GAME& game);
+    void Init(GAME& game);
+    void Extract(GAME& game);
+    void InitPlayer(VSELPLAYER& vsel, PL* ppl, CCP ccp);
+    void ExtractPlayer(GAME& game, VSELPLAYER& vsel, CCP ccp);
+
 
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;

@@ -243,7 +243,7 @@ bool ICMD::FMenuWs(wstring& wsMenu, CMS cms) const
     return false;
 }
 
-int ICMD::FRunDlg(void)
+int ICMD::FRunDlg(DLG& dlg)
 {
     return 1;
 }

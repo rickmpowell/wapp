@@ -9,14 +9,16 @@
 
 #include "chess.h"
 
-/*
- *  GAME class
- */
+ /*
+  *  GAME class
+  */
 
-GAME::GAME(WAPP& wapp, const string& fenStart) : 
+GAME::GAME(WAPP& wapp, const string& fenStart, PL* pplWhite, PL* pplBlack) :
     wapp(wapp),
-    bd(fenStart)
+    bd(fenStart),
+    maty(MATY::Random1ThenAlt),
+    cgaPlayed(0)
 {
-    appl[0] = nullptr;
-    appl[1] = nullptr;
+    appl[ccpWhite] = shared_ptr<PL>(pplWhite);
+    appl[ccpBlack] = shared_ptr<PL>(pplBlack);
 }

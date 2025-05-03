@@ -26,10 +26,11 @@ int Run(const wstring& wsCmd, int sw)
  */
 
 WAPP::WAPP(const wstring& wsCmd, int sw) : 
-    game(*this, fenStartPos),
+    game(*this, fenStartPos, new PLHUMAN(game, L"Rick"), new PLHUMAN(game, L"Hazel")),
     wnboard(*this, game.bd),
     wntest(*this),
-    cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND)
+    cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND),
+    rand(3772432297UL)
 {
     CreateWnd(rssAppTitle);
     PushFilterMsg(new FILTERMSGACCEL(*this, rsaApp));
@@ -101,18 +102,23 @@ public:
     CMDNEWGAME(WAPP& wapp) : CMD(wapp) {}
 
     virtual int Execute(void) override {
-        if (FRunDlg()) {
+        unique_ptr<DLGNEWGAME> pdlg = make_unique<DLGNEWGAME>(wapp, wapp.game);
+        if (FRunDlg(*pdlg)) {
+            /* TODO: need to undo entire game, and game undo needs a deep copy to undo
+               players. Need to be super careful when we get this working. Maybe it's
+               better to make New Game not undoable ... */
             bdUndo = wapp.game.bd;
+            pdlg->Extract(wapp.game);
             wapp.game.bd.InitFromFen(fenStartPos);
             wapp.wnboard.BdChanged();
+            wapp.game.cgaPlayed++;
         }
         return 1;
     }
 
-    virtual int FRunDlg(void) override {
+    virtual int FRunDlg(DLG& dlg) override {
         wapp.wnboard.Enable(false);
-        unique_ptr<DLG> pdlg = make_unique<DLGNEWGAME>(wapp);
-        int val = pdlg->DlgMsgPump();
+        int val = dlg.DlgMsgPump();
         wapp.wnboard.Enable(true);
         return val;
     }

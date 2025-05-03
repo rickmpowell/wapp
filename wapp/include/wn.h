@@ -39,12 +39,6 @@ private:
     WN(const WN& wn) = delete;  /* disable copy constructors */
     void operator = (const WN& wn) = delete;
 
-protected:
-    WN* pwnParent;  // will be nullptr at root
-    vector<WN*> vpwnChildren;
-    bool fVisible;
-    bool fEnabled;
-
 public:
     WN(IWAPP& iwapp, WN* pwnParent = nullptr);
     WN(WN& wnParent, bool fVisible = true);
@@ -52,6 +46,8 @@ public:
 
     void SetBounds(const RC& rcpNew);
     RC RcBounds(void) const;
+    RC RcNonClient(void) const;
+    RC RcClient(void) const;
     virtual void Layout(void);
     virtual SZ SzRequestLayout(const RC& rcWithin) const;
 
@@ -94,6 +90,13 @@ public:
 
     virtual void SetDefCurs(void);
     void SetCurs(const CURS& curs);
+
+protected:
+    WN* pwnParent;  // will be nullptr at root
+    vector<WN*> vpwnChildren;
+    RC rcInterior;
+    bool fVisible;
+    bool fEnabled;
 
 private:
     void AddChild(WN* pwnChild);
