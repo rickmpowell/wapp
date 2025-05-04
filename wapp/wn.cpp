@@ -485,13 +485,15 @@ void SCROLLER::Scroll(const PT& dpt)
  *  drawn.
  */
 
+using int_type = streambuf::traits_type::int_type;
+
 wnstreambuf::wnstreambuf(WNSTREAM& wnstream) : wnstream(wnstream)
 {
 }
 
-int wnstreambuf::overflow(int ch)
+int_type wnstreambuf::overflow(int_type ch)
 {
-    if (ch == WEOF)
+    if (ch == traits_type::eof())
         return ch;
     if (ch == '\n') {
         wnstream.ReceiveStream(buffer);
