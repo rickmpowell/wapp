@@ -93,15 +93,15 @@ void GEOM::Init(DC& dc, const PT apt[], size_t cpt)
  *  Text objects
  */
 
-TF::TF(DC& dc, const wstring& wsFace, float dyHeight, WEIGHT weight, STYLE style) 
+TF::TF(DC& dc, const string& sFace, float dyHeight, WEIGHT weight, STYLE style) 
 {
     assert(dyHeight > 0);
-    Set(dc, wsFace, dyHeight, weight, style);
+    Set(dc, sFace, dyHeight, weight, style);
 }
 
-void TF::Set(DC& dc, const wstring& wsFace, float dyHeight, WEIGHT weight, STYLE style)
+void TF::Set(DC& dc, const string& sFace, float dyHeight, WEIGHT weight, STYLE style)
 {
-    dc.iwapp.pfactdwr->CreateTextFormat(wsFace.c_str(), nullptr,
+    dc.iwapp.pfactdwr->CreateTextFormat(WsFromS(sFace).c_str(), nullptr,
                                         weight == WEIGHT::Bold ? DWRITE_FONT_WEIGHT_BOLD : DWRITE_FONT_WEIGHT_NORMAL,
                                         style == STYLE::Italic ? DWRITE_FONT_STYLE_ITALIC : DWRITE_FONT_STYLE_NORMAL,
                                         DWRITE_FONT_STRETCH_NORMAL,
@@ -112,11 +112,11 @@ void TF::Set(DC& dc, const wstring& wsFace, float dyHeight, WEIGHT weight, STYLE
 
 void TF::SetHeight(DC& dc, float dyHeight)
 {
-    WCHAR wsFamily[64];
-    ptf->GetFontFamilyName(wsFamily , size(wsFamily));
+    wchar_t wsFamily[64];
+    ptf->GetFontFamilyName(wsFamily, size(wsFamily));
     WEIGHT weight = (ptf->GetFontWeight() >= DWRITE_FONT_WEIGHT_BOLD) ? WEIGHT::Bold : WEIGHT::Normal;
     STYLE style = ptf->GetFontStyle() == DWRITE_FONT_STYLE_ITALIC ? STYLE::Italic : STYLE::Normal;
-    Set(dc, wsFamily, dyHeight, weight, style);
+    Set(dc, SFromWs(wstring_view(wsFamily)), dyHeight, weight, style);
 }
 
 TF::operator IDWriteTextFormat* () const 
@@ -397,47 +397,49 @@ void DC::Line(const PT& pt1, const PT& pt2, const BR& br, float dxyStroke) const
     iwapp.pdc2->DrawLine(ptg1, ptg2, br, dxyStroke);
 }
 
-void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText) const
+void DC::DrawS(const string& s, const TF& tf, const RC& rc, const BR& brText) const
 {
     RC rcg = RcgFromRc(rc);
+    wstring ws(WsFromS(s));
     iwapp.pdc2->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText);
 }
 
-void DC::DrawWs(wstring_view ws, const TF& tf, const RC& rc, const BR& brText) const
+void DC::DrawS(string_view s, const TF& tf, const RC& rc, const BR& brText) const
 {
     RC rcg = RcgFromRc(rc);
-    iwapp.pdc2->DrawText(ws.data(), (UINT32)ws.size(), tf, &rcg, brText);
+    wstring ws(WsFromS(s));
+    iwapp.pdc2->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText);
 }
 
-void DC::DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText) const
+void DC::DrawS(const string& s, const TF& tf, const RC& rc, CO coText) const
 {
     if (coText == coNil)
         coText = CoText();
-    DrawWs(ws, tf, rc, brScratch.SetCo(coText));
+    DrawS(s, tf, rc, brScratch.SetCo(coText));
 }
 
-void DC::DrawWs(wstring_view ws, const TF& tf, const RC& rc, CO coText) const
+void DC::DrawS(string_view s, const TF& tf, const RC& rc, CO coText) const
 {
     if (coText == coNil)
         coText = CoText();
-    DrawWs(ws, tf, rc, brScratch.SetCo(coText));
+    DrawS(s, tf, rc, brScratch.SetCo(coText));
 }
 
-void DC::DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const
+void DC::DrawSCenter(const string& s, TF& tf, const RC& rc, const BR& brText) const
 {
     GUARDTFALIGNMENT sav(tf, DWRITE_TEXT_ALIGNMENT_CENTER);
-    DrawWs(ws, tf, rc, brText);
+    DrawS(s, tf, rc, brText);
 }
 
-void DC::DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText) const
+void DC::DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText) const
 {
     if (coText == coNil)
         coText = CoText();
-    DrawWsCenter(ws, tf, rc, brScratch.SetCo(coText));
+    DrawSCenter(s, tf, rc, brScratch.SetCo(coText));
 }
 
 /*
- *  DC::DrawWsCenterXY
+ *  DC::DrawSCenterXY
  * 
  *  Centers the text horizontally and vertically within the rectangle. Where centered
  *  vertidally means the x-height of the text is centered, with ascenders and descenders
@@ -445,9 +447,10 @@ void DC::DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText) const
  *  work for most text.
  */
 
-void DC::DrawWsCenterXY(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const
+void DC::DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText) const
 {
     RC rcg = RcgFromRc(rc);
+    wstring ws(WsFromS(s));
     com_ptr<IDWriteTextLayout> ptxl;
     iwapp.pfactdwr->CreateTextLayout(ws.c_str(), (UINT32)ws.size(),
                                      tf, 
@@ -464,16 +467,17 @@ void DC::DrawWsCenterXY(const wstring& ws, TF& tf, const RC& rc, const BR& brTex
     iwapp.pdc2->DrawTextLayout(PT(xgLeft, ygTop), ptxl.Get(), brText);
 }
 
-void DC::DrawWsCenterXY(const wstring& ws, TF& tf, const RC& rc, CO coText) const
+void DC::DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText) const
 {
     if (coText == coNil)
         coText = CoText();
-    DrawWsCenterXY(ws, tf, rc, brScratch.SetCo(coText));
+    DrawSCenterXY(s, tf, rc, brScratch.SetCo(coText));
 }
 
-void DC::DrawWsCenterY(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const
+void DC::DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText) const
 {
     RC rcg = RcgFromRc(rc);
+    wstring ws(WsFromS(s));
     com_ptr<IDWriteTextLayout> ptxl;
     iwapp.pfactdwr->CreateTextLayout(ws.c_str(), (UINT32)ws.size(),
                                      tf,
@@ -487,20 +491,21 @@ void DC::DrawWsCenterY(const wstring& ws, TF& tf, const RC& rc, const BR& brText
     iwapp.pdc2->DrawTextLayout(PT(rcg.left, ygTop), ptxl.Get(), brText);
 }
 
-void DC::DrawWsCenterY(const wstring& ws, TF& tf, const RC& rc, CO coText) const
+void DC::DrawSCenterY(const string& s, TF& tf, const RC& rc, CO coText) const
 {
     if (coText == coNil)
         coText = CoText();
-    DrawWsCenterY(ws, tf, rc, brScratch.SetCo(coText));
+    DrawSCenterY(s, tf, rc, brScratch.SetCo(coText));
 }
 
-SZ DC::SzFromWs(const wstring& ws, const TF& tf, float dxWidth) const
+SZ DC::SzFromS(const string& s, const TF& tf, float dxWidth) const
 {
+    wstring ws(WsFromS(s));
     if (dxWidth < 0.0f)
         dxWidth = 32767.0f;
     com_ptr<IDWriteTextLayout> ptxl;
     iwapp.pfactdwr->CreateTextLayout(ws.c_str(), (UINT32)ws.size(),
-                                   tf, dxWidth, 32767.0f, &ptxl);
+                                     tf, dxWidth, 32767.0f, &ptxl);
     DWRITE_TEXT_METRICS dtm;
     ptxl->GetMetrics(&dtm);
     return SZ(dtm.width, dtm.height);

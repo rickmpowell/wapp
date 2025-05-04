@@ -14,9 +14,9 @@
   *  window visibility state
   */
 
-int Run(const wstring& wsCmd, int sw)
+int Run(const string& sCmdLine, int sw)
 {
-    WAPP wapp(wsCmd, sw);
+    WAPP wapp(sCmdLine, sw);
     return wapp.MsgPump();
 }
 
@@ -26,7 +26,7 @@ int Run(const wstring& wsCmd, int sw)
  *  The WAPP class for the Sample WAPP hello demonstration.
  */
 
-WAPP::WAPP(const wstring& wsCmd, int sw)
+WAPP::WAPP(const string& sCmdLine, int sw)
 {
     CreateWnd(rssAppTitle);
     Show(true);
@@ -51,11 +51,10 @@ CO WAPP::CoBack(void) const
 
 void WAPP::Draw(const RC& rcUpdate)
 {
-    wstring wsText(L"AbcfgHijkx");
-    TF tf(*this, L"Segoe UI Emoji", 30.0f);
-//  TF tf(*this, L"Verdana", 20.0f);
+    string sText("AbcfgHijkx");
+    TF tf(*this, "Segoe UI Symbol", 80.0f);
 
-    SZ sz(SzFromWs(wsText, tf));
+    SZ sz(SzFromS(sText, tf));
     RC rcText(RcInterior());
     rcText.Inflate(-80.0f);
     rcText.SetSz(sz);
@@ -74,14 +73,14 @@ void WAPP::Draw(const RC& rcUpdate)
     Line(PT(rcDraw.left, dyBaseLine-fm.dyXHeight), PT(rcDraw.right, dyBaseLine-fm.dyXHeight), coBlue);
     Line(PT(rcDraw.left, dyBaseLine-fm.dyAscent), PT(rcDraw.right, dyBaseLine-fm.dyAscent), coGreen);
 
-    DrawWs(wsText, tf, rcDraw);
+    DrawS(sText, tf, rcDraw);
 
     rcDraw += PT(0.0f, rcDraw.dyHeight() + 20.0f);
     float yX = ((rcDraw.top+rcDraw.bottom) - fm.dyXHeight) / 2;
     FillRc(rcDraw, coWhite);
     Line(PT(rcDraw.left, yX), PT(rcDraw.right, yX), coRed);
     Line(PT(rcDraw.left, yX+fm.dyXHeight), PT(rcDraw.right, yX+fm.dyXHeight), coRed);
-    DrawWsCenterXY(wsText, tf, rcDraw);
+    DrawSCenterXY(sText, tf, rcDraw);
 }
 
 /*

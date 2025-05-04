@@ -8,20 +8,20 @@
 #include "chess.h"
 
 
-PLHUMAN::PLHUMAN(GAME& game, wstring_view wsName) :
+PLHUMAN::PLHUMAN(GAME& game, string_view sName) :
     PL(game),
-    wsName(wsName)
+    sName(sName)
 {
 }
 
-void PLHUMAN::SetName(wstring_view wsName)
+void PLHUMAN::SetName(string_view sName)
 {
-    this->wsName = wsName;
+    this->sName = sName;
 }
 
-wstring_view PLHUMAN::WsName(void) const
+string_view PLHUMAN::SName(void) const
 {
-    return wsName;
+    return sName;
 }
 
 bool PLHUMAN::FIsHuman(void) const

@@ -63,11 +63,11 @@ public:
     com_ptr<IDWriteTextFormat> ptf;
 
 public:
-    TF(DC& dc, const wstring& wsFace, float dyHeight = 12.0f,
+    TF(DC& dc, const string& sFace, float dyHeight = 12.0f,
        WEIGHT weight = WEIGHT::Normal, STYLE = STYLE::Normal);
     operator IDWriteTextFormat* () const;
 
-    void Set(DC& dc, const wstring& wsFace, float dyHeight = 12.0f,
+    void Set(DC& dc, const string& sFace, float dyHeight = 12.0f,
              WEIGHT weight = WEIGHT::Normal, STYLE = STYLE::Normal);
     void SetHeight(DC& dc, float dyHeight);
 };
@@ -223,17 +223,19 @@ public:
     void Line(const PT& pt1, const PT& pt2, CO co = coNil, float dxyStroke = 1) const;
     void Line(const PT& pt1, const PT& pt2, const BR& br, float dxyStroke = 1) const;
 
-    void DrawWs(const wstring& ws, const TF& tf, const RC& rc, const BR& brText) const;
-    void DrawWs(const wstring& ws, const TF& tf, const RC& rc, CO coText = coNil) const;
-    void DrawWs(wstring_view ws, const TF& tf, const RC& rc, const BR& brText) const;
-    void DrawWs(wstring_view ws, const TF& tf, const RC& rc, CO coText = coNil) const;
-    void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const;
-    void DrawWsCenter(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil) const;
+    void DrawS(const string& s, const TF& tf, const RC& rc, const BR& brText) const;
+    void DrawS(const string& s, const TF& tf, const RC& rc, CO coText = coNil) const;
+    void DrawS(string_view s, const TF& tf, const RC& rc, const BR& brText) const;
+    void DrawS(string_view s, const TF& tf, const RC& rc, CO coText = coNil) const;
+    void DrawSCenter(const string& s, TF& tf, const RC& rc, const BR& brText) const;
+    void DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText = coNil) const;
     void DrawWsCenterY(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const;
     void DrawWsCenterY(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil) const;
-    void DrawWsCenterXY(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const;
-    void DrawWsCenterXY(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil) const;
-    SZ SzFromWs(const wstring& ws, const TF& tf, float dxWidth = -1.0f) const;
+    void DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText) const;
+    void DrawSCenterY(const string& s, TF& tf, const RC& rc, CO coText = coNil) const;
+    void DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText) const;
+    void DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText = coNil) const;
+    SZ SzFromS(const string& s, const TF& tf, float dxWidth = -1.0f) const;
     FM FmFromTf(const TF& tf) const;
 
     void DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity) const;

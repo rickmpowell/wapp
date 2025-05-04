@@ -10,8 +10,8 @@
 WNTEST::WNTEST(WN& wnParent) : 
     WNSTREAM(wnParent), 
     SCROLLER((WN&)*this),
-    titlebar(*this, L"Tests"), 
-    tfTest(*this, wsFontUI, 12.0f),
+    titlebar(*this, "Tests"), 
+    tfTest(*this, sFontUI, 12.0f),
     dyLine(0.0f)
 {
 }
@@ -28,7 +28,7 @@ void WNTEST::Layout(void)
     rc.bottom = rcInt.bottom;
     SetView(rc);
 
-    dyLine = SzFromWs(L"ag", tfTest).height + 2.0f;
+    dyLine = SzFromS("ag", tfTest).height + 2.0f;
 }
 
 void WNTEST::Draw(const RC& rcUpdate)
@@ -48,26 +48,26 @@ CO WNTEST::CoBack(void) const
 
 void WNTEST::clear(void)
 {
-    vws.clear();
+    vs.clear();
     SetViewOffset(PT(0, 0));
     SetContentLines(1);
 }
 
-void WNTEST::ReceiveStream(const wstring& ws)
+void WNTEST::ReceiveStream(const string& s)
 {
-    vws.push_back(ws);
-    SetContentLines(vws.size());
+    vs.push_back(s);
+    SetContentLines(vs.size());
 }
 
 void WNTEST::DrawView(const RC& rcUpdate)
 {
-    wstring ws;
+    string s;
     RC rcLine(RcView());
-    int iwsFirst = IwsFromY(rcLine.top);
-    rcLine.top = YFromIws(iwsFirst);    // back up to start of line
-    for (int iws = iwsFirst; iws < vws.size(); iws++) {
+    int isFirst = IsFromY(rcLine.top);
+    rcLine.top = YFromIs(isFirst);    // back up to start of line
+    for (int is = isFirst; is < vs.size(); is++) {
         rcLine.bottom = rcLine.top + dyLine;
-        DrawWs(vws[iws], tfTest, rcLine);
+        DrawS(vs[is], tfTest, rcLine);
         rcLine.top = rcLine.bottom;
         if (rcLine.top > RcView().bottom)
             break;
@@ -80,33 +80,33 @@ void WNTEST::DrawView(const RC& rcUpdate)
 
 void WNTEST::Wheel(const PT& pt, int dwheel)
 {
-    if (!RcView().FContainsPt(pt) || vws.size() <= 1)
+    if (!RcView().FContainsPt(pt) || vs.size() <= 1)
         return;
     dwheel /= 120;
     int iwsFirst = (int)(roundf((RccView().top - RccContent().top) / dyLine));
-    iwsFirst = clamp(iwsFirst - dwheel, 0, (int)vws.size() - 1);
+    iwsFirst = clamp(iwsFirst - dwheel, 0, (int)vs.size() - 1);
     float ycTop = RccContent().top + iwsFirst * dyLine;
     SetViewOffset(PT(0.0f, ycTop));
     Redraw();
 }
 
-void WNTEST::SetContentLines(size_t cws)
+void WNTEST::SetContentLines(size_t cs)
 {
-    SetContent(RC(PT(0), SZ(RcView().dxWidth(), cws*dyLine)));
+    SetContent(RC(PT(0), SZ(RcView().dxWidth(), cs*dyLine)));
     float yc = RccView().bottom + 
         dyLine * ceilf((RccContent().bottom - RccView().bottom)/dyLine);
     FMakeVis(PT(0.0f, yc));
     Redraw();
 }
 
-int WNTEST::IwsFromY(float y) const
+int WNTEST::IsFromY(float y) const
 {
     return (int)floorf((y - RcContent().top) / dyLine);
 }
 
-float WNTEST::YFromIws(int iws) const
+float WNTEST::YFromIs(int is) const
 {
-    return RcContent().top + iws * dyLine;
+    return RcContent().top + is * dyLine;
 }
 
 /*
@@ -124,9 +124,9 @@ void WAPP::RunPerft(void)
         uint64_t cmv = CmvPerft(depth);
         chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tmStart;
 
-        wntest << L"Perft " << depth << L": " << cmv << endl;
-        wntest << L"  Time: " << (uint32_t)round(dtm.count() * 1000.0f) << L" ms" << endl;
-        wntest << L"  moves/ms: " << (uint32_t)round((float)cmv / dtm.count() / 1000.0f) << endl;
+        wntest << "Perft " << depth << ": " << cmv << endl;
+        wntest << "  Time: " << (uint32_t)round(dtm.count() * 1000.0f) << " ms" << endl;
+        wntest << "  moves/ms: " << (uint32_t)round((float)cmv / dtm.count() / 1000.0f) << endl;
     }
     wnboard.Enable(true);
 }
@@ -140,15 +140,15 @@ void WAPP::RunDivide(void)
     VMV vmv;
     game.bd.MoveGen(vmv);
     uint64_t cmv = 0;
-    wntest << L"Divide depth " << depth << endl;
+    wntest << "Divide depth " << depth << endl;
     for (MV& mv : vmv) {
         game.bd.MakeMv(mv);
         uint64_t cmvMove = CmvPerft(depth - 1);
-        wntest << L"  " << (wstring)mv << L" " << cmvMove << endl;
+        wntest << "  " << (string)mv << " " << cmvMove << endl;
         cmv += cmvMove;
         game.bd.UndoMv(mv);
     }
-    wntest << L"Total: " << cmv << endl;
+    wntest << "Total: " << cmv << endl;
 
     wnboard.Enable(true);
 }

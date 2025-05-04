@@ -25,13 +25,13 @@ enum class NGCC
 struct DATAPLAYER
 {
     bool fModified = false;
-    CCP ccp;
+    CCP ccp = ccpInvalid;
     int ngcp = -1;
     int lvlComputer = 3;
-    wstring wsNameHuman;
+    string sNameHuman;
 };
 
-class SELLEVEL : public SELWS
+class SELLEVEL : public SELS
 {
 public:
     SELLEVEL(VSEL& vselParent, int lvl);
@@ -59,10 +59,10 @@ public:
  *  A player box in the New Game dialog
  */
 
-class SELPLAYER: public SELWS
+class SELPLAYER: public SELS
 {
 public:
-    SELPLAYER(VSEL& vselParent, const wstring& wsIcon);
+    SELPLAYER(VSEL& vselParent, const string& sIcon);
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
 };
@@ -90,7 +90,7 @@ private:
     SELPLAYER selComputer;
     EDIT editName;
     VSELLEVEL vsellevel;
-    BTNWS btnAISettings;
+    BTNS btnAISettings;
 };
 
 /*
@@ -145,7 +145,7 @@ public:
     virtual void Layout(void) override;
 
 private:
-    BTNCH btn;
+    BTNS btn;
 };
 
 class VSELTIME : public VSEL
@@ -172,7 +172,7 @@ private:
  *  Our random chess side color toggle button. We just do some custom drawing here
  */
 
-class BTNRANDOM : public BTNCH
+class BTNRANDOM : public BTNS
 {
 public:
     BTNRANDOM(WN& wnParent, ICMD* pcmd);
@@ -212,9 +212,9 @@ public:
     INSTRUCT instruct;
     VSELPLAYER vselWhite;
     VSELPLAYER vselBlack;
-    BTNWS btnSwap;
+    BTNS btnSwap;
     BTNRANDOM btnrandom;
-    BTNWS btnSettings;
+    BTNS btnSettings;
     VSELTIME vseltime;
     BTNOK btnStart;
 };

@@ -163,9 +163,11 @@ void IWAPP::InitMenuCmd(HMENU hmenu, int cmd, const unique_ptr<ICMD>& pcmd)
     mi.fState = pcmd->FEnabled() ? MFS_UNCHECKED|MFS_ENABLED : MFS_UNCHECKED|MFS_DISABLED|MF_GRAYED;
     if (pcmd->FChecked())
         mi.fState |= MFS_CHECKED;
-    wstring wsMenu;
-    if (pcmd->FMenuWs(wsMenu)) {
+    string sMenu;
+    wstring wsMenu; // needs scope so the underlying string doesn't get freed until we use it
+    if (pcmd->FMenuS(sMenu)) {
         mi.fMask |= MIIM_TYPE;
+        wsMenu = WsFromS(sMenu);
         mi.dwTypeData = const_cast<LPWSTR>(wsMenu.c_str()); 
     }
     ::SetMenuItemInfoW(hmenu, cmd, false, &mi);
@@ -233,12 +235,12 @@ bool ICMD::FChecked(void) const
     return false;
 }
 
-bool ICMD::FToolTipWs(wstring& wsTip) const
+bool ICMD::FToolTipS(string& sTip) const
 {
     return false;
 }
 
-bool ICMD::FMenuWs(wstring& wsMenu, CMS cms) const
+bool ICMD::FMenuS(string& sMenu, CMS cms) const
 {
     return false;
 }

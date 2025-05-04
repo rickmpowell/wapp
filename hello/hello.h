@@ -11,7 +11,7 @@
 class WAPP : public IWAPP
 {
 public:
-    WAPP(const wstring& wsCmd, int sw);
+    WAPP(const string& wsCmdLine, int sw);
 
     virtual void RegisterMenuCmds(void) override;
 

@@ -142,18 +142,18 @@ int DLG::DlgMsgPump(void)
  *  TITLEDLG control
  */
 
-TITLEDLG::TITLEDLG(DLG& dlg, const wstring& wsTitle) :
-    STATIC(dlg, wsTitle),
+TITLEDLG::TITLEDLG(DLG& dlg, const string& sTitle) :
+    STATIC(dlg, sTitle),
     btnclose(*this, new CMDCANCEL(dlg))
 {
-    SetFont(wsFontUI, 40, TF::WEIGHT::Bold);
+    SetFont(sFontUI, 40, TF::WEIGHT::Bold);
 }
 
 TITLEDLG::TITLEDLG(DLG& dlg, int rssTitle) : 
     STATIC(dlg, rssTitle),
     btnclose(*this, new CMDCANCEL(dlg))
 {
-    SetFont(wsFontUI, 40, TF::WEIGHT::Bold);
+    SetFont(sFontUI, 40, TF::WEIGHT::Bold);
 }
 
 void TITLEDLG::Layout(void)
@@ -168,7 +168,7 @@ void TITLEDLG::Layout(void)
 
 SZ TITLEDLG::SzRequestLayout(const RC& rcWithin) const
 {
-    SZ sz(SzFromWs(wsImage, tf));
+    SZ sz(SzFromS(sImage, tf));
     sz.width = max(sz.width, rcWithin.dxWidth());
     return sz;
 }
@@ -177,19 +177,19 @@ SZ TITLEDLG::SzRequestLayout(const RC& rcWithin) const
  *  INSTRUCT control. A control for displaying short dialog instructions.
  */
 
-INSTRUCT::INSTRUCT(DLG& dlg, const wstring& wsText) :
-    STATICL(dlg, wsText, rssInstructionBulb)
+INSTRUCT::INSTRUCT(DLG& dlg, const string& sText) :
+    STATICL(dlg, sText, rssInstructionBulb)
 {
-    SetFont(wsFontSymbol, 16);
+    SetFont(sFontSymbol, 16);
 }
 
 INSTRUCT::INSTRUCT(DLG& dlg, int rssText) :
     STATICL(dlg, rssText, rssInstructionBulb)
 {
-    SetFont(wsFontSymbol, 16);
+    SetFont(sFontSymbol, 16);
 }
 
 void INSTRUCT::DrawLabel(const RC& rcLabel)
 {
-    DrawWsCenter(wsLabel, tf, rcLabel, coYellow);
+    DrawSCenter(sLabel, tf, rcLabel, coYellow);
 }

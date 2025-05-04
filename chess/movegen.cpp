@@ -326,14 +326,6 @@ int BD::IcpUnused(int ccp, int tcpHint) const {
  *  String formatting of squares and moves. Return things formatted for UCI
  */
 
-wstring to_wstring(SQ sq)
-{
-    wchar_t awch[4] = { 0 }, * pwch = awch;
-    *pwch++ = L'a' + fi(sq);
-    *pwch++ = L'1' + ra(sq);
-    return awch;
-}
-
 string to_string(SQ sq)
 {
     char ach[4] = { 0 }, * pch = ach;
@@ -342,28 +334,9 @@ string to_string(SQ sq)
     return ach;
 }
 
-wstring to_wstring(MV mv)
-{
-    return (wstring)mv;
-}
-
 string to_string(MV mv)
 {
     return (string)mv;
-}
-
-MV::operator wstring () const
-{
-    if (fIsNil())
-        return L"-";
-    wchar_t awch[8] = { 0 }, * pwch = awch;
-    *pwch++ = L'a' + fi(sqFrom);
-    *pwch++ = L'1' + ra(sqFrom);
-    *pwch++ = L'a' + fi(sqTo);
-    *pwch++ = L'1' + ra(sqTo);
-    if (tcpPromote != tcpNone) 
-        *pwch++ = L" pnbrqk"[tcpPromote];
-    return awch;
 }
 
 MV::operator string () const

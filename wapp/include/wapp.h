@@ -40,7 +40,7 @@ public:
     IWAPP(void);
     virtual ~IWAPP();
 
-    void CreateWnd(const wstring& wsTitle,
+    void CreateWnd(const string& sTitle,
                 int ws = WS_OVERLAPPEDWINDOW,
                 PT pt = PT(CW_USEDEFAULT), SZ sz = SZ(CW_USEDEFAULT));
     void CreateWnd(int rssTitle,
@@ -110,7 +110,7 @@ public:
   
     /* error messages */
 
-    wstring WsFromErr(ERR err) const;
+    string SFromErr(ERR err) const;
     void Error(ERR err, ERR err2 = errNone);
 
     /* message pump and message filters */

@@ -20,7 +20,7 @@ public:
     PL(GAME& game);
 
     virtual bool FIsHuman(void) const = 0;
-    virtual wstring_view WsName(void) const = 0;
+    virtual string_view SName(void) const = 0;
 
 public:
     GAME& game;
@@ -35,14 +35,14 @@ public:
 class PLHUMAN : public PL
 {
 public:
-    PLHUMAN(GAME& game, wstring_view wsName);
+    PLHUMAN(GAME& game, string_view sName);
 
     virtual bool FIsHuman(void) const override;
-    virtual wstring_view WsName(void) const override;
-    void SetName(wstring_view wsName);
+    virtual string_view SName(void) const override;
+    void SetName(string_view sName);
 
 private:
-    wstring wsName;
+    string sName;
 };
 
 /*
@@ -62,7 +62,7 @@ public:
     PLCOMPUTER(GAME& game, const SETAI& setai);
 
     virtual bool FIsHuman(void) const override;
-    virtual wstring_view WsName(void) const override;
+    virtual string_view SName(void) const override;
 
     int Level(void) const;
     void SetLevel(int level);

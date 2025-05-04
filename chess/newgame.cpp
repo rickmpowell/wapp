@@ -12,7 +12,7 @@ constexpr float valueDlgTextHilite = 0.95f;
 constexpr float valueDlgBackDark = 0.25f;
 constexpr float valueDlgBackLight = 0.5f;
 
-constexpr wchar_t wsIconSettings[] = L"\u2699";
+constexpr char8_t sIconSettings[] = u8"\u2699";
 
 /*
  &  CMDPLAYER 
@@ -240,18 +240,18 @@ DLGNEWGAME::DLGNEWGAME(WN& wnParent, GAME& game) :
     instruct(*this, rssNewGameInstructions),
     vselWhite(*this, new CMDPLAYER(*this, vselWhite), ccpWhite, NGCC::White),
     vselBlack(*this, new CMDPLAYER(*this, vselBlack), ccpBlack, NGCC::Black),
-    btnSwap(*this, new CMDSWAP(*this), L"\u21c4"),
+    btnSwap(*this, new CMDSWAP(*this), reinterpret_cast<const char*>(u8"\u21c4")),
     btnrandom(*this, new CMDRANDOM(*this)),
-    btnSettings(*this, new CMDGAMESETTINGS(*this), wsIconSettings, rssStandardGame),
+    btnSettings(*this, new CMDGAMESETTINGS(*this), reinterpret_cast<const char*>(sIconSettings), rssStandardGame),
     vseltime(*this, new CMDTIME(*this)),
     /* TODO: resource */
-    btnStart(*this, L"Start \U0001F846")
+    btnStart(*this, reinterpret_cast<const char*>(u8"Start \U0001F846"))
 {
-    btnSettings.SetFont(wsFontSymbol, 24);
+    btnSettings.SetFont(sFontSymbol, 24);
 
     btnSwap.SetLayout(LCTL::SizeToFit);
     btnSwap.SetPadding(PAD(2));
-    btnSwap.SetFont(wsFontUI, 12, TF::WEIGHT::Bold);
+    btnSwap.SetFont(sFontUI, 12, TF::WEIGHT::Bold);
     btnSwap.SetBounds(RC(PT(0), SZ(dxyBtnSwap)));
  
     btnrandom.SetLayout(LCTL::SizeToFit);
@@ -297,7 +297,7 @@ void DLGNEWGAME::InitPlayer(VSELPLAYER& vsel, PL* ppl, CCP ccp)
     dataplayer.ccp = ccp;
     dataplayer.ngcp = !ppl->FIsHuman();
     dataplayer.lvlComputer = ppl->FIsHuman() ? 3 : static_cast<PLCOMPUTER*>(ppl)->Level();
-    dataplayer.wsNameHuman = ppl->WsName();
+    dataplayer.sNameHuman = ppl->SName();
     vsel.SetData(dataplayer);
 }
 
@@ -321,7 +321,7 @@ void DLGNEWGAME::Extract(GAME& game)
             game.maty = MATY::Alt;
         DATAPLAYER dataplayer = vselWhite.DataGet();
         if (dataplayer.ngcp == 0)
-            static_cast<PLHUMAN*>(game.appl[dataplayer.ccp].get())->SetName(dataplayer.wsNameHuman);
+            static_cast<PLHUMAN*>(game.appl[dataplayer.ccp].get())->SetName(dataplayer.sNameHuman);
         if (dataplayer.ngcp == 1)
             static_cast<PLCOMPUTER*>(game.appl[dataplayer.ccp].get())->SetLevel(dataplayer.lvlComputer);
     }
@@ -372,8 +372,8 @@ void DLGNEWGAME::Validate(void)
  *  VSELPLAYER
  */
 
-SELPLAYER::SELPLAYER(VSEL& vsel, const wstring& wsIcon) :
-    SELWS(vsel, wsIcon)
+SELPLAYER::SELPLAYER(VSEL& vsel, const string& sIcon) :
+    SELS(vsel, sIcon)
 {
 }
 
@@ -396,11 +396,11 @@ CO SELPLAYER::CoBack(void) const
 VSELPLAYER::VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CCP ccp, NGCC ngcc) :
     VSEL(dlg , pcmd),
     /* TODO: resources */
-    selHuman(*this, L"\U0001F464"),     // human profile emoji
-    selComputer(*this, L"\U0001F5A5"),   // desktop computer emoji
-    editName(*this, L"", rssLabelName),
+    selHuman(*this, reinterpret_cast<const char*>(u8"\U0001F464")),     // human profile emoji
+    selComputer(*this, reinterpret_cast<const char*>(u8"\U0001F5A5")),   // desktop computer emoji
+    editName(*this, "", rssLabelName),
     vsellevel(*this, new CMDLEVEL(dlg, *this), rssLabelLevel),
-    btnAISettings(*this, new CMDAISETTINGS(dlg, *this), wsIconSettings),
+    btnAISettings(*this, new CMDAISETTINGS(dlg, *this), reinterpret_cast<const char*>(sIconSettings)),
     ccp(ccp),
     ngcc(ngcc),
     fModified(false)
@@ -410,7 +410,7 @@ VSELPLAYER::VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CCP ccp, NGCC ngcc) :
     btnAISettings.SetLayout(LCTL::SizeToFit);
     editName.SetLayout(LCTL::SizeToFit);
     vsellevel.SetLayout(LCTL::SizeToFit);
-    btnAISettings.SetFont(wsFontSymbol);
+    btnAISettings.SetFont(sFontSymbol);
     selHuman.SetBorder(PAD(4));
     selComputer.SetBorder(PAD(4));
 }
@@ -429,16 +429,16 @@ void VSELPLAYER::Draw(const RC& rcUpdate)
 {
     CO aco[] = { coWhite, coBlack };
     RC rc(PT(0), SZ(RcInterior().dxWidth(), 36));
-    TF tf(*this, wsFontUI, 24);
+    TF tf(*this, sFontUI, 24);
     switch (ngcc) {
     case NGCC::White:
     case NGCC::Black:
         FillRc(rc, aco[(int)ngcc]);
-        DrawWsCenterXY(WsCapitalizeFirst(iwapp.WsLoad(rssColor + (int)ngcc)), tf, rc, aco[(int)ngcc ^ 1]);
+        DrawSCenterXY(SCapitalizeFirst(iwapp.SLoad(rssColor + (int)ngcc)), tf, rc, aco[(int)ngcc ^ 1]);
         break;
     case NGCC::Random:
         /* TODO: resource */
-        DrawWsCenterXY(L"Random Color", tf, rc);
+        DrawSCenterXY("Random Color", tf, rc);
         break;
     }
 }
@@ -475,22 +475,22 @@ SZ VSELPLAYER::SzRequestLayout(const RC& rcWithin) const
 
 void VSELPLAYER::Validate(void)
 {
-    wstring wsPlayer = 
+    string sPlayer = 
                 (ngcc == NGCC::White || ngcc == NGCC::Black) ?
-                iwapp.WsLoad(rssColor+(int)ngcc) :
-                L"player"; /* TODO: resource */
+                iwapp.SLoad(rssColor+(int)ngcc) :
+                "player"; /* TODO: resource */
 
     switch (GetSelectorCur()) {
     case 0:
-        if (editName.WsText().size() == 0)
-            throw ERRAPP(rssErrProvideHumanName, wsPlayer);
+        if (editName.SText().size() == 0)
+            throw ERRAPP(rssErrProvideHumanName, sPlayer);
         break;
     case 1:
         if (!inrange(vsellevel.GetSelectorCur(), 0, 9))
-            throw ERRAPP(rssErrChooseAILevel, wsPlayer);
+            throw ERRAPP(rssErrChooseAILevel, sPlayer);
         break;
     default:
-        throw ERRAPP(rssErrChoosePlayerType, wsPlayer);
+        throw ERRAPP(rssErrChoosePlayerType, sPlayer);
     }
 }
 
@@ -501,14 +501,14 @@ DATAPLAYER VSELPLAYER::DataGet(void) const
     dataplayer.ccp = ccp;
     dataplayer.fModified = fModified;
     dataplayer.lvlComputer = vsellevel.GetSelectorCur();
-    dataplayer.wsNameHuman = editName.WsText();
+    dataplayer.sNameHuman = editName.SText();
     return dataplayer;
 }
 
 void VSELPLAYER::SetData(const DATAPLAYER& dataplayer)
 {
     vsellevel.SetSelectorCur(dataplayer.lvlComputer);
-    editName.SetText(dataplayer.wsNameHuman);
+    editName.SetText(dataplayer.sNameHuman);
     SetSelectorCur(dataplayer.ngcp);
     ccp = dataplayer.ccp;
     fModified = dataplayer.fModified;       /* do this last in case selection code changes it */
@@ -522,7 +522,7 @@ const float dxyLevelBorder = 2;
 const float dxyLevelPadding = 1;
 
 SELLEVEL::SELLEVEL(VSEL& vsel, int lvl) :
-    SELWS(vsel, to_wstring(lvl))
+    SELS(vsel, to_string(lvl))
 {
     SetPadding(PAD(dxyLevelPadding)); 
     SetBorder(PAD(dxyLevelBorder));
@@ -547,13 +547,13 @@ CO SELLEVEL::CoBack(void) const
 void SELLEVEL::Draw(const RC& rcUpdate)
 {
     VSEL* pvsel = static_cast<VSEL*>(pwnParent);
-    DrawWsCenterXY(wsImage, pvsel->TfGet(), RcInterior());  // use RcInterior instead of RcContent becuase string "10" may not fit
+    DrawSCenterXY(sImage, pvsel->TfGet(), RcInterior());  // use RcInterior instead of RcContent becuase string "10" may not fit
 }
 
 SZ SELLEVEL::SzRequestLayout(const RC& rcWithin) const
 {
     VSEL* pvsel = static_cast<VSEL*>(pwnParent);
-    SZ sz(SzFromWs(wsImage, pvsel->TfGet()));
+    SZ sz(SzFromS(sImage, pvsel->TfGet()));
     float dxy = max(sz.width, sz.height);
     return SZ(dxy);
 }
@@ -586,7 +586,7 @@ void VSELLEVEL::Layout(void)
 
 void VSELLEVEL::DrawLabel(const RC& rcLabel)
 {
-    DrawWsCenterXY(wsLabel, tf, rcLabel);
+    DrawSCenterXY(sLabel, tf, rcLabel);
 }
 
 /*
@@ -598,7 +598,7 @@ void VSELLEVEL::DrawLabel(const RC& rcLabel)
 
 SELTIME::SELTIME(VSELTIME& vsel, int rssLabel) :
     SEL(vsel, rssLabel),
-    tfLabel(*this, wsFontUI, 14)
+    tfLabel(*this, sFontUI, 14)
 {
     SetBorder(PAD(4));
 }
@@ -621,12 +621,12 @@ CO SELTIME::CoBack(void) const
 
 void SELTIME::DrawLabel(const RC& rcLabel)
 {
-    DrawWsCenterXY(wsLabel, tfLabel, rcLabel);
+    DrawSCenterXY(sLabel, tfLabel, rcLabel);
 }
 
 SZ SELTIME::SzLabel(void) const
 {
-    return SzFromWs(wsLabel, tfLabel);
+    return SzFromS(sLabel, tfLabel);
 }
 
 void SELTIME::Draw(const RC& rcUpdate)
@@ -639,7 +639,7 @@ void SELTIME::Draw(const RC& rcUpdate)
 
 void SELTIME::Layout(void)
 {
-    SetFont(wsFontUI, 32);
+    SetFont(sFontUI, 32);
 }
 
 SZ SELTIME::SzRequestLayout(const RC& rcWithin) const
@@ -655,7 +655,7 @@ SZ SELTIME::SzRequestLayout(const RC& rcWithin) const
 
 SELTIMECUSTOM::SELTIMECUSTOM(VSELTIME& vsel, int rssLabel) :
     SELTIME(vsel, rssLabel),
-    btn(*this, new CMDCUSTOMTIME(Wapp(vsel.iwapp)), L'\u23f1')
+    btn(*this, new CMDCUSTOMTIME(Wapp(vsel.iwapp)), reinterpret_cast<const char*>(u8"\u23f1"))
 {
 }
 
@@ -672,7 +672,7 @@ void SELTIMECUSTOM::Layout(void)
     rc.bottom -= 6;
     rc.CenterDx(rc.dyHeight());
     btn.SetBounds(rc);
-    btn.SetFont(wsFontSymbol, rc.dyHeight() * 0.75f);
+    btn.SetFont(sFontSymbol, rc.dyHeight() * 0.75f);
     btn.Show(fSelected);
 }
 
@@ -694,8 +694,8 @@ void SELTIMECYCLE::Draw(const RC& rcUpdate)
     SELTIME::Draw(rcUpdate);
     RC rc(RcContent());
     rc.top += 26;
-    wstring ws = to_wstring(vtms[itmsCur].minTotal) + L"+" + to_wstring(vtms[itmsCur].secMoveInc);
-    DrawWsCenter(ws, tf, rc);
+    string s = to_string(vtms[itmsCur].minTotal) + "+" + to_string(vtms[itmsCur].secMoveInc);
+    DrawSCenter(s, tf, rc);
 }
 
 void SELTIMECYCLE::Layout(void)
@@ -846,9 +846,9 @@ SZ DLGTIMESETTINGS::SzRequestLayout(const RC& rcWithin) const
  */
 
 BTNRANDOM::BTNRANDOM(WN& wnParent, ICMD* pcmd) :
-    BTNCH(wnParent, pcmd, L'?')
+    BTNS(wnParent, pcmd, "?")
 {
-    SetFont(wsFontUI, 12, TF::WEIGHT::Bold);
+    SetFont(sFontUI, 12, TF::WEIGHT::Bold);
 }
 
 CO BTNRANDOM::CoText(void) const
@@ -878,9 +878,9 @@ void BTNRANDOM::Draw(const RC& rcUpdate)
     RC rc(RcContent());
     float dxy = 1.5f;
     for (float angle = 0; angle < 2*numbers::pi; angle += (float)numbers::pi/24)
-        DrawWsCenterXY(wstring(1, chImage), tf, rc + SZ(sinf(angle), cosf(angle)) * dxy, coBlack);
+        DrawSCenterXY(sImage, tf, rc + SZ(sinf(angle), cosf(angle)) * dxy, coBlack);
 
-    BTNCH::Draw(rcUpdate);
+    BTNS::Draw(rcUpdate);
 }
 
 SZ BTNRANDOM::SzRequestLayout(const RC& rcWithin) const

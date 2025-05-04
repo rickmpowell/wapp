@@ -15,8 +15,8 @@
 
 inline constexpr CO coDlgBack(0.33f, 0.28f, 0.35f);
 inline constexpr CO coDlgText(coWhite);
-inline constexpr wchar_t wsFontUI[] = L"Segoe UI";
-inline constexpr wchar_t wsFontSymbol[] = L"Segoe UI Symbol";
+inline constexpr char sFontUI[] = "Segoe UI";
+inline constexpr char sFontSymbol[] = "Segoe UI Symbol";
 inline constexpr float dxyDlgPadding = 48;
 inline constexpr float dxyDlgGutter = 24;
 
@@ -96,11 +96,12 @@ public:
     }
 };
 
-class BTNOK : public BTNWS
+class BTNOK : public BTNS
 {
 public:
-    BTNOK(DLG& dlg, const wstring& wsText = L"OK") : 
-        BTNWS(dlg, new CMDOK(dlg), wsText) {
+    /* TODO: localization */
+    BTNOK(DLG& dlg, const string& sText = "OK") : 
+        BTNS(dlg, new CMDOK(dlg), sText) {
     }
 };
 
@@ -113,7 +114,7 @@ public:
 class TITLEDLG : public STATIC
 {
 public:
-    TITLEDLG(DLG& dlg, const wstring& wsTitle);
+    TITLEDLG(DLG& dlg, const string& sTitle);
     TITLEDLG(DLG& dlg, int rssTitle);
     virtual ~TITLEDLG() = default;
 
@@ -133,7 +134,7 @@ private:
 class INSTRUCT : public STATICL
 {
 public:
-    INSTRUCT(DLG& dlg, const wstring& wsText);
+    INSTRUCT(DLG& dlg, const string& sText);
     INSTRUCT(DLG& dlg, int rssText);
 
     virtual void DrawLabel(const RC& rcLabel) override;

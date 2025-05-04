@@ -55,7 +55,7 @@ public:
     static PNGX pngPieces;
 
 private:
-    BTNCH btnFlip;
+    BTNS btnFlip;
     unique_ptr<CMDMAKEMOVE> pcmdMakeMove;
 
     BD& bd;
@@ -110,18 +110,18 @@ public:
     virtual void Wheel(const PT& pt, int dwheel) override;
 
     void clear(void);
-    virtual void ReceiveStream(const wstring& ws) override;
+    virtual void ReceiveStream(const string& s) override;
 
 private:
     TITLEBAR titlebar;
-    vector<wstring> vws;
+    vector<string> vs;
 
     TF tfTest;
     float dyLine;
 
-    void SetContentLines(size_t cws);
-    int IwsFromY(float y) const;
-    float YFromIws(int iws) const;
+    void SetContentLines(size_t cs);
+    int IsFromY(float y) const;
+    float YFromIs(int is) const;
 };
 
 #include "newgame.h"
@@ -135,7 +135,7 @@ private:
 class WAPP : public IWAPP
 {
 public:
-    WAPP(const wstring& wsCmd, int sw);
+    WAPP(const string& sCmd, int sw);
  
     virtual void RegisterMenuCmds(void) override;
 
@@ -213,7 +213,7 @@ public:
     virtual int Execute(void) override;
     virtual int Undo(void) override;
     virtual bool FUndoable(void) const;
-    virtual bool FMenuWs(wstring& ws, ICMD::CMS cms) const override;
+    virtual bool FMenuS(string& s, ICMD::CMS cms) const override;
 };
 
 CMD_DECLARE(CMDMAKEMOVE)
@@ -225,7 +225,7 @@ public:
     virtual int Execute(void) override;
     virtual int Undo(void) override;
     virtual bool FUndoable(void) const override;
-    virtual bool FMenuWs(wstring& ws, CMS cms) const override; 
+    virtual bool FMenuS(string& s, CMS cms) const override; 
 
 private:
     MV mv = MV(sqNil, sqNil);

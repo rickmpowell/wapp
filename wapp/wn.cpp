@@ -489,21 +489,21 @@ wnstreambuf::wnstreambuf(WNSTREAM& wnstream) : wnstream(wnstream)
 {
 }
 
-unsigned short wnstreambuf::overflow(unsigned short wch)
+int wnstreambuf::overflow(int ch)
 {
-    if (wch == WEOF)
-        return wch;
-    if (wch == L'\n') {
+    if (ch == WEOF)
+        return ch;
+    if (ch == '\n') {
         wnstream.ReceiveStream(buffer);
         buffer.clear();
     }
     else {
-        buffer.push_back(static_cast<wchar_t>(wch));
+        buffer.push_back(static_cast<char>(ch));
     }
-    return wch;
+    return ch;
 }
 
-WNSTREAM::WNSTREAM(WN& wnParent) : WN(wnParent), wostream(&sb), sb(*this)
+WNSTREAM::WNSTREAM(WN& wnParent) : WN(wnParent), ostream(&sb), sb(*this)
 {
 }
 

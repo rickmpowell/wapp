@@ -12,9 +12,9 @@ PLCOMPUTER::PLCOMPUTER(GAME& game, const SETAI& setai) :
 {
 }
 
-wstring_view PLCOMPUTER::WsName(void) const
+string_view PLCOMPUTER::SName(void) const
 {
-    return L"AI";
+    return "AI";
 }
 
 bool PLCOMPUTER::FIsHuman(void) const

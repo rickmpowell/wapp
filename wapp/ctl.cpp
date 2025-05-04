@@ -11,27 +11,27 @@
  *  Base control
  */
 
-CTL::CTL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel, bool fVisible) : 
+CTL::CTL(WN& wnParent, ICMD* pcmd, const string& sLabel, bool fVisible) : 
     WN(wnParent, fVisible), 
-    wsLabel(wsLabel),
+    sLabel(sLabel),
     pcmd(pcmd),
     cdsCur(CDS::None),
-    tf(*this, L"Verdana", 12)
+    tf(*this, "Verdana", 12)
 {
 }
 
 CTL::CTL(WN& wnParent, ICMD* pcmd, int rssLabel, bool fVisible) :
     WN(wnParent, fVisible),
-    wsLabel(rssLabel == -1 ? L"" : wnParent.iwapp.WsLoad(rssLabel)),
+    sLabel(rssLabel == -1 ? "" : wnParent.iwapp.SLoad(rssLabel)),
     pcmd(pcmd),
     cdsCur(CDS::None),
-    tf(*this, L"Verdana", 12)
+    tf(*this, "Verdana", 12)
 {
 }
 
-void CTL::SetFont(const wstring& ws, float dyHeight, TF::WEIGHT weight, TF::STYLE style)
+void CTL::SetFont(const string& s, float dyHeight, TF::WEIGHT weight, TF::STYLE style)
 {
-    tf.Set(*this, ws, dyHeight, weight, style);
+    tf.Set(*this, s, dyHeight, weight, style);
 }
 
 void CTL::SetFontHeight(float dyHeight)
@@ -44,27 +44,27 @@ TF& CTL::TfGet(void)
     return tf;
 }
 
-void CTL::SetLabel(const wstring& wsNew)
+void CTL::SetLabel(const string& sNew)
 {
-    wsLabel = wsNew;
+    sLabel = sNew;
 }
 
-wstring CTL::WsLabel(void) const
+string CTL::SLabel(void) const
 {
-    return wsLabel;
+    return sLabel;
 }
 
 SZ CTL::SzLabel(void) const
 {
-    if (wsLabel.size() == 0)
+    if (sLabel.size() == 0)
         return SZ(0);
 
-    return SzFromWs(wsLabel, tf);
+    return SzFromS(sLabel, tf);
 }
 
 void CTL::DrawLabel(const RC& rcLabel)
 {
-    DrawWsCenterXY(wsLabel, tf, rcLabel);
+    DrawSCenterXY(sLabel, tf, rcLabel);
 }
 
 /*
@@ -168,33 +168,33 @@ RC CTL::RcContent(void) const
  *  static controls
  */
 
-STATIC::STATIC(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, bool fVisible) :
-    CTL(wnParent, nullptr, wsLabel, fVisible),
-    wsImage(wsImage)
+STATIC::STATIC(WN& wnParent, const string& sImage, const string& sLabel, bool fVisible) :
+    CTL(wnParent, nullptr, sLabel, fVisible),
+    sImage(sImage)
 {
 }
 
-STATIC::STATIC(WN& wnParent, const wstring& wsImage, int rssLabel, bool fVisible) :
+STATIC::STATIC(WN& wnParent, const string& sImage, int rssLabel, bool fVisible) :
     CTL(wnParent, nullptr, rssLabel, fVisible),
-    wsImage(wsImage)
+    sImage(sImage)
 {
 }
 
 STATIC::STATIC(WN& wnParent, int rssImage, int rssLabel, bool fVisible) :
     CTL(wnParent, nullptr, rssLabel, fVisible),
-    wsImage(wnParent.iwapp.WsLoad(rssImage))
+    sImage(wnParent.iwapp.SLoad(rssImage))
 {
 }
 
 void STATIC::Draw(const RC& rcUpdate)
 {
-    DrawWsCenterXY(wsImage, tf, RcContent());
+    DrawSCenterXY(sImage, tf, RcContent());
 }
 
 SZ STATIC::SzRequestLayout(const RC& rcWithin) const
 {
     SZ szLabel(SzLabel());
-    SZ szText(SzFromWs(wsImage, tf, rcWithin.dxWidth()));
+    SZ szText(SzFromS(sImage, tf, rcWithin.dxWidth()));
     float dxLabel = szLabel.width > 0 ? szLabel.width + szLabel.height * 0.5f : 0;
     return SZ(dxLabel + szText.width, max(szLabel.height, szText.height));
 }
@@ -225,13 +225,13 @@ void STATIC::EndDrag(const PT& pt, unsigned mk)
 {
 }
 
-STATICL::STATICL(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, bool fVisible) :
-    STATIC(wnParent, wsImage, wsLabel, fVisible)
+STATICL::STATICL(WN& wnParent, const string& sImage, const string& sLabel, bool fVisible) :
+    STATIC(wnParent, sImage, sLabel, fVisible)
 {
 }
 
-STATICL::STATICL(WN& wnParent, const wstring& wsImage, int rssLabel, bool fVisible) :
-    STATIC(wnParent, wsImage, rssLabel, fVisible)
+STATICL::STATICL(WN& wnParent, const string& sImage, int rssLabel, bool fVisible) :
+    STATIC(wnParent, sImage, rssLabel, fVisible)
 {
 }
 
@@ -243,37 +243,37 @@ STATICL::STATICL(WN& wnParent, int rssImage, int rssLabel, bool fVisible) :
 void STATICL::Draw(const RC& rcUpdate)
 {
     RC rc(RcContent());
-    if (wsLabel.size() > 0) {
+    if (sLabel.size() > 0) {
         SZ szLabel(SzLabel());
         float x = rc.left + szLabel.width;
         DrawLabel(rc.RcSetRight(x));
         rc.left = x + szLabel.height * 0.5f;
     }
-    DrawWs(wsImage, tf, rc);
+    DrawS(sImage, tf, rc);
 }
 
-STATICR::STATICR(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, bool fVisible) :
-    STATIC(wnParent, wsImage, wsLabel, fVisible)
+STATICR::STATICR(WN& wnParent, const string& sImage, const string& sLabel, bool fVisible) :
+    STATIC(wnParent, sImage, sLabel, fVisible)
 {
 }
 
-STATICR::STATICR(WN& wnParent, const wstring& wsImage, int rssLabel, bool fVisible) :
-    STATIC(wnParent, wsImage, rssLabel, fVisible)
+STATICR::STATICR(WN& wnParent, const string& sImage, int rssLabel, bool fVisible) :
+    STATIC(wnParent, sImage, rssLabel, fVisible)
 {
 }
 
 void STATICR::Draw(const RC& rcUpdate)
 {
     GUARDTFALIGNMENT sav(tf, DWRITE_TEXT_ALIGNMENT_TRAILING);
-    DrawWs(wsImage, tf, RcContent());
+    DrawS(sImage, tf, RcContent());
 }
 
 /*
  *  BTN
  */
 
-BTN::BTN(WN& wnParent, ICMD* pcmd, const wstring& wsLabel, bool fVisible) : 
-    CTL(wnParent, pcmd, wsLabel, fVisible)
+BTN::BTN(WN& wnParent, ICMD* pcmd, const string& sLabel, bool fVisible) : 
+    CTL(wnParent, pcmd, sLabel, fVisible)
 {
 }
 
@@ -318,7 +318,7 @@ void BTN::Draw(const RC& rcUpdate)
 {
     RC rc(RcContent());
     /* labels on buttons are to the right of the button */
-    if (wsLabel.size() > 0) {
+    if (sLabel.size() > 0) {
         float x = rc.right - SzLabel().width;
         DrawLabel(rc.RcSetLeft(x));
         rc.right = x - 4;
@@ -327,85 +327,45 @@ void BTN::Draw(const RC& rcUpdate)
 }
 
 /*
- *  BTNCH control
- */
-
-BTNCH::BTNCH(WN& wnParent, ICMD* pcmd, wchar_t ch, const wstring& wsLabel, bool fVisible) :
-    BTN(wnParent, pcmd, wsLabel, fVisible),
-    chImage(ch)
-{
-}
-
-BTNCH::BTNCH(WN& wnParent, ICMD* pcmd, wchar_t ch, int rssLabel, bool fVisible) :
-    BTN(wnParent, pcmd, rssLabel, fVisible),
-    chImage(ch)
-{
-}
-
-void BTNCH::Draw(const RC& rcUpdate)
-{
-    wstring ws(1, chImage);
-    RC rc(RcContent());
-    if (wsLabel.size() > 0) {
-        float x = rc.right - SzLabel().width;
-        DrawLabel(rc.RcSetLeft(x));
-        rc.right = x - 4;
-    }
-    DrawWsCenterXY(ws, tf, rc);
-}
-
-SZ BTNCH::SzRequestLayout(const RC& rc) const
-{
-    wstring ws(1, chImage);
-    return SzFromWs(ws, tf);
-}
-
-void BTNCH::Layout(void)
-{
-    if (lctl == LCTL::SizeToFit)
-        SetFontHeight(RcContent().dyHeight());
-}
-
-/*
- *  BTNWS
+ *  BTNS
  * 
  *  Button with a piece of text as its image
  */
 
-BTNWS::BTNWS(WN& wnParent, ICMD* pcmd, const wstring& wsImage, const wstring& wsLabel, bool fVisible) :
-    BTN(wnParent, pcmd, wsLabel, fVisible),
-    wsImage(wsImage)
+BTNS::BTNS(WN& wnParent, ICMD* pcmd, const string& sImage, const string& sLabel, bool fVisible) :
+    BTN(wnParent, pcmd, sLabel, fVisible),
+    sImage(sImage)
 {
 }
 
-BTNWS::BTNWS(WN& wnParent, ICMD* pcmd, const wstring& wsImage, int rssLabel, bool fVisible) :
+BTNS::BTNS(WN& wnParent, ICMD* pcmd, const string& sImage, int rssLabel, bool fVisible) :
     BTN(wnParent, pcmd, rssLabel, fVisible),
-    wsImage(wsImage)
+    sImage(sImage)
 {
 }
 
-void BTNWS::Draw(const RC& rcUpdate)
+void BTNS::Draw(const RC& rcUpdate)
 {
     RC rc(RcContent());
-    if (wsLabel.size() > 0) {
+    if (sLabel.size() > 0) {
         SZ szLabel(SzLabel());
         float x = rc.right - szLabel.width;
         DrawLabel(rc.RcSetLeft(x));
         rc.right = x - szLabel.height * 0.5f;
     }
-    DrawWsCenterXY(wsImage, tf, rc);
+    DrawSCenterXY(sImage, tf, rc);
 }
 
-void BTNWS::Layout(void)
+void BTNS::Layout(void)
 {
     if (lctl == LCTL::SizeToFit)
         SetFontHeight(RcContent().dyHeight());
 }
 
-SZ BTNWS::SzRequestLayout(const RC& rcWithin) const
+SZ BTNS::SzRequestLayout(const RC& rcWithin) const
 {
-    SZ sz(SzFromWs(wsImage, tf));
-    if (wsLabel.size() > 0) {
+    SZ sz(SzFromS(sImage, tf));
+    if (sLabel.size() > 0) {
         SZ szLabel(SzLabel());
         sz.width += szLabel.width + szLabel.height * 0.5f;
     }
@@ -419,10 +379,10 @@ SZ BTNWS::SzRequestLayout(const RC& rcWithin) const
  */
 
 BTNCLOSE::BTNCLOSE(WN& wnParent, ICMD* pcmd, bool fVisible) :
-    BTN(wnParent, pcmd, L"", fVisible)
+    BTN(wnParent, pcmd, "", fVisible)
 {
     SetLayout(LCTL::SizeToFit);
-    SetFont(L"Segoe UI Symbol", 12, TF::WEIGHT::Bold);
+    SetFont("Segoe UI Symbol", 12, TF::WEIGHT::Bold);
 }
 
 void BTNCLOSE::Erase(const RC& rcUpdate, DRO dro)
@@ -436,7 +396,7 @@ void BTNCLOSE::Draw(const RC& rcUpdate)
     FillEll(rcInt, coWhite);
     CO co = cdsCur == CDS::Hover || cdsCur == CDS::Execute ? coRed : coDarkRed;
     FillEll(rcInt.RcInflate(-2.8f), co);
-    DrawWsCenterXY(L"\u2716", tf, rcInt, coWhite);  // cross
+    DrawSCenterXY(reinterpret_cast<const char*>(u8"\u2716"), tf, rcInt, coWhite);  // cross
 }
 
 void BTNCLOSE::Layout(void)
@@ -447,7 +407,7 @@ void BTNCLOSE::Layout(void)
 
 SZ BTNCLOSE::SzRequestLayout(const RC& rc) const
 {
-    return SzFromWs(L"\u2716", tf) + SZ(2.8f);
+    return SzFromS(reinterpret_cast<const char*>(u8"\u2716"), tf) + SZ(2.8f);
 }
 
 /*
@@ -457,10 +417,10 @@ SZ BTNCLOSE::SzRequestLayout(const RC& rc) const
  */
 
 BTNNEXT::BTNNEXT(WN& wnParent, ICMD* pcmd, bool fVIsible) :
-    BTN(wnParent, pcmd, L"", fVisible)
+    BTN(wnParent, pcmd, "", fVisible)
 {
     SetLayout(LCTL::SizeToFit);
-    SetFont(L"Segoe UI Symbol");
+    SetFont("Segoe UI Symbol");
 }
 
 CO BTNNEXT::CoText(void) const
@@ -470,7 +430,7 @@ CO BTNNEXT::CoText(void) const
 
 void BTNNEXT::Draw(const RC& rcUpdate)
 {
-    DrawWsCenterXY(L"\u23f5", tf, RcContent());    // right triangle
+    DrawSCenterXY(reinterpret_cast<const char*>(u8"\u23f5"), tf, RcContent());    // right triangle
 }
 
 void BTNNEXT::Erase(const RC& rcUpdate, DRO dro)
@@ -486,7 +446,7 @@ void BTNNEXT::Layout(void)
 
 SZ BTNNEXT::SzRequestLayout(const RC& rc) const
 {
-    return SzFromWs(L"\u23f5", tf);
+    return SzFromS(reinterpret_cast<const char*>(u8"\u23f5"), tf);
 }
 
 BTNPREV::BTNPREV(WN& wnParent, ICMD* pcmd, bool fVisible) :
@@ -496,17 +456,17 @@ BTNPREV::BTNPREV(WN& wnParent, ICMD* pcmd, bool fVisible) :
 
 void BTNPREV::Draw(const RC& rcUpdate)
 {
-    DrawWsCenterXY(L"\u23f4", tf, RcContent());    // left triangle
+    DrawSCenterXY(reinterpret_cast<const char*>(u8"\u23f4"), tf, RcContent());    // left triangle
 }
 
 /*
  *  TITLEBAR
  */
 
-TITLEBAR::TITLEBAR(WN& wnParent, const wstring& wsTitle) :
+TITLEBAR::TITLEBAR(WN& wnParent, const string& sTitle) :
     WN(wnParent), 
-    wsTitle(wsTitle), 
-    tf(*this, wsFontUI, 15, TF::WEIGHT::Bold)
+    sTitle(sTitle), 
+    tf(*this, sFontUI, 15, TF::WEIGHT::Bold)
 {
 }
 
@@ -523,12 +483,12 @@ CO TITLEBAR::CoText(void) const
 void TITLEBAR::Draw(const RC& rcUpdate)
 {
     RC rc = RcInterior().Unpad(PAD(12, 4));
-    DrawWs(wsTitle, tf, rc);
+    DrawS(sTitle, tf, rc);
 }
 
 SZ TITLEBAR::SzRequestLayout(const RC& rcWithin) const
 {
-    SZ sz = SzFromWs(wsTitle, tf);
+    SZ sz = SzFromS(sTitle, tf);
     return SZ(-1, sz.height + 8);
 }
 
@@ -536,10 +496,10 @@ SZ TITLEBAR::SzRequestLayout(const RC& rcWithin) const
  *  SEL and VSEL
  */
 
-SEL::SEL(VSEL& vselParent, const wstring& wsLabel) : 
+SEL::SEL(VSEL& vselParent, const string& sLabel) : 
     BTN(vselParent, 
         new CMDSELECTOR(vselParent, *this), 
-        wsLabel),
+        sLabel),
     fSelected(false)
 {
     vselParent.AddSelector(*this);
@@ -548,7 +508,7 @@ SEL::SEL(VSEL& vselParent, const wstring& wsLabel) :
 SEL::SEL(VSEL& vselParent, int rssLabel) :
     BTN(vselParent, 
         new CMDSELECTOR(vselParent, *this), 
-        vselParent.iwapp.WsLoad(rssLabel)),
+        vselParent.iwapp.SLoad(rssLabel)),
     fSelected(false)
 {
     vselParent.AddSelector(*this);
@@ -571,31 +531,31 @@ void SEL::SetSelected(bool fSelected)
     Redraw();
 }
 
-SELWS::SELWS(VSEL& vselParent, const wstring& wsImage) :
+SELS::SELS(VSEL& vselParent, const string& sImage) :
     SEL(vselParent),
-    wsImage(wsImage)
+    sImage(sImage)
 {
-    SetFont(wsFontUI);
+    SetFont(sFontUI);
 }
 
-void SELWS::Draw(const RC& rcUpdate)
+void SELS::Draw(const RC& rcUpdate)
 {
-    DrawWsCenterXY(wsImage, tf, RcContent());
+    DrawSCenterXY(sImage, tf, RcContent());
 }
 
-SZ SELWS::SzRequestLayout(const RC& rcWithin) const
+SZ SELS::SzRequestLayout(const RC& rcWithin) const
 {
-    return SzFromWs(wsImage, tf);
+    return SzFromS(sImage, tf);
 }
 
-void SELWS::Layout(void)
+void SELS::Layout(void)
 {
     if (lctl == LCTL::SizeToFit)
         SetFontHeight(RcContent().dyHeight());
 }
 
-VSEL::VSEL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel) :
-    CTL(wnParent, pcmd, wsLabel),
+VSEL::VSEL(WN& wnParent, ICMD* pcmd, const string& sLabel) :
+    CTL(wnParent, pcmd, sLabel),
     ipselSel(-1)
 {
 }
@@ -609,7 +569,7 @@ VSEL::VSEL(WN& wnParent, ICMD* pcmd, int rssLabel) :
 void VSEL::Draw(const RC& rcUpdate)
 {
     /* TODO: what to do with padding */
-    if (wsLabel.size() > 0) {
+    if (sLabel.size() > 0) {
         RC rc(RcContent());
         float x = rc.left + SzLabel().width + 4;
         DrawLabel(rc.RcSetRight(x));
@@ -669,15 +629,15 @@ int CMDSELECTOR::Execute(void)
  *  EDIT control
  */
 
-EDIT::EDIT(WN& wnParent, const wstring& wsText, const wstring& wsLabel) :
-    CTL(wnParent, nullptr, wsLabel),
-    wsText(wsText)
+EDIT::EDIT(WN& wnParent, const string& sText, const string& sLabel) :
+    CTL(wnParent, nullptr, sLabel),
+    sText(sText)
 {
 }
 
-EDIT::EDIT(WN& wnParent, const wstring& wsText, int rssLabel) :
+EDIT::EDIT(WN& wnParent, const string& sText, int rssLabel) :
     CTL(wnParent, nullptr, rssLabel),
-    wsText(wsText)
+    sText(sText)
 {
 }
 
@@ -696,7 +656,7 @@ void EDIT::Draw(const RC& rcUpdate)
     /* TODO: figure out what to do with margins and padding here */
 
     RC rc(RcInterior());
-    if (wsLabel.size() > 0) {
+    if (sLabel.size() > 0) {
         float x = rc.left + SzLabel().width + 4;
         DrawLabel(rc.RcSetRight(x));
         rc = RcContent();
@@ -708,7 +668,7 @@ void EDIT::Draw(const RC& rcUpdate)
     FillRc(rc, coWhite);
     DrawRc(rc, coBlack, 1);
     rc.Unpad(PAD(8, 2));
-    DrawWsCenterY(wsText, tf, rc, coBlack);
+    DrawSCenterY(sText, tf, rc, coBlack);
 }
 
 void EDIT::Layout(void)
@@ -719,15 +679,15 @@ void EDIT::Layout(void)
 
 SZ EDIT::SzRequestLayout(const RC& rcWithin) const
 {
-    return SzFromWs(wsText, tf);
+    return SzFromS(sText, tf);
 }
 
-wstring EDIT::WsText(void) const
+string EDIT::SText(void) const
 {
-    return wsText;
+    return sText;
 }
 
-void EDIT::SetText(const wstring& wsNew)
+void EDIT::SetText(const string& sNew)
 {
-    wsText = wsNew;
+    sText = sNew;
 }

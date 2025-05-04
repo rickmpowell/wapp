@@ -25,7 +25,7 @@
  *  Applications must define the application entry point
  */
 
-int Run(const wstring& wsCmd, int sw);
+int Run(const string& sCmdLine, int sw);
 
 /*
  *  APP
@@ -52,7 +52,7 @@ public:
  
     /* resources */
 
-    wstring WsLoad(int rss) const;
+    string SLoad(int rss) const;
     HICON HiconLoad(int rsi) const;
     HACCEL HaccelLoad(int rsa) const;
     HCURSOR HcursorLoad(int rsc) const;
@@ -102,12 +102,12 @@ public:
     /* window class registration */
 
     WNDCLASSEXW WcexRegister(void) const;
-    const wchar_t* Register(const WNDCLASSEXW& wc);
-    virtual const wchar_t* WsRegister(void) = 0;
+    LPCWSTR Register(const WNDCLASSEXW& wc);
+    virtual LPCWSTR SRegister(void) = 0;
 
     /* create and destroy windows HWND */
 
-    void CreateWnd(const wstring& wsTitle, int ws, PT pt, SZ sz);
+    void CreateWnd(const string& sTitle, int ws, PT pt, SZ sz);
     void DestroyWnd(void);
 
     /* window operations */
@@ -152,9 +152,9 @@ public:
     WNDMAIN(APP& app);
     
     WNDCLASSEXW WcexRegister(const wchar_t* wsClass, int rsm = 0, int rsiLarge = 0, int rsiSmall = 0) const;
-    virtual const wchar_t* WsRegister(void) override;
+    virtual LPCWSTR SRegister(void) override;
 
-    void CreateWnd(const wstring& wsTitle,
+    void CreateWnd(const string& sTitle,
                 int ws = WS_OVERLAPPEDWINDOW, 
                 PT pt = PT(CW_USEDEFAULT), SZ sz = SZ(CW_USEDEFAULT));
 };
@@ -186,8 +186,8 @@ class resource_ptr
     unsigned cbData;
 
 public:
-    resource_ptr(APP& app, const wstring& wsType, int rs) : hData(NULL), pData(nullptr) {
-        HRSRC hrsrc = ::FindResourceW(app.hinst, MAKEINTRESOURCEW(rs), wsType.c_str());
+    resource_ptr(APP& app, wstring_view wsType, int rs) : hData(NULL), pData(nullptr) {
+        HRSRC hrsrc = ::FindResourceW(app.hinst, MAKEINTRESOURCEW(rs), wsType.data());
         if (hrsrc == NULL)
             throw ERRLAST();
         cbData = static_cast<unsigned>(::SizeofResource(app.hinst, hrsrc));

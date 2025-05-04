@@ -23,7 +23,7 @@
 int APIENTRY wWinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hinstPrev, _In_ LPWSTR wsCmd, _In_ int sw)
 {
     try {
-        return Run(wsCmd, sw);
+        return Run(SFromWs(wstring_view(wsCmd)), sw);
     }
     catch (...) {
         ::MessageBoxW(NULL, L"Could not initialize application.", L"Error", MB_OK);
@@ -54,11 +54,11 @@ APP::~APP()
  *  Resrouce loaders
  */
 
-wstring APP::WsLoad(int rss) const
+string APP::SLoad(int rss) const
 {
     wchar_t sz[1024];
     ::LoadStringW(hinst, rss, sz, size(sz));
-    return wstring(sz);
+    return SFromWs(wstring_view(sz));
 }
 
 HICON APP::HiconLoad(int rsi) const
@@ -142,7 +142,7 @@ WNDCLASSEXW WND::WcexRegister(void) const
  *  parts for interfacing with the WN class.
  */
 
-const wchar_t* WND::Register(const WNDCLASSEXW& wcex)
+LPCWSTR WND::Register(const WNDCLASSEXW& wcex)
 {
     ATOM atom = ::RegisterClassExW(&wcex);
     if (atom == 0)
@@ -150,11 +150,11 @@ const wchar_t* WND::Register(const WNDCLASSEXW& wcex)
     return MAKEINTRESOURCEW(atom);
 }
 
-void WND::CreateWnd(const wstring& wsTitle, int ws, PT pt, SZ sz)
+void WND::CreateWnd(const string& sTitle, int ws, PT pt, SZ sz)
 {
     POINT point = (POINT)pt;
     SIZE size = (SIZE)sz;
-    ::CreateWindowW(WsRegister(), wsTitle.c_str(), ws,
+    ::CreateWindowW(SRegister(), WsFromS(sTitle).c_str(), ws,
                     point.x, point.y, size.cx, size.cy,
                     NULL, NULL, app.hinst, this);
     if (!hwnd)
@@ -357,21 +357,21 @@ WNDCLASSEXW WNDMAIN::WcexRegister(const wchar_t* wsClass, int rsm, int rsiLarge,
 }
 
 /*
- *  WNDMAIN::WsRegister
+ *  WNDMAIN::SRegister
  *
  *  Ensures the window class for this window is registered, and returns a string that can
  *  be sent to ::CreateWindow to creat an actual Windows HWND.
  */
 
-const wchar_t* WNDMAIN::WsRegister(void)
+LPCWSTR WNDMAIN::SRegister(void)
 {
-    static const wchar_t* wsClass = nullptr;
-    if (wsClass == nullptr)
-        wsClass = Register(WcexRegister(L"main", rsmApp, rsiAppLarge, rsiAppSmall));
-    return wsClass;
+    static LPCWSTR sClass = nullptr;
+    if (sClass == nullptr)
+        sClass = Register(WcexRegister(L"main", rsmApp, rsiAppLarge, rsiAppSmall));
+    return sClass;
 }
 
-void WNDMAIN::CreateWnd(const wstring& wsTitle, int ws, PT pt, SZ sz)
+void WNDMAIN::CreateWnd(const string& sTitle, int ws, PT pt, SZ sz)
 {
-    WND::CreateWnd(wsTitle, ws, pt, sz);
+    WND::CreateWnd(sTitle, ws, pt, sz);
 }

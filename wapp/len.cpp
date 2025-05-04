@@ -159,7 +159,7 @@ void LEN::EndCenter(void)
 
 void LEN::PositionOK(CTL& ctl) 
 {
-    ctl.SetFont(wsFontUI, 32.0f);
+    ctl.SetFont(sFontUI, 32.0f);
     RC rc(rcWithin.RcTopLeft(rcWithin.ptBottomRight() -
                                 ctl.SzRequestLayout(rcWithin) -
                                 SZ(2*32.0f, 0.0f)));

@@ -28,11 +28,11 @@ enum class LCTL
 class CTL : public WN
 {
 public:
-    CTL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel, bool fVisible = true);
+    CTL(WN& wnParent, ICMD* pcmd, const string& sLabel, bool fVisible = true);
     CTL(WN& wnParent, ICMD* pcmd, int rssLabel = -1, bool fVisible = true);
     virtual ~CTL() = default;
 
-    virtual void SetFont(const wstring& ws, float dyHeight = 12, TF::WEIGHT weight = TF::WEIGHT::Normal, TF::STYLE style = TF::STYLE::Normal);
+    virtual void SetFont(const string& s, float dyHeight = 12, TF::WEIGHT weight = TF::WEIGHT::Normal, TF::STYLE style = TF::STYLE::Normal);
     virtual void SetFontHeight(float dyHeight);
     virtual TF& TfGet(void);
 
@@ -46,8 +46,8 @@ public:
     virtual void Erase(const RC& rcUpdate, DRO dro) override;
     virtual void DrawBorder(void);
 
-    virtual void SetLabel(const wstring& wsLabel);
-    virtual wstring WsLabel(void) const;
+    virtual void SetLabel(const string& sLabel);
+    virtual string SLabel(void) const;
     virtual SZ SzLabel(void) const;
     virtual void DrawLabel(const RC& rcLabel);
 
@@ -60,7 +60,7 @@ public:
 
 protected:
     unique_ptr<ICMD> pcmd;
-    wstring wsLabel;
+    string sLabel;
 
     enum class CDS
     {
@@ -85,8 +85,8 @@ protected:
 class STATIC : public CTL
 {
 public:
-    STATIC(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, bool fVisible = true);
-    STATIC(WN& wnParent, const wstring& wsImage, int rssLabel = -1, bool fVisible = true);
+    STATIC(WN& wnParent, const string& sImage, const string& sLabel, bool fVisible = true);
+    STATIC(WN& wnParent, const string& sImage, int rssLabel = -1, bool fVisible = true);
     STATIC(WN& wnParent, int rssImage, int rssLabel = -1, bool fVisible = true);
     virtual ~STATIC() = default;
 
@@ -102,14 +102,14 @@ public:
     virtual void EndDrag(const PT& pt, unsigned mk) override;
 
 protected:
-    wstring wsImage;
+    string sImage;
 };
 
 class STATICL : public STATIC
 {
 public:
-    STATICL(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, bool fVisible = true);
-    STATICL(WN& wnParent, const wstring& wsImage, int rssLabel = -1, bool fVisible = true);
+    STATICL(WN& wnParent, const string& sImage, const string& sLabel, bool fVisible = true);
+    STATICL(WN& wnParent, const string& wsImage, int rssLabel = -1, bool fVisible = true);
     STATICL(WN& wnParent, int rssImage, int rssLabel = 1, bool fVisible = true);
     virtual ~STATICL() = default;
 
@@ -119,8 +119,8 @@ public:
 class STATICR : public STATIC
 {
 public:
-    STATICR(WN& wnParent, const wstring& wsImage, const wstring& wsLabel, bool fVisible = true);
-    STATICR(WN& wnParent, const wstring& wsImage, int rssLabel = -1, bool fVisible = true);
+    STATICR(WN& wnParent, const string& sImage, const string& sLabel, bool fVisible = true);
+    STATICR(WN& wnParent, const string& sImage, int rssLabel = -1, bool fVisible = true);
     virtual ~STATICR() = default;
 
     virtual void Draw(const RC& rcUpdate) override;
@@ -136,7 +136,7 @@ public:
 class BTN : public CTL  
 {
 public:
-    BTN(WN& wnParent, ICMD* pcmd, const wstring& wsLabel, bool fVisible = true);
+    BTN(WN& wnParent, ICMD* pcmd, const string& sLabel, bool fVisible = true);
     BTN(WN& wnParent, ICMD* pcmd, int rssLabel = -1, bool fVisible = true);
     virtual ~BTN() = default;
 
@@ -146,45 +146,24 @@ public:
 };
 
 /*
- *  BTNCH
- *  
- *  A button control that uses a single Unicode character as its image
+ *  BTNS
+ * 
+ *  Button with a line of text for its image
  */
 
-class BTNCH : public BTN
+class BTNS : public BTN
 {
 public:
-    BTNCH(WN& wnParent, ICMD* pcmd, wchar_t ch, const wstring& wsLabel, bool fVisible = true);
-    BTNCH(WN& wnParent, ICMD* pcmd, wchar_t ch, int rssLabel = -1, bool fVisible = true);
-    virtual ~BTNCH() = default;
+    BTNS(WN& wnParent, ICMD* pcmd, const string& s, const string& sLabel, bool fVisible = true);
+    BTNS(WN& wnParent, ICMD* pcmd, const string& s, int rssLabel = -1, bool fVisible = true);
+    virtual ~BTNS() = default;
 
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 
 protected:
-    wchar_t chImage;
-};
-
-/*
- *  BTNWS
- * 
- *  Button with a line of text for its image
- */
-
-class BTNWS : public BTN
-{
-public:
-    BTNWS(WN& wnParent, ICMD* pcmd, const wstring& ws, const wstring& wsLabel, bool fVisible = true);
-    BTNWS(WN& wnParent, ICMD* pcmd, const wstring& ws, int rssLabel = -1, bool fVisible = true);
-    virtual ~BTNWS() = default;
-
-    virtual void Draw(const RC& rcUpdate) override;
-    virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
-
-private:
-    wstring wsImage;
+    string sImage;
  };
 
 /*
@@ -246,7 +225,7 @@ public:
 class TITLEBAR : public WN
 {
 public:
-    TITLEBAR(WN& wnParent, const wstring& wsTitle);
+    TITLEBAR(WN& wnParent, const string& sTitle);
     virtual ~TITLEBAR() = default;
 
     virtual CO CoBack(void) const override;
@@ -255,7 +234,7 @@ public:
     virtual SZ SzRequestLayout(const RC& rcWithin) const;
 
 private:
-    wstring wsTitle;
+    string sTitle;
     TF tf;
 };
 
@@ -270,7 +249,7 @@ class VSEL;
 class SEL : public BTN
 {
 public:
-    SEL(VSEL& vselParent, const wstring& wsLabel);
+    SEL(VSEL& vselParent, const string& sLabel);
     SEL(VSEL& vselParent, int rssLabel = -1);
     virtual ~SEL() = default;
 
@@ -283,18 +262,18 @@ protected:
     bool fSelected;
 };
 
-class SELWS : public SEL
+class SELS : public SEL
 {
 public:
-    SELWS(VSEL& vselParent, const wstring& ws);
-    virtual ~SELWS() = default;
+    SELS(VSEL& vselParent, const string& s);
+    virtual ~SELS() = default;
 
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 
 protected:
-    wstring wsImage;
+    string sImage;
 };
 
 /*
@@ -321,7 +300,7 @@ class VSEL : public CTL
     friend class SEL;
 
 public:
-    VSEL(WN& wnParent, ICMD* pcmd, const wstring& wsLabel);
+    VSEL(WN& wnParent, ICMD* pcmd, const string& sLabel);
     VSEL(WN& wnParent, ICMD* pcmd, int rssLabel = -1);
     virtual ~VSEL() = default;
 
@@ -345,8 +324,8 @@ protected:
 class EDIT : public CTL
 {
 public:
-    EDIT(WN& wnParent, const wstring& wsText, const wstring& wsLabel);
-    EDIT(WN& wnParent, const wstring& wsText, int rssLabel = -1);
+    EDIT(WN& wnParent, const string& sText, const string& sLabel);
+    EDIT(WN& wnParent, const string& sText, int rssLabel = -1);
     virtual ~EDIT(void) = default;
 
     virtual CO CoText(void) const override;
@@ -355,9 +334,9 @@ public:
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(const RC& rcWIthin) const override;
 
-    virtual wstring WsText(void) const;
-    virtual void SetText(const wstring& ws);
+    virtual string SText(void) const;
+    virtual void SetText(const string& s);
 
 private:
-    wstring wsText;
+    string sText;
 };

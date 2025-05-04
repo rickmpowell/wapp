@@ -14,9 +14,9 @@
   *  window visibility state
   */
 
-int Run(const wstring& wsCmd, int sw)
+int Run(const string& sCmdLine, int sw)
 {
-    WAPP wapp(wsCmd, sw);
+    WAPP wapp(sCmdLine, sw);
     return wapp.MsgPump();
 }
 
@@ -26,7 +26,7 @@ int Run(const wstring& wsCmd, int sw)
  *  The WAPP class for the Sample WAPP hello demonstration.
  */
 
-WAPP::WAPP(const wstring& wsCmd, int sw)
+WAPP::WAPP(const string& sCmdLine, int sw)
 {
     CreateWnd(rssAppTitle);
     Show(true);
@@ -51,8 +51,8 @@ CO WAPP::CoBack(void) const
 
 void WAPP::Draw(const RC& rcUpdate)
 {
-    TF tf(*this, L"Verdana", RcInterior().dyHeight() * 0.2f);
-    DrawWsCenterXY(WsLoad(rssHelloWorld), tf, RcInterior());
+    TF tf(*this, "Verdana", RcInterior().dyHeight() * 0.2f);
+    DrawSCenterXY(SLoad(rssHelloWorld), tf, RcInterior());
 }
 
 /*

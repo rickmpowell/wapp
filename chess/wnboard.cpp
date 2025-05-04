@@ -19,7 +19,7 @@ PNGX WNBOARD::pngPieces(rspngChessPieces);
 WNBOARD::WNBOARD(WN& wnParent, BD& bd) : 
     WN(wnParent), 
     bd(bd),
-    btnFlip(*this, new CMDFLIPBOARD((WAPP&)iwapp), L'\x2b6f'),
+    btnFlip(*this, new CMDFLIPBOARD((WAPP&)iwapp), reinterpret_cast<const char*>(u8"\u2b6f")),
     pcmdMakeMove(make_unique<CMDMAKEMOVE>((WAPP&)iwapp)),
     dxyBorder(0.0f), dxyOutline(0.0f), dyLabels(0.0f), dxySquare(0.0f)
 {
@@ -132,23 +132,23 @@ void WNBOARD::DrawBorder(void)
     /* draw the labels */
 
     if (dyLabels >= dyLabelsMin) {
-        TF tf(*this, wsFontUI, dyLabels, TF::WEIGHT::Bold);
+        TF tf(*this, sFontUI, dyLabels, TF::WEIGHT::Bold);
         for (int ra = 0; ra < raMax; ra++)
-            DrawWsCenterXY(wstring(1, '1' + ra), tf,
-                         RcFromSq(0, ra).LeftRight(0, rcSquares.left));
+            DrawSCenterXY(string(1, '1' + ra), tf,
+                          RcFromSq(0, ra).LeftRight(0, rcSquares.left));
         for (int fi = 0; fi < fiMax; fi++)
-            DrawWsCenterXY(wstring(1, 'a' + fi), tf,
-                         RcFromSq(fi, 0).TopBottom(rcSquares.bottom, RcInterior().bottom));
+            DrawSCenterXY(string(1, 'a' + fi), tf,
+                          RcFromSq(fi, 0).TopBottom(rcSquares.bottom, RcInterior().bottom));
     }
 
     /* TEMPORARY - draw player names */
 
-    TF tf(*this, wsFontUI, dyLabels, TF::WEIGHT::Bold);
+    TF tf(*this, sFontUI, dyLabels, TF::WEIGHT::Bold);
     SZ sz(100, 30);
     RC rc(RcFromSq(0, raMax-1).ptTopLeft() - PT(0, sz.height), sz); 
-    DrawWs(Wapp(iwapp).game.appl[~ccpView]->WsName(), tf, rc);
+    DrawS(Wapp(iwapp).game.appl[~ccpView]->SName(), tf, rc);
     rc = RC(RcFromSq(0, 0).ptBottomLeft() + PT(0, sz.height), sz);
-    DrawWs(Wapp(iwapp).game.appl[ccpView]->WsName(), tf, rc);
+    DrawS(Wapp(iwapp).game.appl[ccpView]->SName(), tf, rc);
 }
 
 /*

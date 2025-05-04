@@ -158,23 +158,23 @@ private:
 
 class WNSTREAM;
 
-class wnstreambuf : public wstreambuf
+class wnstreambuf : public streambuf
 {
 public:
     wnstreambuf(void) = default;
     wnstreambuf(WNSTREAM& wnstream);
-    unsigned short overflow(unsigned short wch) override;
+    virtual int_type overflow(int_type ch = traits_type::eof()) override;
 
 private:
     WNSTREAM& wnstream;
-    wstring buffer;
+    string buffer;
 };
 
-class WNSTREAM : public WN, public wostream
+class WNSTREAM : public WN, public ostream
 {
 public:
     WNSTREAM(WN& wnParent);
-    virtual void ReceiveStream(const wstring& ws) = 0;
+    virtual void ReceiveStream(const string& s) = 0;
 
 private:
     wnstreambuf sb;

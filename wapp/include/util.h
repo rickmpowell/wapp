@@ -13,7 +13,11 @@
  */
 
 wstring WsFromS(const string& s);
-wstring WsCapitalizeFirst(const wstring& ws);
+string SFromWs(const wstring& ws);
+wstring WsFromS(string_view s);
+string SFromWs(wstring_view ws);
+
+string SCapitalizeFirst(const string& s);
 
 
 /*

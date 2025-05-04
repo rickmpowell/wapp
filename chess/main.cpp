@@ -14,9 +14,9 @@
  *  window visibility state
  */
 
-int Run(const wstring& wsCmd, int sw)
+int Run(const string& sCmdLine, int sw)
 {
-    return WAPP(wsCmd, sw).MsgPump();
+    return WAPP(sCmdLine, sw).MsgPump();
 }
 
 /*
@@ -25,8 +25,8 @@ int Run(const wstring& wsCmd, int sw)
  *  The WAPP class for the Sample WAPP chess demonstration.
  */
 
-WAPP::WAPP(const wstring& wsCmd, int sw) : 
-    game(*this, fenStartPos, new PLHUMAN(game, L"Rick"), new PLHUMAN(game, L"Hazel")),
+WAPP::WAPP(const string& wsCmdLine, int sw) : 
+    game(*this, fenStartPos, new PLHUMAN(game, "Rick"), new PLHUMAN(game, "Hazel")),
     wnboard(*this, game.bd),
     wntest(*this),
     cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND),
@@ -133,8 +133,8 @@ public:
         return true;
     }
 
-    virtual bool FMenuWs(wstring& ws, CMS cms) const override {
-        ws = wapp.WsLoad(rssNewGame);
+    virtual bool FMenuS(string& s, CMS cms) const override {
+        s = wapp.SLoad(rssNewGame);
         return true;
     }
 
@@ -181,8 +181,8 @@ bool CMDMAKEMOVE::FUndoable(void) const
     return true;
 }
 
-bool CMDMAKEMOVE::FMenuWs(wstring& ws, ICMD::CMS cms) const {
-    ws = to_wstring(mv);
+bool CMDMAKEMOVE::FMenuS(string& s, ICMD::CMS cms) const {
+    s = to_string(mv);
     return true;
 }
 
@@ -209,12 +209,12 @@ public:
         return wapp.vpevd.back()->FTopUndoCmd(pcmd);
     }
 
-    virtual bool FMenuWs(wstring& ws, CMS cms) const override {
+    virtual bool FMenuS(string& s, CMS cms) const override {
         ICMD* pcmd;
-        wstring wsCmd;
+        string sCmd;
         if (wapp.vpevd.back()->FTopUndoCmd(pcmd))
-            pcmd->FMenuWs(wsCmd, CMS::Undo);
-        ws = vformat(wapp.WsLoad(rssUndo), make_wformat_args(wsCmd));
+            pcmd->FMenuS(sCmd, CMS::Undo);
+        s = vformat(wapp.SLoad(rssUndo), make_format_args(sCmd));
         return true;
     }
 };
@@ -237,12 +237,12 @@ public:
         return wapp.vpevd.back()->FTopRedoCmd(pcmd);
     }
 
-    virtual bool FMenuWs(wstring& ws, CMS cms) const override {
-        wstring wsCmd;
+    virtual bool FMenuS(string& s, CMS cms) const override {
+        string sCmd;
         ICMD* pcmd;
         if (wapp.vpevd.back()->FTopRedoCmd(pcmd))
-            pcmd->FMenuWs(wsCmd, CMS::Redo);
-        ws = vformat(wapp.WsLoad(rssRedo), make_wformat_args(wsCmd));
+            pcmd->FMenuS(sCmd, CMS::Redo);
+        s = vformat(wapp.SLoad(rssRedo), make_format_args(sCmd));
         return true;
     }
 };
@@ -330,8 +330,8 @@ public:
         return true;
     }
 
-    virtual bool FMenuWs(wstring& ws, ICMD::CMS cms) const override {
-        ws = wapp.WsLoad(rssPaste);
+    virtual bool FMenuS(string& s, ICMD::CMS cms) const override {
+        s = wapp.SLoad(rssPaste);
         return true;
     }
 
@@ -360,8 +360,8 @@ bool CMDFLIPBOARD::FUndoable(void) const
     return true;
 }
 
-bool CMDFLIPBOARD::FMenuWs(wstring& ws, ICMD::CMS cms) const {
-    ws = wapp.WsLoad(rssFlipBoard);
+bool CMDFLIPBOARD::FMenuS(string& s, ICMD::CMS cms) const {
+    s = wapp.SLoad(rssFlipBoard);
     return true;
 }
 

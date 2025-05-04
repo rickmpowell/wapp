@@ -100,17 +100,17 @@ void IWAPP::PurgeDidos(void)
  *  ws, position pt, and size sz.
  */
 
-void IWAPP::CreateWnd(const wstring& wsTitle, int ws, PT pt, SZ sz)
+void IWAPP::CreateWnd(const string& sTitle, int ws, PT pt, SZ sz)
 {
     fVisible = (ws & WS_VISIBLE) != 0;
-    WNDMAIN::CreateWnd(wsTitle, ws, pt, sz);
+    WNDMAIN::CreateWnd(sTitle, ws, pt, sz);
     if (GetMenu(hwnd) != NULL)
         RegisterMenuCmds();
 }
 
 void IWAPP::CreateWnd(int rssTitle, int ws, PT pt, SZ sz)
 {
-    CreateWnd(WsLoad(rssTitle), ws, pt, sz);
+    CreateWnd(SLoad(rssTitle), ws, pt, sz);
 }
 
 /*
@@ -250,17 +250,19 @@ void IWAPP::Draw(const RC& rcUpdate)
 
 void IWAPP::Error(ERR err, ERR err2)
 {
-    wstring wsCaption = WsLoad(rssAppTitle);
-    wstring wsError = WsFromErr(err);
-    wstring wsError2 = WsFromErr(err2);
+    string sCaption = SLoad(rssAppTitle);
+    string sError = SFromErr(err);
+    string sError2 = SFromErr(err2);
 
-    if (!wsError2.empty()) {
-        if (!wsError.empty()) 
-            wsError += ' ';
-        wsError += wsError2;
+    if (!sError2.empty()) {
+        if (!sError.empty()) 
+            sError += ' ';
+        sError += sError2;
     }
 
-    ::MessageBoxW(hwnd, wsError.c_str(), wsCaption.c_str(), MB_OK | MB_ICONERROR);
+    ::MessageBoxW(hwnd, WsFromS(sError).c_str(), 
+                  WsFromS(sCaption).c_str(), 
+                  MB_OK | MB_ICONERROR);
 }
 
 /*
@@ -274,37 +276,37 @@ void IWAPP::Error(ERR err, ERR err2)
  *  std::format to insert context-specific information into the error message.
  */
 
-wstring IWAPP::WsFromErr(ERR err) const
+string IWAPP::SFromErr(ERR err) const
 {
-    wstring ws;
+    string s;
     if (err == S_OK)
-        return ws;
+        return s;
 
     if (err.fApp()) {
         if (err.code())
-            ws = WsLoad(err.code());
+            s = SLoad(err.code());
     }
     else {
-        wchar_t* s = nullptr;
+        wchar_t* wsT = nullptr;
         ::FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                          nullptr,
                          err,
                          MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                         (LPWSTR)&s,
+                         (LPWSTR)&wsT,
                          0,
                          nullptr);
-        if (s) {
-            ws = s;
-            ::LocalFree(s);
+        if (wsT) {
+            s = SFromWs(wstring_view(wsT));
+            ::LocalFree(wsT);
         }
     }
 
     /* optionally insert variable into the string */
 
     if (err.fHasVar())
-        ws = vformat(ws, make_wformat_args(err.wsVar()));
+        s = vformat(s, make_format_args(err.sVar()));
     
-    return ws;
+    return s;
 }
 
 const ERR errNone = ERR(S_OK); 

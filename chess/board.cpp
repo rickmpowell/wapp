@@ -214,7 +214,7 @@ static int IchFind(const string_view& s, char ch)
 {
     size_t ich = s.find(ch);
     if (ich == string::npos)
-        throw ERRAPP(rssErrFenParseUnexpectedChar, wstring(1, ch));
+        throw ERRAPP(rssErrFenParseUnexpectedChar, string(1, ch));
     return static_cast<int>(ich);
 }
 
@@ -270,13 +270,13 @@ void BD::InitFromFen(istream& is)
             (*this)[sq++] = CPBD(ich, icp);   // otherwise the offset matches the value of the chess piece
         }
         else
-            throw ERRAPP(rssErrFenParse, WsFromS(sBoard));
+            throw ERRAPP(rssErrFenParse, sBoard);
     }
 
     /* parse the color with the move */
 
     if (sColor.length() != 1)
-        throw ERRAPP(rssErrFenParse, WsFromS(sColor));
+        throw ERRAPP(rssErrFenParse, sColor);
     ccpToMove = static_cast<CCP>(IchFind(sParseColor, sColor[0]));
 
     /* parse the castle state */
@@ -296,7 +296,7 @@ void BD::InitFromFen(istream& is)
              inrange(sEnPassant[1], '1', '8'))
         sqEnPassant = Sq(sEnPassant[0]-'a', sEnPassant[1]-'1');
     else
-        throw ERRAPP(rssErrFenParse, WsFromS(sEnPassant));
+        throw ERRAPP(rssErrFenParse, sEnPassant);
 
     /* half move clock and full move number */
 
