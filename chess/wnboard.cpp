@@ -19,7 +19,7 @@ PNGX WNBOARD::pngPieces(rspngChessPieces);
 WNBOARD::WNBOARD(WN& wnParent, BD& bd) : 
     WN(wnParent), 
     bd(bd),
-    btnFlip(*this, new CMDFLIPBOARD((WAPP&)iwapp), reinterpret_cast<const char*>(u8"\u2b6f")),
+    btnFlip(*this, new CMDFLIPBOARD((WAPP&)iwapp), SFromU8(u8"\u2b6f")),
     pcmdMakeMove(make_unique<CMDMAKEMOVE>((WAPP&)iwapp)),
     dxyBorder(0.0f), dxyOutline(0.0f), dyLabels(0.0f), dxySquare(0.0f)
 {
@@ -162,7 +162,7 @@ void WNBOARD::DrawSquares(void)
     for (SQ sq = 0; sq < sqMax; sq++) {
         CO coBack((ra(sq) + fi(sq)) & 1 ? CoBack() : CoText());
         if (sq == sqDragFrom || sq == sqDragTo || sq == sqHoverCur)
-            coBack = CoAverage(coBack, coRed);
+            coBack = CoBlend(coBack, coRed);
         FillRc(RcFromSq(sq), coBack);
     }
 }

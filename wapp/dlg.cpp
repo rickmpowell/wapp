@@ -106,7 +106,7 @@ CO DLG::CoBack(void) const
 
 void DLG::Draw(const RC& rcUpate)
 {
-    DrawRc(RcInterior().RcInflate(-6), CoAverage(CoText(), CoBack()), 2);
+    DrawRc(RcInterior().RcInflate(-6), CoBlend(CoText(), CoBack()), 2);
 }
 
 void DLG::End(int val)

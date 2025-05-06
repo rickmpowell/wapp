@@ -167,7 +167,7 @@ void PNG::reset(void)
 
 void PNG::reset(DC& dc, int rspng)
 {
-    resource_ptr prsrc(dc.iwapp, L"PNG", rspng);
+    resource_ptr prsrc(dc.iwapp, "PNG", rspng);
 
     com_ptr<IWICStream> pstream;
     ThrowError(dc.iwapp.pfactwic->CreateStream(&pstream));

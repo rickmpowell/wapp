@@ -186,8 +186,8 @@ class resource_ptr
     unsigned cbData;
 
 public:
-    resource_ptr(APP& app, wstring_view wsType, int rs) : hData(NULL), pData(nullptr) {
-        HRSRC hrsrc = ::FindResourceW(app.hinst, MAKEINTRESOURCEW(rs), wsType.data());
+    resource_ptr(APP& app, string_view sType, int rs) : hData(NULL), pData(nullptr) {
+        HRSRC hrsrc = ::FindResourceW(app.hinst, MAKEINTRESOURCEW(rs), WsFromS(sType).c_str());
         if (hrsrc == NULL)
             throw ERRLAST();
         cbData = static_cast<unsigned>(::SizeofResource(app.hinst, hrsrc));

@@ -197,6 +197,42 @@ inline CO& CO::SetValue(float val) {
     return *this = hsv.SetValue(val);
 }
 
+inline constexpr float hueRed = 0;
+inline constexpr float hueOrange = 30;
+inline constexpr float hueYellow = 60;
+inline constexpr float hueGreen = 120;
+inline constexpr float hueCyan = 180;
+inline constexpr float hueBlue = 240;
+inline constexpr float hueMagenta = 300;
+
+/*
+ *  Blending colors
+ */
+
+/*
+ *  CompBlend
+ * 
+ *  Blends two color components, with gamma-correction
+ *
+ *  Note that this is just an approximation. We round the standard gamma
+ *  correction from 2.2 to 2, which simplifies the math. The actual gamma
+ *  corrected blend should be:
+ * 
+ *      pow((1-alpha) * pow(a, gamma) + alpha * pow(b, gamma), 1/gamma)
+ */
+
+inline float CompBlend(float a, float b, float alpha) {
+    return sqrt((1.f-alpha) * a*a +
+                alpha * b*b);
+}
+
+inline CO CoBlend(CO co1, CO co2, float pct = 0.5f) {
+    return CO(CompBlend(co1.r, co2.r, pct),
+              CompBlend(co1.g, co2.g, pct),
+              CompBlend(co1.b, co2.b, pct),
+              (1.f-pct) * co1.a + pct * co2.a); /* alpha blends linearly */
+}
+
 /*
  *  constant colors
  */
@@ -343,29 +379,4 @@ inline constexpr CO coWhite(0xFFFFFF);
 inline constexpr CO coWhiteSmoke(0xF5F5F5);
 inline constexpr CO coYellow(0xFFFF00);
 inline constexpr CO coYellowGreen(0x9ACD32);
-
-inline const float hueRed = 0.0f;
-inline const float hueOrange = 30.0f;
-inline const float hueYellow = 60.0f;
-inline const float hueGreen = 120.0f;
-inline const float hueCyan = 180.0f;
-inline const float hueBlue = 240.0f;
-inline const float hueMagenta = 300.0f;
-
-
-inline float RgbBlend(float a, float b, float t) {
-    return sqrt((1.0f-t)*a*a +
-                t*b*b);
-}
-
-inline CO CoBlend(CO co1, CO co2, float t) {
-    return CO(RgbBlend(co1.r, co2.r, t),
-              RgbBlend(co1.g, co2.g, t),
-              RgbBlend(co1.b, co2.b, t),
-              (1.0f-t)*co1.a + t*co2.a);
-}
-inline CO CoAverage(CO co1, CO co2)
-{
-    return CoBlend(co1, co2, 0.5f);
-}
 

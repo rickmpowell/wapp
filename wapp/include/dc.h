@@ -229,8 +229,6 @@ public:
     void DrawS(string_view s, const TF& tf, const RC& rc, CO coText = coNil) const;
     void DrawSCenter(const string& s, TF& tf, const RC& rc, const BR& brText) const;
     void DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText = coNil) const;
-    void DrawWsCenterY(const wstring& ws, TF& tf, const RC& rc, const BR& brText) const;
-    void DrawWsCenterY(const wstring& ws, TF& tf, const RC& rc, CO coText = coNil) const;
     void DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText) const;
     void DrawSCenterY(const string& s, TF& tf, const RC& rc, CO coText = coNil) const;
     void DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText) const;

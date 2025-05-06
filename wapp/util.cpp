@@ -1,37 +1,65 @@
+
+/*
+ *  util.cpp
+ * 
+ *  Random useful utility functoins
+ */
+
 #include "wapp.h"
 
+/*
+ *  Unicode to/from UTF-8 conversions
+ */
 
 wstring WsFromS(const string& s)
 {
-    int cchAlloc = ::MultiByteToWideChar(CP_UTF8, 0, s.c_str(), (int)s.size(), nullptr, 0);
-    wstring ws(cchAlloc, 0);
-    ::MultiByteToWideChar(CP_UTF8, 0, s.c_str(), (int)s.size(), &ws[0], cchAlloc);
+    if (s.empty())
+        return wstring();
+
+    int cch = ::MultiByteToWideChar(CP_UTF8, 0, s.c_str(), (int)s.size(), nullptr, 0);
+    wstring ws(cch, 0);
+    ::MultiByteToWideChar(CP_UTF8, 0, s.c_str(), (int)s.size(), &ws[0], cch);
     return ws;
 }
 
 string SFromWs(const wstring& ws)
 {
-    int cchAlloc = ::WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), (int)ws.size(), nullptr, 0, nullptr, nullptr);
-    string s(cchAlloc, 0);
-    ::WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), (int)ws.size(), &s[0], cchAlloc, nullptr, nullptr);
+    if (ws.empty())
+        return string();
+
+    int cch = ::WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), (int)ws.size(), nullptr, 0, nullptr, nullptr);
+    string s(cch, 0);
+    ::WideCharToMultiByte(CP_UTF8, 0, ws.c_str(), (int)ws.size(), &s[0], cch, nullptr, nullptr);
     return s;
 }
 
 wstring WsFromS(string_view s)
 {
-    int cchAlloc = ::MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.size(), nullptr, 0);
-    wstring ws(cchAlloc, 0);
-    ::MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.size(), &ws[0], cchAlloc);
+    if (s.empty())
+        return wstring();
+
+    int cch = ::MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.size(), nullptr, 0);
+    wstring ws(cch, 0);
+    ::MultiByteToWideChar(CP_UTF8, 0, s.data(), (int)s.size(), &ws[0], cch);
     return ws;
 }
 
 string SFromWs(wstring_view ws)
 {
-    int cchAlloc = ::WideCharToMultiByte(CP_UTF8, 0, ws.data(), (int)ws.size(), nullptr, 0, nullptr, nullptr);
-    string s(cchAlloc, 0);
-    ::WideCharToMultiByte(CP_UTF8, 0, ws.data(), (int)ws.size(), &s[0], cchAlloc, nullptr, nullptr);
+    if (ws.empty())
+        return string();
+
+    int cch = ::WideCharToMultiByte(CP_UTF8, 0, ws.data(), (int)ws.size(), nullptr, 0, nullptr, nullptr);
+    string s(cch, 0);
+    ::WideCharToMultiByte(CP_UTF8, 0, ws.data(), (int)ws.size(), &s[0], cch, nullptr, nullptr);
     return s;
 }
+
+/*
+ *  SCapitalizeFirst
+ * 
+ *  Capitalizes the first character of the string
+ */
 
 string SCapitalizeFirst(const string& s)
 {

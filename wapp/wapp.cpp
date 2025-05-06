@@ -181,12 +181,6 @@ int IWAPP::OnCommand(int cmd)
     return FExecuteMenuCmd(cmd);
 }
 
-/* more efficient to do the work on OnInitMenuPopup
-void IWAPP::OnInitMenu(void)
-{
-    InitMenuCmds();
-} */
-
 void IWAPP::OnInitMenuPopup(HMENU hmenu)
 {
     InitPopupMenuCmds(hmenu);

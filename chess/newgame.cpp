@@ -240,12 +240,12 @@ DLGNEWGAME::DLGNEWGAME(WN& wnParent, GAME& game) :
     instruct(*this, rssNewGameInstructions),
     vselWhite(*this, new CMDPLAYER(*this, vselWhite), ccpWhite, NGCC::White),
     vselBlack(*this, new CMDPLAYER(*this, vselBlack), ccpBlack, NGCC::Black),
-    btnSwap(*this, new CMDSWAP(*this), reinterpret_cast<const char*>(u8"\u21c4")),
+    btnSwap(*this, new CMDSWAP(*this), SFromU8(u8"\u21c4")),
     btnrandom(*this, new CMDRANDOM(*this)),
-    btnSettings(*this, new CMDGAMESETTINGS(*this), reinterpret_cast<const char*>(sIconSettings), rssStandardGame),
+    btnSettings(*this, new CMDGAMESETTINGS(*this), SFromU8(sIconSettings), rssStandardGame),
     vseltime(*this, new CMDTIME(*this)),
     /* TODO: resource */
-    btnStart(*this, reinterpret_cast<const char*>(u8"Start \U0001F846"))
+    btnStart(*this, SFromU8(u8"Start \U0001F846"))
 {
     btnSettings.SetFont(sFontSymbol, 24);
 
@@ -396,11 +396,11 @@ CO SELPLAYER::CoBack(void) const
 VSELPLAYER::VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CCP ccp, NGCC ngcc) :
     VSEL(dlg , pcmd),
     /* TODO: resources */
-    selHuman(*this, reinterpret_cast<const char*>(u8"\U0001F464")),     // human profile emoji
-    selComputer(*this, reinterpret_cast<const char*>(u8"\U0001F5A5")),   // desktop computer emoji
+    selHuman(*this, SFromU8(u8"\U0001F464")),     // human profile emoji
+    selComputer(*this, SFromU8(u8"\U0001F5A5")),   // desktop computer emoji
     editName(*this, "", rssLabelName),
     vsellevel(*this, new CMDLEVEL(dlg, *this), rssLabelLevel),
-    btnAISettings(*this, new CMDAISETTINGS(dlg, *this), reinterpret_cast<const char*>(sIconSettings)),
+    btnAISettings(*this, new CMDAISETTINGS(dlg, *this), SFromU8(sIconSettings)),
     ccp(ccp),
     ngcc(ngcc),
     fModified(false)
@@ -655,7 +655,7 @@ SZ SELTIME::SzRequestLayout(const RC& rcWithin) const
 
 SELTIMECUSTOM::SELTIMECUSTOM(VSELTIME& vsel, int rssLabel) :
     SELTIME(vsel, rssLabel),
-    btn(*this, new CMDCUSTOMTIME(Wapp(vsel.iwapp)), reinterpret_cast<const char*>(u8"\u23f1"))
+    btn(*this, new CMDCUSTOMTIME(Wapp(vsel.iwapp)), SFromU8(u8"\u23f1"))
 {
 }
 

@@ -396,7 +396,7 @@ void BTNCLOSE::Draw(const RC& rcUpdate)
     FillEll(rcInt, coWhite);
     CO co = cdsCur == CDS::Hover || cdsCur == CDS::Execute ? coRed : coDarkRed;
     FillEll(rcInt.RcInflate(-2.8f), co);
-    DrawSCenterXY(reinterpret_cast<const char*>(u8"\u2716"), tf, rcInt, coWhite);  // cross
+    DrawSCenterXY(SFromU8(u8"\u2716"), tf, rcInt, coWhite);  // cross
 }
 
 void BTNCLOSE::Layout(void)
@@ -407,7 +407,7 @@ void BTNCLOSE::Layout(void)
 
 SZ BTNCLOSE::SzRequestLayout(const RC& rc) const
 {
-    return SzFromS(reinterpret_cast<const char*>(u8"\u2716"), tf) + SZ(2.8f);
+    return SzFromS(SFromU8(u8"\u2716"), tf) + SZ(2.8f);
 }
 
 /*
@@ -430,7 +430,7 @@ CO BTNNEXT::CoText(void) const
 
 void BTNNEXT::Draw(const RC& rcUpdate)
 {
-    DrawSCenterXY(reinterpret_cast<const char*>(u8"\u23f5"), tf, RcContent());    // right triangle
+    DrawSCenterXY(SFromU8(u8"\u23f5"), tf, RcContent());    // right triangle
 }
 
 void BTNNEXT::Erase(const RC& rcUpdate, DRO dro)
@@ -446,7 +446,7 @@ void BTNNEXT::Layout(void)
 
 SZ BTNNEXT::SzRequestLayout(const RC& rc) const
 {
-    return SzFromS(reinterpret_cast<const char*>(u8"\u23f5"), tf);
+    return SzFromS(SFromU8(u8"\u23f5"), tf);
 }
 
 BTNPREV::BTNPREV(WN& wnParent, ICMD* pcmd, bool fVisible) :
@@ -456,7 +456,7 @@ BTNPREV::BTNPREV(WN& wnParent, ICMD* pcmd, bool fVisible) :
 
 void BTNPREV::Draw(const RC& rcUpdate)
 {
-    DrawSCenterXY(reinterpret_cast<const char*>(u8"\u23f4"), tf, RcContent());    // left triangle
+    DrawSCenterXY(SFromU8(u8"\u23f4"), tf, RcContent());    // left triangle
 }
 
 /*

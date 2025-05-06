@@ -19,6 +19,9 @@ string SFromWs(wstring_view ws);
 
 string SCapitalizeFirst(const string& s);
 
+inline const char* SFromU8(const char8_t* s) {
+    return reinterpret_cast<const char*>(s);
+}
 
 /*
  *  inrange
