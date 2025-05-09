@@ -97,12 +97,13 @@ template <typename D, typename WAPP>
 class CMD : public ICMD
 {
 public:
-    WAPP& wapp;
-public:
     CMD(WAPP& wapp) : wapp(wapp) {}
     virtual ICMD* clone(void) const override {
         return new D(static_cast<const D&>(*this));
     }
+
+public:
+    WAPP& wapp;
 };
 
 /*
@@ -111,11 +112,6 @@ public:
 
 class menuiterator 
 {
-private:
-    HMENU hmenu;
-    int pos;
-    MENUITEMINFOW mii;
-
 public:
     using iterator_category = input_iterator_tag;
     using value_type = MENUITEMINFOW;
@@ -174,6 +170,11 @@ public:
         if (!::GetMenuItemInfoW(hmenu, pos, TRUE, &mii))
             hmenu = NULL;
     }
+
+private:
+    HMENU hmenu;
+    int pos;
+    MENUITEMINFOW mii;
 };
 
 class MENU
@@ -197,4 +198,3 @@ public:
         return menuiterator(hmenu, citem);
     }
 };
-

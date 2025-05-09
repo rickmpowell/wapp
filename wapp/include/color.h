@@ -122,8 +122,6 @@ public:
 class HSV
 {
 public:
-    float hue, sat, val;
-
     HSV(float hue, float sat, float val) : hue(hue), sat(sat), val(val) {}
 
     HSV(CO co)
@@ -180,6 +178,9 @@ public:
         this->val = val;
         return *this;
     }
+
+public:
+    float hue, sat, val;
 };
 
 inline CO& CO::SetHue(float hue) {
@@ -379,4 +380,3 @@ inline constexpr CO coWhite(0xFFFFFF);
 inline constexpr CO coWhiteSmoke(0xF5F5F5);
 inline constexpr CO coYellow(0xFFFF00);
 inline constexpr CO coYellowGreen(0x9ACD32);
-

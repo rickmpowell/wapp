@@ -151,10 +151,6 @@ public:
 
 class FILTERMSGACCEL : public FILTERMSG
 {
-private:
-    IWAPP& iwapp;
-    HACCEL haccel;
-
 public:
     FILTERMSGACCEL(IWAPP& iwapp, int rsa) : FILTERMSG(),
         iwapp(iwapp),
@@ -165,6 +161,10 @@ public:
     virtual bool FFilterMsg(MSG& msg) {
         return ::TranslateAcceleratorW(iwapp.hwnd, haccel, &msg);
     }
+
+private:
+    IWAPP& iwapp;
+    HACCEL haccel;
 };
 
 #include "dlg.h"
@@ -183,9 +183,6 @@ public:
 
 class GUARDTFALIGNMENT
 {
-    TF& tf;
-    DWRITE_TEXT_ALIGNMENT taSav;
-
 public:
     GUARDTFALIGNMENT(TF& tf, DWRITE_TEXT_ALIGNMENT ta) : tf(tf) {
         taSav = tf.ptf->GetTextAlignment();
@@ -195,6 +192,10 @@ public:
     ~GUARDTFALIGNMENT() {
         tf.ptf->SetTextAlignment(taSav);
     }
+
+private:
+    TF& tf;
+    DWRITE_TEXT_ALIGNMENT taSav;
 };
 
 /*
@@ -205,10 +206,6 @@ public:
 
 struct GUARDDCTRANSFORM
 {
-private:
-    DC& dc;
-    D2D1_MATRIX_3X2_F matrixSav;
-
 public:
     GUARDDCTRANSFORM(DC& dc, const D2D1_MATRIX_3X2_F& matrix) : dc(dc) {
         dc.iwapp.pdc2->GetTransform(&matrixSav);
@@ -218,6 +215,10 @@ public:
     ~GUARDDCTRANSFORM() {
         dc.iwapp.pdc2->SetTransform(matrixSav);
     }
+
+private:
+    DC& dc;
+    D2D1_MATRIX_3X2_F matrixSav;
 };
 
 /*
@@ -228,10 +229,6 @@ public:
 
 struct GUARDDCAA
 {
-private:
-    DC& dc;
-    D2D1_ANTIALIAS_MODE aaSav;
-
 public:
     GUARDDCAA(DC& dc, D2D1_ANTIALIAS_MODE aa) : dc(dc) {
         aaSav = dc.iwapp.pdc2->GetAntialiasMode();
@@ -241,4 +238,8 @@ public:
     ~GUARDDCAA() {
         dc.iwapp.pdc2->SetAntialiasMode(aaSav);
     }
+
+private:
+    DC& dc;
+    D2D1_ANTIALIAS_MODE aaSav;
 };

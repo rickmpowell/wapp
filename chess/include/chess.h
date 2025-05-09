@@ -24,9 +24,10 @@ struct TMS
 };
 
 /*
- *  WNBOARD 
- *
- *  The board UI element on the screen
+ *  WNBD
+ * 
+ *  The static display of a board in a window. This board scales to the size
+ *  and includes more detail at larger sizes.
  */
 
 class WNBD : public WN
@@ -70,6 +71,13 @@ protected:
     RC RcFromSq(int fi, int ra) const;
     RC RcPiecesFromCp(CP cp) const;
 };
+
+/*
+ *  WNBOARD
+ *
+ *  The board UI element on the screen, which includes a mouse interface
+ *  to the board. 
+ */
 
 class WNBOARD : public WNBD
 {
@@ -117,6 +125,8 @@ private:
 };
 
 /*
+ *  WNTEST
+ * 
  *  Test window, which is currently just displaying a scrollable log
  */
 
@@ -180,7 +190,6 @@ public:
 
     WNBOARD wnboard;
     WNTEST wntest;
-
 
 private:
     const float wMarginPerWindow = 0.02f; // ratio of the size of of margin to the total window size

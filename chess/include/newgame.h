@@ -9,6 +9,7 @@
 #include "wapp.h"
 
 class DLGNEWGAME;
+class VSELTIME;
 
 /*
  *  Interface to the dialog
@@ -30,6 +31,12 @@ struct DATAPLAYER
     int lvlComputer = 3;
     string sNameHuman;
 };
+
+/*
+ *  VSELLEVEL
+ * 
+ *  The level selection list for AI players
+ */
 
 class SELLEVEL : public SELS
 {
@@ -98,8 +105,6 @@ private:
  * 
  *  Time control option in the New Game chooser.
  */
-
-class VSELTIME;
 
 class SELTIME : public SEL
 {
@@ -192,22 +197,21 @@ public:
 
 class DLGNEWGAME : public DLG
 {
-    friend class CMDWHITE;
-    friend class CMDBLACK;
-
 public:
     DLGNEWGAME(WN& wn, GAME& game);
     void Init(GAME& game);
     void Extract(GAME& game);
-    void InitPlayer(VSELPLAYER& vsel, PL* ppl, CCP ccp);
-    CCP ExtractPlayer(GAME& game, VSELPLAYER& vsel);
-
 
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 
     virtual void Validate(void) override;
 
+private:
+    void InitPlayer(VSELPLAYER& vsel, PL* ppl, CCP ccp);
+    CCP ExtractPlayer(GAME& game, VSELPLAYER& vsel);
+
+public:
     TITLEDLG title;
     INSTRUCT instruct;
     VSELPLAYER vselLeft;

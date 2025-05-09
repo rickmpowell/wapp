@@ -20,8 +20,6 @@ class DDDO;
 
 class RTC
 {
-protected:
-    IWAPP& iwapp;
 public:
     RTC(IWAPP& iwapp) : iwapp(iwapp) {}
     virtual ~RTC() {}
@@ -36,6 +34,9 @@ public:
     static void UnregisterDddo(DDDO& dddo);
     static void PurgeRegisteredDddos(void);
     static void RebuildRegisteredDddos(IWAPP& iwapp);
+
+protected:
+    IWAPP& iwapp;
 };
 
 /*
@@ -44,21 +45,6 @@ public:
 
 class RTCFLIP : public RTC
 {
-protected:
-
-    /* Device dependent resources */
-
-    com_ptr<ID2D1Device> pdev2;
-    com_ptr<ID3D11Device1> pdev3;
-    com_ptr<ID3D11DeviceContext1> pdc3;
-    com_ptr<IDXGIDevice> pdevxgi;
-    com_ptr<IDXGIFactory2> pfactxgi;
- 
-    /* size dependent resources */
-
-    com_ptr<IDXGISwapChain1> pswapchain;
-    com_ptr<ID2D1Bitmap1> pbmpBackBuf;
-
 public:
     RTCFLIP(void) = default;
     RTCFLIP(IWAPP& iwapp);
@@ -68,9 +54,24 @@ public:
     virtual void PurgeDddos(com_ptr<ID2D1DeviceContext>& pdc2) override;
     virtual void Prepare(com_ptr<ID2D1DeviceContext>& pdc2) override;
     virtual void Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate) override;
+
 protected:
     void RebuildDev(void);
     void CreateBuffer(com_ptr<ID2D1DeviceContext>& pdc2, com_ptr<ID2D1Bitmap1>& pbmpBuf);
+
+protected:
+
+    /* Device dependent resources */
+    com_ptr<ID2D1Device> pdev2;
+    com_ptr<ID3D11Device1> pdev3;
+    com_ptr<ID3D11DeviceContext1> pdc3;
+    com_ptr<IDXGIDevice> pdevxgi;
+    com_ptr<IDXGIFactory2> pfactxgi;
+
+    /* size dependent resources */
+    com_ptr<IDXGISwapChain1> pswapchain;
+    com_ptr<ID2D1Bitmap1> pbmpBackBuf;
+
 };
 
 

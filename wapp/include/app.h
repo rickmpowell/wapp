@@ -44,9 +44,6 @@ private:
     void operator = (const APP& app) = delete;
 
 public:
-    HINSTANCE hinst;
-    
-public:
     APP(void);
     virtual ~APP();
  
@@ -58,6 +55,9 @@ public:
     HCURSOR HcursorLoad(int rsc) const;
     HICON HiconDef(LPCWSTR rsi) const;
     HCURSOR HcursorDef(LPCWSTR rsc) const;
+
+public:
+    HINSTANCE hinst;
 };
 
 /*
@@ -68,7 +68,6 @@ public:
 
 class CURS
 {
-    HCURSOR hcursor;
 public:
     CURS(APP& app, LPCWSTR idc) {
         hcursor = app.HcursorDef(idc);
@@ -77,6 +76,9 @@ public:
     operator HCURSOR () const {
         return hcursor;
     }
+
+private:
+    HCURSOR hcursor;
 };
 
 /*
@@ -90,10 +92,6 @@ class WND
 private:
     WND(const WND& wnd) = delete;  /* disable copy constructors for WNDs */
     void operator = (const WND& wnd) = delete;
-
-public:
-    APP& app;
-    HWND hwnd;
 
 public:
     WND(APP& app);
@@ -136,6 +134,10 @@ public:
     /* dialogs */
 
     int Dialog(int rsd);
+
+public:
+    APP& app;
+    HWND hwnd;
 };
 
 /*
@@ -151,12 +153,16 @@ class WNDMAIN : public WND
 public:
     WNDMAIN(APP& app);
     
-    WNDCLASSEXW WcexRegister(const wchar_t* wsClass, int rsm = 0, int rsiLarge = 0, int rsiSmall = 0) const;
+    WNDCLASSEXW WcexRegister(const wchar_t* wsClass, 
+                             int rsm = 0, 
+                             int rsiLarge = 0, 
+                             int rsiSmall = 0) const;
     virtual LPCWSTR SRegister(void) override;
 
     void CreateWnd(const string& sTitle,
-                int ws = WS_OVERLAPPEDWINDOW, 
-                PT pt = PT(CW_USEDEFAULT), SZ sz = SZ(CW_USEDEFAULT));
+                   int ws = WS_OVERLAPPEDWINDOW, 
+                   PT pt = PT(CW_USEDEFAULT), 
+                   SZ sz = SZ(CW_USEDEFAULT));
 };
 
 /*
@@ -181,10 +187,6 @@ public:
 
 class resource_ptr
 {
-    HGLOBAL hData;
-    BYTE* pData;
-    unsigned cbData;
-
 public:
     resource_ptr(APP& app, string_view sType, int rs) : hData(NULL), pData(nullptr) {
         HRSRC hrsrc = ::FindResourceW(app.hinst, MAKEINTRESOURCEW(rs), WsFromS(sType).c_str());
@@ -261,6 +263,11 @@ public:
     unsigned size(void) const noexcept {
         return cbData;
     }
+
+private:
+    HGLOBAL hData;
+    BYTE* pData;
+    unsigned cbData;
 };
 
 /*
@@ -274,10 +281,6 @@ public:
 
 class global_ptr
 {
-private:
-    HGLOBAL h;
-    char* p;
-
 public:
     global_ptr(unsigned cb) : h(NULL), p(nullptr) {
         h = ::GlobalAlloc(GMEM_MOVEABLE, cb);
@@ -349,5 +352,9 @@ public:
     HGLOBAL handle(void) const {
         return h;
     }
+
+private:
+    HGLOBAL h;
+    char* p;
 };
 

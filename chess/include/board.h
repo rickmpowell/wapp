@@ -318,7 +318,6 @@ public:
     operator string () const;
 };
 
-wstring to_wstring(MV mv);
 string to_string(MV mv);
 
 /*

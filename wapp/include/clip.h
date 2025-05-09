@@ -23,16 +23,18 @@ class iclipbuffer : public streambuf
 {
 public:
     iclipbuffer(IWAPP& iwapp, int cf);
+
 protected:
     int underflow(void) override;
 };
 
 class iclipstream : public istream
 {
-private:
-    iclipbuffer buf;
 public:
     iclipstream(IWAPP& iwapp) : buf(iwapp, CF_TEXT), istream(&buf) {}
+
+private:
+    iclipbuffer buf;
 };
 
 /*
@@ -43,19 +45,21 @@ public:
 
 class oclipbuffer : public stringbuf
 {
-private:
-    int cf;
-    IWAPP& iwapp;
 public:
     oclipbuffer(IWAPP& iwapp, int cf);
     virtual ~oclipbuffer();
     int sync(void) override;
+
+private:
+    int cf;
+    IWAPP& iwapp;
 };
 
 class oclipstream : public ostream
 {
-private:
-    oclipbuffer buf;
 public:
     oclipstream(IWAPP& iwapp, int cf) : buf(iwapp, cf), ostream(&buf) {}
+
+private:
+    oclipbuffer buf;
 };

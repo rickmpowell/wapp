@@ -9,6 +9,8 @@
 #include "wn.h"
 #include "cmd.h"
 
+class VSEL;
+
 /*
  *  CTL base class
  * 
@@ -237,8 +239,6 @@ private:
     string sTitle;
     TF tf;
 };
-
-class VSEL;
 
 /*
  *  SEL

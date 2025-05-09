@@ -48,6 +48,10 @@ public:
     bool FTopRedoCmd(ICMD*& pcmd);
 
 private:
+    void SetDrag(WN* pwn, const PT& ptg, unsigned mk);
+    void SetHover(WN* pwn, const PT& ptg);
+
+private:
     WN& wnOwner;
     WN* pwnFocus;
     WN* pwnDrag;
@@ -55,7 +59,4 @@ private:
 
     vector<unique_ptr<ICMD>> vpcmdUndo;
     vector<unique_ptr<ICMD>> vpcmdRedo;
-
-    void SetDrag(WN* pwn, const PT& ptg, unsigned mk);
-    void SetHover(WN* pwn, const PT& ptg);
 };

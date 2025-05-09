@@ -122,6 +122,7 @@ public:
 protected:
     void Init(DC& dc, const PT apt[], size_t cpt);
 
+protected:
     com_ptr<ID2D1PathGeometry> pgeometry;
 };
 
@@ -144,24 +145,28 @@ public:
 
 class PNGX : public PNG, public DDDO
 {
-    int rspng;
 public:
     PNGX(void) = default;
     PNGX(int rspng);
     void reset(IWAPP& iwapp, int rspng);
     virtual void rebuild(IWAPP& iwapp) override;
     virtual void purge(void) override;
+
+private:
+    int rspng;
 };
 
 class BRX : public BR, public DDDO
 {
-    CO co;
 public:
     BRX(void) = default;
     BRX(CO co);
     void reset(DC& dc, CO co);
     virtual void rebuild(IWAPP& iwapp) override;
     virtual void purge(void) override;
+
+private:
+    CO co;
 };
 
 /*
@@ -185,14 +190,6 @@ struct FM
 
 class DC
 {
-public:
-    IWAPP& iwapp;
-
-    static BRX brScratch;
-
-protected:
-    RC rcgBounds;    /* relative to the pdc in the app */
-
 public:
     DC(IWAPP& iwapp);
     void SetBounds(const RC& rcNew);
@@ -244,5 +241,13 @@ public:
     virtual void PurgeDidos(void);
     virtual void RebuildDddos(void);
     virtual void PurgeDddos(void);
+
+public:
+    IWAPP& iwapp;
+
+    static BRX brScratch;
+
+protected:
+    RC rcgBounds;    /* relative to the pdc in the app */
 };
 

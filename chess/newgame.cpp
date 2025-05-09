@@ -187,9 +187,16 @@ public:
         dlg.vseltime.Layout();
         return 1;
     }
+
 protected:
     DLGNEWGAME& dlg;
 };
+
+/*
+ *  CMDLEVEL
+ * 
+ *  Command notification for changing the level in the AI player
+ */
 
 class CMDLEVEL : public CMD<CMDLEVEL, WAPP>
 {
