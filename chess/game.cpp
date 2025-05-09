@@ -13,12 +13,20 @@
   *  GAME class
   */
 
-GAME::GAME(WAPP& wapp, const string& fenStart, PL* pplWhite, PL* pplBlack) :
-    wapp(wapp),
+GAME::GAME(void) :
+    bd(fenEmpty),
+    maty(MATY::Random1ThenAlt),
+    cgaPlayed(0)
+{
+    appl[ccpWhite] = nullptr;
+    appl[ccpBlack] = nullptr;
+}
+
+GAME::GAME(const string& fenStart, shared_ptr<PL> pplWhite, shared_ptr<PL> pplBlack) :
     bd(fenStart),
     maty(MATY::Random1ThenAlt),
     cgaPlayed(0)
 {
-    appl[ccpWhite] = shared_ptr<PL>(pplWhite);
-    appl[ccpBlack] = shared_ptr<PL>(pplBlack);
+    appl[ccpWhite] = pplWhite;
+    appl[ccpBlack] = pplBlack;
 }

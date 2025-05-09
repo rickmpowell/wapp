@@ -8,39 +8,45 @@
 #include "chess.h"
 #include "resource.h"
 
-PNGX WNBOARD::pngPieces(rspngChessPieces);
+PNGX WNBD::pngPieces(rspngChessPieces);
 
- /*
-  *  WNBOARD
-  *
-  *  The board UI element
-  */
-
-WNBOARD::WNBOARD(WN& wnParent, BD& bd) : 
-    WN(wnParent), 
-    bd(bd),
+WNBOARD::WNBOARD(WN& wnParent, GAME& game) :
+    WNBD(wnParent, game.bd),
+    game(game),
     btnFlip(*this, new CMDFLIPBOARD((WAPP&)iwapp), SFromU8(u8"\u2b6f")),
-    pcmdMakeMove(make_unique<CMDMAKEMOVE>((WAPP&)iwapp)),
-    dxyBorder(0.0f), dxyOutline(0.0f), dyLabels(0.0f), dxySquare(0.0f)
+    pcmdMakeMove(make_unique<CMDMAKEMOVE>((WAPP&)iwapp))
 {
     btnFlip.SetLayout(LCTL::SizeToFit);
+}
+
+ /*
+  *  WNBD
+  *
+  *  The static board UI element, draws with no UI
+  */
+
+WNBD::WNBD(WN& wnParent, BD& bd) : 
+    WN(wnParent), 
+    bd(bd),
+    dxyBorder(0.0f), dxyOutline(0.0f), dyLabels(0.0f), dxySquare(0.0f)
+{
     bd.MoveGen(vmv);
 }
 
-void WNBOARD::BdChanged(void)
+void WNBD::BdChanged(void)
 {
     bd.MoveGen(vmv);
     Redraw();
 }
 
 /*
- *  CO::CoBack and CO::CoText
+ *  CoBack and CoText
  *
  *  We use the foreground and background colors to determine the board light and
  *  dark colors.
  */
 
-CO WNBOARD::CoBack(void) const
+CO WNBD::CoBack(void) const
 {
     CO co(coIvory);
     if (!FEnabled())
@@ -48,7 +54,7 @@ CO WNBOARD::CoBack(void) const
     return co;
 }
 
-CO WNBOARD::CoText(void) const
+CO WNBD::CoText(void) const
 {
     CO co(coDarkGreen.CoSetValue(0.5f));
     if (!FEnabled())
@@ -64,6 +70,14 @@ CO WNBOARD::CoText(void) const
  */
 
 void WNBOARD::Layout(void)
+{
+    WNBD::Layout();
+
+    PT ptBotRight(RcInterior().ptBottomRight() - SZ(8.0f));
+    btnFlip.SetBounds(RC(ptBotRight - SZ(dxyBorder - 16.0f - 2*dxyOutline), ptBotRight));
+}
+
+void WNBD::Layout(void)
 {
     /* compute border area and decorative outline. if either gets too small, we 
        don't draw them */
@@ -87,19 +101,21 @@ void WNBOARD::Layout(void)
 
     rcSquares = RcInterior().RcInflate(-dxyBorder);
     dxySquare = rcSquares.dxWidth() / raMax;
-
-    /* position the rotation button */
-
-    PT ptBotRight(RcInterior().ptBottomRight() - SZ(8.0f));
-    btnFlip.SetBounds(RC(ptBotRight - SZ(dxyBorder - 16.0f - 2*dxyOutline), ptBotRight));
 }
 
 /*
- *  WNBOARD::Draw
+ *  WNBD::Draw
  *
  *  Draws the board, which is the checkboard squares surrounded by an optional
  *  border area. If the board is small enough, we remove detail from the drawing.
  */
+
+void WNBD::Draw(const RC& rcUpdate)
+{
+    DrawBorder();
+    DrawSquares();
+    DrawPieces();
+}
 
 void WNBOARD::Draw(const RC& rcUpdate)
 {
@@ -112,14 +128,14 @@ void WNBOARD::Draw(const RC& rcUpdate)
 }
 
 /*
- *  WNBOARD::DrawBorder
+ *  WNBD::DrawBorder
  *
  *  Draws the border area of the board, which is mostly a blank area, but includes
  *  rank and file labels and a thin outline around the squares, if there is room
  *  for the labels and outline.
  */
 
-void WNBOARD::DrawBorder(void)
+void WNBD::DrawBorder(void)
 {
     if (dxyBorder <= 0)
         return;
@@ -151,20 +167,29 @@ void WNBOARD::DrawBorder(void)
     DrawS(Wapp(iwapp).game.appl[ccpView]->SName(), tf, rc);
 }
 
+CO WNBD::CoSquare(SQ sq) const
+{
+    return (ra(sq) + fi(sq)) & 1 ? CoBack() : CoText();
+}
+
+CO WNBOARD::CoSquare(SQ sq) const
+{
+    CO coBack = WNBD::CoSquare(sq);
+    if (sq == sqDragFrom || sq == sqDragTo || sq == sqHoverCur)
+        coBack = CoBlend(coBack, coRed);
+    return coBack;
+}
+
 /*
- *  WNBOARD::DrawSquares
+ *  WNBD::DrawSquares
  *
  *  Draws trhe squares of the board
  */
 
-void WNBOARD::DrawSquares(void)
+void WNBD::DrawSquares(void)
 {
-    for (SQ sq = 0; sq < sqMax; sq++) {
-        CO coBack((ra(sq) + fi(sq)) & 1 ? CoBack() : CoText());
-        if (sq == sqDragFrom || sq == sqDragTo || sq == sqHoverCur)
-            coBack = CoBlend(coBack, coRed);
-        FillRc(RcFromSq(sq), coBack);
-    }
+    for (SQ sq = 0; sq < sqMax; sq++)
+        FillRc(RcFromSq(sq), CoSquare(sq));
 }
 
 void WNBOARD::DrawMoveHilites(void)
@@ -197,12 +222,22 @@ void WNBOARD::DrawMoveHilites(void)
     }
 }
 
-void WNBOARD::DrawPieces(void)
+void WNBD::DrawPieces(void)
 {
     for (SQ sq = 0; sq < sqMax; sq++) {
         if (bd[sq].cp() != cpEmpty)
-            DrawBmp(RcFromSq(sq), pngPieces, RcPiecesFromCp(bd[sq].cp()), sq == sqDragFrom ? 0.33f : 1.0f);
+            DrawPiece(sq, RcFromSq(sq), bd[sq].cp());
     }
+}
+
+void WNBD::DrawPiece(SQ sq, const RC& rc, CP cp)
+{
+    DrawBmp(rc, pngPieces, RcPiecesFromCp(cp));
+}
+
+void WNBOARD::DrawPiece(SQ sq, const RC& rc, CP cp)
+{
+    DrawBmp(rc, pngPieces, RcPiecesFromCp(cp), sq == sqDragFrom ? 0.33f : 1.0f);
 }
 
 void WNBOARD::DrawDrag(void)
@@ -213,7 +248,7 @@ void WNBOARD::DrawDrag(void)
     DrawBmp(rcTo, pngPieces, RcPiecesFromCp(cpDrag), 1.0f);
 }
 
-RC WNBOARD::RcPiecesFromCp(CP cp) const
+RC WNBD::RcPiecesFromCp(CP cp) const
 {
     static const int mptcpdx[tcpMax] = { -1, 5, 3, 2, 4, 1, 0 }; // funky order of pieces in the bitmap
     SZ szPng = pngPieces.sz();
@@ -223,17 +258,17 @@ RC WNBOARD::RcPiecesFromCp(CP cp) const
 }
 
 /*
- *  WNBOARD::RcFromSq
+ *  WNBD::RcFromSq
  *
  *  Returns the rectangular area for the square on the board.
  */
 
-RC WNBOARD::RcFromSq(int sq) const
+RC WNBD::RcFromSq(int sq) const
 {
     return RcFromSq(fi(sq), ra(sq));
 }
 
-RC WNBOARD::RcFromSq(int fi, int ra) const
+RC WNBD::RcFromSq(int fi, int ra) const
 {
     PT pt = (ccpView == ccpWhite) ? PT(fi, raMax-1-ra) :
         PT(fiMax-1-fi, ra);
@@ -281,7 +316,6 @@ bool WNBOARD::FLegalSqTo(SQ sqFrom, SQ sqTo, MV& mvHit) const
         }
     }
     return false;
-
 }
 
 /*

@@ -236,7 +236,7 @@ public:
     SZ SzFromS(const string& s, const TF& tf, float dxWidth = -1.0f) const;
     FM FmFromTf(const TF& tf) const;
 
-    void DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity) const;
+    void DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity = 1.0f) const;
 
     /* drawing object management */
 

@@ -10,6 +10,7 @@
 
 
 const char fenStartPos[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+const char fenEmpty[] = "8/8/8/8/8/8/8/8 w - - 0 1";
 
 /*
  *  BD class - the basic chess board

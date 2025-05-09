@@ -17,13 +17,12 @@ class GAME;
 class PL
 {
 public:
-    PL(GAME& game);
+    PL(void);
 
     virtual bool FIsHuman(void) const = 0;
     virtual string_view SName(void) const = 0;
 
 public:
-    GAME& game;
 };
 
 /*
@@ -35,7 +34,7 @@ public:
 class PLHUMAN : public PL
 {
 public:
-    PLHUMAN(GAME& game, string_view sName);
+    PLHUMAN(string_view sName);
 
     virtual bool FIsHuman(void) const override;
     virtual string_view SName(void) const override;
@@ -59,7 +58,7 @@ struct SETAI
 class PLCOMPUTER : public PL
 {
 public:
-    PLCOMPUTER(GAME& game, const SETAI& setai);
+    PLCOMPUTER(const SETAI& setai);
 
     virtual bool FIsHuman(void) const override;
     virtual string_view SName(void) const override;

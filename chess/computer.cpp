@@ -1,13 +1,11 @@
 
 #include "chess.h"
 
-PL::PL(GAME& game) :
-    game(game)
+PL::PL(void)
 {
 }
 
-PLCOMPUTER::PLCOMPUTER(GAME& game, const SETAI& setai) :
-    PL(game),
+PLCOMPUTER::PLCOMPUTER(const SETAI& setai) :
     setai(setai)
 {
 }

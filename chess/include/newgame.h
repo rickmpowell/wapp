@@ -200,7 +200,7 @@ public:
     void Init(GAME& game);
     void Extract(GAME& game);
     void InitPlayer(VSELPLAYER& vsel, PL* ppl, CCP ccp);
-    void ExtractPlayer(GAME& game, VSELPLAYER& vsel, CCP ccp);
+    CCP ExtractPlayer(GAME& game, VSELPLAYER& vsel);
 
 
     virtual void Layout(void) override;
@@ -210,8 +210,8 @@ public:
 
     TITLEDLG title;
     INSTRUCT instruct;
-    VSELPLAYER vselWhite;
-    VSELPLAYER vselBlack;
+    VSELPLAYER vselLeft;
+    VSELPLAYER vselRight;
     BTNS btnSwap;
     BTNRANDOM btnrandom;
     BTNS btnSettings;

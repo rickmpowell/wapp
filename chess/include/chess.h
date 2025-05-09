@@ -29,45 +29,30 @@ struct TMS
  *  The board UI element on the screen
  */
 
-class WNBOARD : public WN
+class WNBD : public WN
 {
 public:
-    WNBOARD(WN& wnParent, BD& bd);
+    WNBD(WN& wnParent, BD& bd);
  
     void BdChanged(void);
 
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
 
+    virtual CO CoSquare(SQ sq) const;
+
     virtual void Layout(void) override;
     virtual void Draw(const RC& rcUpdate) override;
-
-    virtual void Hover(const PT& pt) override;
-    virtual void SetDefCurs(void) override;
-    virtual void BeginDrag(const PT& pt, unsigned mk) override;
-    virtual void Drag(const PT& pt, unsigned mk) override;
-    virtual void EndDrag(const PT& pt, unsigned mk) override;
-
-    void FlipCcp(void);
 
 public:
     VMV vmv;
     static PNGX pngPieces;
 
-private:
-    BTNS btnFlip;
-    unique_ptr<CMDMAKEMOVE> pcmdMakeMove;
+protected:
 
     BD& bd;
     CCP ccpView = ccpWhite;  // orientation of the board, black or white
-
-    float angleDraw = 0.0f;    // and to draw during flipping
-    SQ sqHoverCur = sqNil;
-    SQ sqDragFrom = sqNil, sqDragTo = sqNil;
-    CP cpDrag = cpEmpty;  // piece we're dragging
-    PT ptDrag = PT(0, 0);
-    PT dptDrag = PT(0, 0); // offset from the mouse cursor of the initial drag hit
-
+ 
     /* metrics for drawing */
 
     float dxySquare, dxyBorder, dxyOutline, dyLabels;
@@ -81,15 +66,52 @@ private:
 
     void DrawBorder(void);
     void DrawSquares(void);
-    void DrawMoveHilites(void);
     void DrawPieces(void);
-    void DrawDrag(void);
+    virtual void DrawPiece(SQ sq, const RC& rc, CP cp);
+
     RC RcFromSq(int sq) const;
     RC RcFromSq(int fi, int ra) const;
     RC RcPiecesFromCp(CP cp) const;
+};
+
+class WNBOARD : public WNBD
+{
+public:
+    WNBOARD(WN& wnParent, GAME& game);
+
+    virtual CO CoSquare(SQ sq) const override;
+    virtual void Layout(void) override;
+    virtual void Draw(const RC& rcUpdate) override;
+
+    virtual void Hover(const PT& pt) override;
+    virtual void SetDefCurs(void) override;
+    virtual void BeginDrag(const PT& pt, unsigned mk) override;
+    virtual void Drag(const PT& pt, unsigned mk) override;
+    virtual void EndDrag(const PT& pt, unsigned mk) override;
+
+    void FlipCcp(void);
+
+private:
+    virtual void DrawPiece(SQ sq, const RC& rc, CP cp) override;
+    void DrawMoveHilites(void);
+    void DrawDrag(void);
+
     bool FPtToSq(const PT& pt, SQ& sq) const;
     bool FLegalSqFrom(SQ sq) const;
     bool FLegalSqTo(SQ sqFrom, SQ sqTo, MV& mvHit) const;
+
+private:
+    GAME game;
+    float angleDraw = 0.0f;    // drawing during flipping
+
+    BTNS btnFlip;
+    unique_ptr<CMDMAKEMOVE> pcmdMakeMove;
+
+    SQ sqHoverCur = sqNil;
+    SQ sqDragFrom = sqNil, sqDragTo = sqNil;
+    CP cpDrag = cpEmpty;  // piece we're dragging
+    PT ptDrag = PT(0, 0);
+    PT dptDrag = PT(0, 0); // offset from the mouse cursor of the initial drag hit
 };
 
 /*
@@ -148,13 +170,15 @@ public:
 
 public:
     GAME game;
-    WNBOARD wnboard;
-    WNTEST wntest;
 
     CURS cursArrow;
     CURS cursHand;
 
     mt19937_64 rand;
+
+    WNBOARD wnboard;
+    WNTEST wntest;
+
 
 private:
     const float wMarginPerWindow = 0.02f; // ratio of the size of of margin to the total window size

@@ -8,8 +8,7 @@
 #include "chess.h"
 
 
-PLHUMAN::PLHUMAN(GAME& game, string_view sName) :
-    PL(game),
+PLHUMAN::PLHUMAN(string_view sName) :
     sName(sName)
 {
 }

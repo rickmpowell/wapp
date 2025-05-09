@@ -2,6 +2,8 @@
 
 /*
  *  game.h
+ * 
+ *  The chess game.
  */
 
 #include "framework.h"
@@ -31,11 +33,9 @@ enum class MATY
 class GAME
 {
 public:
-    GAME(WAPP& wapp, const string& fenStart, 
-         PL* pplWhite, PL* pplBlack);
-    ~GAME(void) = default;
-    GAME(const GAME& game) = default;
-    GAME& operator = (const GAME& game) = default;
+    GAME(void);
+    GAME(const string& fenStart, 
+         shared_ptr<PL> pplWhite, shared_ptr<PL> pplBlack);
 
 public:
     BD bd;
@@ -43,10 +43,13 @@ public:
 public:
     shared_ptr<PL> appl[2];
 
-    /* TODO: should pull this out into a match/tournament structure */
+    /* TODO: the following probably belong in a match/tournament item, but 
+       that's an advanced feature that we're a long way from completing. This 
+       is just the minimum amount of stuff needed make the New Game dialog do 
+       something helpful */
+
     MATY maty;
     int cgaPlayed;  // number of games played between the players
 
 private:
-    WAPP& wapp;
 };

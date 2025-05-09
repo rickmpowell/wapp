@@ -145,7 +145,6 @@ constexpr SQ sqNil = 0xc0;
 constexpr SQ sqMax = raMax * fiMax;
 
 string to_string(SQ sq);
-wstring to_wstring(SQ sq);
 
 constexpr int fiA = 0;
 constexpr int fiB = 1;
@@ -316,7 +315,6 @@ public:
         return sqFrom == sqNil;
     }
 
-    operator wstring () const;
     operator string () const;
 };
 
@@ -398,22 +396,10 @@ private:
  */
 
 extern const char fenStartPos[];
+extern const char fenEmpty[];
 
 class BD
 {
-private:
-    static const string_view sParseBoard;
-    static const string_view sParseColor;
-    static const string_view sParseCastle;
-
-public:
-    CPBD acpbd[(raMax+4)*(fiMax+2)];  // 8x8 plus 4 guard ranks and 2 guard files
-    static constexpr int icpMax = 16;
-    int aicpbd[ccpMax][icpMax];  // ccp x piece index -> offset into acpbd array
-    CCP ccpToMove = ccpWhite;
-    CS csCur = csNone;
-    SQ sqEnPassant = sqNil;
-
 public:
     BD(void);
     BD(const string& fen);
@@ -471,6 +457,19 @@ private:
 
     int IcpbdFindKing(CCP ccpKing) const;
     int IcpUnused(int ccp, int tcpHint) const;
+
+public:
+    CPBD acpbd[(raMax+4)*(fiMax+2)];  // 8x8 plus 4 guard ranks and 2 guard files
+    static constexpr int icpMax = 16;
+    int aicpbd[ccpMax][icpMax];  // ccp x piece index -> offset into acpbd array
+    CCP ccpToMove = ccpWhite;
+    CS csCur = csNone;
+    SQ sqEnPassant = sqNil;
+
+private:
+    static const string_view sParseBoard;
+    static const string_view sParseColor;
+    static const string_view sParseCastle;
 
 #ifndef NDEBUG
     void Validate(void) const;

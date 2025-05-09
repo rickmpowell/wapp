@@ -29,6 +29,7 @@ public:
         /* force entire thing to relayout and redraw so we get human/ai options redisplayed */
         if (vsel.FVisible())
             vsel.Layout();
+        vsel.fModified = true;
         return 1;
     }
  
@@ -48,11 +49,11 @@ public:
     CMDSWAP(DLGNEWGAME& dlg) : CMD(Wapp(dlg.iwapp)), dlg(dlg) {}
 
     virtual int Execute(void) override {
-        DATAPLAYER dataplayer = dlg.vselWhite.DataGet();
-        dlg.vselWhite.SetData(dlg.vselBlack.DataGet());
-        dlg.vselWhite.Relayout();
-        dlg.vselBlack.SetData(dataplayer);
-        dlg.vselBlack.Relayout();
+        DATAPLAYER dataplayer = dlg.vselLeft.DataGet();
+        dlg.vselLeft.SetData(dlg.vselRight.DataGet());
+        dlg.vselLeft.Relayout();
+        dlg.vselRight.SetData(dataplayer);
+        dlg.vselRight.Relayout();
         return 1;
     }
 
@@ -72,16 +73,16 @@ public:
     CMDRANDOM(DLGNEWGAME& dlg) : CMD(Wapp(dlg.iwapp)), dlg(dlg) {}
 
     virtual int Execute(void) override {
-        if (dlg.vselWhite.ngcc == NGCC::Random) {
-            dlg.vselWhite.ngcc = NGCC::White;
-            dlg.vselBlack.ngcc = NGCC::Black;
+        if (dlg.vselLeft.ngcc == NGCC::Random) {
+            dlg.vselLeft.ngcc = NGCC::White;
+            dlg.vselRight.ngcc = NGCC::Black;
         }
         else {
-            dlg.vselWhite.ngcc = NGCC::Random;
-            dlg.vselBlack.ngcc = NGCC::Random;
+            dlg.vselLeft.ngcc = NGCC::Random;
+            dlg.vselRight.ngcc = NGCC::Random;
         }
-        dlg.vselWhite.Relayout();
-        dlg.vselBlack.Relayout();
+        dlg.vselLeft.Relayout();
+        dlg.vselRight.Relayout();
         return 1;
     }
 
@@ -196,6 +197,7 @@ public:
     CMDLEVEL(DLGNEWGAME& dlg, VSELPLAYER& vsel) : CMD(Wapp(dlg.iwapp)), vsel(vsel) {}
 
     virtual int Execute(void) override {
+        vsel.fModified = true;
         return 1;
     }
 
@@ -210,7 +212,9 @@ public:
 
     virtual int Execute(void) override {
         unique_ptr<DLG> pdlg = make_unique<DLGAISETTINGS>(wapp);
-        FRunDlg(*pdlg);
+        if (FRunDlg(*pdlg)) {
+            vsel.fModified = true;
+        }
         return 1;
     };
 
@@ -238,8 +242,8 @@ DLGNEWGAME::DLGNEWGAME(WN& wnParent, GAME& game) :
     DLG(wnParent),
     title(*this, rssNewGameTitle),
     instruct(*this, rssNewGameInstructions),
-    vselWhite(*this, new CMDPLAYER(*this, vselWhite), ccpWhite, NGCC::White),
-    vselBlack(*this, new CMDPLAYER(*this, vselBlack), ccpBlack, NGCC::Black),
+    vselLeft(*this, new CMDPLAYER(*this, vselLeft), ccpWhite, NGCC::White),
+    vselRight(*this, new CMDPLAYER(*this, vselRight), ccpBlack, NGCC::Black),
     btnSwap(*this, new CMDSWAP(*this), SFromU8(u8"\u21c4")),
     btnrandom(*this, new CMDRANDOM(*this)),
     btnSettings(*this, new CMDGAMESETTINGS(*this), SFromU8(sIconSettings), rssStandardGame),
@@ -271,21 +275,21 @@ void DLGNEWGAME::Init(GAME& game)
 {
     /* default which players get which colors */
 
-    CCP ccp0 = ccpWhite;
-    CCP ccp1 = ccpBlack;
+    CCP ccpLeft = ccpWhite;
+    CCP ccpRight = ccpBlack;
     if (game.maty == MATY::Random)
-        vselWhite.ngcc = vselBlack.ngcc = NGCC::Random;
+        vselLeft.ngcc = vselRight.ngcc = NGCC::Random;
     else if (game.maty == MATY::Alt)
-        swap(ccp0, ccp1);
+        swap(ccpLeft, ccpRight);
     else if (game.maty == MATY::Random1ThenAlt) {
         if (game.cgaPlayed == 0)
-            vselWhite.ngcc = vselBlack.ngcc = NGCC::Random;
+            vselLeft.ngcc = vselRight.ngcc = NGCC::Random;
         else
-            swap(ccp0, ccp1);
+            swap(ccpLeft, ccpRight);
     }
 
-    InitPlayer(vselWhite, game.appl[ccp0].get(), ccp0);
-    InitPlayer(vselBlack, game.appl[ccp1].get(), ccp1);
+    InitPlayer(vselLeft, game.appl[ccpLeft].get(), ccpLeft);
+    InitPlayer(vselRight, game.appl[ccpRight].get(), ccpRight);
 
     /* TODO: initialize the time control */
 }
@@ -303,32 +307,47 @@ void DLGNEWGAME::InitPlayer(VSELPLAYER& vsel, PL* ppl, CCP ccp)
 
 void DLGNEWGAME::Extract(GAME& game)
 {
-    /* TODO: initialize the time control */
+    /* pull out player data and assign them to the right colors */
 
-    /* pull out player data - if players have been modified changed, create new players 
-       and delete old ones */
-
-    if (vselWhite.ngcc == NGCC::Random) {
+    if (vselLeft.ngcc == NGCC::Random) {
         if (game.maty != MATY::Random)
             game.maty = MATY::Random1ThenAlt;
         else if (game.maty != MATY::Random1ThenAlt)
             game.maty = MATY::Random;
-        if (Wapp(iwapp).rand() & 0x100)
+        ExtractPlayer(game, vselLeft);
+        ExtractPlayer(game, vselRight);
+        if (Wapp(iwapp).rand() & 1)
             swap(game.appl[ccpWhite], game.appl[ccpBlack]);
     }
     else {
         if (game.maty != MATY::Random1ThenAlt)
             game.maty = MATY::Alt;
-        DATAPLAYER dataplayer = vselWhite.DataGet();
-        if (dataplayer.ngcp == 0)
-            static_cast<PLHUMAN*>(game.appl[dataplayer.ccp].get())->SetName(dataplayer.sNameHuman);
-        if (dataplayer.ngcp == 1)
-            static_cast<PLCOMPUTER*>(game.appl[dataplayer.ccp].get())->SetLevel(dataplayer.lvlComputer);
+        ExtractPlayer(game, vselLeft);
+        if (ExtractPlayer(game, vselRight) != ccpBlack)
+            swap(game.appl[ccpWhite], game.appl[ccpBlack]);
     }
+
+    /* TODO: initialize the time control */
+    /* TODO: Iniitalize game options */
 }
 
-void DLGNEWGAME::ExtractPlayer(GAME& game, VSELPLAYER& vsel, CCP ccp)
+CCP DLGNEWGAME::ExtractPlayer(GAME& game, VSELPLAYER& vsel)
 {
+    DATAPLAYER dataplayer = vsel.DataGet();
+ 
+    /* if hte player was modified, create a new player */
+
+    if (dataplayer.fModified) {
+        if (dataplayer.ngcp == 0)
+            game.appl[dataplayer.ccp] = make_shared<PLHUMAN>(dataplayer.sNameHuman);
+        else {
+            SETAI setai;
+            setai.level = dataplayer.lvlComputer;
+            game.appl[dataplayer.ccp] = make_shared<PLCOMPUTER>(setai);
+        }
+    }
+
+    return dataplayer.ccp;
 }
 
 void DLGNEWGAME::Layout(void)
@@ -340,13 +359,13 @@ void DLGNEWGAME::Layout(void)
     len.Position(instruct);
 
     len.StartFlow();
-    len.PositionLeft(vselWhite);
-    len.PositionRight(vselBlack);
-    LEN lenv(len.RcFlow(), PAD(0), PAD(dxyDlgGutter));
-    lenv.StartCenter(CLEN::Vertical);
-    lenv.Position(btnSwap);
-    lenv.Position(btnrandom);
-    lenv.EndCenter();
+        len.PositionLeft(vselLeft);
+        len.PositionRight(vselRight);
+        LEN lenv(len.RcFlow(), PAD(0), PAD(dxyDlgGutter));
+        lenv.StartCenter(CLEN::Vertical);
+            lenv.Position(btnSwap);
+            lenv.Position(btnrandom);
+        lenv.EndCenter();
     len.EndFlow();
 
     len.Position(btnSettings);
@@ -362,8 +381,8 @@ SZ DLGNEWGAME::SzRequestLayout(const RC& rcWithin) const
 
 void DLGNEWGAME::Validate(void)
 {
-    vselWhite.Validate();
-    vselBlack.Validate();
+    vselLeft.Validate();
+    vselRight.Validate();
     btnSettings.Validate();
     vseltime.Validate();
 }

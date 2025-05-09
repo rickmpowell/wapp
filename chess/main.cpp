@@ -26,8 +26,8 @@ int Run(const string& sCmdLine, int sw)
  */
 
 WAPP::WAPP(const string& wsCmdLine, int sw) : 
-    game(*this, fenStartPos, new PLHUMAN(game, "Rick"), new PLHUMAN(game, "Hazel")),
-    wnboard(*this, game.bd),
+    game(fenStartPos, make_shared<PLHUMAN>("Rick"), make_shared<PLHUMAN>("Hazel")),
+    wnboard(*this, game),
     wntest(*this),
     cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND),
     rand(3772432297UL)
@@ -74,6 +74,8 @@ void WAPP::Layout(void)
 
 /*
  *  CMDABOUT - The About menu command
+ * 
+ *  Not undoable.
  */
 
 CMDEXECUTE(CMDABOUT)
@@ -84,6 +86,8 @@ CMDEXECUTE(CMDABOUT)
 
 /*
  *  CMDEXIT - The Exit menu command
+ * 
+ *  Not undoable.
  */
 
 CMDEXECUTE(CMDEXIT) 
@@ -94,6 +98,10 @@ CMDEXECUTE(CMDEXIT)
 
 /*
  *  CMDNEWGAME - starts a new game
+ * 
+ *  Prompts with the new game dialog. 
+ *  
+ *  Undoable.
  */
 
 CMD_DECLARE(CMDNEWGAME)
@@ -102,13 +110,10 @@ public:
     CMDNEWGAME(WAPP& wapp) : CMD(wapp) {}
 
     virtual int Execute(void) override {
-        unique_ptr<DLGNEWGAME> pdlg = make_unique<DLGNEWGAME>(wapp, wapp.game);
-        if (FRunDlg(*pdlg)) {
-            /* TODO: need to undo entire game, and game undo needs a deep copy to undo
-               players. Need to be super careful when we get this working. Maybe it's
-               better to make New Game not undoable ... */
-            bdUndo = wapp.game.bd;
-            pdlg->Extract(wapp.game);
+        DLGNEWGAME dlg(wapp, wapp.game);
+        if (FRunDlg(dlg)) {
+            gameUndo = wapp.game;
+            dlg.Extract(wapp.game);
             wapp.game.bd.InitFromFen(fenStartPos);
             wapp.wnboard.BdChanged();
             wapp.game.cgaPlayed++;
@@ -124,7 +129,7 @@ public:
     }
 
     virtual int Undo(void) override {
-        wapp.game.bd = bdUndo;
+        wapp.game = gameUndo;
         wapp.wnboard.BdChanged();
         return 1;
     }
@@ -139,7 +144,7 @@ public:
     }
 
 private:
-    BD bdUndo;
+    GAME gameUndo;
 };
 
 /*
@@ -159,7 +164,11 @@ CMDEXECUTE(CMDTESTDIVIDE)
 }
 
 /*
- *  CMDMAKEMOVE
+ *  CMDMAKEMOVE 
+ *
+ *  makes a move in the game.
+ * 
+ *  Undoable.
  */
 
 int CMDMAKEMOVE::Execute(void) 
@@ -193,6 +202,9 @@ void CMDMAKEMOVE::SetMv(MV mv)
 
 /*
  *  CMDUNDO
+ *
+ *  The actual undo command.
+ * 
  */
 
 CMD_DECLARE(CMDUNDO)
@@ -221,6 +233,8 @@ public:
 
 /*
  *  CMDREDO
+ * 
+ *  The redo command.
  */
 
 CMD_DECLARE(CMDREDO)
@@ -251,7 +265,9 @@ public:
  *  CMDCUT
  * 
  *  The cut command isn't implemented on the board or game, so this code just
- *  disables the standard menu item.
+ *  disables the standard menu item
+ *
+ *  Not undoable..
  */
 
 CMD_DECLARE(CMDCUT)
@@ -270,6 +286,10 @@ public:
 
 /*
  *  CMDCOPY
+ * 
+ *  The copy command. Copies the board to the clipboard in FEN format.
+ * 
+ *  Not undoable.
  */
 
 CMDEXECUTE(CMDCOPY)
@@ -286,6 +306,10 @@ CMDEXECUTE(CMDCOPY)
 
 /*
  *  CMDPASTE
+ * 
+ *  Patstes text from the clipboard, which should be a FEN string.
+ * 
+ *  Unddoable.
  */
 
 CMD_DECLARE(CMDPASTE)
@@ -306,8 +330,9 @@ public:
     virtual int Execute(void) override {
         try {
             iclipstream is(wapp);
-            bdUndo.InitFromFen(is);
-            swap(wapp.game.bd, bdUndo);
+            gameUndo = wapp.game;
+            gameUndo.bd.InitFromFen(is);
+            swap(wapp.game, gameUndo);
             wapp.wnboard.BdChanged();
         }
         catch (ERR err) {
@@ -317,7 +342,7 @@ public:
     }
 
     virtual int Undo(void) override {
-        swap(wapp.game.bd, bdUndo);
+        swap(wapp.game, gameUndo);
         wapp.wnboard.BdChanged();
         return 1;
     }
@@ -336,13 +361,14 @@ public:
     }
 
 private:
-    BD bdUndo;
+    GAME gameUndo;
 };
 
 /*
- *  CMDFLIPBOARD - The flipboard command, called from menus and buttons
+ *  CMDFLIPBOARD
+ *
+ *  The flipboard command, called from menus and buttons
  */
-
 
 int CMDFLIPBOARD::Execute(void) 
 {
@@ -364,7 +390,6 @@ bool CMDFLIPBOARD::FMenuS(string& s, ICMD::CMS cms) const {
     s = wapp.SLoad(rssFlipBoard);
     return true;
 }
-
 
 /*
  *  WAPP::RegisterMenuCmds
