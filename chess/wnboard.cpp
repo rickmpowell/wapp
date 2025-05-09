@@ -10,15 +10,6 @@
 
 PNGX WNBD::pngPieces(rspngChessPieces);
 
-WNBOARD::WNBOARD(WN& wnParent, GAME& game) :
-    WNBD(wnParent, game.bd),
-    game(game),
-    btnFlip(*this, new CMDFLIPBOARD((WAPP&)iwapp), SFromU8(u8"\u2b6f")),
-    pcmdMakeMove(make_unique<CMDMAKEMOVE>((WAPP&)iwapp))
-{
-    btnFlip.SetLayout(LCTL::SizeToFit);
-}
-
  /*
   *  WNBD
   *
@@ -30,12 +21,10 @@ WNBD::WNBD(WN& wnParent, BD& bd) :
     bd(bd),
     dxyBorder(0.0f), dxyOutline(0.0f), dyLabels(0.0f), dxySquare(0.0f)
 {
-    bd.MoveGen(vmv);
 }
 
 void WNBD::BdChanged(void)
 {
-    bd.MoveGen(vmv);
     Redraw();
 }
 
@@ -62,19 +51,9 @@ CO WNBD::CoText(void) const
     return co;
 }
 
-/*
- *  WNBOARD::Layout
- *
- *  Computes metrics needed for drawing the board and saves them away for when
- *  we need them.
- */
-
-void WNBOARD::Layout(void)
+CO WNBD::CoSquare(SQ sq) const
 {
-    WNBD::Layout();
-
-    PT ptBotRight(RcInterior().ptBottomRight() - SZ(8.0f));
-    btnFlip.SetBounds(RC(ptBotRight - SZ(dxyBorder - 16.0f - 2*dxyOutline), ptBotRight));
+    return (ra(sq) + fi(sq)) & 1 ? CoBack() : CoText();
 }
 
 void WNBD::Layout(void)
@@ -117,16 +96,6 @@ void WNBD::Draw(const RC& rcUpdate)
     DrawPieces();
 }
 
-void WNBOARD::Draw(const RC& rcUpdate)
-{
-    GUARDDCTRANSFORM sav(*this, Matrix3x2F::Rotation(angleDraw, rcgBounds.ptCenter()));
-    DrawBorder();
-    DrawSquares();
-    DrawMoveHilites();
-    DrawPieces();
-    DrawDrag();
-}
-
 /*
  *  WNBD::DrawBorder
  *
@@ -167,19 +136,6 @@ void WNBD::DrawBorder(void)
     DrawS(Wapp(iwapp).game.appl[ccpView]->SName(), tf, rc);
 }
 
-CO WNBD::CoSquare(SQ sq) const
-{
-    return (ra(sq) + fi(sq)) & 1 ? CoBack() : CoText();
-}
-
-CO WNBOARD::CoSquare(SQ sq) const
-{
-    CO coBack = WNBD::CoSquare(sq);
-    if (sq == sqDragFrom || sq == sqDragTo || sq == sqHoverCur)
-        coBack = CoBlend(coBack, coRed);
-    return coBack;
-}
-
 /*
  *  WNBD::DrawSquares
  *
@@ -190,36 +146,6 @@ void WNBD::DrawSquares(void)
 {
     for (SQ sq = 0; sq < sqMax; sq++)
         FillRc(RcFromSq(sq), CoSquare(sq));
-}
-
-void WNBOARD::DrawMoveHilites(void)
-{
-    if (sqHoverCur == sqNil && sqDragFrom == sqNil)
-        return;
-
-    constexpr float dxyFull = 9;
-    constexpr float dxyCenter = 2;
-    static const PT aptCross[] = { {-dxyCenter, -dxyFull},   {dxyCenter,  -dxyFull},
-                                   { dxyCenter, -dxyCenter}, {dxyFull,    -dxyCenter},
-                                   { dxyFull,    dxyCenter}, {dxyCenter,   dxyCenter},
-                                   { dxyCenter,  dxyFull},   {-dxyCenter,  dxyFull},
-                                   {-dxyCenter,  dxyCenter}, {-dxyFull,    dxyCenter},
-                                   {-dxyFull,   -dxyCenter}, {-dxyCenter, -dxyCenter},
-                                   {-dxyCenter, -dxyFull} };
-    GEOM geomCross(*this, aptCross, size(aptCross));
-
-    SQ sqFrom(sqNil);
-    for (MV mv : vmv) {
-        if (mv.sqFrom == sqHoverCur || mv.sqFrom == sqDragFrom)
-            sqFrom = mv.sqFrom;
-        else if (mv.sqFrom != sqFrom)
-            continue;
-        PT ptCenter(RcFromSq(mv.sqTo).ptCenter());
-        if (bd[mv.sqTo].cp() != cpEmpty || (mv.sqTo == bd.sqEnPassant && bd[mv.sqFrom].tcp == tcpPawn))
-            FillGeom(geomCross, ptCenter, dxySquare / (2 * dxyFull), 45, CO(coBlack, 0.5f));
-        else
-            FillEll(ELL(ptCenter, dxySquare * 0.25f), CO(coBlack, 0.5f));
-    }
 }
 
 void WNBD::DrawPieces(void)
@@ -233,19 +159,6 @@ void WNBD::DrawPieces(void)
 void WNBD::DrawPiece(SQ sq, const RC& rc, CP cp)
 {
     DrawBmp(rc, pngPieces, RcPiecesFromCp(cp));
-}
-
-void WNBOARD::DrawPiece(SQ sq, const RC& rc, CP cp)
-{
-    DrawBmp(rc, pngPieces, RcPiecesFromCp(cp), sq == sqDragFrom ? 0.33f : 1.0f);
-}
-
-void WNBOARD::DrawDrag(void)
-{
-    if (cpDrag == cpEmpty)
-        return;
-    RC rcTo = RC(ptDrag - dptDrag, SZ(dxySquare));
-    DrawBmp(rcTo, pngPieces, RcPiecesFromCp(cpDrag), 1.0f);
 }
 
 RC WNBD::RcPiecesFromCp(CP cp) const
@@ -276,6 +189,104 @@ RC WNBD::RcFromSq(int fi, int ra) const
 }
 
 /*
+ *  WNBOARD::WNBOARD
+ * 
+ *  The fully functional board with a UI
+ */
+
+WNBOARD::WNBOARD(WN& wnParent, GAME& game) :
+    WNBD(wnParent, game.bd),
+    game(game),
+    btnFlip(*this, new CMDFLIPBOARD((WAPP&)iwapp), SFromU8(u8"\u2b6f")),
+    pcmdMakeMove(make_unique<CMDMAKEMOVE>((WAPP&)iwapp))
+{
+    btnFlip.SetLayout(LCTL::SizeToFit);
+    bd.MoveGen(vmvLegal);
+}
+
+void WNBOARD::BdChanged(void)
+{
+    bd.MoveGen(vmvLegal);
+    WNBD::BdChanged();
+}
+
+/*
+ *  WNBOARD::Layout
+ *
+ *  Computes metrics needed for drawing the board and saves them away for when
+ *  we need them.
+ */
+
+void WNBOARD::Layout(void)
+{
+    WNBD::Layout();
+
+    PT ptBotRight(RcInterior().ptBottomRight() - SZ(8.0f));
+    btnFlip.SetBounds(RC(ptBotRight - SZ(dxyBorder - 16.0f - 2*dxyOutline), ptBotRight));
+}
+
+void WNBOARD::Draw(const RC& rcUpdate)
+{
+    GUARDDCTRANSFORM sav(*this, Matrix3x2F::Rotation(angleDraw, rcgBounds.ptCenter()));
+    DrawBorder();
+    DrawSquares();
+    DrawMoveHilites();
+    DrawPieces();
+    DrawDrag();
+}
+
+CO WNBOARD::CoSquare(SQ sq) const
+{
+    CO coBack = WNBD::CoSquare(sq);
+    if (sq == sqDragFrom || sq == sqDragTo || sq == sqHoverCur)
+        coBack = CoBlend(coBack, coRed);
+    return coBack;
+}
+
+void WNBOARD::DrawMoveHilites(void)
+{
+    if (sqHoverCur == sqNil && sqDragFrom == sqNil)
+        return;
+
+    constexpr float dxyFull = 9;
+    constexpr float dxyCenter = 2;
+    static const PT aptCross[] = { {-dxyCenter, -dxyFull},   {dxyCenter,  -dxyFull},
+                                   { dxyCenter, -dxyCenter}, {dxyFull,    -dxyCenter},
+                                   { dxyFull,    dxyCenter}, {dxyCenter,   dxyCenter},
+                                   { dxyCenter,  dxyFull},   {-dxyCenter,  dxyFull},
+                                   {-dxyCenter,  dxyCenter}, {-dxyFull,    dxyCenter},
+                                   {-dxyFull,   -dxyCenter}, {-dxyCenter, -dxyCenter},
+                                   {-dxyCenter, -dxyFull} };
+    GEOM geomCross(*this, aptCross, size(aptCross));
+
+    SQ sqFrom(sqNil);
+    for (MV mv : vmvLegal) {
+        if (mv.sqFrom == sqHoverCur || mv.sqFrom == sqDragFrom)
+            sqFrom = mv.sqFrom;
+        else if (mv.sqFrom != sqFrom)
+            continue;
+        PT ptCenter(RcFromSq(mv.sqTo).ptCenter());
+        if (bd[mv.sqTo].cp() != cpEmpty || (mv.sqTo == bd.sqEnPassant && bd[mv.sqFrom].tcp == tcpPawn))
+            FillGeom(geomCross, ptCenter, dxySquare / (2 * dxyFull), 45, CO(coBlack, 0.5f));
+        else
+            FillEll(ELL(ptCenter, dxySquare * 0.25f), CO(coBlack, 0.5f));
+    }
+}
+
+void WNBOARD::DrawPiece(SQ sq, const RC& rc, CP cp)
+{
+    DrawBmp(rc, pngPieces, RcPiecesFromCp(cp), sq == sqDragFrom ? 0.33f : 1.0f);
+}
+
+void WNBOARD::DrawDrag(void)
+{
+    if (cpDrag == cpEmpty)
+        return;
+    RC rcTo = RC(ptDrag - dptDrag, SZ(dxySquare));
+    DrawBmp(rcTo, pngPieces, RcPiecesFromCp(cpDrag), 1.0f);
+}
+
+/*
  *  WNBOARD::FPtToSq
  * 
  *  Returns the square the point is in
@@ -300,7 +311,7 @@ bool WNBOARD::FPtToSq(const PT& pt, SQ& sq) const
 
 bool WNBOARD::FLegalSqFrom(SQ sqFrom) const
 {
-    for (const MV& mv : vmv) {
+    for (const MV& mv : vmvLegal) {
         if (mv.sqFrom == sqFrom)
             return true;
     }
@@ -309,7 +320,7 @@ bool WNBOARD::FLegalSqFrom(SQ sqFrom) const
 
 bool WNBOARD::FLegalSqTo(SQ sqFrom, SQ sqTo, MV& mvHit) const
 {
-    for (MV mv : vmv) {
+    for (MV mv : vmvLegal) {
         if (mv.sqFrom == sqFrom && mv.sqTo == sqTo) {
             mvHit = mv;
             return true;

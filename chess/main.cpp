@@ -204,7 +204,6 @@ void CMDMAKEMOVE::SetMv(MV mv)
  *  CMDUNDO
  *
  *  The actual undo command.
- * 
  */
 
 CMD_DECLARE(CMDUNDO)

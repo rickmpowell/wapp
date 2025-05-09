@@ -33,19 +33,16 @@ class WNBD : public WN
 {
 public:
     WNBD(WN& wnParent, BD& bd);
- 
-    void BdChanged(void);
 
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
-
     virtual CO CoSquare(SQ sq) const;
-
     virtual void Layout(void) override;
     virtual void Draw(const RC& rcUpdate) override;
 
+    void BdChanged(void);
+
 public:
-    VMV vmv;
     static PNGX pngPieces;
 
 protected:
@@ -83,6 +80,8 @@ public:
     virtual void Layout(void) override;
     virtual void Draw(const RC& rcUpdate) override;
 
+    void BdChanged(void);
+
     virtual void Hover(const PT& pt) override;
     virtual void SetDefCurs(void) override;
     virtual void BeginDrag(const PT& pt, unsigned mk) override;
@@ -99,6 +98,9 @@ private:
     bool FPtToSq(const PT& pt, SQ& sq) const;
     bool FLegalSqFrom(SQ sq) const;
     bool FLegalSqTo(SQ sqFrom, SQ sqTo, MV& mvHit) const;
+
+public:
+    VMV vmvLegal;
 
 private:
     GAME game;
