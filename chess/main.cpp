@@ -32,6 +32,7 @@ WAPP::WAPP(const string& wsCmdLine, int sw) :
     cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND),
     rand(3772432297UL)
 {
+    game.AddListener(&wnboard);
     CreateWnd(rssAppTitle);
     PushFilterMsg(new FILTERMSGACCEL(*this, rsaApp));
     Show();
@@ -114,8 +115,7 @@ public:
         if (FRunDlg(dlg)) {
             gameUndo = wapp.game;
             dlg.Extract(wapp.game);
-            wapp.game.bd.InitFromFen(fenStartPos);
-            wapp.wnboard.BdChanged();
+            wapp.game.InitFromFen(fenStartPos);
             wapp.game.cgaPlayed++;
         }
         return 1;
@@ -123,14 +123,14 @@ public:
 
     virtual int FRunDlg(DLG& dlg) override {
         wapp.wnboard.Enable(false);
-        int val = dlg.DlgMsgPump();
+        int val = dlg.MsgPump();
         wapp.wnboard.Enable(true);
         return val;
     }
 
     virtual int Undo(void) override {
         wapp.game = gameUndo;
-        wapp.wnboard.BdChanged();
+        wapp.game.NotifyListeners();
         return 1;
     }
 
@@ -173,15 +173,13 @@ CMDEXECUTE(CMDTESTDIVIDE)
 
 int CMDMAKEMOVE::Execute(void) 
 {
-    wapp.game.bd.MakeMv(mv);
-    wapp.wnboard.BdChanged();
+    wapp.game.MakeMv(mv);
     return 1;
 }
 
 int CMDMAKEMOVE::Undo(void)
 {
-    wapp.game.bd.UndoMv(mv);
-    wapp.wnboard.BdChanged();
+    wapp.game.UndoMv(mv);
     return 1;
 }
 
@@ -212,18 +210,18 @@ public:
     CMDUNDO(WAPP& wapp) : CMD(wapp) {}
 
     virtual int Execute(void) override {
-        return wapp.vpevd.back()->FUndoCmd();
+        return wapp.FUndoCmd();
     }
 
     virtual bool FEnabled(void) const override {
         ICMD* pcmd;
-        return wapp.vpevd.back()->FTopUndoCmd(pcmd);
+        return wapp.FTopUndoCmd(pcmd);
     }
 
     virtual bool FMenuS(string& s, CMS cms) const override {
         ICMD* pcmd;
         string sCmd;
-        if (wapp.vpevd.back()->FTopUndoCmd(pcmd))
+        if (wapp.FTopUndoCmd(pcmd))
             pcmd->FMenuS(sCmd, CMS::Undo);
         s = vformat(wapp.SLoad(rssUndo), make_format_args(sCmd));
         return true;
@@ -242,18 +240,18 @@ public:
     CMDREDO(WAPP& wapp) : CMD(wapp) {}
 
     virtual int Execute(void) override {
-        return wapp.vpevd.back()->FRedoCmd();
+        return wapp.FRedoCmd();
     }
 
     virtual bool FEnabled(void) const override {
         ICMD* pcmd;
-        return wapp.vpevd.back()->FTopRedoCmd(pcmd);
+        return wapp.FTopRedoCmd(pcmd);
     }
 
     virtual bool FMenuS(string& s, CMS cms) const override {
         string sCmd;
         ICMD* pcmd;
-        if (wapp.vpevd.back()->FTopRedoCmd(pcmd))
+        if (wapp.FTopRedoCmd(pcmd))
             pcmd->FMenuS(sCmd, CMS::Redo);
         s = vformat(wapp.SLoad(rssRedo), make_format_args(sCmd));
         return true;
@@ -330,9 +328,7 @@ public:
         try {
             iclipstream is(wapp);
             gameUndo = wapp.game;
-            gameUndo.bd.InitFromFen(is);
-            swap(wapp.game, gameUndo);
-            wapp.wnboard.BdChanged();
+            wapp.game.InitFromFen(is);
         }
         catch (ERR err) {
             wapp.Error(ERRAPP(rssErrPasteFailed), err);
@@ -342,7 +338,7 @@ public:
 
     virtual int Undo(void) override {
         swap(wapp.game, gameUndo);
-        wapp.wnboard.BdChanged();
+        wapp.game.NotifyListeners();
         return 1;
     }
 

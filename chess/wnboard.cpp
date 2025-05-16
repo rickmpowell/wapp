@@ -23,7 +23,7 @@ WNBD::WNBD(WN& wnParent, BD& bd) :
 {
 }
 
-void WNBD::BdChanged(void)
+void WNBD::BdChanged(GAME& game)
 {
     Redraw();
 }
@@ -198,16 +198,11 @@ WNBOARD::WNBOARD(WN& wnParent, GAME& game) :
     WNBD(wnParent, game.bd),
     game(game),
     btnFlip(*this, new CMDFLIPBOARD((WAPP&)iwapp), SFromU8(u8"\u2b6f")),
+    fEnableMoveUI(true),
     pcmdMakeMove(make_unique<CMDMAKEMOVE>((WAPP&)iwapp))
 {
     btnFlip.SetLayout(LCTL::SizeToFit);
     bd.MoveGen(vmvLegal);
-}
-
-void WNBOARD::BdChanged(void)
-{
-    bd.MoveGen(vmvLegal);
-    WNBD::BdChanged();
 }
 
 /*
@@ -329,6 +324,17 @@ bool WNBOARD::FLegalSqTo(SQ sqFrom, SQ sqTo, MV& mvHit) const
     return false;
 }
 
+void WNBOARD::BdChanged(GAME& game)
+{
+    bd.MoveGen(vmvLegal);
+    WNBD::BdChanged(game);
+}
+
+void WNBOARD::EnableMoveUI(bool fEnableNew)
+{
+    fEnableMoveUI = fEnableNew;
+}
+
 /*
  *  WNBOARD::Hover
  * 
@@ -394,7 +400,7 @@ void WNBOARD::EndDrag(const PT& pt, unsigned mk)
     MV mvHit;
     if (FPtToSq(pt, sqHit) && FLegalSqTo(sqDragFrom, sqHit, mvHit)) {
         pcmdMakeMove->SetMv(mvHit);
-        iwapp.vpevd.back()->FExecuteCmd(*pcmdMakeMove);
+        iwapp.FExecuteCmd(*pcmdMakeMove);
     }
     cpDrag = cpEmpty;
     sqDragFrom = sqDragTo = sqNil;

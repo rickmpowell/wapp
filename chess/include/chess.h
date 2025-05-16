@@ -30,7 +30,7 @@ struct TMS
  *  and includes more detail at larger sizes.
  */
 
-class WNBD : public WN
+class WNBD : public WN, public LGAME
 {
 public:
     WNBD(WN& wnParent, BD& bd);
@@ -41,7 +41,7 @@ public:
     virtual void Layout(void) override;
     virtual void Draw(const RC& rcUpdate) override;
 
-    void BdChanged(void);
+    virtual void BdChanged(GAME& game) override;
 
 public:
     static PNGX pngPieces;
@@ -88,7 +88,8 @@ public:
     virtual void Layout(void) override;
     virtual void Draw(const RC& rcUpdate) override;
 
-    void BdChanged(void);
+    virtual void BdChanged(GAME& game) override;
+    void EnableMoveUI(bool fEnableNew);
 
     virtual void Hover(const PT& pt) override;
     virtual void SetDefCurs(void) override;
@@ -117,6 +118,7 @@ private:
     BTNS btnFlip;
     unique_ptr<CMDMAKEMOVE> pcmdMakeMove;
 
+    bool fEnableMoveUI = true;
     SQ sqHoverCur = sqNil;
     SQ sqDragFrom = sqNil, sqDragTo = sqNil;
     CP cpDrag = cpEmpty;  // piece we're dragging

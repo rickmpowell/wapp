@@ -8,6 +8,9 @@
 #include "wapp.h"
 #include "id.h"
 
+const ERR errNone = ERR(S_OK);
+const ERR errFail = ERR(E_FAIL);
+
  /*
   *  IWAPP class
   *
@@ -301,33 +304,6 @@ string IWAPP::SFromErr(ERR err) const
         s = vformat(s, make_format_args(err.sVar()));
     
     return s;
-}
-
-const ERR errNone = ERR(S_OK); 
-const ERR errFail = ERR(E_FAIL);
-
-/*
- *  IWAPP::MsgPump
- *
- *  User input comes into the Windows application through the message pump. This
- *  loop dispatches messages to the appropriate place, depending on the message
- *  and whatever state the application happens to be in.
- *
- *  This message pump supports message filters, which are a pre-filtering step
- *  that can be used to redirect certain messages before they go through the
- *  standard Windows processing.
- */
-
-int IWAPP::MsgPump(void)
-{
-    MSG msg;
-    while (::GetMessage(&msg, nullptr, 0, 0)) {
-        if (FFilterMsg(msg))
-            continue;
-        ::TranslateMessage(&msg);
-        ::DispatchMessage(&msg);
-    }
-    return (int)msg.wParam;
 }
 
 /*

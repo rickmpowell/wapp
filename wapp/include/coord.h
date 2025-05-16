@@ -420,24 +420,24 @@ public:
         return RC(*this).Scale(w);
     }
 
-    RC& LeftRight(float left, float right) {
-        this->left = left;
-        this->right = right;
+    RC& LeftRight(float leftNew, float rightNew) {
+        left = leftNew;
+        right = rightNew;
         return *this;
     }
 
-    RC RcLeftRight(float left, float right) const {
-        return RC(*this).LeftRight(left, right);
+    RC RcLeftRight(float leftNew, float rightNew) const {
+        return RC(*this).LeftRight(leftNew, rightNew);
     }
 
-    RC& TopBottom(float top, float bottom) {
-        this->top = top;
-        this->bottom = bottom;
+    RC& TopBottom(float topNew, float bottomNew) {
+        top = topNew;
+        bottom = bottomNew;
         return *this;
     }
 
-    RC RcTopBottom(float top, float bottom) const {
-        return RC(*this).TopBottom(top, bottom);
+    RC RcTopBottom(float topNew, float bottomNew) const {
+        return RC(*this).TopBottom(topNew, bottomNew);
     }
 
     RC& TopLeft(const PT& pt) {

@@ -30,3 +30,38 @@ GAME::GAME(const string& fenStart, shared_ptr<PL> pplWhite, shared_ptr<PL> pplBl
     appl[ccpWhite] = pplWhite;
     appl[ccpBlack] = pplBlack;
 }
+
+void GAME::AddListener(LGAME* plgame)
+{
+    vplgame.push_back(plgame);
+}
+
+void GAME::InitFromFen(istream& is)
+{
+    bd.InitFromFen(is);
+    NotifyListeners();
+}
+
+void GAME::InitFromFen(const string& fen)
+{
+    bd.InitFromFen(fen);
+    NotifyListeners();
+}
+
+void GAME::MakeMv(MV mv)
+{
+    bd.MakeMv(mv);
+    NotifyListeners();
+}
+
+void GAME::UndoMv(MV mv)
+{
+    bd.UndoMv(mv);
+    NotifyListeners();
+}
+
+void GAME::NotifyListeners(void)
+{
+    for (LGAME* plgame : vplgame)
+        plgame->BdChanged(*this);
+}

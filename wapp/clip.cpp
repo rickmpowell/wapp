@@ -6,7 +6,6 @@
  */
 
 #include "wapp.h"
-#include "clip.h"
 
 /*
  *  CLIP class
@@ -18,7 +17,7 @@ class CLIP
 {
 public:
     CLIP(HWND hwnd) {
-        ThrowError(::OpenClipboard(hwnd) ? S_OK : ::GetLastError());
+        ThrowError(::OpenClipboard(hwnd) ? S_OK : (HRESULT)::GetLastError());
     }
 
     ~CLIP() {
@@ -26,14 +25,14 @@ public:
     }
 
     void Empty(void) {
-        ThrowError(::EmptyClipboard() ? S_OK : ::GetLastError());
+        ThrowError(::EmptyClipboard() ? S_OK : (HRESULT)::GetLastError());
     }
 
-    bool SetData(int cf, HGLOBAL h) {
-        return ::SetClipboardData(cf, h);
+    bool SetData(UINT cf, HGLOBAL h) {
+        return ::SetClipboardData(cf, h) != NULL;
     }
 
-    HGLOBAL GetData(int cf) {
+    HGLOBAL GetData(UINT cf) {
         return ::GetClipboardData(cf);
     }
 };
@@ -47,7 +46,7 @@ public:
  *  exception on errors.
  */
 
-iclipbuffer::iclipbuffer(IWAPP& iwapp, int cf)
+iclipbuffer::iclipbuffer(IWAPP& iwapp, UINT cf)
 {
     CLIP clip(iwapp.hwnd);
     global_ptr pData(clip.GetData(cf));
@@ -68,7 +67,7 @@ int iclipbuffer::underflow(void)
  *  oclipstream
  */
 
-oclipbuffer::oclipbuffer(IWAPP& iwapp, int cf) : iwapp(iwapp), cf(cf)
+oclipbuffer::oclipbuffer(IWAPP& iwappOwn, UINT cfOut) : iwapp(iwappOwn), cf(cfOut)
 {
 }
 
@@ -82,7 +81,7 @@ int oclipbuffer::sync(void)
     CLIP clip(iwapp.hwnd);
     clip.Empty();
     unsigned cb = static_cast<unsigned>(str().size() + 1);
-    global_ptr pData(static_cast<int>(cb));
+    global_ptr pData(cb);
     memcpy(pData.get(), str().c_str(), cb);
     return clip.SetData(cf, pData.release()) ? 0 : -1;
 }

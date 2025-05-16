@@ -37,7 +37,10 @@ public:
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
 
-    virtual int DlgMsgPump(void);
+    virtual void EnterPump(void) override;
+    virtual int QuitPump(MSG& msg) override;
+    virtual bool FQuit(MSG& msg) const override;
+
     virtual void End(int val);
     virtual void Validate(void);
 

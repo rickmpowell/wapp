@@ -9,12 +9,15 @@
 /* Core Windows */
 
 #define WIN32_LEAN_AND_MEAN
+#pragma warning(push, 0)
 #include <windows.h>
 #include <windowsx.h>
 #include <wrl.h>
+#pragma warning(pop)
 
 /* Direct2D */
 
+#pragma warning(push, 0)
 #include <d2d1_1.h>
 #include <d2d1_3.h>
 #include <d3d11_1.h>
@@ -23,6 +26,7 @@
 #include <d2d1effects.h>
 #include <d2d1_1helper.h>
 #include <d2d1effecthelpers.h>
+#pragma warning(pop)
 
 /* C standard library */
 

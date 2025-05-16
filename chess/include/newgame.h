@@ -221,6 +221,11 @@ public:
     BTNS btnSettings;
     VSELTIME vseltime;
     BTNOK btnStart;
+
+public:
+    const float dxyBtnSwap = 36;
+    const float dxNewGameDlg = 848;
+    const float dyNewGameDlg = 640;
 };
 
 /*

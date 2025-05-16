@@ -148,7 +148,7 @@ public:
 
     operator CO() const {
         int sex = (int)(hue / 60) % 6;
-        float dsex = (hue / 60) - sex;  // distnce from the sextant boundary
+        float dsex = (hue / 60) - (float)sex;  // distnce from the sextant boundary
         float p = val * (1 - sat);
         float q = val * (1 - dsex*sat);
         float t = val * (1 - (1-dsex)*sat);
@@ -164,18 +164,18 @@ public:
         }
     }
 
-    HSV& SetHue(float hue) {
-        this->hue = hue;
+    HSV& SetHue(float hueNew) {
+        hue = hueNew;
         return *this;
     }
 
-    HSV& SetSaturation(float sat) {
-        this->sat = sat;
+    HSV& SetSaturation(float satNew) {
+        sat = satNew;
         return *this;
     }
 
-    HSV& SetValue(float val) {
-        this->val = val;
+    HSV& SetValue(float valNew) {
+        val = valNew;
         return *this;
     }
 
@@ -183,19 +183,19 @@ public:
     float hue, sat, val;
 };
 
-inline CO& CO::SetHue(float hue) {
+inline CO& CO::SetHue(float hueNew) {
     HSV hsv(*this);
-    return *this = hsv.SetHue(hue);
+    return *this = hsv.SetHue(hueNew);
 }
 
-inline CO& CO::SetSaturation(float sat) {
+inline CO& CO::SetSaturation(float satNew) {
     HSV hsv(*this);
-    return *this = hsv.SetSaturation(sat);
+    return *this = hsv.SetSaturation(satNew);
 }
 
-inline CO& CO::SetValue(float val) {
+inline CO& CO::SetValue(float valNew) {
     HSV hsv(*this);
-    return *this = hsv.SetValue(val);
+    return *this = hsv.SetValue(valNew);
 }
 
 inline constexpr float hueRed = 0;

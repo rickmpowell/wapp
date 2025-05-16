@@ -29,3 +29,19 @@ void PLCOMPUTER::SetLevel(int level)
 {
     setai.level = level;
 }
+
+void PLCOMPUTER::StartGame(GAME& game)
+{
+}
+
+void PLCOMPUTER::EndGame(GAME& game)
+{
+}
+
+void PLCOMPUTER::RequestMove(GAME& game, WNBOARD& wnboard)
+{
+}
+
+void PLCOMPUTER::ReceivedMove(GAME& game, WNBOARD& wnboard)
+{
+}

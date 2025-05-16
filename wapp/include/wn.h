@@ -91,6 +91,12 @@ public:
     virtual void SetDefCurs(void);
     void SetCurs(const CURS& curs);
 
+    virtual int MsgPump(void);
+    virtual void EnterPump(void);
+    virtual bool FQuit(MSG& msg) const;
+    virtual bool FFilterMsg(MSG& msg);
+    virtual int QuitPump(MSG& msg);
+
 protected:
     WN* pwnParent;  // will be nullptr at root
     vector<WN*> vpwnChildren;

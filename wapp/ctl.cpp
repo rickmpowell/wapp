@@ -94,7 +94,7 @@ void CTL::EndDrag(const PT& pt, unsigned mk)
     cdsCur = CDS::None;
     if (RcInterior().FContainsPt(pt)) {
         if (pcmd)
-            iwapp.vpevd.back()->FExecuteCmd(*pcmd);
+            iwapp.FExecuteCmd(*pcmd);
         cdsCur = CDS::Hover;
     }
     Redraw();
@@ -430,6 +430,8 @@ CO BTNNEXT::CoText(void) const
 
 void BTNNEXT::Draw(const RC& rcUpdate)
 {
+    (void)rcUpdate;
+
     DrawSCenterXY(SFromU8(u8"\u23f5"), tf, RcContent());    // right triangle
 }
 
@@ -444,8 +446,10 @@ void BTNNEXT::Layout(void)
         SetFontHeight(RcContent().dxWidth() * 1.25f);
 }
 
-SZ BTNNEXT::SzRequestLayout(const RC& rc) const
+SZ BTNNEXT::SzRequestLayout(const RC& rcWithin) const
 {
+    (void)rcWithin;
+
     return SzFromS(SFromU8(u8"\u23f5"), tf);
 }
 
@@ -456,6 +460,8 @@ BTNPREV::BTNPREV(WN& wnParent, ICMD* pcmd, bool fVisible) :
 
 void BTNPREV::Draw(const RC& rcUpdate)
 {
+    (void)rcUpdate;
+
     DrawSCenterXY(SFromU8(u8"\u23f4"), tf, RcContent());    // left triangle
 }
 
@@ -482,12 +488,16 @@ CO TITLEBAR::CoText(void) const
 
 void TITLEBAR::Draw(const RC& rcUpdate)
 {
+    (void)rcUpdate;
+
     RC rc = RcInterior().Unpad(PAD(12, 4));
     DrawS(sTitle, tf, rc);
 }
 
 SZ TITLEBAR::SzRequestLayout(const RC& rcWithin) const
 {
+    (void)rcWithin;
+
     SZ sz = SzFromS(sTitle, tf);
     return SZ(-1, sz.height + 8);
 }
@@ -591,7 +601,7 @@ void VSEL::SetSelectorCur(int iselNew)
     for (int ipsel = 0; ipsel < vpsel.size(); ipsel++)
         vpsel[ipsel]->SetSelected(ipsel == iselNew);
     ipselSel = iselNew;
-    iwapp.vpevd.back()->FExecuteCmd(*pcmd);
+    iwapp.FExecuteCmd(*pcmd);
 }
 
 void VSEL::Select(SEL& sel)

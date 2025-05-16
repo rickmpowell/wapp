@@ -10,17 +10,18 @@
  *  Copyright (c) 2025 by Richard Powell.
  */
 
+#pragma warning(disable: 4514)
+#pragma comment(lib, "wapp.lib")
+#pragma comment(linker, "/include:wWinMain")
+
 #include "app.h"
 #include "rt.h"
 #include "wn.h"
 #include "ev.h"
 
-class FILTERMSG;
 class ICMD;
 class WAPP;
-
-#pragma comment(lib, "wapp.lib")
-#pragma comment(linker, "/include:wWinMain")
+class FILTERMSG;
 
  /*
   *  IWAPP
@@ -97,6 +98,14 @@ public:
     virtual void EndDraw(const RC& rcUpdate) override;
     virtual void Draw(const RC& rcUpdate) override;
     
+    /* command dispatch */
+
+    bool FExecuteCmd(const ICMD& icmd);
+    bool FUndoCmd(void);
+    bool FRedoCmd(void);
+    bool FTopUndoCmd(ICMD*& pcmd);
+    bool FTopRedoCmd(ICMD*& pcmd);
+
     /* Menu commands */
 
     virtual void RegisterMenuCmds(void);
@@ -113,11 +122,8 @@ public:
     string SFromErr(ERR err) const;
     void Error(ERR err, ERR err2 = errNone);
 
-    /* message pump and message filters */
-
-    virtual int MsgPump(void);
+    virtual bool FFilterMsg(MSG& msg) override;
     void PushFilterMsg(FILTERMSG* pmf);
-    bool FFilterMsg(MSG& msg);
 
 private:
     vector<unique_ptr<FILTERMSG>> vpfm;

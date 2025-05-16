@@ -51,7 +51,11 @@ protected:
     };
 
 public:
+    ICMD(void) { }
     virtual ~ICMD() = default;
+    ICMD(const ICMD&) = default;
+    ICMD& operator = (const ICMD&) = default;
+
     virtual ICMD* clone(void) const = 0;
     
     virtual int Execute(void) = 0;
@@ -97,7 +101,7 @@ template <typename D, typename WAPP>
 class CMD : public ICMD
 {
 public:
-    CMD(WAPP& wapp) : wapp(wapp) {}
+    CMD(WAPP& wapp) : ICMD(), wapp(wapp) {}
     virtual ICMD* clone(void) const override {
         return new D(static_cast<const D&>(*this));
     }
@@ -110,6 +114,7 @@ public:
  *  A Windows menu enumerator
  */
 
+#pragma pack(1)
 class menuiterator 
 {
 public:
@@ -167,21 +172,20 @@ public:
         mii.fMask = MIIM_ID | MIIM_FTYPE | MIIM_SUBMENU;
         mii.cch = 0;
         mii.dwTypeData = NULL;
-        if (!::GetMenuItemInfoW(hmenu, pos, TRUE, &mii))
+        if (!::GetMenuItemInfoW(hmenu, (UINT)pos, TRUE, &mii))
             hmenu = NULL;
     }
 
 private:
     HMENU hmenu;
-    int pos;
     MENUITEMINFOW mii;
+    int pos;
 };
+#pragma pack()
 
+#pragma pack(1)
 class MENU
 {
-    HMENU hmenu;
-    int citem;
-
 public:
     MENU(HMENU hmenu) : hmenu(hmenu) {
         if (hmenu == NULL)
@@ -197,4 +201,9 @@ public:
     menuiterator end(void) {
         return menuiterator(hmenu, citem);
     }
+
+private:
+    HMENU hmenu;
+    int citem;
 };
+#pragma pack()

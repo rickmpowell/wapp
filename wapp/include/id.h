@@ -7,6 +7,9 @@
  *  use overrides to supply your own.
  */
 
+#pragma warning(push)
+#pragma warning(disable : 101)
+
 /*
  *  Icons
  */
@@ -26,3 +29,5 @@
 
 #define rssAppTitle 1
 #define rssInstructionBulb 2
+
+#pragma warning(pop)

@@ -1,10 +1,13 @@
 #include "id.h"
 
+#pragma warning(push)
+#pragma warning(disable : 101)
+
 /*
  *  Command indexes
  */
 
-#define cmdAbout 1
+#define cmdAbout 1 
 #define cmdExit 2
 #define cmdUndo 3
 #define cmdRedo 4
@@ -78,3 +81,5 @@
  */
 
 #define rspngChessPieces 1
+
+#pragma warning(pop)

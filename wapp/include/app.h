@@ -49,10 +49,10 @@ public:
  
     /* resources */
 
-    string SLoad(int rss) const;
-    HICON HiconLoad(int rsi) const;
-    HACCEL HaccelLoad(int rsa) const;
-    HCURSOR HcursorLoad(int rsc) const;
+    string SLoad(unsigned rss) const;
+    HICON HiconLoad(unsigned rsi) const;
+    HACCEL HaccelLoad(unsigned rsa) const;
+    HCURSOR HcursorLoad(unsigned rsc) const;
     HICON HiconDef(LPCWSTR rsi) const;
     HCURSOR HcursorDef(LPCWSTR rsc) const;
 
@@ -105,7 +105,7 @@ public:
 
     /* create and destroy windows HWND */
 
-    void CreateWnd(const string& sTitle, int ws, PT pt, SZ sz);
+    void CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz);
     void DestroyWnd(void);
 
     /* window operations */
@@ -150,17 +150,20 @@ public:
 
 class WNDMAIN : public WND
 {
+    WNDMAIN(const WNDMAIN& wnd) = delete;
+    void operator = (const WNDMAIN& wnd) = delete;
+
 public:
     WNDMAIN(APP& app);
     
     WNDCLASSEXW WcexRegister(const wchar_t* wsClass, 
-                             int rsm = 0, 
-                             int rsiLarge = 0, 
-                             int rsiSmall = 0) const;
+                             unsigned rsm = 0, 
+                             unsigned rsiLarge = 0, 
+                             unsigned rsiSmall = 0) const;
     virtual LPCWSTR SRegister(void) override;
 
     void CreateWnd(const string& sTitle,
-                   int ws = WS_OVERLAPPEDWINDOW, 
+                   DWORD ws = WS_OVERLAPPEDWINDOW, 
                    PT pt = PT(CW_USEDEFAULT), 
                    SZ sz = SZ(CW_USEDEFAULT));
 };
@@ -188,7 +191,7 @@ public:
 class resource_ptr
 {
 public:
-    resource_ptr(APP& app, string_view sType, int rs) : hData(NULL), pData(nullptr) {
+    resource_ptr(APP& app, string_view sType, unsigned rs) : hData(NULL), pData(nullptr) {
         HRSRC hrsrc = ::FindResourceW(app.hinst, MAKEINTRESOURCEW(rs), WsFromS(sType).c_str());
         if (hrsrc == NULL)
             throw ERRLAST();
@@ -234,8 +237,8 @@ public:
         return hT;
     }
 
-    void reset(HGLOBAL hData = NULL) noexcept {
-        this->hData = hData;
+    void reset(HGLOBAL hDataNew = NULL) noexcept {
+        hData = hDataNew;
         if (hData) {
             pData = static_cast<BYTE*>(::LockResource(hData));
             cbData = 0;     // note that we lose the size on reset
@@ -268,6 +271,7 @@ private:
     HGLOBAL hData;
     BYTE* pData;
     unsigned cbData;
+    uint32_t pad;
 };
 
 /*

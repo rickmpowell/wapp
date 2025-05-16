@@ -6,7 +6,7 @@
  *  the WAPP library. 
  */
 
-#include "app.h"
+#include "wapp.h"
 #include "id.h"
 
 #pragma comment(lib, "d2d1.lib")
@@ -22,6 +22,9 @@
 
 int APIENTRY wWinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hinstPrev, _In_ LPWSTR wsCmd, _In_ int sw)
 {
+    (void)hinst;
+    (void)hinstPrev;
+
     try {
         return Run(SFromWs(wstring_view(wsCmd)), sw);
     }
@@ -54,14 +57,14 @@ APP::~APP()
  *  Resrouce loaders
  */
 
-string APP::SLoad(int rss) const
+string APP::SLoad(unsigned rss) const
 {
     wchar_t sz[1024];
     ::LoadStringW(hinst, rss, sz, size(sz));
     return SFromWs(wstring_view(sz));
 }
 
-HICON APP::HiconLoad(int rsi) const
+HICON APP::HiconLoad(unsigned rsi) const
 {
     HICON hicon =::LoadIconW(hinst, MAKEINTRESOURCEW(rsi));
     if (hicon == NULL)
@@ -76,7 +79,7 @@ HICON APP::HiconDef(LPCWSTR rsi) const
     return hicon;
 }
 
-HCURSOR APP::HcursorLoad(int rsc) const
+HCURSOR APP::HcursorLoad(unsigned rsc) const
 {
     HCURSOR hcursor = ::LoadCursorW(hinst, MAKEINTRESOURCEW(rsc));
     if (hcursor == NULL)
@@ -91,7 +94,7 @@ HCURSOR APP::HcursorDef(LPCWSTR rsc) const
     return hcursor;
 }
 
-HACCEL APP::HaccelLoad(int rsa) const
+HACCEL APP::HaccelLoad(unsigned rsa) const
 {
     return ::LoadAcceleratorsW(hinst, MAKEINTRESOURCEW(rsa));
 }
@@ -150,7 +153,7 @@ LPCWSTR WND::Register(const WNDCLASSEXW& wcex)
     return MAKEINTRESOURCEW(atom);
 }
 
-void WND::CreateWnd(const string& sTitle, int ws, PT pt, SZ sz)
+void WND::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
 {
     POINT point = (POINT)pt;
     SIZE size = (SIZE)sz;
@@ -286,10 +289,12 @@ void WND::OnDisplayChange(void)
 
 void WND::OnShow(bool fShow)
 {
+    (void)fShow;
 }
 
 void WND::OnSize(const SZ& sz)
 {
+    (void)sz;
 }
 
 void WND::OnPaint(void)
@@ -301,22 +306,32 @@ void WND::OnPaint(void)
 
 void WND::OnMouseMove(const PT& ptg, unsigned mk)
 {
+    (void)ptg;
+    (void)mk;
 }
 
 void WND::OnMouseDown(const PT& ptg, unsigned mk)
 {
+    (void)ptg;
+    (void)mk;
 }
 
 void WND::OnMouseUp(const PT& ptg, unsigned mk)
 {
+    (void)ptg;
+    (void)mk;
 }
 
 void WND::OnMouseWheel(const PT& pt, int dwheel)
 {
+    (void)pt;
+    (void)dwheel;
 }
 
 int WND::OnCommand(int cmd)
 {
+    (void)cmd;
+
     return 0;
 }
 
@@ -326,6 +341,7 @@ void WND::OnInitMenu(void)
 
 void WND::OnInitMenuPopup(HMENU hmenu)
 {
+    (void)hmenu;
 }
 
 /*
@@ -345,7 +361,7 @@ WNDMAIN::WNDMAIN(APP& app) : WND(app)
  *  and icon resource ids.
  */
 
-WNDCLASSEXW WNDMAIN::WcexRegister(const wchar_t* wsClass, int rsm, int rsiLarge, int rsiSmall) const
+WNDCLASSEXW WNDMAIN::WcexRegister(const wchar_t* wsClass, unsigned rsm, unsigned rsiLarge, unsigned rsiSmall) const
 {
     WNDCLASSEXW wcex = WND::WcexRegister();
     wcex.lpszClassName = wsClass;
@@ -371,7 +387,7 @@ LPCWSTR WNDMAIN::SRegister(void)
     return sClass;
 }
 
-void WNDMAIN::CreateWnd(const string& sTitle, int ws, PT pt, SZ sz)
+void WNDMAIN::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
 {
     WND::CreateWnd(sTitle, ws, pt, sz);
 }

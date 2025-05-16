@@ -120,22 +120,21 @@ void DLG::Validate(void)
 {
 }
 
-int DLG::DlgMsgPump(void)
+void DLG::EnterPump(void)
 {
     fEnd = false;
     ShowCentered();
+}
 
-    MSG msg;
-    while (::GetMessage(&msg, nullptr, 0, 0)) {
-        ::TranslateMessage(&msg);
-        ::DispatchMessage(&msg);
-        if (fEnd)
-            break;
-    }
-
+int DLG::QuitPump(MSG& msg)
+{
     Show(false);
-    
     return val;
+}
+
+bool DLG::FQuit(MSG& msg) const
+{
+    return WN::FQuit(msg) || fEnd;
 }
 
 /*

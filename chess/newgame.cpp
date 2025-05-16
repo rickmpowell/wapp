@@ -108,7 +108,7 @@ public:
     }
     
     virtual int FRunDlg(DLG& dlg) override {
-        int val = dlg.DlgMsgPump();
+        int val = dlg.MsgPump();
         return val;
     }
 
@@ -131,7 +131,7 @@ public:
     }
 
     virtual int FRunDlg(DLG& dlg) override {
-        int val = dlg.DlgMsgPump();
+        int val = dlg.MsgPump();
         return val;
     }
 };
@@ -226,7 +226,7 @@ public:
     };
 
     virtual int FRunDlg(DLG& dlg) override {
-        int val = dlg.DlgMsgPump();
+        int val = dlg.MsgPump();
         return val;
     }
 
@@ -241,9 +241,6 @@ protected:
  */
 
 constexpr float dxyBtnSwap = 36;
-constexpr float dxNewGameDlg = 848;
-constexpr float dyNewGameDlg = 640;
-
 
 DLGNEWGAME::DLGNEWGAME(WN& wnParent, GAME& game) :
     DLG(wnParent),
@@ -348,8 +345,7 @@ CCP DLGNEWGAME::ExtractPlayer(GAME& game, VSELPLAYER& vsel)
         if (dataplayer.ngcp == 0)
             game.appl[dataplayer.ccp] = make_shared<PLHUMAN>(dataplayer.sNameHuman);
         else {
-            SETAI setai;
-            setai.level = dataplayer.lvlComputer;
+            SETAI setai = { dataplayer.lvlComputer };
             game.appl[dataplayer.ccp] = make_shared<PLCOMPUTER>(setai);
         }
     }
@@ -498,6 +494,13 @@ SZ VSELPLAYER::SzRequestLayout(const RC& rcWithin) const
     RC rc(pwnParent->RcClient());
     return SZ((rc.dxWidth() - 2*dxyDlgPadding - dxyBtnSwap - 2*dxyDlgGutter) / 2, 196);
 }
+
+/*
+ *  VSELPLAYER::Validate
+ * 
+ *  Validates the playeer data for validity, and throws an exception
+ *  if somethingis wrong.
+ */
 
 void VSELPLAYER::Validate(void)
 {

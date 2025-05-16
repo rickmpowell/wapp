@@ -8,6 +8,31 @@
 
 #include "wapp.h"
 
+bool IWAPP::FExecuteCmd(const ICMD& icmd)
+{
+    return vpevd.back()->FExecuteCmd(icmd);
+}
+
+bool IWAPP::FUndoCmd(void)
+{
+    return vpevd.back()->FUndoCmd();
+}
+
+bool IWAPP::FRedoCmd(void)
+{
+    return vpevd.back()->FRedoCmd();
+}
+
+bool IWAPP::FTopUndoCmd(ICMD*& pcmd)
+{
+    return vpevd.back()->FTopUndoCmd(pcmd);
+}
+
+bool IWAPP::FTopRedoCmd(ICMD*& pcmd)
+{
+    return vpevd.back()->FTopRedoCmd(pcmd);
+}
+
 /*
  *  IWAPP::RegisterMenuCmd
  * 
@@ -35,7 +60,7 @@ bool IWAPP::FExecuteMenuCmd(int cmd)
     auto it = mpcmdpicmdMenu.find(cmd);
     if (it == mpcmdpicmdMenu.end() || it->second == nullptr)
         return false;
-    return vpevd.back()->FExecuteCmd(*it->second);
+    return FExecuteCmd(*it->second);
 }
 
 /*
@@ -47,7 +72,7 @@ bool IWAPP::FExecuteMenuCmd(int cmd)
 bool EVD::FExecuteCmd(const ICMD& icmd)
 {  
     unique_ptr<ICMD> pcmdClone(icmd.clone());
-    bool fResult = pcmdClone->Execute();
+    bool fResult = pcmdClone->Execute() != 0;
 
     if (pcmdClone->FUndoable()) {
         vpcmdUndo.emplace_back(move(pcmdClone));
@@ -64,7 +89,7 @@ bool EVD::FUndoCmd(void)
 
     unique_ptr<ICMD> pcmd = move(vpcmdUndo.back());
     vpcmdUndo.pop_back();
-    bool fResult = pcmd->Undo();
+    bool fResult = pcmd->Undo() != 0;
     vpcmdRedo.emplace_back(move(pcmd));
 
     return fResult;
@@ -77,7 +102,7 @@ bool EVD::FRedoCmd(void)
 
     unique_ptr<ICMD> pcmd = move(vpcmdRedo.back());
     vpcmdRedo.pop_back();
-    bool fResult = pcmd->Redo();
+    bool fResult = pcmd->Redo() != 0;
     vpcmdUndo.emplace_back(move(pcmd));
 
     return fResult;
@@ -142,7 +167,7 @@ void IWAPP::InitPopupMenuCmds(HMENU hmenu)
     for (MENUITEMINFOW& mii : menu) {
         if (mii.wID == 0 || mii.hSubMenu) // MFT_SEPARATOR isn't reliable
             continue;
-        auto it = mpcmdpicmdMenu.find(mii.wID);
+        auto it = mpcmdpicmdMenu.find((int)mii.wID);
         if (it != mpcmdpicmdMenu.end())
             InitMenuCmd(hmenu, it->first, it->second);
     }
@@ -160,7 +185,7 @@ void IWAPP::InitMenuCmd(HMENU hmenu, int cmd, const unique_ptr<ICMD>& pcmd)
 {
     MENUITEMINFOW mi = { sizeof(mi) };
     mi.fMask = MIIM_STATE;
-    mi.fState = pcmd->FEnabled() ? MFS_UNCHECKED|MFS_ENABLED : MFS_UNCHECKED|MFS_DISABLED|MF_GRAYED;
+    mi.fState = pcmd->FEnabled() ? (UINT)MFS_UNCHECKED|MFS_ENABLED : (UINT)MFS_UNCHECKED|MFS_DISABLED|MF_GRAYED;
     if (pcmd->FChecked())
         mi.fState |= MFS_CHECKED;
     string sMenu;
@@ -170,7 +195,7 @@ void IWAPP::InitMenuCmd(HMENU hmenu, int cmd, const unique_ptr<ICMD>& pcmd)
         wsMenu = WsFromS(sMenu);
         mi.dwTypeData = const_cast<LPWSTR>(wsMenu.c_str()); 
     }
-    ::SetMenuItemInfoW(hmenu, cmd, false, &mi);
+    ::SetMenuItemInfoW(hmenu, (UINT)cmd, false, &mi);
 }
 
 /*
@@ -196,7 +221,7 @@ bool IWAPP::FVerifySubMenuCmdsRegistered(HMENU hmenu) const
             if (!FVerifySubMenuCmdsRegistered(mii.hSubMenu))
                 return false;
         }
-        else if (mpcmdpicmdMenu.find(mii.wID) == mpcmdpicmdMenu.end())
+        else if (mpcmdpicmdMenu.find((int)mii.wID) == mpcmdpicmdMenu.end())
             return false;
     }
     return true;
@@ -237,15 +262,22 @@ bool ICMD::FChecked(void) const
 
 bool ICMD::FToolTipS(string& sTip) const
 {
+    (void)sTip;
+
     return false;
 }
 
 bool ICMD::FMenuS(string& sMenu, CMS cms) const
 {
+    (void)sMenu;
+    (void)cms;
+
     return false;
 }
 
 int ICMD::FRunDlg(DLG& dlg)
 {
+    (void)dlg;
+
     return 1;
 }

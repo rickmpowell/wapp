@@ -72,12 +72,12 @@ protected:
         Execute = 3,
         Disabled = 4
     };
-    CDS cdsCur = CDS::None;
     TF tf;
-    LCTL lctl = LCTL::None;
     PAD pad;
     PAD border;
     PAD margin;
+    LCTL lctl = LCTL::None;
+    CDS cdsCur = CDS::None;
 };
 
 /*

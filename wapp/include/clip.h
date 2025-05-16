@@ -22,20 +22,25 @@
 class iclipbuffer : public streambuf
 {
 public:
-    iclipbuffer(IWAPP& iwapp, int cf);
+    iclipbuffer(IWAPP& iwapp, UINT cf);
 
 protected:
     int underflow(void) override;
 };
 
+#pragma pack(1)
 class iclipstream : public istream
 {
+    iclipstream(const iclipstream&) = delete;
+    void operator = (const iclipstream&) = delete;
+
 public:
-    iclipstream(IWAPP& iwapp) : buf(iwapp, CF_TEXT), istream(&buf) {}
+    iclipstream(IWAPP& iwapp) : istream(&buf), buf(iwapp, CF_TEXT) {}
 
 private:
     iclipbuffer buf;
 };
+#pragma pack()
 
 /*
  *  oclipstream
@@ -43,23 +48,33 @@ private:
  *  Stream that writes text to the clipboard.
  */
 
+#pragma pack(1)
 class oclipbuffer : public stringbuf
 {
+    oclipbuffer(const oclipbuffer&) = delete;
+    void operator = (const oclipbuffer&) = delete;
+
 public:
-    oclipbuffer(IWAPP& iwapp, int cf);
+    oclipbuffer(IWAPP& iwapp, UINT cf);
     virtual ~oclipbuffer();
     int sync(void) override;
 
 private:
-    int cf;
     IWAPP& iwapp;
+    UINT cf;
 };
+#pragma pack()
 
+#pragma pack(1)
 class oclipstream : public ostream
 {
+    oclipstream(const oclipstream&) = delete;
+    void operator = (const oclipstream&) = delete;
+
 public:
-    oclipstream(IWAPP& iwapp, int cf) : buf(iwapp, cf), ostream(&buf) {}
+    oclipstream(IWAPP& iwapp, UINT cf) : ostream(&buf), buf(iwapp, cf) {}
 
 private:
     oclipbuffer buf;
 };
+#pragma pack()
