@@ -17,56 +17,58 @@ const ERR errFail = ERR(E_FAIL);
   *  Windows applicatoin, which is an APP and a top-level window rolled into one.
   */
 
-IWAPP::IWAPP(void) : 
+IWAPP::IWAPP(void) :
     APP(),
     WNDMAIN((APP&)*this), 
-    WN(*this, nullptr)
+    WN(*this, nullptr),
+    EVD((WN&)*this)
 {
     prtc = make_unique<RTCFLIP>(*this);
-    RebuildAllDidos();
-    vpevd.emplace_back(make_unique<EVD>(*this));
+    RebuildAllDevIndeps();
+    PushEvd(*this);
 }
 
 IWAPP::~IWAPP()
 {
+    PopEvd();
 }
 
-void IWAPP::RebuildAllDidos(void)
+void IWAPP::RebuildAllDevIndeps(void)
 {
-    RebuildDidosWithChildren();
+    RebuildDevIndepsWithChildren();
 }
 
-void IWAPP::PurgeAllDidos(void)
+void IWAPP::PurgeAllDevIndeps(void)
 {
-    RebuildDidosWithChildren();
+    RebuildDevIndepsWithChildren();
 }
 
-void IWAPP::RebuildAllDddos(void)
+void IWAPP::RebuildAllDevDeps(void)
 {
-    prtc->RebuildDddos(pdc2);
-    RebuildDddosWithChildren();
+    prtc->RebuildDevDeps(pdc2);
+    RebuildDevDepsWithChildren();
 }
 
-void IWAPP::PurgeAllDddos(void)
+void IWAPP::PurgeAllDevDeps(void)
 {
-    PurgeDddosWithChildren();
-    prtc->PurgeDddos(pdc2);
+    PurgeDevDepsWithChildren();
+    prtc->PurgeDevDeps(pdc2);
 }
 
 /*
- *  IWAPP::RebuildDidos
+ *  IWAPP::RebuildDevIndeps
  *
  *  Makes sure the Direct2D factories we need are all created. Throws an exception
  *  on failure.
  */
 
-void IWAPP::RebuildDidos(void)
+void IWAPP::RebuildDevIndeps(void)
 {
     if (pfactd2)
         return;
 
     /* REVIEW: do I need to do this? */
-    WN::RebuildDidos();
+    WN::RebuildDevIndeps();
 
     /* get all the Direcct2D factories we need */
 
@@ -87,13 +89,13 @@ void IWAPP::RebuildDidos(void)
                                    &pfactdwr));
 }
 
-void IWAPP::PurgeDidos(void)
+void IWAPP::PurgeDevIndeps(void)
 {
     pfactd2.Reset();
     pfactwic.Reset();
     pfactdwr.Reset();
     /* REVIEW: is this necessary? */
-    WN::PurgeDidos();
+    WN::PurgeDevIndeps();
 }
 
 /*
@@ -122,8 +124,8 @@ void IWAPP::CreateWnd(int rssTitle, int ws, PT pt, SZ sz)
 
 void IWAPP::OnCreate(void)
 {
-    RebuildAllDidos();
-    RebuildAllDddos();
+    RebuildAllDevIndeps();
+    RebuildAllDevDeps();
 }
 
 void IWAPP::OnDestroy(void)
@@ -133,13 +135,13 @@ void IWAPP::OnDestroy(void)
 
 void IWAPP::OnDisplayChange(void)
 {
-    PurgeAllDddos();
+    PurgeAllDevDeps();
 }
 
 void IWAPP::OnSize(const SZ& sz)
 {
-    PurgeAllDddos();
-    RebuildAllDddos();
+    PurgeAllDevDeps();
+    RebuildAllDevDeps();
     SetBounds(RC(PT(0), sz));
 }
 
@@ -215,8 +217,8 @@ void IWAPP::BeginDraw(void)
     /* make sure all our Direct2D objects are created and force them to be
        recreated if the display has changed */
 
-    RebuildAllDidos();
-    RebuildAllDddos();
+    RebuildAllDevIndeps();
+    RebuildAllDevDeps();
     
     pdc2->BeginDraw();
     prtc->Prepare(pdc2);
@@ -225,7 +227,7 @@ void IWAPP::BeginDraw(void)
 void IWAPP::EndDraw(const RC& rcUpdate)
 {
     if (pdc2->EndDraw() == D2DERR_RECREATE_TARGET) {
-        PurgeAllDddos();
+        PurgeAllDevDeps();
         return;
     }
 
@@ -306,6 +308,16 @@ string IWAPP::SFromErr(ERR err) const
     return s;
 }
 
+void IWAPP::PushEvd(EVD& evd)
+{
+    vpevd.emplace_back(&evd);
+}
+
+void IWAPP::PopEvd(void)
+{
+    vpevd.pop_back();
+}
+
 /*
  *  IWAPP::FFilterMsg
  *
@@ -330,6 +342,21 @@ bool IWAPP::FFilterMsg(MSG& msg)
 
 void IWAPP::PushFilterMsg(FILTERMSG* pfm)
 {
-    /* take ownership of the pointer */
+    /* take ownership */
     vpfm.push_back(unique_ptr<FILTERMSG>(pfm));
+}
+
+/*
+ *
+ */
+
+FILTERMSGACCEL::FILTERMSGACCEL(IWAPP& iwapp, int rsa) : FILTERMSG(),
+    iwapp(iwapp),
+    haccel(iwapp.HaccelLoad(rsa))
+{
+}
+
+bool FILTERMSGACCEL::FFilterMsg(MSG& msg)
+{
+    return ::TranslateAcceleratorW(iwapp.hwnd, haccel, &msg);
 }

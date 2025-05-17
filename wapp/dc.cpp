@@ -248,12 +248,12 @@ void BRX::rebuild(IWAPP& iwapp)
 
 DDDO::DDDO()
 {
-    RTC::RegisterDddo(*this);
+    RTC::RegisterDevDeps(*this);
 }
 
 DDDO::~DDDO()
 {
-    RTC::UnregisterDddo(*this);
+    RTC::UnregisterDevDeps(*this);
 }
 
 void DDDO::purge(void)
@@ -578,20 +578,19 @@ PT DC::PtFromWnPt(const PT& pt, const DC& dc) const
  *  Drawing object management
  */
 
-void DC::RebuildDidos(void)
+void DC::RebuildDevIndeps(void)
 {
 }
 
-void DC::PurgeDidos(void)
+void DC::PurgeDevIndeps(void)
 {
 }
 
-void DC::RebuildDddos(void)
+void DC::RebuildDevDeps(void)
 {
 }
 
-void DC::PurgeDddos(void)
+void DC::PurgeDevDeps(void)
 {
 }
-
 

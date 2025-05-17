@@ -183,23 +183,17 @@ void WND::Minimize(void)
 
 LRESULT CALLBACK WND::WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
 {
-    WND* pwnd = nullptr;
+    /* messages that come in before we have the HWND and WN pointing at one another 
+       need default handling. link the HWND and WN during WM_NCCREATE. */
 
-    /* when creating the window, get the WN and the HWND pointing at one another */
-
-    if (wm == WM_NCCREATE) {
+    WND* pwnd = (WND*)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
+    if (pwnd == nullptr) {
+        if (wm != WM_NCCREATE)
+            return ::DefWindowProcW(hwnd, wm, wParam, lParam);
         pwnd = (WND*)((CREATESTRUCT*)lParam)->lpCreateParams;
         pwnd->hwnd = hwnd;
         ::SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR)pwnd);
-        return pwnd->DefProc(wm, wParam, lParam);
     }
-
-    /* messages that come in when we don't have the HWND and WN pointing at one another need
-       default handling */
-
-    pwnd = (WND*)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
-    if (pwnd == nullptr)
-        return ::DefWindowProcW(hwnd, wm, wParam, lParam);
 
     /* dispatch window messages */
 

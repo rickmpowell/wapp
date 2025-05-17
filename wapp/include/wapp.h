@@ -33,7 +33,7 @@ class FILTERMSG;
   *  window, and the drawing context.
   */
 
-class IWAPP : public APP, public WNDMAIN, public WN
+class IWAPP : public APP, public WNDMAIN, public WN, public EVD
 {
     friend class WN;
 
@@ -61,12 +61,12 @@ public:
 
     /* drawing object management */
 
-    void RebuildAllDidos(void);
-    void PurgeAllDidos(void);
-    void RebuildAllDddos(void);
-    void PurgeAllDddos(void);
-    virtual void RebuildDidos(void) override;
-    virtual void PurgeDidos(void) override;
+    void RebuildAllDevIndeps(void);
+    void PurgeAllDevIndeps(void);
+    void RebuildAllDevDeps(void);
+    void PurgeAllDevDeps(void);
+    virtual void RebuildDevIndeps(void) override;
+    virtual void PurgeDevIndeps(void) override;
  
     /* window message handlers */
 
@@ -98,6 +98,11 @@ public:
     virtual void EndDraw(const RC& rcUpdate) override;
     virtual void Draw(const RC& rcUpdate) override;
     
+    void PushEvd(EVD& evd);
+    void PopEvd(void);
+    virtual bool FFilterMsg(MSG& msg) override;
+    void PushFilterMsg(FILTERMSG* pmf);
+
     /* command dispatch */
 
     bool FExecuteCmd(const ICMD& icmd);
@@ -122,15 +127,10 @@ public:
     string SFromErr(ERR err) const;
     void Error(ERR err, ERR err2 = errNone);
 
-    virtual bool FFilterMsg(MSG& msg) override;
-    void PushFilterMsg(FILTERMSG* pmf);
-
 private:
-    vector<unique_ptr<FILTERMSG>> vpfm;
     map<int, unique_ptr<ICMD>> mpcmdpicmdMenu;
- 
-public: /* TODO: make this private */
-    vector<unique_ptr<EVD>> vpevd;  // event dispatch stack
+    vector<EVD*> vpevd;
+    vector<unique_ptr<FILTERMSG>> vpfm;
 };
 
 /*
@@ -144,7 +144,6 @@ class FILTERMSG
 {
 public:
     FILTERMSG(void) = default;
-    virtual ~FILTERMSG() {}
     virtual bool FFilterMsg(MSG& msg) = 0;
 };
 
@@ -158,15 +157,8 @@ public:
 class FILTERMSGACCEL : public FILTERMSG
 {
 public:
-    FILTERMSGACCEL(IWAPP& iwapp, int rsa) : FILTERMSG(),
-        iwapp(iwapp),
-        haccel(iwapp.HaccelLoad(rsa)) {
-    }
-    virtual ~FILTERMSGACCEL() {
-    }
-    virtual bool FFilterMsg(MSG& msg) {
-        return ::TranslateAcceleratorW(iwapp.hwnd, haccel, &msg);
-    }
+    FILTERMSGACCEL(IWAPP& iwapp, int rsa);
+    virtual bool FFilterMsg(MSG& msg) override;
 
 private:
     IWAPP& iwapp;

@@ -237,10 +237,10 @@ public:
 
     /* drawing object management */
 
-    virtual void RebuildDidos(void);
-    virtual void PurgeDidos(void);
-    virtual void RebuildDddos(void);
-    virtual void PurgeDddos(void);
+    virtual void RebuildDevIndeps(void);
+    virtual void PurgeDevIndeps(void);
+    virtual void RebuildDevDeps(void);
+    virtual void PurgeDevDeps(void);
 
 public:
     IWAPP& iwapp;

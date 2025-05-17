@@ -26,7 +26,15 @@ public:
     EVD(WN& wnOwner);
     virtual ~EVD();
 
-    void DestroyedWn(WN* pwn);
+    void DestroyedWn(WN* pwn);  // notification that a window was destroyed
+
+    /* message pump loop */
+    
+    virtual int MsgPump(void);
+    virtual void EnterPump(void);
+    virtual bool FQuit(MSG& msg) const;
+    virtual bool FFilterMsg(MSG& msg);
+    virtual int QuitPump(MSG& msg);
 
     /* raw mouse input */
 

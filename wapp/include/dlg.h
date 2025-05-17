@@ -26,10 +26,11 @@ inline constexpr float dxyDlgGutter = 24;
  *  Dialog box wrapper
  */
 
-class DLG : public WN
+class DLG : public WN, public EVD
 {
 public:
     DLG(WN& wnOwner);
+    virtual ~DLG();
 
     void ShowCentered(void);
 

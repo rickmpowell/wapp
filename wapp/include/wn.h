@@ -56,10 +56,10 @@ public:
     virtual void Enable(bool fEnable = true);
     virtual bool FEnabled(void) const;
 
-    void RebuildDidosWithChildren(void);
-    void PurgeDidosWithChildren(void);
-    void RebuildDddosWithChildren(void);
-    void PurgeDddosWithChildren(void);
+    void RebuildDevIndepsWithChildren(void);
+    void PurgeDevIndepsWithChildren(void);
+    void RebuildDevDepsWithChildren(void);
+    void PurgeDevDepsWithChildren(void);
  
     virtual void BeginDraw(void);
     virtual void EndDraw(const RC& rcUpdate);
@@ -90,12 +90,6 @@ public:
 
     virtual void SetDefCurs(void);
     void SetCurs(const CURS& curs);
-
-    virtual int MsgPump(void);
-    virtual void EnterPump(void);
-    virtual bool FQuit(MSG& msg) const;
-    virtual bool FFilterMsg(MSG& msg);
-    virtual int QuitPump(MSG& msg);
 
 protected:
     WN* pwnParent;  // will be nullptr at root

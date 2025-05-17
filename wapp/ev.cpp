@@ -7,6 +7,11 @@
 
 #include "wapp.h"
 
+
+/*
+ *
+ */
+
 EVD::EVD(WN& wnOwner) :
     wnOwner(wnOwner),
     pwnFocus(nullptr),
@@ -29,6 +34,63 @@ void EVD::DestroyedWn(WN* pwn)
     if (pwn == pwnHover)
         pwnHover = nullptr;
 }
+
+/*
+ *  EVD::MsgPump
+ *
+ *  User input comes into the Windows application through the message pump. This
+ *  loop dispatches messages to the appropriate place, depending on the message
+ *  and whatever state the application happens to be in.
+ *
+ *  This message pump supports message filters, which are a pre-filtering step
+ *  that can be used to redirect certain messages before they go through the
+ *  standard Windows processing.
+ */
+
+int EVD::MsgPump(void)
+{
+    MSG msg;
+    EnterPump();
+    while (1) {
+        if (!::PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
+            ::WaitMessage();
+        else if (FQuit(msg))
+            break;
+        else if (!FFilterMsg(msg)) {
+            ::TranslateMessage(&msg);
+            ::DispatchMessageW(&msg);
+        }
+    }
+    return QuitPump(msg);
+}
+
+void EVD::EnterPump(void)
+{
+}
+
+int EVD::QuitPump(MSG& msg)
+{
+    return (int)msg.wParam;
+}
+
+bool EVD::FQuit(MSG& msg) const
+{
+    return msg.message == WM_QUIT;
+}
+
+/*
+ *  EVD::FFilterMsg
+ *
+ *  Just our little message filterer, which loops through all the registered
+ *  filters in order until one handles the message. Returns false if none of
+ *  the filters take the message.
+ */
+
+bool EVD::FFilterMsg(MSG& msg)
+{
+    return false;
+}
+
 
 /*
  *  raw mouse handling, which we translate into the more useful drag and hover. Note that dragging does not 

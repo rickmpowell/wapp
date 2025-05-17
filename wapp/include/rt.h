@@ -24,16 +24,16 @@ public:
     RTC(IWAPP& iwapp) : iwapp(iwapp) {}
     virtual ~RTC() {}
 
-    virtual void RebuildDddos(com_ptr<ID2D1DeviceContext>& pdc2) = 0;
-    virtual void PurgeDddos(com_ptr<ID2D1DeviceContext>& pdc2) = 0;
+    virtual void RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2) = 0;
+    virtual void PurgeDevDeps(com_ptr<ID2D1DeviceContext>& pdc2) = 0;
     virtual void Prepare(com_ptr<ID2D1DeviceContext>& pdc2) = 0;
     virtual void Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate) = 0;
 
     static vector<DDDO*>* pvpdddo;
-    static void RegisterDddo(DDDO& dddo);
-    static void UnregisterDddo(DDDO& dddo);
-    static void PurgeRegisteredDddos(void);
-    static void RebuildRegisteredDddos(IWAPP& iwapp);
+    static void RegisterDevDeps(DDDO& dddo);
+    static void UnregisterDevDeps(DDDO& dddo);
+    static void PurgeRegisteredDevDeps(void);
+    static void RebuildRegisteredDevDeps(IWAPP& iwapp);
 
 protected:
     IWAPP& iwapp;
@@ -50,8 +50,8 @@ public:
     RTCFLIP(IWAPP& iwapp);
     virtual ~RTCFLIP();
 
-    virtual void RebuildDddos(com_ptr<ID2D1DeviceContext>& pdc2) override;
-    virtual void PurgeDddos(com_ptr<ID2D1DeviceContext>& pdc2) override;
+    virtual void RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2) override;
+    virtual void PurgeDevDeps(com_ptr<ID2D1DeviceContext>& pdc2) override;
     virtual void Prepare(com_ptr<ID2D1DeviceContext>& pdc2) override;
     virtual void Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate) override;
 
@@ -81,7 +81,7 @@ public:
     RTC2(void) = default;
     RTC2(IWAPP& iwapp) : RTCFLIP(iwapp) {}
 
-    virtual void RebuildDddos(com_ptr<ID2D1DeviceContext>& pdc2) override;
+    virtual void RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2) override;
     virtual void Prepare(com_ptr<ID2D1DeviceContext>& pdc2) override;
     virtual void Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcUpdate) override;
 };

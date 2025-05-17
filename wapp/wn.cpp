@@ -139,32 +139,32 @@ bool WN::FEnabled(void) const
  *  Direct2D drawing object management
  */
 
-void WN::RebuildDidosWithChildren(void)
+void WN::RebuildDevIndepsWithChildren(void)
 {
-    RebuildDidos();
+    RebuildDevIndeps();
     for (WN* pwn : vpwnChildren)
-        pwn->RebuildDidos();
+        pwn->RebuildDevIndeps();
 }
 
-void WN::PurgeDidosWithChildren(void)
+void WN::PurgeDevIndepsWithChildren(void)
 {
-    PurgeDidos();
+    PurgeDevIndeps();
     for (WN* pwn : vpwnChildren)
-        pwn->PurgeDidosWithChildren();
+        pwn->PurgeDevIndepsWithChildren();
 }
 
-void WN::RebuildDddosWithChildren(void)
+void WN::RebuildDevDepsWithChildren(void)
 {
-    RebuildDddos();
+    RebuildDevDeps();
     for (WN* pwn : vpwnChildren)
-        pwn->RebuildDddosWithChildren();
+        pwn->RebuildDevDepsWithChildren();
 }
 
-void WN::PurgeDddosWithChildren(void)
+void WN::PurgeDevDepsWithChildren(void)
 {
-    PurgeDddos();
+    PurgeDevDeps();
     for (WN* pwn : vpwnChildren)
-        pwn->PurgeDddosWithChildren();
+        pwn->PurgeDevDepsWithChildren();
 }
 
 /*
@@ -378,62 +378,6 @@ void WN::SetDefCurs(void)
 {
     CURS cursArrow(iwapp, IDC_ARROW);
     SetCurs(cursArrow);
-}
-
-/*
- *  WN::MsgPump
- *
- *  User input comes into the Windows application through the message pump. This
- *  loop dispatches messages to the appropriate place, depending on the message
- *  and whatever state the application happens to be in.
- *
- *  This message pump supports message filters, which are a pre-filtering step
- *  that can be used to redirect certain messages before they go through the
- *  standard Windows processing.
- */
-
-int WN::MsgPump(void)
-{
-    MSG msg;
-    EnterPump();
-    while (1) {
-        if (!::PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
-            ::WaitMessage();
-        else if (FQuit(msg))
-            break;
-        else if (!FFilterMsg(msg)) {
-            ::TranslateMessage(&msg);
-            ::DispatchMessageW(&msg);
-        }
-    }
-    return QuitPump(msg);
-}
-
-void WN::EnterPump(void)
-{
-}
-
-int WN::QuitPump(MSG& msg)
-{
-    return (int)msg.wParam;
-}
-
-bool WN::FQuit(MSG& msg) const
-{
-    return msg.message == WM_QUIT;
-}
-
-/*
- *  WN::FFilterMsg
- *
- *  Just our little message filterer, which loops through all the registered
- *  filters in order until one handles the message. Returns false if none of
- *  the filters take the message.
- */
-
-bool WN::FFilterMsg(MSG& msg)
-{
-    return false;
 }
 
 /*

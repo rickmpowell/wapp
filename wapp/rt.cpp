@@ -17,7 +17,7 @@
 
 vector<DDDO*>* RTC::pvpdddo;
 
-void RTC::RegisterDddo(DDDO& dddo)
+void RTC::RegisterDevDeps(DDDO& dddo)
 {
     /* NOTE: we do not take ownership of the dddo here */
     if (!pvpdddo)
@@ -25,7 +25,7 @@ void RTC::RegisterDddo(DDDO& dddo)
     pvpdddo->push_back(&dddo);
 }
 
-void RTC::UnregisterDddo(DDDO& dddo)
+void RTC::UnregisterDevDeps(DDDO& dddo)
  {
     assert(pvpdddo);
     
@@ -39,7 +39,7 @@ void RTC::UnregisterDddo(DDDO& dddo)
     }
 }
 
-void RTC::PurgeRegisteredDddos(void)
+void RTC::PurgeRegisteredDevDeps(void)
 {
     if (!pvpdddo)
         return;
@@ -47,7 +47,7 @@ void RTC::PurgeRegisteredDddos(void)
         pdddo->purge();
 }
 
-void RTC::RebuildRegisteredDddos(IWAPP& iwapp)
+void RTC::RebuildRegisteredDevDeps(IWAPP& iwapp)
 {
     if (!pvpdddo)
         return;
@@ -103,12 +103,12 @@ void RTCFLIP::RebuildDev()
     padaptxgiT->GetParent(IID_PPV_ARGS(&pfactxgi));
 }
 
-void RTCFLIP::PurgeDddos(com_ptr<ID2D1DeviceContext>& pdc2)
+void RTCFLIP::PurgeDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
 {
     if (!pdc2)
         return;
 
-    RTC::PurgeRegisteredDddos();
+    RTC::PurgeRegisteredDevDeps();
     pbmpBackBuf.Reset();
     pswapchain.Reset();
     pdc2.Reset();
@@ -119,7 +119,7 @@ void RTCFLIP::PurgeDddos(com_ptr<ID2D1DeviceContext>& pdc2)
     pdev3.Reset();
 }
 
-void RTCFLIP::RebuildDddos(com_ptr<ID2D1DeviceContext>& pdc2)
+void RTCFLIP::RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
 {
     if (pdc2)
         return;
@@ -149,7 +149,7 @@ void RTCFLIP::RebuildDddos(com_ptr<ID2D1DeviceContext>& pdc2)
     CreateBuffer(pdc2, pbmpBackBuf);
     pdc2->SetTarget(pbmpBackBuf.Get());
 
-    RTC::RebuildRegisteredDddos(iwapp);
+    RTC::RebuildRegisteredDevDeps(iwapp);
 }
 
 void RTCFLIP::Prepare(com_ptr<ID2D1DeviceContext>& pdc2)
@@ -192,7 +192,7 @@ void RTCFLIP::CreateBuffer(com_ptr<ID2D1DeviceContext>& pdc2, com_ptr<ID2D1Bitma
  *  RTC2 - an alternative implementation that uses older DISCARD swap chain.
  */
 
-void RTC2::RebuildDddos(com_ptr<ID2D1DeviceContext>& pdc2)
+void RTC2::RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
 {
     if (pdc2)
         return;
@@ -218,7 +218,7 @@ void RTC2::RebuildDddos(com_ptr<ID2D1DeviceContext>& pdc2)
     CreateBuffer(pdc2, pbmpBackBuf);
     pdc2->SetTarget(pbmpBackBuf.Get());
 
-    RTC::RebuildRegisteredDddos(iwapp);
+    RTC::RebuildRegisteredDevDeps(iwapp);
 }
 
 void RTC2::Prepare(com_ptr<ID2D1DeviceContext>& pdc2)

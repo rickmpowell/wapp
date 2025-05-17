@@ -83,8 +83,17 @@ int WND::Dialog(int rsd)
  */
 
 DLG::DLG(WN& wnOwner) : 
-    WN(wnOwner, false), fEnd(false), val(0)
+    WN(wnOwner, false), 
+    EVD((WN&)*this),
+    fEnd(false), 
+    val(0)
 {
+    iwapp.PushEvd(*this);
+}
+
+DLG::~DLG()
+{
+    iwapp.PopEvd();
 }
 
 void DLG::ShowCentered(void)
@@ -134,7 +143,7 @@ int DLG::QuitPump(MSG& msg)
 
 bool DLG::FQuit(MSG& msg) const
 {
-    return WN::FQuit(msg) || fEnd;
+    return EVD::FQuit(msg) || fEnd;
 }
 
 /*
