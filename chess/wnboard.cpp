@@ -400,7 +400,8 @@ void WNBOARD::EndDrag(const PT& pt, unsigned mk)
     MV mvHit;
     if (FPtToSq(pt, sqHit) && FLegalSqTo(sqDragFrom, sqHit, mvHit)) {
         pcmdMakeMove->SetMv(mvHit);
-        iwapp.FExecuteCmd(*pcmdMakeMove);
+        Wapp(iwapp).PostCmd(*pcmdMakeMove);
+        EnableMoveUI(false);
     }
     cpDrag = cpEmpty;
     sqDragFrom = sqDragTo = sqNil;

@@ -65,3 +65,14 @@ void GAME::NotifyListeners(void)
     for (LGAME* plgame : vplgame)
         plgame->BdChanged(*this);
 }
+
+void GAME::RequestMv(WAPP& wapp)
+{
+    appl[bd.ccpToMove]->RequestMv(wapp, *this);
+}
+
+void GAME::AttachUI(WNBOARD& wnboard)
+{
+    for (auto ppl : appl)
+        ppl->AttachUI(&wnboard);
+}

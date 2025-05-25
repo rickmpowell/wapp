@@ -30,18 +30,18 @@ void PLCOMPUTER::SetLevel(int level)
     setai.level = level;
 }
 
-void PLCOMPUTER::StartGame(GAME& game)
+void PLCOMPUTER::AttachUI(WNBOARD* pwnboard)
 {
 }
 
-void PLCOMPUTER::EndGame(GAME& game)
+void PLCOMPUTER::RequestMv(WAPP& wapp, GAME& game)
 {
-}
+    VMV vmv;
+    game.bd.MoveGen(vmv);
+    int imv = wapp.rand() % vmv.size();
 
-void PLCOMPUTER::RequestMove(GAME& game, WNBOARD& wnboard)
-{
-}
-
-void PLCOMPUTER::ReceivedMove(GAME& game, WNBOARD& wnboard)
-{
+    unique_ptr<CMDMAKEMOVE> pcmdMakeMove = make_unique<CMDMAKEMOVE>(wapp);
+    pcmdMakeMove->SetMv(vmv[imv]);
+    pcmdMakeMove->SetAnimate(true);
+    wapp.PostCmd(*pcmdMakeMove);
 }

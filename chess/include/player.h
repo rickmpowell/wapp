@@ -23,10 +23,8 @@ public:
     virtual bool FIsHuman(void) const = 0;
     virtual string_view SName(void) const = 0;
 
-    virtual void StartGame(GAME& game) = 0;
-    virtual void EndGame(GAME& game) = 0;
-    virtual void RequestMove(GAME& game, WNBOARD& wnboard) = 0;
-    virtual void ReceivedMove(GAME& game, WNBOARD& wnboard) = 0;
+    virtual void AttachUI(WNBOARD* pwnboard) = 0;
+    virtual void RequestMv(WAPP& wapp, GAME& game) = 0;
 
 public:
 };
@@ -45,14 +43,12 @@ public:
     virtual bool FIsHuman(void) const override;
     virtual string_view SName(void) const override;
     void SetName(string_view sName);
-
-    virtual void StartGame(GAME& game) override;
-    virtual void EndGame(GAME& game) override;
-    virtual void RequestMove(GAME& game, WNBOARD& wnboard) override;
-    virtual void ReceivedMove(GAME& game, WNBOARD& wnboard) override;
+    virtual void AttachUI(WNBOARD* pwnboard) override;
+    virtual void RequestMv(WAPP& wapp, GAME& game) override;
 
 private:
     string sName;
+    WNBOARD* pwnboard = nullptr;
 };
 
 /*
@@ -76,10 +72,8 @@ public:
     int Level(void) const;
     void SetLevel(int level);
 
-    virtual void StartGame(GAME& game) override;
-    virtual void EndGame(GAME& game) override;
-    virtual void RequestMove(GAME& game, WNBOARD& wnboard) override;
-    virtual void ReceivedMove(GAME& game, WNBOARD& wnboard) override;
+    virtual void AttachUI(WNBOARD* pwnboard) override;
+    virtual void RequestMv(WAPP& wapp, GAME& game) override;
 
 public:
     SETAI setai;

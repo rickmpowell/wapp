@@ -141,9 +141,9 @@ int DLG::QuitPump(MSG& msg)
     return val;
 }
 
-bool DLG::FQuit(MSG& msg) const
+bool DLG::FQuitPump(MSG& msg) const
 {
-    return EVD::FQuit(msg) || fEnd;
+    return EVD::FQuitPump(msg) || fEnd;
 }
 
 /*

@@ -32,9 +32,12 @@ public:
     
     virtual int MsgPump(void);
     virtual void EnterPump(void);
-    virtual bool FQuit(MSG& msg) const;
-    virtual bool FFilterMsg(MSG& msg);
     virtual int QuitPump(MSG& msg);
+    virtual bool FGetMsg(MSG& msg);
+    virtual bool FPeekMsg(MSG& msg);
+    virtual bool FQuitPump(MSG& msg) const;
+    virtual void ProcessMsg(MSG& msg);
+    virtual bool FIdle(void);
 
     /* raw mouse input */
 

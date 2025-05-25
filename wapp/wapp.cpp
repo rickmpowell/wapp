@@ -319,19 +319,19 @@ void IWAPP::PopEvd(void)
 }
 
 /*
- *  IWAPP::FFilterMsg
+ *  IWAPP::ProcessMsg
  *
  *  Just our little message filterer, which loops through all the registered
  *  filters in order until one handles the message. Returns false if none of
  *  the filters take the message.
  */
 
-bool IWAPP::FFilterMsg(MSG& msg)
+void IWAPP::ProcessMsg(MSG& msg)
 {
     for (unique_ptr<FILTERMSG>& pfm : vpfm)
         if (pfm->FFilterMsg(msg))
-            return true;
-    return false;
+            return;
+    EVD::ProcessMsg(msg);
 }
 
 /*

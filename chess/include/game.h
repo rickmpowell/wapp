@@ -41,8 +41,10 @@ public:
     void AddListener(LGAME* plgame);
     void InitFromFen(istream& is);
     void InitFromFen(const string& fenStart);
+    void AttachUI(WNBOARD& wnboard);
     void MakeMv(MV mv);
     void UndoMv(MV mv);
+    void RequestMv(WAPP& wapp);
 
     void NotifyListeners(void);
 

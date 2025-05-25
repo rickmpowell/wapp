@@ -228,6 +228,6 @@ void RTC2::Prepare(com_ptr<ID2D1DeviceContext>& pdc2)
 void RTC2::Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate)
 {
     DXGI_PRESENT_PARAMETERS pp = { 0 };
-    HRESULT err = pswapchain->Present1(1, 0, &pp);
+    HRESULT err = pswapchain->Present1(0, 0, &pp);
 }
 

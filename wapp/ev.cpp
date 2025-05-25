@@ -7,9 +7,10 @@
 
 #include "wapp.h"
 
-
 /*
- *
+ *  EVD::EVD
+ * 
+ *  THe event dispatcher.
  */
 
 EVD::EVD(WN& wnOwner) :
@@ -23,6 +24,16 @@ EVD::EVD(WN& wnOwner) :
 EVD::~EVD()
 {
 }
+
+/*
+ *  EVD::DestroyedWn
+ * 
+ *  This is probably not a good idea. Whenever a window is destroyed, this
+ *  function must be called because the EVD maintains pointers to WNs, and
+ *  we may need to null those pointers out.
+ * 
+ *  Might be better to implement this as a shared_ptr.
+ */
 
 void EVD::DestroyedWn(WN* pwn)
 {
@@ -38,13 +49,14 @@ void EVD::DestroyedWn(WN* pwn)
 /*
  *  EVD::MsgPump
  *
- *  User input comes into the Windows application through the message pump. This
- *  loop dispatches messages to the appropriate place, depending on the message
- *  and whatever state the application happens to be in.
+ *  User input comes into the Windows application through the message 
+ *  pump. This loop dispatches messages to the appropriate place, 
+ *  depending on the message and whatever state the application happens 
+ *  to be in.
  *
- *  This message pump supports message filters, which are a pre-filtering step
- *  that can be used to redirect certain messages before they go through the
- *  standard Windows processing.
+ *  This message pump supports message filters, which are a pre-filtering 
+ *  step that can be used to redirect certain messages before they go 
+ *  through the standard Windows processing.
  */
 
 int EVD::MsgPump(void)
@@ -52,16 +64,64 @@ int EVD::MsgPump(void)
     MSG msg;
     EnterPump();
     while (1) {
-        if (!::PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
-            ::WaitMessage();
-        else if (FQuit(msg))
-            break;
-        else if (!FFilterMsg(msg)) {
-            ::TranslateMessage(&msg);
-            ::DispatchMessageW(&msg);
+        if (FGetMsg(msg)) {
+            ProcessMsg(msg);
+            if (FQuitPump(msg))
+                break;
         }
+        while (!FPeekMsg(msg) && FIdle())
+            ;
     }
     return QuitPump(msg);
+}
+
+/*
+ *  EVD::FGetMsg
+ * 
+ *  Removes and teturns the next message from the input queue; returns 
+ *  false if not messages are available
+ */
+
+bool EVD::FGetMsg(MSG& msg)
+{
+    return ::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
+}
+
+/*
+ *  EVD::FPeekMsg
+ * 
+ *  Returns the next message, but does not remove it from the queue.
+ *  Returns false if no messages are available.
+ */
+
+bool EVD::FPeekMsg(MSG& msg)
+{
+    return ::PeekMessage(&msg, nullptr, 0, 0, PM_NOREMOVE);
+}
+
+/*
+ *  EVD::FIdle
+ * 
+ *  Returns true if there is more idle processing that can happen; false
+ *  if it's OK to block
+ */
+
+bool EVD::FIdle(void)
+{
+    ::WaitMessage();
+    return false;
+}
+
+/*
+ *  EVD::ProcessMsg
+ * 
+ *  Processes the Windows message.
+ */
+
+void EVD::ProcessMsg(MSG& msg)
+{
+    ::TranslateMessage(&msg);
+    ::DispatchMessageW(&msg);
 }
 
 void EVD::EnterPump(void)
@@ -70,31 +130,25 @@ void EVD::EnterPump(void)
 
 int EVD::QuitPump(MSG& msg)
 {
+    assert(msg.message == WM_QUIT);
     return (int)msg.wParam;
 }
 
-bool EVD::FQuit(MSG& msg) const
+/*
+ *  EVD::FQuitPump
+ * 
+ *  Returns true if it's time to terminate the modal message loop.
+ */
+
+bool EVD::FQuitPump(MSG& msg) const
 {
     return msg.message == WM_QUIT;
 }
 
 /*
- *  EVD::FFilterMsg
- *
- *  Just our little message filterer, which loops through all the registered
- *  filters in order until one handles the message. Returns false if none of
- *  the filters take the message.
- */
-
-bool EVD::FFilterMsg(MSG& msg)
-{
-    return false;
-}
-
-
-/*
- *  raw mouse handling, which we translate into the more useful drag and hover. Note that dragging does not 
- *  require the mouse button tbe down during the drag, but it is terminated by a mouse up.
+ *  raw mouse handling, which we translate into the more useful drag 
+ *  and hover. Note that dragging does not require the mouse button 
+ *  tbe down during the drag, but it is terminated by a mouse up.
  */
 
 void EVD::OnMouseMove(const PT& ptg, int mk)

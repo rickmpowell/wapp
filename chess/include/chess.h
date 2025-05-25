@@ -178,6 +178,9 @@ public:
     virtual CO CoBack(void) const override;
     virtual void Layout(void) override;    
 
+    virtual int MsgPump(void) override;
+    virtual void PostCmd(const ICMD& cmd);
+
     void RunPerft(void);
     void RunDivide(void);
     uint64_t CmvPerft(int depth);
@@ -197,6 +200,8 @@ private:
     const float wMarginPerWindow = 0.02f; // ratio of the size of of margin to the total window size
     const float dxyMarginMax = 4.0f;    // maximum margin around the board
     const float dxySquareMin = 25.0f;   // minimum size of a single square
+
+    queue<unique_ptr<ICMD>> qpcmd; // command queue
 };
 
 inline WAPP& Wapp(IWAPP& iwapp) {
@@ -258,6 +263,7 @@ CMD_DECLARE(CMDMAKEMOVE)
 public:
     CMDMAKEMOVE(WAPP& wapp) : CMD(wapp) {}
     void SetMv(MV mv);
+    void SetAnimate(bool fAnimate);
 
     virtual int Execute(void) override;
     virtual int Undo(void) override;
@@ -266,4 +272,17 @@ public:
 
 private:
     MV mv = MV(sqNil, sqNil);
+    bool fAnimate = false;
+};
+
+CMD_DECLARE(CMDREQUESTMOVE)
+{
+public:
+    CMDREQUESTMOVE(WAPP& wapp) : CMD(wapp) {}
+    void SetCcp(CCP ccp);
+
+    virtual int Execute(void) override;
+
+private:
+    CCP ccp = ccpWhite;
 };

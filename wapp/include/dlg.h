@@ -40,7 +40,7 @@ public:
 
     virtual void EnterPump(void) override;
     virtual int QuitPump(MSG& msg) override;
-    virtual bool FQuit(MSG& msg) const override;
+    virtual bool FQuitPump(MSG& msg) const override;
 
     virtual void End(int val);
     virtual void Validate(void);

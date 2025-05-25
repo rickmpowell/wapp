@@ -100,7 +100,7 @@ public:
     
     void PushEvd(EVD& evd);
     void PopEvd(void);
-    virtual bool FFilterMsg(MSG& msg) override;
+    virtual void ProcessMsg(MSG& msg) override;
     void PushFilterMsg(FILTERMSG* pmf);
 
     /* command dispatch */

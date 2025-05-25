@@ -27,18 +27,13 @@ bool PLHUMAN::FIsHuman(void) const
     return true;
 }
 
-void PLHUMAN::StartGame(GAME& game)
+void PLHUMAN::AttachUI(WNBOARD* pwnboard)
 {
+    this->pwnboard = pwnboard;
 }
 
-void PLHUMAN::EndGame(GAME& game)
+void PLHUMAN::RequestMv(WAPP& wapp, GAME& game)
 {
-}
-
-void PLHUMAN::RequestMove(GAME& game, WNBOARD& wnboard)
-{
-}
-
-void PLHUMAN::ReceivedMove(GAME& game, WNBOARD& wnboard)
-{
+    assert(pwnboard);
+    pwnboard->EnableMoveUI(true);
 }

@@ -144,7 +144,6 @@ void BMP::reset(void)
         pbitmap.Detach()->Release();
 }
 
-
 BMP::operator bool() const
 {
     return pbitmap;
@@ -173,22 +172,22 @@ void PNG::reset(DC& dc, int rspng)
     ThrowError(dc.iwapp.pfactwic->CreateStream(&pstream));
     pstream->InitializeFromMemory(prsrc.get(), prsrc.size());
     com_ptr<IWICBitmapDecoder> pdecoder;
-    ThrowError(dc.iwapp.pfactwic->CreateDecoderFromStream(pstream.Get(), 
-                                                          nullptr, 
-                                                          WICDecodeMetadataCacheOnLoad, 
+    ThrowError(dc.iwapp.pfactwic->CreateDecoderFromStream(pstream.Get(),
+                                                          nullptr,
+                                                          WICDecodeMetadataCacheOnLoad,
                                                           &pdecoder));
     com_ptr<IWICBitmapFrameDecode> pframe;
     pdecoder->GetFrame(0, &pframe);
     com_ptr<IWICFormatConverter> pconverter;
     ThrowError(dc.iwapp.pfactwic->CreateFormatConverter(&pconverter));
-    ThrowError(pconverter->Initialize(pframe.Get(), 
-                                      GUID_WICPixelFormat32bppPBGRA, 
-                                      WICBitmapDitherTypeNone, 
-                                      nullptr, 
-                                      0.0f,             
+    ThrowError(pconverter->Initialize(pframe.Get(),
+                                      GUID_WICPixelFormat32bppPBGRA,
+                                      WICBitmapDitherTypeNone,
+                                      nullptr,
+                                      0.0f,
                                       WICBitmapPaletteTypeMedianCut));
-    ThrowError(dc.iwapp.pdc2->CreateBitmapFromWicBitmap(pconverter.Get(), 
-                                                        nullptr, 
+    ThrowError(dc.iwapp.pdc2->CreateBitmapFromWicBitmap(pconverter.Get(),
+                                                        nullptr,
                                                         &pbitmap));
 }
 

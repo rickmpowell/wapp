@@ -69,6 +69,34 @@ void WAPP::Layout(void)
     wntest.SetBounds(rc);
 }
 
+int WAPP::MsgPump(void)
+{
+    MSG msg;
+    EnterPump();
+    while (1) {
+        if (!qpcmd.empty()) {
+            FExecuteCmd(*qpcmd.front());
+            qpcmd.pop();
+        }
+        else {
+            if (FGetMsg(msg)) {
+                ProcessMsg(msg);
+                if (FQuitPump(msg))
+                    break;
+            }
+            while (!FPeekMsg(msg) && FIdle())
+                ;
+        }
+    }
+    return QuitPump(msg);
+}
+
+void WAPP::PostCmd(const ICMD& cmd)
+{
+    unique_ptr<ICMD> pcmdClone(cmd.clone());
+    qpcmd.emplace(move(pcmdClone));
+}
+
 /*
  *  Application Commands
  */
@@ -117,6 +145,7 @@ public:
             dlg.Extract(wapp.game);
             wapp.game.InitFromFen(fenStartPos);
             wapp.game.cgaPlayed++;
+            wapp.game.RequestMv(wapp);
         }
         return 1;
     }
@@ -173,13 +202,18 @@ CMDEXECUTE(CMDTESTDIVIDE)
 
 int CMDMAKEMOVE::Execute(void) 
 {
+    wapp.game.AttachUI(wapp.wnboard);
     wapp.game.MakeMv(mv);
+    unique_ptr<CMDREQUESTMOVE> pcmdRequest = make_unique<CMDREQUESTMOVE>(wapp);
+    wapp.PostCmd(*pcmdRequest);
     return 1;
 }
 
 int CMDMAKEMOVE::Undo(void)
 {
     wapp.game.UndoMv(mv);
+    unique_ptr<CMDREQUESTMOVE> pcmdRequest = make_unique<CMDREQUESTMOVE>(wapp);
+    wapp.PostCmd(*pcmdRequest);
     return 1;
 }
 
@@ -196,6 +230,26 @@ bool CMDMAKEMOVE::FMenuS(string& s, ICMD::CMS cms) const {
 void CMDMAKEMOVE::SetMv(MV mv)
 {
     this->mv = mv;
+}
+
+void CMDMAKEMOVE::SetAnimate(bool fAnimateNew)
+{
+    this->fAnimate = fAnimateNew;
+}
+
+/*
+ *  CMDREQUESTMOVE
+ */
+
+int CMDREQUESTMOVE::Execute(void)
+{
+    wapp.game.RequestMv(wapp);
+    return 1;
+}
+
+void CMDREQUESTMOVE::SetCcp(CCP ccpNew)
+{
+    ccp = ccpNew;
 }
 
 /*
