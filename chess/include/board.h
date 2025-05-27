@@ -269,6 +269,7 @@ inline int Icpbd(int fi, int ra) {
 }
 
 inline int IcpbdFromSq(SQ sq) {
+    assert(sq != sqNil);
     return Icpbd(fi(sq), ra(sq));
 }
 
@@ -360,26 +361,26 @@ public:
     };
 
     int size(void) const { return imvMac; }
-    MV& operator [] (int imv) { return amv[imv]; }
-    MV operator [] (int imv) const { return amv[imv]; }
-    iterator begin(void) { return iterator(&amv[0]); }
-    iterator end(void) { return iterator(&amv[imvMac]); }
-    citerator begin(void) const { return citerator(&amv[0]); }
-    citerator end(void) const { return citerator(&amv[imvMac]); }
+    MV& operator [] (int imv) { return reinterpret_cast<MV*>(amv)[imv]; }
+    MV operator [] (int imv) const { return reinterpret_cast<const MV*>(amv)[imv]; }
+    iterator begin(void) { return iterator(&reinterpret_cast<MV*>(amv)[0]); }
+    iterator end(void) { return iterator(&reinterpret_cast<MV*>(amv)[imvMac]); }
+    citerator begin(void) const { return citerator(&reinterpret_cast<const MV*>(amv)[0]); }
+    citerator end(void) const { return citerator(&reinterpret_cast<const MV*>(amv)[imvMac]); }
     void clear(void) { imvMac = 0; }
     void resize(int cmv) { imvMac = cmv; }
     void reserve(int cmv) { assert(cmv == 256); }   // we're fixed size 
 
     template <typename... ARGS>
     void emplace_back(ARGS&&... args) {
-        new (&amv[imvMac]) MV(forward<ARGS>(args)...);
+        new (&reinterpret_cast<MV*>(amv)[imvMac]) MV(forward<ARGS>(args)...);
         ++imvMac;
     }
 
 private:
-    MV amv[256];
+    /* TODO: for debug convenience, find figure out a better size item for the raw data */
+    alignas(MV) uint8_t amv[256 * sizeof(MV)];
     int imvMac = 0;
-
 };
 
 /*
@@ -425,14 +426,17 @@ public:
 
     void MakeMv(MV& mv);
     void UndoMv(MV& mv);
+    bool FMakeMvLegal(MV& mv);
 
     /* move generation */
 
-    void MoveGen(VMV& vmv);
+    void MoveGen(VMV& vmv) const;
     void MoveGenPseudo(VMV& vmv) const;
+    void MoveGenNoisy(VMV& vmv) const;
+    bool FLastMoveWasLegal(MV mv) const;
 
     bool FInCheck(CCP ccp) const;
-    bool FIsAttacked(int icpAttacked, CCP ccpBy) const;
+    bool FIsAttackedBy(int icpAttacked, CCP ccpBy) const;
 
     /* FEN reading and writing */
 
@@ -441,13 +445,22 @@ public:
     void RenderFen(ostream& os) const;
     string FenRender(void) const;
 
+    /* test functions */
+
+    uint64_t CmvPerft(int d);
+    uint64_t CmvBulk(int d);
+
 private:
-    void RemoveChecks(VMV& vmv);
+    void RemoveChecks(VMV& vmv) const;
 
     void MoveGenPawn(int icpFrom, VMV& vmv) const;
+    void MoveGenPawnNoisy(int icpFrom, VMV& vmv) const;
     void MoveGenKing(int icpFrom, VMV& vmv) const;
+    void MoveGenKingNoisy(int icpFrom, VMV& vmv) const;
     void MoveGenSingle(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const;
+    void MoveGenSingleNoisy(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const;
     void MoveGenSlider(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const;
+    void MoveGenSliderNoisy(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const;
     void AddPawnMoves(int icpFrom, int icpTo, VMV& vmv) const;
     void AddCastle(int icpKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, CS csMove, VMV& vmv) const;
 

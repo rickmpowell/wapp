@@ -19,105 +19,128 @@
 class SZ : public D2D1_SIZE_F
 {
 public:
-    SZ(void) {    // leave uninitialized
+    SZ(void) 
+    {    // leave uninitialized
     }
 
-    SZ(const D2D1_SIZE_F& sz) {
+    SZ(const D2D1_SIZE_F& sz) 
+    {
         width = sz.width;
         height = sz.height;
     }
 
-    SZ(float width, float height) {
+    SZ(float width, float height) 
+    {
         this->width = width;
         this->height = height;
     }
 
-    SZ(int width, int height) {
+    SZ(int width, int height) 
+    {
         this->width = (float)width;
         this->height = (float)height;
     }
 
-    SZ(float width, int height) {
+    SZ(float width, int height) 
+    {
         this->width = width;
         this->height = (float)height;
     }
 
-    SZ(int width, float height) {
+    SZ(int width, float height) 
+    {
         this->width = (float)width;
         this->height = height;
     }
 
-    SZ(int w) {
+    SZ(int w) 
+    {
         width = height = (float)w;
     }
 
-    SZ(float w) {
+    SZ(float w) 
+    {
         width = height = w;
     }
 
-    SZ(const SIZE& size) {
+    SZ(const SIZE& size) 
+    {
         width = (float)size.cx;
         height = (float)size.cy;
     }
 
-    operator SIZE() const {
+    operator SIZE() const 
+    {
         SIZE size = { (long)width, (long)height };
         return size;
     }
 
-    SZ& Offset(const SZ& sz) {
+    SZ& Offset(const SZ& sz) 
+    {
         width += sz.width;
         height += sz.height;
         return *this;
     }
 
-    SZ SzOffset(const SZ& sz) const {
+    SZ SzOffset(const SZ& sz) const 
+    {
         return SZ(*this).Offset(sz);
     }
 
-    SZ& Scale(float w) {
+    SZ& Scale(float w) 
+    {
         width *= w;
         height *= w;
         return *this;
     }
 
-    SZ SzScale(float w) const {
+    SZ SzScale(float w) const 
+    {
         return SZ(*this).Scale(w);
     }
 
-    SZ operator - () const {
+    SZ operator - () const 
+    {
         return SZ(-width, -height);
     }
 
-    SZ operator + (const SZ& sz) const {
+    SZ operator + (const SZ& sz) const 
+    {
         return SzOffset(sz);
     }
 
-    SZ& operator += (const SZ& sz) {
+    SZ& operator += (const SZ& sz) 
+    {
         return Offset(sz);
     }
 
-    SZ operator - (const SZ& sz) const {
+    SZ operator - (const SZ& sz) const 
+    {
         return SzOffset(-sz);
     }
 
-    SZ& operator -= (const SZ& sz) {
+    SZ& operator -= (const SZ& sz) 
+    {
         return Offset(-sz);
     }
 
-    SZ operator * (float w) const {
+    SZ operator * (float w) const 
+    {
         return SzScale(w);
     }
 
-    SZ& operator *= (float w) {
+    SZ& operator *= (float w) 
+    {
         return Scale(w);
     }
 
-    SZ operator / (float w) const {
+    SZ operator / (float w) const 
+    {
         return SzScale(1.0f/w);
     }
 
-    SZ& operator /= (float w) {
+    SZ& operator /= (float w) 
+    {
         return Scale(1.0f/w);
     }
 };
@@ -131,131 +154,160 @@ public:
 class PT : public D2D1_POINT_2F
 {
 public:
-    PT(void) {
+    PT(void) 
+    {
     }
 
     /* TODO: are all these permutations of types necssary?b */
-    PT(float x, float y) {
+    PT(float x, float y) 
+    {
         this->x = x;
         this->y = y;
     }
 
-    PT(int x, int y) {
+    PT(int x, int y) 
+    {
         this->x = (float)x;
         this->y = (float)y;
     }
 
-    PT(float x, int y) {
+    PT(float x, int y) 
+    {
         this->x = x;
         this->y = (float)y;
     }
 
-    PT(int x, float y) {
+    PT(int x, float y) 
+    {
         this->x = (float)x;
         this->y = y;
     }
 
-    PT(int w) {
+    PT(int w) 
+    {
         x = y = (float)w;
     }
 
-    PT(float w) {
+    PT(float w) 
+    {
         x = y = w;
     }
 
-    PT(const POINT& point) {
+    PT(const POINT& point) 
+    {
         x = (float)point.x;
         y = (float)point.y;
     }
 
-    operator POINT() const {
+    operator POINT() const 
+    {
         POINT point = { (long)x, (long)y };
         return point;
     }
 
-    operator D2D1_SIZE_F() const {
+    operator D2D1_SIZE_F() const 
+    {
         return SizeF(x, y);
     }
     
-    PT& Offset(const SZ& sz) {
+    PT& Offset(const SZ& sz) 
+    {
         x += sz.width;
         y += sz.height;
         return *this;
     }
 
-    PT PtOffset(const SZ& sz) const {
+    PT PtOffset(const SZ& sz) const 
+    {
         return PT(*this).Offset(sz);
     }
 
-    PT& Offset(const PT& pt) {
+    PT& Offset(const PT& pt) 
+    {
         x += pt.x;
         y += pt.y;
         return *this;
     }
 
-    PT PtOffset(const PT& pt) const {
+    PT PtOffset(const PT& pt) const 
+    {
         return PT(*this).Offset(pt);
     }
 
-    PT& Scale(float w) {
+    PT& Scale(float w) 
+    {
         x *= w;
         y *= w;
         return *this;
     }
 
-    PT PtScale(float w) const {
+    PT PtScale(float w) const 
+    {
         return PT(*this).Scale(w);
     }
 
-    PT operator - () const {
+    PT operator - () const 
+    {
         return PT(-x, -y);
     }
 
-    PT operator + (const SZ& sz) const {
+    PT operator + (const SZ& sz) const 
+    {
         return PtOffset(sz);
     }
 
-    PT& operator += (const SZ& sz) {
+    PT& operator += (const SZ& sz) 
+    {
         return Offset(sz);
     }
 
-    PT operator + (const PT& pt) const {
+    PT operator + (const PT& pt) const 
+    {
         return PtOffset(pt);
     }
 
-    PT& operator += (const PT& pt) {
+    PT& operator += (const PT& pt) 
+    {
         return Offset(pt);
     }
 
-    PT operator - (const SZ& sz) const {
+    PT operator - (const SZ& sz) const 
+    {
         return PtOffset(-sz);
     }
 
-    PT& operator -= (const SZ& sz) {
+    PT& operator -= (const SZ& sz) 
+    {
         return Offset(-sz);
     }
 
-    PT operator - (const PT& pt) const {
+    PT operator - (const PT& pt) const 
+    {
         return PtOffset(-pt);
     }
 
-    PT& operator -= (const PT& pt) {
+    PT& operator -= (const PT& pt) 
+    {
         return Offset(-pt);
     }
 
-    PT operator * (float w) const {
+    PT operator * (float w) const 
+    {
         return PtScale(w);
     }
 
-    PT& operator *= (float w) {
+    PT& operator *= (float w) 
+    {
         return Scale(w);
     }
 
-    bool operator == (const PT& pt) const {
+    bool operator == (const PT& pt) const 
+    {
         return x == pt.x && y == pt.y;
     }
 
-    bool operator != (const PT& pt) const {
+    bool operator != (const PT& pt) const 
+    {
         return !(*this == pt);
     }
 };
@@ -267,27 +319,32 @@ public:
 class PAD : public D2D1_RECT_F
 {
 public:
-    PAD(void) {
+    PAD(void) 
+    {
         left = right = top = bottom = 0;
     }
 
-    PAD(float dxy) {
+    PAD(float dxy) 
+    {
         left = right = top = bottom = dxy;
     }
 
-    PAD(float dx, float dy) {
+    PAD(float dx, float dy) 
+    {
         left = right = dx;
         top = bottom = dy;
     }
 
-    PAD(float left, float top, float right, float bottom) {
+    PAD(float left, float top, float right, float bottom) 
+    {
         this->left = left;
         this->top = top;
         this->right = right;
         this->bottom = bottom;
     }
 
-    PAD operator + (const PAD& pad) const {
+    PAD operator + (const PAD& pad) const 
+    {
         return PAD(left + pad.left, top + pad.top, right + pad.right, bottom + pad.bottom);
     }
 };
@@ -302,85 +359,107 @@ public:
 class RC : public D2D1_RECT_F
 {
 public:
-    RC(void) {  // leave uninitialized
+    RC(void) 
+    {  // leave uninitialized
     }
 
-    RC(float left, float top, float right, float bottom) {
+    RC(float left, float top, float right, float bottom) 
+    {
         this->left = left;
         this->top = top;
         this->right = right;
         this->bottom = bottom;
     }
 
-    RC(int left, int top, int right, int bottom) {
+    RC(int left, int top, int right, int bottom) 
+    {
         this->left = (float)left;
         this->top = (float)top;
         this->right = (float)right;
         this->bottom = (float)bottom;
     }
 
-    RC(const RECT& rc) {
+    RC(const RECT& rc) 
+    {
         left = (float)rc.left;
         top = (float)rc.top;
         right = (float)rc.right;
         bottom = (float)rc.bottom;
     };
 
-    RC(const PT& ptTopLeft, const SZ& sz) {
+    RC(const PT& ptTopLeft, const SZ& sz) 
+    {
         left = ptTopLeft.x;
         top = ptTopLeft.y;
         right = left + sz.width;
         bottom = top + sz.height;
     }
 
-    RC(const PT& ptTopLeft, const PT& ptBotRight) {
+    RC(const PT& ptTopLeft, const PT& ptBotRight) 
+    {
         left = ptTopLeft.x;
         top = ptTopLeft.y;
         right = ptBotRight.x;
         bottom = ptBotRight.y;
     }
 
-    PT ptTopLeft(void) const {
+    PT ptTopLeft(void) const 
+    {
         return PT(left, top);
     }
 
-    PT ptBottomRight(void) const {
+    PT ptBottomRight(void) const 
+    {
         return PT(right, bottom);
     }
 
-    PT ptBottomLeft(void) const {
+    PT ptBottomLeft(void) const
+    {
         return PT(left, bottom);
     }
 
-    PT ptTopRight(void) const {
+    PT ptTopRight(void) const 
+    {
         return PT(right, top);
     }
 
-    PT ptCenter(void) const {
+    PT ptCenter(void) const 
+    {
         return PT((left+right)/2, (top+bottom)/2);
     }
 
-    float yCenter(void) const {
+    float yCenter(void) const 
+    {
         return (top + bottom) / 2;
     }
 
-    float xCenter(void) const {
+    float xCenter(void) const 
+    {
         return (left + right) / 2;
     }
 
-    float dxWidth(void) const {
+    float dxWidth(void) const 
+    {
         return right - left;
     }
 
-    float dyHeight(void) const {
+    float dyHeight(void) const 
+    {
         return bottom - top;
     }
 
-    bool fEmpty(void) const {
+    SZ sz(void) const
+    {
+        return SZ(right - left, bottom - top);
+    }
+
+    bool fEmpty(void) const 
+    {
         return left >= right || top >= bottom;
     }
 
-    RC& Offset(const SZ& sz) {
+    RC& Offset(const SZ& sz) 
+    {
         left += sz.width;
         right += sz.width;
         top += sz.height;
@@ -388,7 +467,8 @@ public:
         return *this;
     }
 
-    RC& Offset(float dx, float dy) {
+    RC& Offset(float dx, float dy) 
+    {
         left += dx;
         right += dx;
         top += dy;
@@ -396,19 +476,23 @@ public:
         return *this;
     }
 
-    RC RcOffset(const SZ& sz) const {
+    RC RcOffset(const SZ& sz) const 
+    {
         return RC(*this).Offset(sz);
     }
 
-    RC& Offset(const PT& pt) {
+    RC& Offset(const PT& pt) 
+    {
         return Offset(SZ(pt.x, pt.y));
     }
 
-    RC RcOffset(const PT& pt) const {
+    RC RcOffset(const PT& pt) const 
+    {
         return RcOffset(SZ(pt.x, pt.y));
     }
 
-    RC& Scale(float w) {
+    RC& Scale(float w) 
+    {
         left *= w;
         right *= w;
         top *= w;
@@ -416,51 +500,61 @@ public:
         return *this;
     }
 
-    RC RcScale(float w) const {
+    RC RcScale(float w) const 
+    {
         return RC(*this).Scale(w);
     }
 
-    RC& LeftRight(float leftNew, float rightNew) {
+    RC& LeftRight(float leftNew, float rightNew) 
+    {
         left = leftNew;
         right = rightNew;
         return *this;
     }
 
-    RC RcLeftRight(float leftNew, float rightNew) const {
+    RC RcLeftRight(float leftNew, float rightNew) const 
+    {
         return RC(*this).LeftRight(leftNew, rightNew);
     }
 
-    RC& TopBottom(float topNew, float bottomNew) {
+    RC& TopBottom(float topNew, float bottomNew) 
+    {
         top = topNew;
         bottom = bottomNew;
         return *this;
     }
 
-    RC RcTopBottom(float topNew, float bottomNew) const {
+    RC RcTopBottom(float topNew, float bottomNew) const 
+    {
         return RC(*this).TopBottom(topNew, bottomNew);
     }
 
-    RC& TopLeft(const PT& pt) {
+    RC& TopLeft(const PT& pt) 
+    {
         this->left = pt.x;
         this->top = pt.y;
         return *this;
     }
 
-    RC RcTopLeft(const PT& pt) const {
+    RC RcTopLeft(const PT& pt) const 
+    {
         return RC(*this).TopLeft(pt);
     }
 
-    RC& BottomRight(const PT& pt) {
+    RC& BottomRight(const PT& pt) 
+    {
         this->right = pt.x;
         this->bottom = pt.y;
         return *this;
     }
 
-    RC RcBottomRight(const PT& pt) const {
+    RC RcBottomRight(const PT& pt) const 
+    {
         return RC(*this).BottomRight(pt);
     }
 
-    RC& Inflate(const SZ& sz) {
+    RC& Inflate(const SZ& sz) 
+    {
         left -= sz.width;
         right += sz.width;
         top -= sz.height;
@@ -468,7 +562,8 @@ public:
         return *this;
     }
 
-    RC& Inflate(float dx, float dy) {
+    RC& Inflate(float dx, float dy) 
+    {
         left -= dx;
         right += dx;
         top -= dy;
@@ -476,23 +571,28 @@ public:
         return *this;
     }
 
-    RC RcInflate(const SZ& sz) const {
+    RC RcInflate(const SZ& sz) const 
+    {
         return RC(*this).Inflate(sz);
     }
 
-    RC& Inflate(float w) {
+    RC& Inflate(float w) 
+    {
         return Inflate(SZ(w));
     }
 
-    RC RcInflate(float w) const {
+    RC RcInflate(float w) const 
+    {
         return RcInflate(SZ(w));
     }
 
-    RC RcInflate(float dx, float dy) const {
+    RC RcInflate(float dx, float dy) const 
+    {
         return RcInflate(SZ(dx, dy));
     }
 
-    RC& Intersect(const RC& rc) {
+    RC& Intersect(const RC& rc) 
+    {
         left = max(left, rc.left);
         right = min(right, rc.right);
         top = max(top, rc.top);
@@ -500,11 +600,13 @@ public:
         return *this;
     }
 
-    RC RcIntersect(const RC& rc) const {
+    RC RcIntersect(const RC& rc) const 
+    {
         return RC(*this).Intersect(rc);
     }
 
-    RC& Union(const RC& rc) {
+    RC& Union(const RC& rc) 
+    {
         left = min(left, rc.left);
         right = max(right, rc.right);
         top = min(top, rc.top);
@@ -512,147 +614,178 @@ public:
         return *this;
     }
 
-    RC RcUnion(const RC& rc) const {
+    RC RcUnion(const RC& rc) const 
+    {
         return RC(*this).Union(rc);
     }
 
-    RC& CenterDy(float dy) {
+    RC& CenterDy(float dy) 
+    {
         top += (dyHeight() - dy) / 2;
         bottom = top + dy;
         return *this;
     }
 
-    RC RcCenterDy(float dy) const {
+    RC RcCenterDy(float dy) const 
+    {
         return RC(*this).CenterDy(dy);
     }
 
-    RC& CenterDx(float dx) {
+    RC& CenterDx(float dx) 
+    {
         left += (dxWidth() - dx) / 2;
         right = left + dx;
         return *this;
     }
 
-    RC RcCenterDx(float dx) const {
+    RC RcCenterDx(float dx) const 
+    {
         return RC(*this).CenterDx(dx);
     }
 
-    RC RcSetLeft(float x) const {
+    RC RcSetLeft(float x) const 
+    {
         RC rc(*this);
         rc.left = x;
         return rc;
     }
 
-    RC RcSetRight(float x) const {
+    RC RcSetRight(float x) const 
+    {
         RC rc(*this);
         rc.right = x;
         return rc;
     }
 
-    RC RcSetTop(float y) const {
+    RC RcSetTop(float y) const 
+    {
         RC rc(*this);
         rc.top = y;
         return rc;
     }
 
-    RC RcSetBottom(float y) const {
+    RC RcSetBottom(float y) const 
+    {
         RC rc(*this);
         rc.bottom = y;
         return rc;
     }
 
-    RC& SetSz(const SZ& sz) {
+    RC& SetSz(const SZ& sz) 
+    {
         right = left + sz.width;
         bottom = top + sz.height;
         return *this;
     }
 
-    RC RcSetSz(const SZ& sz) const {
+    RC RcSetSz(const SZ& sz) const 
+    {
         RC rc(*this);
         rc.SetSz(sz);
         return rc;
     }
 
-    operator int() const {
+    operator int() const 
+    {
         return !fEmpty();
     }
 
-    bool operator ! () const {
+    bool operator ! () const 
+    {
         return fEmpty();
     }
 
-    RC operator + (const PT& pt) const {
+    RC operator + (const PT& pt) const 
+    {
         return RcOffset(pt);
     }
 
-    RC& operator += (const PT& pt) {
+    RC& operator += (const PT& pt) 
+    {
         return Offset(pt);
     }
 
-    RC operator + (const SZ& sz) const {
+    RC operator + (const SZ& sz) const 
+    {
         return RcOffset(sz);
     }
 
-    RC& operator += (const SZ& sz) {
+    RC& operator += (const SZ& sz) 
+    {
         return Offset(sz);
     }
 
-    RC operator - (const PT& pt) const {
+    RC operator - (const PT& pt) const 
+    {
         return RcOffset(-pt);
     }
 
-    RC& operator -= (const PT& pt) {
+    RC& operator -= (const PT& pt) 
+    {
         return Offset(-pt);
     }
 
-    RC operator - (const SZ& sz) const {
+    RC operator - (const SZ& sz) const 
+    {
         return RcOffset(-sz);
     }
 
-    RC& operator -= (const SZ& sz) {
+    RC& operator -= (const SZ& sz) 
+    {
         return Offset(-sz);
     }
 
-    RC operator & (const RC& rc) const {
+    RC operator & (const RC& rc) const 
+    {
         return RcIntersect(rc);
     }
 
-    RC& operator &= (const RC& rc) {
+    RC& operator &= (const RC& rc) 
+    {
         return Intersect(rc);
     }
 
-    RC operator | (const RC& rc) const {
+    RC operator | (const RC& rc) const 
+    {
         return RcUnion(rc);
     }
 
-    RC& operator |= (const RC& rc) {
+    RC& operator |= (const RC& rc) 
+    {
         return Union(rc);
     }
 
-    RC operator * (float w) const {
+    RC operator * (float w) const 
+    {
         return RcScale(w);
     }
 
-    RC& operator *= (float w) {
+    RC& operator *= (float w) 
+    {
         return Scale(w);
     }
 
-    bool operator == (const RC& rc) const {
+    bool operator == (const RC& rc) const 
+    {
         return left == rc.left && 
                top == rc.top && 
                right == rc.right && 
                bottom == rc.bottom;
     }
 
-    bool operator != (const RC& rc) const {
+    bool operator != (const RC& rc) const 
+    {
         return !(*this == rc);
     }
 
-    bool FContainsPt(const PT& pt) const {
+    bool FContainsPt(const PT& pt) const 
+    {
         return pt.x >= left && pt.x < right &&
                pt.y >= top && pt.y < bottom;
     }
     
-    bool FRoundUp(void) {
+    bool FRoundUp(void) 
+    {
         RC rcT(floorf(left), floorf(top), ceilf(right), ceilf(bottom));
         if (rcT == *this)
             return false;
@@ -660,7 +793,8 @@ public:
         return true;
     }
 
-    RC& Pad(const PAD& pad) {
+    RC& Pad(const PAD& pad) 
+    {
         left -= pad.left;
         top -= pad.top;
         right += pad.right;
@@ -668,7 +802,8 @@ public:
         return *this;
     }
 
-    RC& Unpad(const PAD& pad) {
+    RC& Unpad(const PAD& pad) 
+    {
         left += pad.left;
         top += pad.top;
         right -= pad.right;
@@ -676,7 +811,8 @@ public:
         return *this;
     }
     
-    operator RECT() const {
+    operator RECT() const 
+    {
         RECT rect = {
             (long)floorf(left),
             (long)floorf(top),
@@ -695,46 +831,54 @@ public:
 class ELL : public D2D1_ELLIPSE
 {
 public:
-    ELL(void) {
+    ELL(void) 
+    {
     }
 
-    ELL(const PT& ptCenter, const SZ& szRadius) {
+    ELL(const PT& ptCenter, const SZ& szRadius) 
+    {
         point.x = ptCenter.x;
         point.y = ptCenter.y;
         radiusX = szRadius.width;
         radiusY = szRadius.height;
     }
 
-    ELL(const PT& ptCenter, float dxyRadius) {
+    ELL(const PT& ptCenter, float dxyRadius) 
+    {
         point.x = ptCenter.x;
         point.y = ptCenter.y;
         radiusX = radiusY = dxyRadius;
     }
 
-    ELL(const RC& rcBounds) {
+    ELL(const RC& rcBounds) 
+    {
         point.x = rcBounds.xCenter();
         point.y = rcBounds.yCenter();
         radiusX = rcBounds.dxWidth() / 2;
         radiusY = rcBounds.dyHeight() / 2;
     }
 
-    ELL& Offset(float dx, float dy) {
+    ELL& Offset(float dx, float dy) 
+    {
         point.x += dx;
         point.y += dy;
         return *this;
     }
 
-    ELL& Offset(const PT& pt) {
+    ELL& Offset(const PT& pt) 
+    {
         return Offset(pt.x, pt.y);
     }
 
-    ELL EllOffset(const PT& pt) const {
+    ELL EllOffset(const PT& pt) const 
+    {
         ELL ell = *this;
         ell.Offset(pt);
         return ell;
     }
 
-    ELL& Inflate(const SZ& sz) {
+    ELL& Inflate(const SZ& sz) 
+    {
         radiusX += sz.width;
         radiusY += sz.height;
         return *this;

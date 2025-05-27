@@ -151,7 +151,7 @@ bool EVD::FQuitPump(MSG& msg) const
  *  tbe down during the drag, but it is terminated by a mouse up.
  */
 
-void EVD::OnMouseMove(const PT& ptg, int mk)
+void EVD::MouseMove(const PT& ptg, int mk)
 {
     WN* pwnHit = nullptr;
     wnOwner.FWnFromPt(ptg, pwnHit);
@@ -172,7 +172,7 @@ void EVD::OnMouseMove(const PT& ptg, int mk)
     }
 }
 
-void EVD::OnMouseDown(const PT& ptg, int mk)
+void EVD::MouseDown(const PT& ptg, int mk)
 {
     WN* pwnHit = nullptr;
     if (!wnOwner.FWnFromPt(ptg, pwnHit))
@@ -181,13 +181,13 @@ void EVD::OnMouseDown(const PT& ptg, int mk)
     SetDrag(pwnHit, ptg, mk);
 }
 
-void EVD::OnMouseUp(const PT& ptg, int mk)
+void EVD::MouseUp(const PT& ptg, int mk)
 {
     ::ReleaseCapture();
     SetDrag(nullptr, ptg, mk);
 }
 
-void EVD::OnMouseWheel(const PT& ptg, int dwheel)
+void EVD::MouseWheel(const PT& ptg, int dwheel)
 {
     WN* pwnHit = nullptr;
     if (!wnOwner.FWnFromPt(ptg, pwnHit))

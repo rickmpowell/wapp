@@ -41,16 +41,16 @@ void BD::Empty(void) {
     
     /* fill play area with empty squares */
 
-    for (SQ sq = 0; sq < sqMax; sq++)
+    for (SQ sq = 0; sq < sqMax; sq++) {
+        (*this)[sq].icp = 0;
         (*this)[sq].cp(cpEmpty);
+    }
 
     /* and none of the pieces are on the board */
 
     for (int ccp = 0; ccp < ccpMax; ccp++)
         for (int icp = 0; icp < icpMax; icp++)
             aicpbd[ccp][icp] = -1;
-
-    Validate();
 }
 
 /*
@@ -128,6 +128,13 @@ void BD::MakeMv(MV& mv)
         mv.cpTake = (*this)[sqTake].cp();
         (*this)[sqTake] = CPBD(cpEmpty, 0);
         aicpbd[~ccpToMove][icpTake] = -1;
+        /* when taking rooks, we may need to clear castle bits */
+        if (tcp(mv.cpTake) == tcpRook && ra(sqTake) == RaBack(~ccpToMove)) {
+            if (fi(sqTake) == fiQueenRook)
+                csCur &= ~Cs(csQueen, ~ccpToMove);
+            else if (fi(sqTake) == fiKingRook)
+                csCur &= ~Cs(csKing, ~ccpToMove);
+        }
     }
 
     /* and finally we move the piece */
@@ -205,6 +212,16 @@ void BD::UndoMv(MV& mv)
 
     Validate();
 }
+
+bool BD::FMakeMvLegal(MV& mv)
+{
+    MakeMv(mv);
+    if (FLastMoveWasLegal(mv))
+        return true;
+    UndoMv(mv);
+    return false;
+}
+
 
 /*
  *  FEN (Forsyth-Edwards Notation) board representation, which is a text-basded
@@ -294,8 +311,11 @@ void BD::InitFromFen(istream& is)
         sqEnPassant = sqNil;
     else if (sEnPassant.length() == 2 &&
              inrange(sEnPassant[0], 'a', 'h') &&
-             inrange(sEnPassant[1], '1', '8'))
-        sqEnPassant = Sq(sEnPassant[0]-'a', sEnPassant[1]-'1');
+             inrange(sEnPassant[1], '1', '8')) {
+        /* TODO: should we test for valid en passant square? They should only be
+           in ranks '3' or '6' */
+        sqEnPassant = Sq(sEnPassant[0] - 'a', sEnPassant[1] - '1');
+    }
     else
         throw ERRAPP(rssErrFenParse, sEnPassant);
 
@@ -389,6 +409,9 @@ string BD::FenRender(void) const
 #ifndef NDEBUG
 void BD::Validate(void) const
 {
+    if (!fValidate)
+        return;
+
     /* check guard squares */
     /* check empty squares */
     /* check occupied squares */

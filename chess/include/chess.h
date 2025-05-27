@@ -8,7 +8,6 @@
 
 #include "wapp.h"
 #include "game.h"
-
 class CMDMAKEMOVE;
 
 /*
@@ -126,40 +125,7 @@ private:
     PT dptDrag = PT(0, 0); // offset from the mouse cursor of the initial drag hit
 };
 
-/*
- *  WNTEST
- * 
- *  Test window, which is currently just displaying a scrollable log
- */
-
-class WNTEST : public WNSTREAM, public SCROLLER
-{
-public:
-    WNTEST(WN& wnParent);
-
-    virtual void Layout(void) override;
-    virtual void Draw(const RC& rcUpdate) override;
-    virtual void DrawView(const RC& rcUpdate);
-    virtual CO CoText(void) const override;
-    virtual CO CoBack(void) const override;
-
-    virtual void Wheel(const PT& pt, int dwheel) override;
-
-    void clear(void);
-    virtual void ReceiveStream(const string& s) override;
-
-private:
-    TITLEBAR titlebar;
-    vector<string> vs;
-
-    TF tfTest;
-    float dyLine;
-
-    void SetContentLines(size_t cs);
-    int IsFromY(float y) const;
-    float YFromIs(int is) const;
-};
-
+#include "test.h"
 #include "newgame.h"
 
 /*
@@ -182,8 +148,8 @@ public:
     virtual void PostCmd(const ICMD& cmd);
 
     void RunPerft(void);
-    void RunDivide(void);
-    uint64_t CmvPerft(int depth);
+    void RunPerftSuite(void);
+    bool RunOnePerftTest(const char tag[], const char fen[], const uint64_t mpdcmv[], int dLast, bool fDivide);
 
 public:
     GAME game;
@@ -279,10 +245,5 @@ CMD_DECLARE(CMDREQUESTMOVE)
 {
 public:
     CMDREQUESTMOVE(WAPP& wapp) : CMD(wapp) {}
-    void SetCcp(CCP ccp);
-
     virtual int Execute(void) override;
-
-private:
-    CCP ccp = ccpWhite;
 };

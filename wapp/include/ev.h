@@ -41,10 +41,10 @@ public:
 
     /* raw mouse input */
 
-    virtual void OnMouseMove(const PT& ptg, int mk);
-    virtual void OnMouseDown(const PT& ptg, int mk);
-    virtual void OnMouseUp(const PT& ptg, int mk);
-    virtual void OnMouseWheel(const PT& ptg, int mk);
+    virtual void MouseMove(const PT& ptg, int mk);
+    virtual void MouseDown(const PT& ptg, int mk);
+    virtual void MouseUp(const PT& ptg, int mk);
+    virtual void MouseWheel(const PT& ptg, int mk);
 
     bool FDragging(const WN* pwn) const;
 

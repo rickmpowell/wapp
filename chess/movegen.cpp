@@ -24,14 +24,13 @@ static const int adicpbdPawn[] = { 9, 11, -11, -9 };  /* first 2 are white, seco
  * 
  *  Legal move generator. Speed critical code.
  * 
- *  We have two basic move generators, one that really returns all legal moves, and
- *  another that is a pseudo-legal move generator, which does not check for the king
- *  being in check after the move. It turns out the AI can test for checks very
- *  efficiently, and our check test is very slow, so we give the AI access to the
- *  intermeidate move list.
+ *  We have two basic move generators, one that really returns all legal 
+ *  moves, and another that is a pseudo-legal move generator, which does not 
+ *  check for the king being in check. This saves us an expensive check test 
+ *  on moves that we never consider because of alpha-beta search.
  */
 
-void BD::MoveGen(VMV& vmv)
+void BD::MoveGen(VMV& vmv) const
 {
     MoveGenPseudo(vmv);
     RemoveChecks(vmv);
@@ -74,17 +73,71 @@ void BD::MoveGenPseudo(VMV& vmv) const
     }
 }
 
-void BD::RemoveChecks(VMV& vmv) 
+void BD::MoveGenNoisy(VMV& vmv) const
+{
+    Validate();
+
+    vmv.clear();
+    vmv.reserve(256);
+
+    for (int icp = 0; icp < icpMax; icp++) {
+        int icpbdFrom = aicpbd[ccpToMove][icp];
+        if (icpbdFrom == -1)
+            continue;
+        switch (acpbd[icpbdFrom].tcp) {
+        case tcpPawn:
+            MoveGenPawnNoisy(icpbdFrom, vmv);
+            break;
+        case tcpKnight:
+            MoveGenSingleNoisy(icpbdFrom, adicpbdKnight, size(adicpbdKnight), vmv);
+            break;
+        case tcpBishop:
+            MoveGenSliderNoisy(icpbdFrom, adicpbdBishop, size(adicpbdBishop), vmv);
+            break;
+        case tcpRook:
+            MoveGenSliderNoisy(icpbdFrom, adicpbdRook, size(adicpbdRook), vmv);
+            break;
+        case tcpQueen: /* a queen is a sliding king */
+            MoveGenSliderNoisy(icpbdFrom, adicpbdKing, size(adicpbdKing), vmv);
+            break;
+        case tcpKing:
+            MoveGenKingNoisy(icpbdFrom, vmv);
+            break;
+        default:
+            assert(false);
+            break;
+        }
+    }
+}
+
+void BD::RemoveChecks(VMV& vmv) const
 {
     int imvTo = 0;
+    BD bdT(*this);
     for (int imv = 0; imv < vmv.size(); imv++) {
-        MakeMv(vmv[imv]);
-        int icpbdKing = IcpbdFindKing(~ccpToMove);
-        if (!FIsAttacked(icpbdKing, ccpToMove))
+        bdT.MakeMv(vmv[imv]);
+        if (bdT.FLastMoveWasLegal(vmv[imv]))
             vmv[imvTo++] = vmv[imv];
-        UndoMv(vmv[imv]);
+        bdT.UndoMv(vmv[imv]);
     }
     vmv.resize(imvTo);
+}
+
+bool BD::FLastMoveWasLegal(MV mv) const
+{
+    if (mv.csMove) {
+        int icpbdKingFrom = IcpbdFromSq(mv.sqFrom);
+        int icpbdKingTo = IcpbdFromSq(mv.sqTo);
+        if (icpbdKingFrom > icpbdKingTo)
+            swap(icpbdKingFrom, icpbdKingTo);
+        for (int icpbd = icpbdKingFrom; icpbd <= icpbdKingTo; icpbd++)
+            if (FIsAttackedBy(icpbd, ccpToMove))
+                return false;
+        return true;
+    }
+
+    int icpbdKing = IcpbdFindKing(~ccpToMove);
+    return !FIsAttackedBy(icpbdKing, ccpToMove);
 }
 
 void BD::MoveGenPawn(int icpbdFrom, VMV& vmv) const
@@ -99,25 +152,41 @@ void BD::MoveGenPawn(int icpbdFrom, VMV& vmv) const
         if (raFrom == RaPawns(ccpToMove) && acpbd[icpbdTo + dicpbd].cp() == cpEmpty)
             vmv.emplace_back(icpbdFrom, icpbdTo + dicpbd); // can't be a promotion 
     }
+    
+    MoveGenPawnNoisy(icpbdFrom, vmv);
+}
+
+void BD::MoveGenPawnNoisy(int icpbdFrom, VMV& vmv) const
+{
+    int dicpbd = (ccpToMove == ccpWhite) ? 10 : -10;
+    int icpbdTo = icpbdFrom + dicpbd;
 
     /* captures, including en passant */
-    if (acpbd[icpbdTo-1].ccp == ~ccpToMove || icpbdTo-1 == IcpbdFromSq(sqEnPassant))
-        AddPawnMoves(icpbdFrom, icpbdTo-1, vmv);
-    if (acpbd[icpbdTo+1].ccp == ~ccpToMove || icpbdTo+1 == IcpbdFromSq(sqEnPassant))
-        AddPawnMoves(icpbdFrom, icpbdTo+1, vmv);
+    if (acpbd[icpbdTo - 1].ccp == ~ccpToMove)
+        AddPawnMoves(icpbdFrom, icpbdTo - 1, vmv);
+    if (acpbd[icpbdTo + 1].ccp == ~ccpToMove)
+        AddPawnMoves(icpbdFrom, icpbdTo + 1, vmv);
+    if (sqEnPassant != sqNil) {
+        int icpbd = IcpbdFromSq(sqEnPassant);
+        if (icpbd == icpbdTo - 1)
+            AddPawnMoves(icpbdFrom, icpbdTo - 1, vmv);
+        if (icpbd == icpbdTo + 1)
+            AddPawnMoves(icpbdFrom, icpbdTo + 1, vmv);
+    }
 }
 
 void BD::MoveGenKing(int icpbdFrom, VMV& vmv) const
 {
     MoveGenSingle(icpbdFrom, adicpbdKing, size(adicpbdKing), vmv);
-
-    /* castling - we make an attempt to do a general Chess960 castle */
-
-   int raBack = RaBack(ccpToMove);
     if (csCur & Cs(csKing, ccpToMove))
         AddCastle(icpbdFrom, fiG, fiKingRook, fiF, csKing, vmv);
     if (csCur & Cs(csQueen, ccpToMove))
         AddCastle(icpbdFrom, fiC, fiQueenRook, fiD, csQueen, vmv);
+}
+
+void BD::MoveGenKingNoisy(int icpbdFrom, VMV& vmv) const
+{
+    MoveGenSingleNoisy(icpbdFrom, adicpbdKing, size(adicpbdKing), vmv);
 }
 
 /*
@@ -126,66 +195,54 @@ void BD::MoveGenKing(int icpbdFrom, VMV& vmv) const
  *  Tries to add a castle move to the move list. 
  * 
  *  Castle rules:
- *      Neither the king nor the rook we are castling with have moved before. This function
- *          assumes this has been checked prior to calling it.
+ *      Neither the king nor the rook we are castling with have moved before. 
+ *          This function assumes this has been checked prior to calling it.
  *      The king can not be in check.
  *      All the squares between the rook and king are empty.
- *      None of the squares the king passes through on the way to its destination are attacked
- *          by enemy pieces. 
- *      The final destination of the king cannot put the king into check (this function does 
- *          not check this)
+ *      None of the squares the king passes through on the way to its 
+ *          destination are attacked by enemy pieces. 
+ *      The final destination of the king cannot put the king into check 
  * 
  *  Chess960 castle rules:
  *      Pieces in the back row are randomly positioned
  *      King is always between the two rooks
- *      King-side castle: King always ends up in the G file; Rook always ends up in the F file
- *      Queen-side castle: King always ends up in the C file; Rook always ends up in the D file
+ *      King-side castle: King always ends up in the G file; rook always ends 
+ *          up in the F file 
+ *      Queen-side castle: King always ends up in the C file; rook always ends 
+ *          up in the D file 
  *      Squares must be empty between the king and rook
- *      The destination squarews of the king and rook must not have some other piece in it
- *      King can't move through check, or be in check.
+ *      The destination squarews of the king and rook must not have some other 
+ *          piece in it King can't move through check, or be in check.
+ *
+ *  Check verification is not done here - that the king is not in check, 
+ *  does not move through check, and does not end up in check - it's done in 
+ *  FLastMoveWasLegal.
  */
 
 void BD::AddCastle(int icpbdKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, CS csMove, VMV& vmv) const
 {
-    /* NOTE: this all gets simpler with bitboards */
+    /* NOTE: this all gets simpler with bitboards so I haven't killed myself 
+       making it as optimal as possible */
 
     int raBack = ra(SqFromIcpbd(icpbdKingFrom));
-    int icpKingTo = Icpbd(fiKingTo, raBack);
-    int icpRookFrom = Icpbd(fiRookFrom, raBack);
-    int icpRookTo = Icpbd(fiRookTo, raBack);
+    int icpbdKingTo = Icpbd(fiKingTo, raBack);
+    int icpbdRookFrom = Icpbd(fiRookFrom, raBack);
+    int icpbdRookTo = Icpbd(fiRookTo, raBack);
 
-    /* only blank squares or the king between the rook and its final destination */
-
-    int dicp = icpRookFrom < icpRookTo ? 1 : -1;
-    for (int icp = icpRookFrom + dicp; icp != icpRookTo; icp += dicp)
-        if (icp != icpbdKingFrom && acpbd[icp].cp() != cpEmpty)
-            return;
-    if (icpRookTo != icpbdKingFrom && acpbd[icpRookTo].cp() != cpEmpty)
-        return;
-
-    /* only blank squares or the rook between the king and its final destination */
-
-    dicp = icpbdKingFrom < icpKingTo ? 1 : -1;
-    for (int icp = icpbdKingFrom + dicp; icp != icpKingTo; icp += dicp)
-        if (icp != icpRookFrom && acpbd[icp].cp() != cpEmpty)
-            return;
-    if (icpKingTo != icpRookFrom && acpbd[icpKingTo].cp() != cpEmpty)
-        return;
-
-    /* king can't move through attack - note this does not check the final square */
-
-    for (int icp = icpbdKingFrom; icp != icpKingTo; icp += dicp)
-        if (FIsAttacked(icp, ~ccpToMove))
+    int icpbdFirst = min(min(icpbdRookFrom, icpbdRookTo), min(icpbdKingFrom, icpbdKingTo));
+    int icpbdLast = max(max(icpbdRookFrom, icpbdRookTo), max(icpbdKingFrom, icpbdKingTo));
+    for (int icpbd = icpbdFirst; icpbd <= icpbdLast; icpbd++)
+        if (icpbd != icpbdRookFrom && icpbd != icpbdKingFrom && acpbd[icpbd].cp() != cpEmpty)
             return;
 
-    vmv.emplace_back(icpbdKingFrom, icpKingTo, csMove);
+    vmv.emplace_back(icpbdKingFrom, icpbdKingTo, csMove);
 }
 
 /*
  *  BD::AddPawnMoves
  * 
- *  Given a pawn move, adds it to the move list. For promotions, this will add
- *  the four promotion possibilities.
+ *  Given a pawn move, adds it to the move list. For promotions, this will 
+ *  add the four promotion possibilities.
  */
 
 void BD::AddPawnMoves(int icpbdFrom, int icpbdTo, VMV& vmv) const
@@ -204,8 +261,8 @@ void BD::AddPawnMoves(int icpbdFrom, int icpbdTo, VMV& vmv) const
 /*
  *  BD::MoveGenSlider
  * 
- *  Generates all moves of a sliding piece (rook, bishop, queen) in one particular
- *  direction
+ *  Generates all moves of a sliding piece (rook, bishop, queen) in one 
+ *  particular direction
  */
 
 void BD::MoveGenSlider(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const
@@ -223,11 +280,27 @@ void BD::MoveGenSlider(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv
     }
 }
 
+void BD::MoveGenSliderNoisy(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const
+{
+    for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
+        int dicpbd = adicpbd[idicpbd];
+        for (int icpbdTo = icpbdFrom + dicpbd; ; icpbdTo += dicpbd) {
+            CP cp = acpbd[icpbdTo].cp();
+            if (cp == cpInvalid || ccp(cp) == ccpToMove)
+                break;
+            if (ccp(cp) == ~ccpToMove) {
+                vmv.emplace_back(icpbdFrom, icpbdTo);
+                break;
+            }
+        }
+    }
+}
+
 /*
  *  BD::MoveGenSingle
  * 
- *  Generates moves for kings and knights, which just grinds through the array
- *  of offsets.
+ *  Generates moves for kings and knights, which just grinds through the 
+ *  array of offsets.
  */
 
 void BD::MoveGenSingle(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const
@@ -240,18 +313,28 @@ void BD::MoveGenSingle(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv
     }
 }
 
+void BD::MoveGenSingleNoisy(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const
+{
+    for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
+        int icpbdTo = icpbdFrom + adicpbd[idicpbd];
+        CP cp = acpbd[icpbdTo].cp();
+        if (ccp(cp) == ~ccpToMove)
+            vmv.emplace_back(icpbdFrom, icpbdTo);
+    }
+}
+
 bool BD::FInCheck(CCP ccp) const
 {
-    return FIsAttacked(IcpbdFindKing(ccp), ~ccp);
+    return FIsAttackedBy(IcpbdFindKing(ccp), ~ccp);
 }
 
 /*
- *  BD::FIsAttacked
+ *  BD::FIsAttackedBy
  * 
  *  Checks if the square is under attack by a piece of color ccpBy.
  */
 
-bool BD::FIsAttacked(int icpbdAttacked, CCP ccpBy) const
+bool BD::FIsAttackedBy(int icpbdAttacked, CCP ccpBy) const
 {
     if (FIsAttackedBySingle(icpbdAttacked, Cp(ccpBy, tcpPawn), &adicpbdPawn[(~ccpBy)*2], 2))
         return true;
@@ -297,12 +380,12 @@ bool BD::FIsAttackedBySlider(int icpbdAttacked, CP cp1, CP cp2, const int adicpb
 
 int BD::IcpbdFindKing(CCP ccp) const
 {
-   for (int icp = 0; icp < icpMax; icp++) {
+    for (int icp = 0; icp < icpMax; icp++) {
         int icpbd = aicpbd[ccp][icp];
         if (icpbd != -1 && acpbd[icpbd].tcp == tcpKing)
             return icpbd;
     }
-    assert(false); 
+    assert(false);
     return -1;
 }
 
@@ -310,11 +393,12 @@ int BD::IcpbdFindKing(CCP ccp) const
  *  BD::IcpUnused
  * 
  *  Finds an unused slot in the piece table. This arranges the table so the
- *  king is always in aicpbd[0]. And since the king can never be removed from the
- *  game, it will remain in aicpbd[0] forever.
+ *  king is always in aicpbd[0]. And since the king can never be removed from 
+ *  the game, it will remain in aicpbd[0] forever.
  */
 
-int BD::IcpUnused(int ccp, int tcpHint) const {
+int BD::IcpUnused(int ccp, int tcpHint) const 
+{
     static const int mptcpicpHint[] = { 0, 8, 6, 4, 2, 1, 0 };
     for (int icp = mptcpicpHint[tcpHint]; ; icp = (icp+1) % icpMax)
         if (aicpbd[ccp][icp] == -1)
@@ -329,8 +413,12 @@ int BD::IcpUnused(int ccp, int tcpHint) const {
 string to_string(SQ sq)
 {
     char ach[4] = { 0 }, * pch = ach;
-    *pch++ = 'a' + fi(sq);
-    *pch++ = '1' + ra(sq);
+    if (sq == sqNil)
+        *pch++ = '-';
+    else {
+        *pch++ = 'a' + fi(sq);
+        *pch++ = '1' + ra(sq);
+    }
     return ach;
 }
 

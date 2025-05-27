@@ -10,7 +10,7 @@
 LEN::LEN(WN& wn, const PAD& pad, const PAD& margin) :
     pad(pad), marginDef(margin),
     rcWithin(wn.RcInterior()),
-    clen(CLEN::None), dyCenterTotal(0)
+    clen(CLEN::None)
 {
     rcWithin.Unpad(pad);
     rcFlow = rcWithin;
@@ -19,7 +19,7 @@ LEN::LEN(WN& wn, const PAD& pad, const PAD& margin) :
 LEN::LEN(const RC& rc, const PAD& pad, const PAD& margin) :
     pad(pad), marginDef(margin),
     rcWithin(rc),
-    clen(CLEN::None), dyCenterTotal(0)
+    clen(CLEN::None)
 {
 }
 
@@ -27,7 +27,7 @@ LENDLG::LENDLG(DLG& dlg) :
     LEN(dlg, PAD(dxyDlgPadding, dxyDlgPadding/2, dxyDlgPadding, dxyDlgPadding),
         PAD(dxyDlgGutter))
 {
-};
+}
 
 /*
  *  LEN::Position
@@ -40,9 +40,19 @@ void LEN::Position(CTL& ctl)
     RC rc(rcWithin);
     rc.SetSz(ctl.SzRequestLayout(rcWithin));
     ctl.SetBounds(rc);
-    rcWithin.top = rc.bottom + marginDef.bottom;
-    if (clen != CLEN::None)
+    switch (clen) {
+    case CLEN::None:
+        rcWithin.top = rc.bottom + marginDef.bottom;
+        break;
+    case CLEN::Vertical:
+        rcWithin.top = rc.bottom + marginDef.bottom;
         vpctl.push_back(&ctl);
+        break;
+    case CLEN::Horizontal:
+        rcWithin.left = rc.right + marginDef.right;
+        vpctl.push_back(&ctl);
+        break;
+    }
 }
 
 /*
@@ -117,13 +127,14 @@ void LEN::PositionRight(CTL& ctl)
 void LEN::StartCenter(CLEN clen)
 {
     this->clen = clen;
+    ptCenterStart = rcWithin.ptTopLeft();
     switch (clen) {
     case CLEN::Vertical:
-        ptCenterStart = rcWithin.ptTopLeft();
-        dyCenterTotal = rcWithin.dyHeight();
+        szCenterTotal.height = rcWithin.dyHeight();
         break;
     case CLEN::Horizontal:
-        /* TODO: implement flow centering */
+        szCenterTotal.width = rcWithin.dxWidth();
+        break;
     default:
         break;
     }
@@ -138,11 +149,16 @@ void LEN::EndCenter(void)
     switch (clen) {
     case CLEN::Vertical:
         ptCenterEnd.y -= marginDef.bottom;
-        sz = SZ(0, (dyCenterTotal - (ptCenterEnd.y - ptCenterStart.y))/2);
+        sz = SZ(0, (szCenterTotal.height - (ptCenterEnd.y - ptCenterStart.y))/2);
         for (CTL* pctl : vpctl)
             pctl->SetBounds(pctl->RcBounds() + sz);
         break;
     case CLEN::Horizontal:
+        ptCenterEnd.x -= marginDef.right;
+        sz = SZ((szCenterTotal.width - (ptCenterEnd.x - ptCenterStart.x)) / 2, 0);
+        for (CTL* pctl : vpctl)
+            pctl->SetBounds(pctl->RcBounds() + sz);
+        break;
     default:
         break;
     }

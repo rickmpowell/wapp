@@ -58,7 +58,7 @@ private:
     /* centering */
     vector<CTL*> vpctl;
     PT ptCenterStart;
-    float dyCenterTotal;
+    SZ szCenterTotal;
     CLEN clen;
 };
 

@@ -125,15 +125,6 @@ void WNBD::DrawBorder(void)
             DrawSCenterXY(string(1, 'a' + fi), tf,
                           RcFromSq(fi, 0).TopBottom(rcSquares.bottom, RcInterior().bottom));
     }
-
-    /* TEMPORARY - draw player names */
-
-    TF tf(*this, sFontUI, dyLabels, TF::WEIGHT::Bold);
-    SZ sz(100, 30);
-    RC rc(RcFromSq(0, raMax-1).ptTopLeft() - PT(0, sz.height), sz); 
-    DrawS(Wapp(iwapp).game.appl[~ccpView]->SName(), tf, rc);
-    rc = RC(RcFromSq(0, 0).ptBottomLeft() + PT(0, sz.height), sz);
-    DrawS(Wapp(iwapp).game.appl[ccpView]->SName(), tf, rc);
 }
 
 /*
@@ -197,9 +188,9 @@ RC WNBD::RcFromSq(int fi, int ra) const
 WNBOARD::WNBOARD(WN& wnParent, GAME& game) :
     WNBD(wnParent, game.bd),
     game(game),
-    btnFlip(*this, new CMDFLIPBOARD((WAPP&)iwapp), SFromU8(u8"\u2b6f")),
+    btnFlip(*this, new CMDFLIPBOARD(Wapp(iwapp)), SFromU8(u8"\u2b6f")),
     fEnableMoveUI(true),
-    pcmdMakeMove(make_unique<CMDMAKEMOVE>((WAPP&)iwapp))
+    pcmdMakeMove(make_unique<CMDMAKEMOVE>(Wapp(iwapp)))
 {
     btnFlip.SetLayout(LCTL::SizeToFit);
     bd.MoveGen(vmvLegal);

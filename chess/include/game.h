@@ -38,21 +38,23 @@ public:
     GAME(const string& fenStart, 
          shared_ptr<PL> pplWhite, shared_ptr<PL> pplBlack);
 
-    void AddListener(LGAME* plgame);
     void InitFromFen(istream& is);
     void InitFromFen(const string& fenStart);
-    void AttachUI(WNBOARD& wnboard);
-    void MakeMv(MV mv);
-    void UndoMv(MV mv);
+    void AttachUI(WAPP& wapp);
+    void AddListener(LGAME* plgame);
+    void NotifyListeners(void);
+
+    bool FGameOver(void) const;
     void RequestMv(WAPP& wapp);
 
-    void NotifyListeners(void);
+    void MakeMv(MV mv);
+    void UndoMv(MV mv);
 
 public:
     BD bd;
     shared_ptr<PL> appl[2];
 
-    /* TODO: the following probably belong in a match/tournament item, but 
+    /* TODO: the following probably belong in a match/tournament class, but 
        that's an advanced feature that we're a long way from completing. This 
        is just the minimum amount of stuff needed make the New Game dialog do 
        something helpful */

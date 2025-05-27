@@ -416,7 +416,7 @@ SZ BTNCLOSE::SzRequestLayout(const RC& rc) const
  *  Next and previous buttons, pointing left and right
  */
 
-BTNNEXT::BTNNEXT(WN& wnParent, ICMD* pcmd, bool fVIsible) :
+BTNNEXT::BTNNEXT(WN& wnParent, ICMD* pcmd, bool fVisible) :
     BTN(wnParent, pcmd, "", fVisible)
 {
     SetLayout(LCTL::SizeToFit);
@@ -450,7 +450,7 @@ SZ BTNNEXT::SzRequestLayout(const RC& rcWithin) const
 {
     (void)rcWithin;
 
-    return SzFromS(SFromU8(u8"\u23f5"), tf);
+    return SZ(SzFromS(SFromU8(u8"\u23f5"), tf).width, rcWithin.dyHeight());
 }
 
 BTNPREV::BTNPREV(WN& wnParent, ICMD* pcmd, bool fVisible) :
@@ -500,6 +500,36 @@ SZ TITLEBAR::SzRequestLayout(const RC& rcWithin) const
 
     SZ sz = SzFromS(sTitle, tf);
     return SZ(-1, sz.height + 8);
+}
+
+/*
+ *  TOOLBAR
+ */
+
+TOOLBAR::TOOLBAR(WN& wnParent) :
+    WN(wnParent)
+{
+}
+
+CO TOOLBAR::CoBack(void) const
+{
+    return CO(0.9f, 0.9f, 0.9f);
+}
+
+CO TOOLBAR::CoText(void) const
+{
+    return coBlack;
+}
+
+void TOOLBAR::Draw(const RC& rcUpdate)
+{
+    RC rc(RcInterior());
+    Line(rc.ptBottomLeft()-PT(0,1), rc.ptBottomRight()-PT(0,1), CoText());
+}
+
+SZ TOOLBAR::SzRequestLayout(const RC& rc) const
+{
+    return SZ(rc.dxWidth(), 30.0f);
 }
 
 /*
@@ -633,6 +663,90 @@ int CMDSELECTOR::Execute(void)
 {
     vsel.Select(sel);
     return 1;
+}
+
+/*
+ *  CYCLE
+ */
+
+CMDCYCLENEXT::CMDCYCLENEXT(CYCLE& cycle) :
+    cycle(cycle)
+{
+}
+
+ICMD* CMDCYCLENEXT::clone(void) const
+{
+    return new CMDCYCLENEXT(*this);
+}
+
+int CMDCYCLENEXT::Execute(void)
+{
+    cycle.Next();
+    return 1;
+}
+
+CMDCYCLEPREV::CMDCYCLEPREV(CYCLE& cycle) :
+    cycle(cycle)
+{
+}
+
+ICMD* CMDCYCLEPREV::clone(void) const
+{
+    return new CMDCYCLEPREV(*this);
+}
+
+int CMDCYCLEPREV::Execute(void)
+{
+    cycle.Prev();
+    return 1;
+}
+
+CYCLE::CYCLE(WN& wnParent, ICMD* pcmd) :
+    CTL(wnParent, pcmd),
+    btnnext(*this, new CMDCYCLENEXT(*this)),
+    btnprev(*this, new CMDCYCLEPREV(*this)),
+    i(0)
+{
+}
+
+void CYCLE::Draw(const RC& rcUpdate)
+{
+    DrawSCenterXY(to_string(i), tf, RcContent());
+}
+
+void CYCLE::Layout(void)
+{
+    LEN len(*this, PAD(0), PAD(0));
+    len.PositionLeft(btnprev);
+    len.PositionRight(btnnext);
+}
+
+SZ CYCLE::SzRequestLayout(const RC& rcWithin) const
+{
+    return SzFromS("-999", tf) + SZ(2*btnprev.SzRequestLayout(RcContent()).width + 2*8, 0);
+}
+
+void CYCLE::Next(void)
+{
+    ++i;
+    Redraw();
+}
+
+void CYCLE::Prev(void)
+{
+    --i;
+    Redraw();
+}
+
+void CYCLE::SetValue(int val)
+{
+    i = val;
+    Redraw();
+}
+
+int CYCLE::ValueGet(void) const
+{
+    return i;
 }
 
 /*

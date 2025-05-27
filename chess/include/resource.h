@@ -18,7 +18,7 @@
 #define cmdNewGame 16
 #define cmdFlipBoard 18
 #define cmdTestPerft 19
-#define cmdTestDivide 20
+#define cmdTestPerftSuite 20
 
 /*
  *  Accelerator tables
@@ -61,14 +61,20 @@
 #define rssLabelLevel 1033
 #define rssStandardGame 1034
 
-#define rssAISettingsTitle 1048
-#define rssAISettingsInstructions 1049
+#define rssAISettingsTitle 1100
+#define rssAISettingsInstructions 1101
 
-#define rssGameSettingsTitle 1050
-#define rssGameSettingsInstructions 1051
+#define rssGameSettingsTitle 1200
+#define rssGameSettingsInstructions 1201
 
-#define rssTimeControlTitle 1052
-#define rssTimeControlInstructions 1053
+#define rssTimeControlTitle 1300
+#define rssTimeControlInstructions 1301
+
+#define rssPerftTitle 1400
+#define rssPerftInstructions 1401
+#define rssPerftPerft 1402
+#define rssPerftDivide 1403
+#define rssPerftBulk 1404
 
 /*
  *  Dialogs

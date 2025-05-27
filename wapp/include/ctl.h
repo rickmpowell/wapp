@@ -10,6 +10,7 @@
 #include "cmd.h"
 
 class VSEL;
+class CYCLE;
 
 /*
  *  CTL base class
@@ -221,6 +222,62 @@ public:
 };
 
 /*
+ *  CYCLE
+ * 
+ *  A control with an up and down button to cycle through options
+ */
+
+class CMDCYCLENEXT : public ICMD
+{
+public:
+    CMDCYCLENEXT(CYCLE& cycle);
+    CMDCYCLENEXT(const CMDCYCLENEXT& cmd) = default;
+    CMDCYCLENEXT& operator = (const CMDCYCLENEXT& cmd) = default;
+
+    virtual ICMD* clone(void) const override;
+    virtual int Execute(void) override;
+
+private:
+    CYCLE& cycle;
+};
+
+class CMDCYCLEPREV : public ICMD
+{
+public:
+    CMDCYCLEPREV(CYCLE& cycle);
+    CMDCYCLEPREV(const CMDCYCLEPREV& cmd) = default;
+    CMDCYCLEPREV& operator = (const CMDCYCLEPREV& cmd) = default;
+
+    virtual ICMD* clone(void) const override;
+    virtual int Execute(void) override;
+
+private:
+    CYCLE& cycle;
+};
+
+class CYCLE : public CTL
+{
+public:
+    CYCLE(WN& wnParent, ICMD* pcmd);
+    virtual ~CYCLE() = default;
+
+    virtual void Draw(const RC& rcUpdate) override;
+    virtual void Layout(void) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+
+    virtual void Next(void);
+    virtual void Prev(void);
+
+    void SetValue(int val);
+    int ValueGet(void) const;
+
+private:
+    BTNNEXT btnnext;
+    BTNPREV btnprev;
+    int i;
+};
+
+/*
  *  TITLEBAR
  */
 
@@ -238,6 +295,25 @@ public:
 private:
     string sTitle;
     TF tf;
+};
+
+/*
+ *  TOOLBAR
+ * 
+ *  A toolbar, which is just an inert window that holds other controls
+ *  and mainly exists to streamline layout
+ */
+
+class TOOLBAR : public WN
+{
+public:
+    TOOLBAR(WN& wnParent);
+
+    virtual CO CoText(void) const override;
+    virtual CO CoBack(void) const override;
+    virtual void Draw(const RC& rcUpdate) override;
+
+    virtual SZ SzRequestLayout(const RC& rc) const override;
 };
 
 /*

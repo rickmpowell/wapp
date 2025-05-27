@@ -140,13 +140,14 @@ public:
 
     virtual int Execute(void) override {
         DLGNEWGAME dlg(wapp, wapp.game);
-        if (FRunDlg(dlg)) {
-            gameUndo = wapp.game;
-            dlg.Extract(wapp.game);
-            wapp.game.InitFromFen(fenStartPos);
-            wapp.game.cgaPlayed++;
-            wapp.game.RequestMv(wapp);
-        }
+        if (!FRunDlg(dlg))
+            return 0;
+        gameUndo = wapp.game;
+        dlg.Extract(wapp.game);
+        wapp.game.InitFromFen(fenStartPos);
+        wapp.game.cgaPlayed++;
+        wapp.game.AttachUI(wapp);
+        wapp.game.RequestMv(wapp);
         return 1;
     }
 
@@ -180,15 +181,33 @@ private:
  *  CMDTEST
  */
 
-CMDEXECUTE(CMDTESTPERFT)
+CMD_DECLARE(CMDTESTPERFT)
 {
-    wapp.RunPerft();
-    return 1;
-}
+public:
+    CMDTESTPERFT(WAPP & wapp) : CMD(wapp) {}
+    
+    virtual int Execute(void) override
+    {
+        DLGPERFT dlg(wapp, wapp.wntest);
+        if (!FRunDlg(dlg))
+            return 0;
+        dlg.Extract(wapp.wntest);
+        wapp.RunPerft();
+        return 1;
+    }
 
-CMDEXECUTE(CMDTESTDIVIDE)
+    virtual int FRunDlg(DLG& dlg) override
+    {
+        wapp.wnboard.Enable(false);
+        int val = dlg.MsgPump();
+        wapp.wnboard.Enable(true);
+        return val;
+    }
+};
+
+CMDEXECUTE(CMDTESTPERFTSUITE)
 {
-    wapp.RunDivide();
+    wapp.RunPerftSuite();
     return 1;
 }
 
@@ -202,7 +221,7 @@ CMDEXECUTE(CMDTESTDIVIDE)
 
 int CMDMAKEMOVE::Execute(void) 
 {
-    wapp.game.AttachUI(wapp.wnboard);
+    wapp.game.AttachUI(wapp);
     wapp.game.MakeMv(mv);
     unique_ptr<CMDREQUESTMOVE> pcmdRequest = make_unique<CMDREQUESTMOVE>(wapp);
     wapp.PostCmd(*pcmdRequest);
@@ -245,11 +264,6 @@ int CMDREQUESTMOVE::Execute(void)
 {
     wapp.game.RequestMv(wapp);
     return 1;
-}
-
-void CMDREQUESTMOVE::SetCcp(CCP ccpNew)
-{
-    ccp = ccpNew;
 }
 
 /*
@@ -461,7 +475,7 @@ void WAPP::RegisterMenuCmds(void)
     REGMENUCMD(cmdPaste, CMDPASTE);
 
     REGMENUCMD(cmdTestPerft, CMDTESTPERFT);
-    REGMENUCMD(cmdTestDivide, CMDTESTDIVIDE);
+    REGMENUCMD(cmdTestPerftSuite, CMDTESTPERFTSUITE);
     REGMENUCMD(cmdAbout, CMDABOUT);
     
     assert(FVerifyMenuCmdsRegistered());

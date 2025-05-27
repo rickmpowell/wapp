@@ -271,7 +271,6 @@ private:
     HGLOBAL hData;
     BYTE* pData;
     unsigned cbData;
-    uint32_t pad;
 };
 
 /*

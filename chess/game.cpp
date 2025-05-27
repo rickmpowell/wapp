@@ -66,13 +66,22 @@ void GAME::NotifyListeners(void)
         plgame->BdChanged(*this);
 }
 
+bool GAME::FGameOver(void) const
+{
+    VMV vmv;
+    bd.MoveGen(vmv);
+    return vmv.size() == 0;
+}
+
 void GAME::RequestMv(WAPP& wapp)
 {
+    if (FGameOver())
+        return;
     appl[bd.ccpToMove]->RequestMv(wapp, *this);
 }
 
-void GAME::AttachUI(WNBOARD& wnboard)
+void GAME::AttachUI(WAPP& wapp)
 {
     for (auto ppl : appl)
-        ppl->AttachUI(&wnboard);
+        ppl->AttachUI(&wapp.wnboard);
 }

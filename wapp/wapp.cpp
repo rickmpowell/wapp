@@ -163,22 +163,22 @@ void IWAPP::OnPaint(void)
 
 void IWAPP::OnMouseMove(const PT& ptg, unsigned mk)
 {
-    vpevd.back()->OnMouseMove(ptg, mk);
+    vpevd.back()->MouseMove(ptg, mk);
 }
 
 void IWAPP::OnMouseDown(const PT& ptg, unsigned mk)
 {
-    vpevd.back()->OnMouseDown(ptg, mk);
+    vpevd.back()->MouseDown(ptg, mk);
 }
 
 void IWAPP::OnMouseUp(const PT& ptg, unsigned mk)
 {
-    vpevd.back()->OnMouseUp(ptg, mk);
+    vpevd.back()->MouseUp(ptg, mk);
 }
 
 void IWAPP::OnMouseWheel(const PT& ptg, int dwheel)
 {
-    vpevd.back()->OnMouseWheel(ptg, dwheel);
+    vpevd.back()->MouseWheel(ptg, dwheel);
 }
 
 int IWAPP::OnCommand(int cmd)
