@@ -31,3 +31,9 @@ template <typename T>
 bool inrange(const T& t, const T& tFirst, const T& tLast) {
     return t >= tFirst && t <= tLast;
 }
+
+#ifndef NDEBUG
+#define IfDebug(wDebug, wNoDebug) (wDebug)
+#else
+#define IfDebug(wDebug, wNoDebug) (wNoDebug)
+#endif

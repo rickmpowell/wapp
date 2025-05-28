@@ -59,7 +59,7 @@ public:
 
     /* perft tests */
 
-    uint64_t CmvDivide(BD& bd, int d);
+    int64_t CmvDivide(BD& bd, int d);
     TPERFT tperft = TPERFT::Perft;
     int dPerft = 4;
 
@@ -82,7 +82,7 @@ public:
     explicit indent(int c) : cIndent(c) {}
     friend ostream& operator << (ostream& os, const indent& in)
     {
-        for (int i = 0; i < in.cIndent * 2; ++i)
+        for (int i = 0; i < in.cIndent * 4; ++i)
             os.put(' ');
         return os;
     }

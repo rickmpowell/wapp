@@ -30,13 +30,13 @@ static const int adicpbdPawn[] = { 9, 11, -11, -9 };  /* first 2 are white, seco
  *  on moves that we never consider because of alpha-beta search.
  */
 
-void BD::MoveGen(VMV& vmv) const
+void BD::MoveGen(VMV& vmv) const noexcept
 {
     MoveGenPseudo(vmv);
     RemoveChecks(vmv);
 }
 
-void BD::MoveGenPseudo(VMV& vmv) const
+void BD::MoveGenPseudo(VMV& vmv) const noexcept
 {
     Validate();
 
@@ -73,7 +73,7 @@ void BD::MoveGenPseudo(VMV& vmv) const
     }
 }
 
-void BD::MoveGenNoisy(VMV& vmv) const
+void BD::MoveGenNoisy(VMV& vmv) const noexcept
 {
     Validate();
 
@@ -110,7 +110,7 @@ void BD::MoveGenNoisy(VMV& vmv) const
     }
 }
 
-void BD::RemoveChecks(VMV& vmv) const
+void BD::RemoveChecks(VMV& vmv) const noexcept
 {
     int imvTo = 0;
     BD bdT(*this);
@@ -123,7 +123,7 @@ void BD::RemoveChecks(VMV& vmv) const
     vmv.resize(imvTo);
 }
 
-bool BD::FLastMoveWasLegal(MV mv) const
+bool BD::FLastMoveWasLegal(MV mv) const noexcept
 {
     if (mv.csMove) {
         int icpbdKingFrom = IcpbdFromSq(mv.sqFrom);
@@ -140,7 +140,7 @@ bool BD::FLastMoveWasLegal(MV mv) const
     return !FIsAttackedBy(icpbdKing, ccpToMove);
 }
 
-void BD::MoveGenPawn(int icpbdFrom, VMV& vmv) const
+void BD::MoveGenPawn(int icpbdFrom, VMV& vmv) const noexcept
 {
     int dicpbd = (ccpToMove == ccpWhite) ? 10 : -10;
     int icpbdTo = icpbdFrom + dicpbd;
@@ -156,7 +156,7 @@ void BD::MoveGenPawn(int icpbdFrom, VMV& vmv) const
     MoveGenPawnNoisy(icpbdFrom, vmv);
 }
 
-void BD::MoveGenPawnNoisy(int icpbdFrom, VMV& vmv) const
+void BD::MoveGenPawnNoisy(int icpbdFrom, VMV& vmv) const noexcept
 {
     int dicpbd = (ccpToMove == ccpWhite) ? 10 : -10;
     int icpbdTo = icpbdFrom + dicpbd;
@@ -175,7 +175,7 @@ void BD::MoveGenPawnNoisy(int icpbdFrom, VMV& vmv) const
     }
 }
 
-void BD::MoveGenKing(int icpbdFrom, VMV& vmv) const
+void BD::MoveGenKing(int icpbdFrom, VMV& vmv) const noexcept
 {
     MoveGenSingle(icpbdFrom, adicpbdKing, size(adicpbdKing), vmv);
     if (csCur & Cs(csKing, ccpToMove))
@@ -184,7 +184,7 @@ void BD::MoveGenKing(int icpbdFrom, VMV& vmv) const
         AddCastle(icpbdFrom, fiC, fiQueenRook, fiD, csQueen, vmv);
 }
 
-void BD::MoveGenKingNoisy(int icpbdFrom, VMV& vmv) const
+void BD::MoveGenKingNoisy(int icpbdFrom, VMV& vmv) const noexcept
 {
     MoveGenSingleNoisy(icpbdFrom, adicpbdKing, size(adicpbdKing), vmv);
 }
@@ -219,7 +219,7 @@ void BD::MoveGenKingNoisy(int icpbdFrom, VMV& vmv) const
  *  FLastMoveWasLegal.
  */
 
-void BD::AddCastle(int icpbdKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, CS csMove, VMV& vmv) const
+void BD::AddCastle(int icpbdKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, CS csMove, VMV& vmv) const noexcept
 {
     /* NOTE: this all gets simpler with bitboards so I haven't killed myself 
        making it as optimal as possible */
@@ -245,7 +245,7 @@ void BD::AddCastle(int icpbdKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo
  *  add the four promotion possibilities.
  */
 
-void BD::AddPawnMoves(int icpbdFrom, int icpbdTo, VMV& vmv) const
+void BD::AddPawnMoves(int icpbdFrom, int icpbdTo, VMV& vmv) const noexcept
 {
     int raTo = ra(SqFromIcpbd(icpbdTo));
     if (raTo != RaPromote(ccpToMove))
@@ -265,7 +265,7 @@ void BD::AddPawnMoves(int icpbdFrom, int icpbdTo, VMV& vmv) const
  *  particular direction
  */
 
-void BD::MoveGenSlider(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const
+void BD::MoveGenSlider(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const noexcept
 {
     for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
         int dicpbd = adicpbd[idicpbd];
@@ -280,7 +280,7 @@ void BD::MoveGenSlider(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv
     }
 }
 
-void BD::MoveGenSliderNoisy(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const
+void BD::MoveGenSliderNoisy(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const noexcept
 {
     for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
         int dicpbd = adicpbd[idicpbd];
@@ -303,7 +303,7 @@ void BD::MoveGenSliderNoisy(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV
  *  array of offsets.
  */
 
-void BD::MoveGenSingle(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const
+void BD::MoveGenSingle(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const noexcept
 {
     for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
         int icpbdTo = icpbdFrom + adicpbd[idicpbd];
@@ -313,7 +313,7 @@ void BD::MoveGenSingle(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv
     }
 }
 
-void BD::MoveGenSingleNoisy(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const
+void BD::MoveGenSingleNoisy(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const noexcept
 {
     for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
         int icpbdTo = icpbdFrom + adicpbd[idicpbd];
@@ -323,7 +323,7 @@ void BD::MoveGenSingleNoisy(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV
     }
 }
 
-bool BD::FInCheck(CCP ccp) const
+bool BD::FInCheck(CCP ccp) const noexcept
 {
     return FIsAttackedBy(IcpbdFindKing(ccp), ~ccp);
 }
@@ -334,22 +334,22 @@ bool BD::FInCheck(CCP ccp) const
  *  Checks if the square is under attack by a piece of color ccpBy.
  */
 
-bool BD::FIsAttackedBy(int icpbdAttacked, CCP ccpBy) const
+bool BD::FIsAttackedBy(int icpbdAttacked, CCP ccpBy) const noexcept
 {
-    if (FIsAttackedBySingle(icpbdAttacked, Cp(ccpBy, tcpPawn), &adicpbdPawn[(~ccpBy)*2], 2))
+    if (FIsAttackedBySlider(icpbdAttacked, ((1 << tcpRook) | (1 << tcpQueen)) << (ccpBy << 3), adicpbdRook, size(adicpbdRook)))
         return true;
-    if (FIsAttackedBySlider(icpbdAttacked, Cp(ccpBy, tcpBishop), Cp(ccpBy, tcpQueen), adicpbdBishop, size(adicpbdBishop)))
-        return true;
-    if (FIsAttackedBySlider(icpbdAttacked, Cp(ccpBy, tcpRook), Cp(ccpBy, tcpQueen), adicpbdRook, size(adicpbdRook)))
+    if (FIsAttackedBySlider(icpbdAttacked, ((1<<tcpBishop)|(1<<tcpQueen)) << (ccpBy<<3), adicpbdBishop, size(adicpbdBishop)))
         return true;
     if (FIsAttackedBySingle(icpbdAttacked, Cp(ccpBy, tcpKnight), adicpbdKnight, size(adicpbdKnight)))
+        return true;
+    if (FIsAttackedBySingle(icpbdAttacked, Cp(ccpBy, tcpPawn), &adicpbdPawn[(~ccpBy) * 2], 2))
         return true;
     if (FIsAttackedBySingle(icpbdAttacked, Cp(ccpBy, tcpKing), adicpbdKing, size(adicpbdKing)))
         return true;
     return false;
 }
 
-bool BD::FIsAttackedBySingle(int icpbdAttacked, CP cp, const int adicpbd[], int cdicpbd) const
+bool BD::FIsAttackedBySingle(int icpbdAttacked, CP cp, const int adicpbd[], int cdicpbd) const noexcept
 {
     for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
         if (acpbd[icpbdAttacked + adicpbd[idicpbd]].cp() == cp)
@@ -358,12 +358,12 @@ bool BD::FIsAttackedBySingle(int icpbdAttacked, CP cp, const int adicpbd[], int 
     return false;
 }
 
-bool BD::FIsAttackedBySlider(int icpbdAttacked, CP cp1, CP cp2, const int adicpbd[], int cdicpbd) const
+bool BD::FIsAttackedBySlider(int icpbdAttacked, uint16_t grfCp, const int adicpbd[], int cdicpbd) const noexcept
 {
     for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
         int dicpbd = adicpbd[idicpbd];
         for (int icpbd = icpbdAttacked + dicpbd; ; icpbd += dicpbd) {
-            if (acpbd[icpbd].cp() == cp1 || acpbd[icpbd].cp() == cp2)
+            if ((1 << acpbd[icpbd].cp()) & grfCp)
                 return true;
             if (acpbd[icpbd].cp() != cpEmpty)
                 break;
@@ -378,7 +378,7 @@ bool BD::FIsAttackedBySlider(int icpbdAttacked, CP cp1, CP cp2, const int adicpb
  *  Finds the position of the king on the board
  */
 
-int BD::IcpbdFindKing(CCP ccp) const
+int BD::IcpbdFindKing(CCP ccp) const noexcept
 {
     for (int icp = 0; icp < icpMax; icp++) {
         int icpbd = aicpbd[ccp][icp];
@@ -397,7 +397,7 @@ int BD::IcpbdFindKing(CCP ccp) const
  *  the game, it will remain in aicpbd[0] forever.
  */
 
-int BD::IcpUnused(int ccp, int tcpHint) const 
+int BD::IcpUnused(int ccp, int tcpHint) const noexcept
 {
     static const int mptcpicpHint[] = { 0, 8, 6, 4, 2, 1, 0 };
     for (int icp = mptcpicpHint[tcpHint]; ; icp = (icp+1) % icpMax)

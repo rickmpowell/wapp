@@ -191,6 +191,7 @@
     <ClInclude Include="include\chess.h" />
     <ClInclude Include="include\game.h" />
     <ClInclude Include="include\newgame.h" />
+    <ClInclude Include="include\piecetables.h" />
     <ClInclude Include="include\player.h" />
     <ClInclude Include="include\resource.h" />
     <ClInclude Include="include\test.h" />

@@ -24,8 +24,22 @@ enum CCP : uint8_t
     ccpInvalid = 3
 };
 
-inline CCP operator ~ (CCP ccp) {
+inline CCP operator ~ (CCP ccp) noexcept 
+{
     return static_cast<CCP>(static_cast<uint8_t>(ccp) ^ 1);
+}
+
+inline CCP& operator ++ (CCP& ccp) noexcept
+{
+    ccp = static_cast<CCP>(static_cast<uint8_t>(ccp) + 1);
+    return ccp;
+}
+
+inline CCP operator ++ (CCP& ccp, int) noexcept
+{
+    CCP ccpT = ccp;
+    ccp = static_cast<CCP>(static_cast<uint8_t>(ccp) + 1);
+    return ccpT;
 }
 
 /*
@@ -46,6 +60,19 @@ enum TCP : uint8_t
     tcpMax = 7
 };
 
+inline TCP& operator ++ (TCP& tcp) noexcept
+{
+    tcp = static_cast<TCP>(static_cast<uint8_t>(tcp) + 1);
+    return tcp;
+}
+
+inline TCP operator ++ (TCP& tcp, int) noexcept
+{
+    TCP tcpT = tcp;
+    tcp = static_cast<TCP>(static_cast<uint8_t>(tcp) + 1);
+    return tcpT;
+}
+
 /*
  *  Simple CP chess piece type.
  *
@@ -54,15 +81,18 @@ enum TCP : uint8_t
 
 typedef uint8_t CP;
 
-constexpr CP Cp(CCP ccp, TCP tcp) {
+constexpr inline CP Cp(CCP ccp, TCP tcp) noexcept
+{
     return (static_cast<uint8_t>(ccp) << 3) | static_cast<uint8_t>(tcp);
 }
 
-inline CCP ccp(CP cp) {
+inline CCP ccp(CP cp) noexcept 
+{
     return static_cast<CCP>((cp >> 3) & 0x3);
 }
 
-inline TCP tcp(CP cp) {
+inline TCP tcp(CP cp) noexcept
+{
     return static_cast<TCP>(cp & 7);
 }
 
@@ -81,6 +111,7 @@ constexpr CP cpBlackKing = Cp(ccpBlack, tcpKing);
 
 constexpr CP cpEmpty = Cp(ccpEmpty, tcpNone);;
 constexpr CP cpInvalid = Cp(ccpInvalid, tcpMax);
+constexpr CP cpMax = 16;
 
 struct CPBD
 {
@@ -88,29 +119,45 @@ struct CPBD
         ccp : 2,
         icp : 4;
 
-    CPBD(void) : ccp(ccpInvalid), tcp(tcpMax), icp(0) {
+    inline CPBD(void) noexcept : 
+        ccp(ccpInvalid), 
+        tcp(tcpMax), 
+        icp(0) 
+    {
     }
 
-    CPBD(CCP ccp, TCP tcp, int icp) : ccp(ccp), tcp(tcp), icp(icp) {
+    inline CPBD(CCP ccp, TCP tcp, int icp) noexcept :
+        ccp(ccp), 
+        tcp(tcp), 
+        icp(icp) 
+    {
     }
 
-    CPBD(CP cp, int icp) : tcp(cp & 7), ccp(cp >> 3), icp(icp) {
+    inline CPBD(CP cp, int icp) noexcept :
+        tcp(cp & 7), 
+        ccp(cp >> 3), 
+        icp(icp) 
+    {
     }
 
-    CP cp(void) const {
+    inline CP cp(void) const noexcept
+    {
         return tcp | (ccp << 3);
     }
 
-    void cp(CP cpNew) {
+    inline void cp(CP cpNew) noexcept
+    {
         tcp = cpNew & 7;
         ccp = cpNew >> 3;
     }
 
-    bool operator == (const CPBD& cpbd) const {
+    inline bool operator == (const CPBD& cpbd) const noexcept
+    {
         return tcp == cpbd.tcp && ccp == cpbd.ccp;
     }
 
-    bool operator != (const CPBD& cpbd) const {
+    inline bool operator != (const CPBD& cpbd) const noexcept
+    {
         return !(*this == cpbd);
     }
 };
@@ -129,16 +176,24 @@ typedef uint8_t SQ;
 constexpr int raMax = 8;
 constexpr int fiMax = 8;
 
-inline int ra(SQ sq) {
+inline int ra(SQ sq) noexcept
+{
     return (sq >> 3) & (raMax-1);
 }
 
-inline int fi(SQ sq) {
+inline int fi(SQ sq) noexcept
+{
     return sq & (fiMax-1);
 }
 
-inline uint8_t Sq(int fi, int ra) {
+inline SQ Sq(int fi, int ra) noexcept
+{
     return (ra << 3) | fi;
+}
+
+inline SQ SqFlip(SQ sq) noexcept
+{
+    return Sq(fi(sq), ra(sq) ^ (raMax - 1));
 }
 
 constexpr SQ sqNil = 0xc0;
@@ -184,21 +239,24 @@ constexpr int raBlackBack = 7;
 
 /* some tricks to get the compiler ot produce branchless code */
 
-constexpr inline int RaBack(CCP ccp) {
+constexpr inline int RaBack(CCP ccp) noexcept
+{
 //  return ccp == ccpWhite ? raWhiteBack : raBlackBack;
     return ~(ccp-1) & 7;
 }
 static_assert(RaBack(ccpWhite) == 0);
 static_assert(RaBack(ccpBlack) == 7);
 
-constexpr inline int RaPromote(CCP ccp) {
+constexpr inline int RaPromote(CCP ccp) noexcept
+{
 //  return ccp == ccpWhite ? raBlackBack : raWhiteBack;
     return (ccp-1) & 7;
 }
 static_assert(RaPromote(ccpWhite) == 7);
 static_assert(RaPromote(ccpBlack) == 0);
 
-constexpr inline int RaPawns(CCP ccp) {
+constexpr inline int RaPawns(CCP ccp) noexcept
+{
     return ccp == ccpWhite ? raWhitePawns : raBlackPawns;
 }
 static_assert(RaPawns(ccpWhite) == raWhitePawns);
@@ -226,33 +284,40 @@ static_assert((static_cast<uint8_t>(csKing) << ccpBlack) == csBlackKing);
 static_assert((static_cast<uint8_t>(csQueen) << ccpWhite) == csWhiteQueen);
 static_assert((static_cast<uint8_t>(csQueen) << ccpBlack) == csBlackQueen);
 
-inline CS operator | (CS cs1, CS cs2) {
+inline CS operator | (CS cs1, CS cs2) noexcept
+{
     return static_cast<CS>(static_cast<uint8_t>(cs1) | static_cast<uint8_t>(cs2));
 }
 
-inline CS& operator |= (CS& cs1, CS cs2) {
+inline CS& operator |= (CS& cs1, CS cs2) noexcept
+{
     cs1 = cs1 | cs2;
     return cs1;
 }
 
-inline CS operator ~ (CS cs) {
+inline CS operator ~ (CS cs) noexcept
+{
     return static_cast<CS>(~static_cast<uint8_t>(cs));
 }
 
-inline CS operator & (CS cs1, CS cs2) {
+inline CS operator & (CS cs1, CS cs2) noexcept
+{
     return static_cast<CS>(static_cast<uint8_t>(cs1) & static_cast<uint8_t>(cs2));
 }
 
-inline CS& operator &= (CS& cs1, CS cs2) {
+inline CS& operator &= (CS& cs1, CS cs2) noexcept
+{
     cs1 = cs1 & cs2;
     return cs1;
 }
 
-inline CS operator << (CS cs, CCP ccp) {
+inline CS operator << (CS cs, CCP ccp) noexcept
+{
     return static_cast<CS>(static_cast<uint8_t>(cs) << ccp);
 }
 
-inline CS Cs(CS cs, CCP ccp) {
+inline CS Cs(CS cs, CCP ccp) noexcept
+{
     return cs << ccp;
 }
 
@@ -260,20 +325,24 @@ inline CS Cs(CS cs, CCP ccp) {
  *  map between squares an internal index into the board table
  */
 
-inline SQ SqFromIcpbd(int icpbd) {
+inline SQ SqFromIcpbd(int icpbd) noexcept
+{
     return Sq(icpbd%10 - 1, (icpbd-10*2)/10);
 }
 
-inline int Icpbd(int fi, int ra) {
+inline int Icpbd(int fi, int ra) noexcept
+{
     return (2 + ra) * 10 + fi + 1;
 }
 
-inline int IcpbdFromSq(SQ sq) {
+inline int IcpbdFromSq(SQ sq) noexcept
+{
     assert(sq != sqNil);
     return Icpbd(fi(sq), ra(sq));
 }
 
-inline int IcpbdFromSq(int fi, int ra) {
+inline int IcpbdFromSq(int fi, int ra) noexcept
+{
     return Icpbd(fi, ra);
 }
 
@@ -297,22 +366,36 @@ public:
     CS csSav = csNone;  
     SQ sqEnPassantSav = sqNil;
 
-    MV(void) {
+    inline MV(void) noexcept
+    {
     }
     
-    MV(SQ sqFrom, SQ sqTo, TCP tcpPromote = tcpNone) : 
-        sqFrom(sqFrom), sqTo(sqTo), tcpPromote(tcpPromote), csMove(csNone) {
+    inline MV(SQ sqFrom, SQ sqTo, TCP tcpPromote = tcpNone) noexcept :
+        sqFrom(sqFrom), 
+        sqTo(sqTo), 
+        tcpPromote(tcpPromote), 
+        csMove(csNone) 
+    {
     }
     
-    MV(int icpbdFrom, int icpbdTo, TCP tcpPromote = tcpNone) : 
-        sqFrom(SqFromIcpbd(icpbdFrom)), sqTo(SqFromIcpbd(icpbdTo)), tcpPromote(tcpPromote), csMove(csNone) {
+    inline  MV(int icpbdFrom, int icpbdTo, TCP tcpPromote = tcpNone) noexcept :
+        sqFrom(SqFromIcpbd(icpbdFrom)), 
+        sqTo(SqFromIcpbd(icpbdTo)), 
+        tcpPromote(tcpPromote), 
+        csMove(csNone) 
+    {
     }
 
-    MV(int icpbdFrom, int icpbdTo, CS csMove) :
-        sqFrom(SqFromIcpbd(icpbdFrom)), sqTo(SqFromIcpbd(icpbdTo)), tcpPromote(tcpNone), csMove(csMove) {
+    inline MV(int icpbdFrom, int icpbdTo, CS csMove) noexcept :
+        sqFrom(SqFromIcpbd(icpbdFrom)), 
+        sqTo(SqFromIcpbd(icpbdTo)), 
+        tcpPromote(tcpNone), 
+        csMove(csMove) 
+    {
     }
     
-    bool fIsNil(void) const { 
+    inline bool fIsNil(void) const noexcept
+    {
         return sqFrom == sqNil;
     }
 
@@ -337,12 +420,12 @@ public:
     class iterator
     {
     public:
-        iterator(MV* pmv) : pmvCur(pmv) {}
-        MV& operator * () const { return *pmvCur; }
-        iterator& operator ++ () { ++pmvCur; return *this; }
-        iterator operator ++ (int) { iterator it = *this;  pmvCur++; return it; }
-        bool operator != (const iterator& it) const { return pmvCur != it.pmvCur; }
-        bool operator == (const iterator& it) const { return pmvCur == it.pmvCur; }
+        inline iterator(MV* pmv) noexcept : pmvCur(pmv) { }
+        inline MV& operator * () const noexcept { return *pmvCur; }
+        inline iterator& operator ++ () noexcept { ++pmvCur; return *this; }
+        inline iterator operator ++ (int) noexcept { iterator it = *this;  pmvCur++; return it; }
+        inline bool operator != (const iterator& it) const noexcept { return pmvCur != it.pmvCur; }
+        inline bool operator == (const iterator& it) const noexcept { return pmvCur == it.pmvCur; }
     private:
         MV* pmvCur;
     };
@@ -350,29 +433,29 @@ public:
     class citerator
     {
     public:
-        citerator(const MV* pmv) : pmvCur(pmv) {}
-        const MV& operator * () const { return *pmvCur; }
-        citerator& operator ++ () { ++pmvCur; return *this; }
-        citerator operator ++ (int) { citerator it = *this;  pmvCur++; return it; }
-        bool operator != (const citerator& it) const { return pmvCur != it.pmvCur; }
-        bool operator == (const citerator& it) const { return pmvCur == it.pmvCur; }
+        inline citerator(const MV* pmv) noexcept : pmvCur(pmv) { }
+        inline const MV& operator * () const noexcept { return *pmvCur; }
+        inline citerator& operator ++ () noexcept { ++pmvCur; return *this; }
+        inline citerator operator ++ (int) noexcept { citerator it = *this;  pmvCur++; return it; }
+        inline bool operator != (const citerator& it) const noexcept { return pmvCur != it.pmvCur; }
+        inline bool operator == (const citerator& it) const noexcept { return pmvCur == it.pmvCur; }
     private:
         const MV* pmvCur;
     };
 
-    int size(void) const { return imvMac; }
-    MV& operator [] (int imv) { return reinterpret_cast<MV*>(amv)[imv]; }
-    MV operator [] (int imv) const { return reinterpret_cast<const MV*>(amv)[imv]; }
-    iterator begin(void) { return iterator(&reinterpret_cast<MV*>(amv)[0]); }
-    iterator end(void) { return iterator(&reinterpret_cast<MV*>(amv)[imvMac]); }
-    citerator begin(void) const { return citerator(&reinterpret_cast<const MV*>(amv)[0]); }
-    citerator end(void) const { return citerator(&reinterpret_cast<const MV*>(amv)[imvMac]); }
-    void clear(void) { imvMac = 0; }
-    void resize(int cmv) { imvMac = cmv; }
-    void reserve(int cmv) { assert(cmv == 256); }   // we're fixed size 
+    inline int size(void) const noexcept { return imvMac; }
+    inline MV& operator [] (int imv) noexcept { return reinterpret_cast<MV*>(amv)[imv]; }
+    inline iterator begin(void) noexcept { return iterator(&reinterpret_cast<MV*>(amv)[0]); }
+    inline iterator end(void) noexcept { return iterator(&reinterpret_cast<MV*>(amv)[imvMac]); }
+    inline citerator begin(void) const noexcept { return citerator(&reinterpret_cast<const MV*>(amv)[0]); }
+    inline citerator end(void) const noexcept { return citerator(&reinterpret_cast<const MV*>(amv)[imvMac]); }
+    inline void clear(void) noexcept { imvMac = 0; }
+    inline void resize(int cmv) noexcept { imvMac = cmv; }
+    inline void reserve(int cmv) noexcept { assert(cmv == 256); }   // we're fixed size 
 
     template <typename... ARGS>
-    void emplace_back(ARGS&&... args) {
+    inline void emplace_back(ARGS&&... args) noexcept
+    {
         new (&reinterpret_cast<MV*>(amv)[imvMac]) MV(forward<ARGS>(args)...);
         ++imvMac;
     }
@@ -398,45 +481,61 @@ private:
 extern const char fenStartPos[];
 extern const char fenEmpty[];
 
+constexpr int phaseMinor = 1;
+constexpr int phaseRook = 2;
+constexpr int phaseQueen = 4;
+
+constexpr int phaseMax = 2*phaseQueen + 4*phaseRook + 8*phaseMinor;
+constexpr int phaseMin = 0;
+constexpr int phaseOpeningLim = 0;
+constexpr int phaseMidMid = 0;
+constexpr int phaseEndFirst = phaseMax - 2*phaseQueen;
+
 class BD
 {
 public:
     BD(void);
     BD(const string& fen);
 
-    void Empty(void);
+    void Empty(void) noexcept;
 
-    inline CPBD operator[](SQ sq) const {
+    inline CPBD operator[](SQ sq) const noexcept
+    {
         return acpbd[IcpbdFromSq(sq)];
     }
 
-    inline CPBD& operator[](SQ sq) {
+    inline CPBD& operator[](SQ sq) noexcept 
+    {
         return acpbd[IcpbdFromSq(sq)];
     }
 
-    inline CPBD& operator()(int fi, int ra) {
+    inline CPBD& operator()(int fi, int ra) noexcept 
+    {
         return acpbd[Icpbd(fi, ra)];
     }
 
-    inline const CPBD& operator()(int fi, int ra) const {
+    inline const CPBD& operator()(int fi, int ra) const noexcept 
+    {
         return acpbd[Icpbd(fi, ra)];
     }
 
     /* make and undo move */
 
-    void MakeMv(MV& mv);
-    void UndoMv(MV& mv);
-    bool FMakeMvLegal(MV& mv);
+    void MakeMv(MV& mv) noexcept;
+    void UndoMv(MV& mv) noexcept;
+    bool FMakeMvLegal(MV& mv) noexcept;
 
     /* move generation */
 
-    void MoveGen(VMV& vmv) const;
-    void MoveGenPseudo(VMV& vmv) const;
-    void MoveGenNoisy(VMV& vmv) const;
-    bool FLastMoveWasLegal(MV mv) const;
+    void MoveGen(VMV& vmv) const noexcept;
+    void MoveGenPseudo(VMV& vmv) const noexcept;
+    void MoveGenNoisy(VMV& vmv) const noexcept;
+    bool FLastMoveWasLegal(MV mv) const noexcept;
 
-    bool FInCheck(CCP ccp) const;
-    bool FIsAttackedBy(int icpAttacked, CCP ccpBy) const;
+    bool FInCheck(CCP ccp) const noexcept;
+    bool FIsAttackedBy(int icpAttacked, CCP ccpBy) const noexcept;
+
+    int PhaseCur(void) const;
 
     /* FEN reading and writing */
 
@@ -447,28 +546,28 @@ public:
 
     /* test functions */
 
-    uint64_t CmvPerft(int d);
-    uint64_t CmvBulk(int d);
+    int64_t CmvPerft(int d);
+    int64_t CmvBulk(int d);
 
 private:
-    void RemoveChecks(VMV& vmv) const;
+    void RemoveChecks(VMV& vmv) const noexcept;
 
-    void MoveGenPawn(int icpFrom, VMV& vmv) const;
-    void MoveGenPawnNoisy(int icpFrom, VMV& vmv) const;
-    void MoveGenKing(int icpFrom, VMV& vmv) const;
-    void MoveGenKingNoisy(int icpFrom, VMV& vmv) const;
-    void MoveGenSingle(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const;
-    void MoveGenSingleNoisy(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const;
-    void MoveGenSlider(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const;
-    void MoveGenSliderNoisy(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const;
-    void AddPawnMoves(int icpFrom, int icpTo, VMV& vmv) const;
-    void AddCastle(int icpKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, CS csMove, VMV& vmv) const;
+    void MoveGenPawn(int icpFrom, VMV& vmv) const noexcept;
+    void MoveGenPawnNoisy(int icpFrom, VMV& vmv) const noexcept;
+    void MoveGenKing(int icpFrom, VMV& vmv) const noexcept;
+    void MoveGenKingNoisy(int icpFrom, VMV& vmv) const noexcept;
+    void MoveGenSingle(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const noexcept;
+    void MoveGenSingleNoisy(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const noexcept;
+    void MoveGenSlider(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const noexcept;
+    void MoveGenSliderNoisy(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const noexcept;
+    void AddPawnMoves(int icpFrom, int icpTo, VMV& vmv) const noexcept;
+    void AddCastle(int icpKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, CS csMove, VMV& vmv) const noexcept;
 
-    bool FIsAttackedBySingle(int icpAttacked, CP cp, const int adicp[], int cdicp) const;
-    bool FIsAttackedBySlider(int icpAttacked, CP cp1, CP cp2, const int adicp[], int cdicp) const;
+    bool FIsAttackedBySingle(int icpAttacked, CP cp, const int adicp[], int cdicp) const noexcept;
+    bool FIsAttackedBySlider(int icpAttacked, uint16_t grfCp, const int adicp[], int cdicp) const noexcept;
 
-    int IcpbdFindKing(CCP ccpKing) const;
-    int IcpUnused(int ccp, int tcpHint) const;
+    int IcpbdFindKing(CCP ccpKing) const noexcept;
+    int IcpUnused(int ccp, int tcpHint) const noexcept;
 
 public:
     CPBD acpbd[(raMax+4)*(fiMax+2)];  // 8x8 plus 4 guard ranks and 2 guard files
@@ -484,8 +583,8 @@ private:
     static const string_view sParseCastle;
 
 #ifndef NDEBUG
-    void Validate(void) const;
+    void Validate(void) const noexcept;
 #else
-    inline void Validate(void) const {}
+    inline void Validate(void) const noexcept { }
 #endif
 };

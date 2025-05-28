@@ -175,7 +175,7 @@ RC WNBD::RcFromSq(int sq) const
 RC WNBD::RcFromSq(int fi, int ra) const
 {
     PT pt = (ccpView == ccpWhite) ? PT(fi, raMax-1-ra) :
-        PT(fiMax-1-fi, ra);
+                                    PT(fiMax-1-fi, ra);
     return RC(rcSquares.ptTopLeft() + pt*dxySquare, SZ(dxySquare));
 }
 

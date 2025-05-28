@@ -69,11 +69,13 @@ public:
 class CURS
 {
 public:
-    CURS(APP& app, LPCWSTR idc) {
+    CURS(APP& app, LPCWSTR idc) 
+    {
         hcursor = app.HcursorDef(idc);
     }
 
-    operator HCURSOR () const {
+    operator HCURSOR () const 
+    {
         return hcursor;
     }
 
@@ -191,7 +193,8 @@ public:
 class resource_ptr
 {
 public:
-    resource_ptr(APP& app, string_view sType, unsigned rs) : hData(NULL), pData(nullptr) {
+    resource_ptr(APP& app, string_view sType, unsigned rs) : hData(NULL), pData(nullptr) 
+    {
         HRSRC hrsrc = ::FindResourceW(app.hinst, MAKEINTRESOURCEW(rs), WsFromS(sType).c_str());
         if (hrsrc == NULL)
             throw ERRLAST();
@@ -208,11 +211,16 @@ public:
 
     // don't do reset on these move operations so cbData copies too
 
-    resource_ptr(resource_ptr&& ptr) noexcept : hData(ptr.hData), pData(ptr.pData), cbData(ptr.cbData) {
+    resource_ptr(resource_ptr&& ptr) noexcept : 
+        hData(ptr.hData), 
+        pData(ptr.pData), 
+        cbData(ptr.cbData) 
+    {
         ptr.release();
     }
 
-    resource_ptr& operator = (resource_ptr&& ptr) noexcept {
+    resource_ptr& operator = (resource_ptr&& ptr) noexcept 
+    {
         if (this != &ptr) {
             hData = ptr.hData;
             pData = ptr.pData;
@@ -222,14 +230,16 @@ public:
         return *this;
     }
 
-    ~resource_ptr() noexcept {
+    ~resource_ptr() noexcept 
+    {
         reset();
     }
 
     resource_ptr(const resource_ptr&) = delete;
     resource_ptr& operator = (const resource_ptr&) = delete;
 
-    HGLOBAL release(void) noexcept {
+    HGLOBAL release(void) noexcept 
+    {
         HGLOBAL hT = hData;
         hData = NULL;
         pData = nullptr;
@@ -237,7 +247,8 @@ public:
         return hT;
     }
 
-    void reset(HGLOBAL hDataNew = NULL) noexcept {
+    void reset(HGLOBAL hDataNew = NULL) noexcept
+    {
         hData = hDataNew;
         if (hData) {
             pData = static_cast<BYTE*>(::LockResource(hData));
@@ -249,21 +260,25 @@ public:
         }
     }
 
-    void swap(resource_ptr& ptr) noexcept {
+    void swap(resource_ptr& ptr) noexcept 
+    {
         std::swap(hData, ptr.hData);
         std::swap(pData, ptr.pData);
         std::swap(cbData, ptr.cbData);
     }
 
-    BYTE* get(void) noexcept {
+    BYTE* get(void) noexcept 
+    {
         return pData;
     }
 
-    HGLOBAL handle(void) const noexcept {
+    HGLOBAL handle(void) const noexcept 
+    {
         return hData;
     }
 
-    unsigned size(void) const noexcept {
+    unsigned size(void) const noexcept 
+    {
         return cbData;
     }
 
@@ -284,8 +299,14 @@ private:
 
 class global_ptr
 {
+    global_ptr(const global_ptr&) = delete;
+    global_ptr& operator = (const global_ptr&) = delete;
+
 public:
-    global_ptr(unsigned cb) : h(NULL), p(nullptr) {
+    global_ptr(unsigned cb) : 
+        h(NULL), 
+        p(nullptr) 
+    {
         h = ::GlobalAlloc(GMEM_MOVEABLE, cb);
         if (h == NULL)
             throw ERRLAST();
@@ -296,30 +317,34 @@ public:
         }
     }
 
-    global_ptr(HGLOBAL h) : h(h), p(nullptr) {
+    global_ptr(HGLOBAL h) : 
+        h(h), 
+        p(nullptr) 
+    {
         p = static_cast<char*>(::GlobalLock(h));
         if (p == nullptr)
             throw ERRLAST();
     }
 
-    global_ptr(resource_ptr&& ptr) {
+    global_ptr(resource_ptr&& ptr) 
+    {
         reset(ptr.release());
     }
 
-    global_ptr& operator = (global_ptr&& ptr) noexcept {
+    global_ptr& operator = (global_ptr&& ptr) noexcept 
+    {
         if (this != &ptr)
             reset(ptr.release());
         return *this;
     }
 
-    global_ptr(const global_ptr&) = delete;
-    global_ptr& operator = (const global_ptr&) = delete;
-
-    ~global_ptr() {
+    ~global_ptr() 
+    {
         reset();
     }
 
-    HGLOBAL release(void) {
+    HGLOBAL release(void) 
+    {
         HGLOBAL hT = h;
         if (p) {
             ::GlobalUnlock(h);
@@ -329,7 +354,8 @@ public:
         return hT;
     }
 
-    void reset(HGLOBAL hNew = NULL) {
+    void reset(HGLOBAL hNew = NULL) 
+    {
         if (p)
             ::GlobalUnlock(h);
         p = nullptr;
@@ -343,16 +369,19 @@ public:
         }
     }
 
-    void swap(global_ptr& ptr) {
+    void swap(global_ptr& ptr) 
+    {
         std::swap(h, ptr.h);
         std::swap(p, ptr.p);
     }
 
-    char* get(void) {
+    char* get(void) 
+    {
         return p;
     }
 
-    HGLOBAL handle(void) const {
+    HGLOBAL handle(void) const 
+    {
         return h;
     }
 

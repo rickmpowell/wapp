@@ -26,7 +26,8 @@ BD::BD(const string& fen)
     InitFromFen(fen);
 }
 
-void BD::Empty(void) {
+void BD::Empty(void)  noexcept
+{
 
     /* fill guard squares with invalid pieces */
 
@@ -59,7 +60,7 @@ void BD::Empty(void) {
  *  Makes a move on the board. 
  */
 
-void BD::MakeMv(MV& mv)
+void BD::MakeMv(MV& mv) noexcept
 {
     assert(mv.sqFrom != sqNil && mv.sqTo != sqNil);
 
@@ -153,7 +154,7 @@ Done:
  *
  */
 
-void BD::UndoMv(MV& mv)
+void BD::UndoMv(MV& mv) noexcept
 {
     ccpToMove = ~ccpToMove;
     csCur = mv.csSav;
@@ -213,7 +214,7 @@ void BD::UndoMv(MV& mv)
     Validate();
 }
 
-bool BD::FMakeMvLegal(MV& mv)
+bool BD::FMakeMvLegal(MV& mv) noexcept
 {
     MakeMv(mv);
     if (FLastMoveWasLegal(mv))
@@ -222,6 +223,20 @@ bool BD::FMakeMvLegal(MV& mv)
     return false;
 }
 
+int BD::PhaseCur(void) const
+{
+    static const int mptcpphase[tcpMax] = { 0, 0, phaseMinor, phaseMinor, phaseRook, phaseQueen, 0 };
+    int phase = phaseMax;
+    for (CCP ccp = ccpWhite; ccp <= ccpBlack; ++ccp) {
+        for (int icp = 0; icp < icpMax; ++icp) {
+            int icpbd = aicpbd[ccp][icp];
+            if (icpbd == -1)
+                continue;
+            phase -= mptcpphase[acpbd[icpbd].tcp];
+        }
+    }
+    return max(phase, phaseMin);
+}
 
 /*
  *  FEN (Forsyth-Edwards Notation) board representation, which is a text-basded
@@ -407,7 +422,7 @@ string BD::FenRender(void) const
  */
 
 #ifndef NDEBUG
-void BD::Validate(void) const
+void BD::Validate(void) const noexcept
 {
     if (!fValidate)
         return;

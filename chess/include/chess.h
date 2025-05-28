@@ -149,7 +149,8 @@ public:
 
     void RunPerft(void);
     void RunPerftSuite(void);
-    bool RunOnePerftTest(const char tag[], const char fen[], const uint64_t mpdcmv[], int dLast, bool fDivide);
+    bool RunOnePerftTest(const char tag[], const char fen[], const int64_t mpdcmv[],  
+                         chrono::microseconds& dtpTotal, int64_t& cmvTotal);
 
 public:
     GAME game;

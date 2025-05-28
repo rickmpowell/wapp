@@ -6,7 +6,7 @@
 
 #include "framework.h"
 #include "board.h"
-
+class WAPP;
 class GAME;
 class WNBOARD;
 
@@ -73,9 +73,9 @@ constexpr EV evMax = evCanceled + 1;
 constexpr EV evBias = evInfinity;						/* used to bias evaluations for saving as an unsigned */
 static_assert(evMax <= 16384);					/* there is code that asssumes EV stores in 15 bits */
 
-inline EV EvMate(int d) { return evMate - d; }
-inline bool FEvIsMate(EV ev) { return ev >= evMateMin; }
-inline int DFromEvMate(EV ev) { return evMate - ev; }
+inline EV EvMate(int d) noexcept { return evMate - d; }
+inline bool FEvIsMate(EV ev) noexcept { return ev >= evMateMin; }
+inline int DFromEvMate(EV ev) noexcept { return evMate - ev; }
 
 /*
  *  AB 
@@ -86,14 +86,19 @@ inline int DFromEvMate(EV ev) { return evMate - ev; }
 struct AB
 {
 public:
-    AB(EV evAlpha, EV evBeta) : evAlpha(evAlpha), evBeta(evBeta) {
+    AB(EV evAlpha, EV evBeta) noexcept : 
+        evAlpha(evAlpha), 
+        evBeta(evBeta) 
+    {
     }
 
-    AB operator - () const {
+    AB operator - () const noexcept
+    {
         return AB(-evBeta, -evAlpha);
     }
 
-    bool FPrune(EV ev) {
+    bool FPrune(EV ev) noexcept
+    {
         if (ev >= evBeta)
             return true;
         evAlpha = max(evAlpha, ev);
@@ -128,12 +133,33 @@ public:
     virtual void AttachUI(WNBOARD* pwnboard) override;
     virtual void RequestMv(WAPP& wapp, GAME& game) override;
 
-    MV MvBest(BD& bd);
-    EV EvSearch(BD& bd, AB ab, int d, int dLim);
-    EV EvQuiescent(BD& bd, AB ab, int d);
-    EV EvStatic(BD& bd);
+    MV MvBest(BD& bd) noexcept;
+    EV EvSearch(BD& bd, AB ab, int d, int dLim) noexcept;
+    EV EvQuiescent(BD& bd, AB ab, int d) noexcept;
+    EV EvStatic(BD& bd) noexcept;
 
 public:
     SETAI setai;
+
+    /* piece tables */
+
+    EV EvFromPst(const BD& bd) const noexcept;
+    void ComputeWeightedEv1(const BD& bd,
+                            EV mpccpev[],
+                            const EV mpcpsqev[cpMax][sqMax]) const noexcept;
+    void ComputeWeightedEv2(const BD& bd,
+                            EV mpccpev1[], EV mpccpev2[],
+                            const EV mpcpsqev1[cpMax][sqMax],
+                            const EV mpcpsqev2[cpMax][sqMax]) const noexcept;
+    void InitWeightTables(void) noexcept;
+    void InitWeightTable(EV mptpcev[tcpMax], 
+                         EV mptcpsqdev[tcpMax][sqMax], 
+                         EV mpcpsqev[cpMax][sqMax]) noexcept;
+    EV EvInterpolate(int phase, 
+                     EV evFirst, int phaseFirst, 
+                     EV evLim, int phaseLim) const noexcept;
+    EV mpcpsqevOpen[cpMax][sqMax];
+    EV mpcpsqevMid[cpMax][sqMax];
+    EV mpcpsqevEnd[cpMax][sqMax];
 };
 
