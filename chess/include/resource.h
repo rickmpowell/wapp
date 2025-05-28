@@ -45,6 +45,8 @@
 #define rssErrChoosePlayerType 133
 #define rssErrChooseAILevel 134
 #define rssErrProvideHumanName 135
+#define rssErrFenBadHalfMoveClock 136
+#define rssErrFenBadFullMoveNumber 137
 
 #define rssColor 256
 #define rssWhite 256

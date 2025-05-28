@@ -365,6 +365,7 @@ public:
     CP cpTake = cpEmpty;
     CS csSav = csNone;  
     SQ sqEnPassantSav = sqNil;
+    uint8_t cmvLastCaptureOrPawnSav = 0;
 
     inline MV(void) noexcept
     {
@@ -378,7 +379,7 @@ public:
     {
     }
     
-    inline  MV(int icpbdFrom, int icpbdTo, TCP tcpPromote = tcpNone) noexcept :
+    inline  MV(int8_t icpbdFrom, int8_t icpbdTo, TCP tcpPromote = tcpNone) noexcept :
         sqFrom(SqFromIcpbd(icpbdFrom)), 
         sqTo(SqFromIcpbd(icpbdTo)), 
         tcpPromote(tcpPromote), 
@@ -386,7 +387,7 @@ public:
     {
     }
 
-    inline MV(int icpbdFrom, int icpbdTo, CS csMove) noexcept :
+    inline MV(int8_t icpbdFrom, int8_t icpbdTo, CS csMove) noexcept :
         sqFrom(SqFromIcpbd(icpbdFrom)), 
         sqTo(SqFromIcpbd(icpbdTo)), 
         tcpPromote(tcpNone), 
@@ -401,6 +402,8 @@ public:
 
     operator string () const;
 };
+
+inline const MV mvNil;
 
 string to_string(MV mv);
 
@@ -458,12 +461,19 @@ public:
     {
         new (&reinterpret_cast<MV*>(amv)[imvMac]) MV(forward<ARGS>(args)...);
         ++imvMac;
+        assert(imvMac <= 256);
+    }
+
+    inline void pop_back(void) noexcept
+    {
+        assert(imvMac > 0);
+        --imvMac;
     }
 
 private:
-    /* TODO: for debug convenience, find figure out a better size item for the raw data */
+    /* TODO: for debug convenience, figure out a better size item for the raw data */
     alignas(MV) uint8_t amv[256 * sizeof(MV)];
-    int imvMac = 0;
+    int16_t imvMac = 0;
 };
 
 /*
@@ -533,7 +543,7 @@ public:
     bool FLastMoveWasLegal(MV mv) const noexcept;
 
     bool FInCheck(CCP ccp) const noexcept;
-    bool FIsAttackedBy(int icpAttacked, CCP ccpBy) const noexcept;
+    bool FIsAttackedBy(int8_t icpAttacked, CCP ccpBy) const noexcept;
 
     int PhaseCur(void) const;
 
@@ -552,30 +562,31 @@ public:
 private:
     void RemoveChecks(VMV& vmv) const noexcept;
 
-    void MoveGenPawn(int icpFrom, VMV& vmv) const noexcept;
-    void MoveGenPawnNoisy(int icpFrom, VMV& vmv) const noexcept;
-    void MoveGenKing(int icpFrom, VMV& vmv) const noexcept;
-    void MoveGenKingNoisy(int icpFrom, VMV& vmv) const noexcept;
-    void MoveGenSingle(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const noexcept;
-    void MoveGenSingleNoisy(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const noexcept;
-    void MoveGenSlider(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const noexcept;
-    void MoveGenSliderNoisy(int icpFrom, const int adicp[], int cdicp, VMV& vmv) const noexcept;
-    void AddPawnMoves(int icpFrom, int icpTo, VMV& vmv) const noexcept;
-    void AddCastle(int icpKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, CS csMove, VMV& vmv) const noexcept;
+    void MoveGenPawn(int8_t icpFrom, VMV& vmv) const noexcept;
+    void MoveGenPawnNoisy(int8_t icpFrom, VMV& vmv) const noexcept;
+    void MoveGenKing(int8_t icpFrom, VMV& vmv) const noexcept;
+    void MoveGenKingNoisy(int8_t icpFrom, VMV& vmv) const noexcept;
+    void MoveGenSingle(int8_t icpFrom, const int8_t adicp[], int8_t cdicp, VMV& vmv) const noexcept;
+    void MoveGenSingleNoisy(int8_t icpFrom, const int8_t adicp[], int8_t cdicp, VMV& vmv) const noexcept;
+    void MoveGenSlider(int8_t icpFrom, const int8_t adicp[], int8_t cdicp, VMV& vmv) const noexcept;
+    void MoveGenSliderNoisy(int8_t icpFrom, const int8_t adicp[], int8_t cdicp, VMV& vmv) const noexcept;
+    void AddPawnMoves(int8_t icpFrom, int8_t icpTo, VMV& vmv) const noexcept;
+    void AddCastle(int8_t icpKingFrom, int8_t fiKingTo, int8_t fiRookFrom, int8_t fiRookTo, CS csMove, VMV& vmv) const noexcept;
 
-    bool FIsAttackedBySingle(int icpAttacked, CP cp, const int adicp[], int cdicp) const noexcept;
-    bool FIsAttackedBySlider(int icpAttacked, uint16_t grfCp, const int adicp[], int cdicp) const noexcept;
-
-    int IcpbdFindKing(CCP ccpKing) const noexcept;
-    int IcpUnused(int ccp, int tcpHint) const noexcept;
+    bool FIsAttackedBySingle(int8_t icpAttacked, CP cp, const int8_t adicp[], int8_t cdicp) const noexcept;
+    bool FIsAttackedBySlider(int8_t icpAttacked, uint16_t grfCp, const int8_t adicp[], int8_t cdicp) const noexcept;
+    int8_t IcpbdFindKing(CCP ccpKing) const noexcept;
+    int8_t IcpUnused(CCP ccp, TCP tcpHint) const noexcept;
 
 public:
     CPBD acpbd[(raMax+4)*(fiMax+2)];  // 8x8 plus 4 guard ranks and 2 guard files
-    static constexpr int icpMax = 16;
-    int aicpbd[ccpMax][icpMax];  // ccp x piece index -> offset into acpbd array
+    static constexpr uint8_t icpMax = 16;
+    int8_t aicpbd[ccpMax][icpMax];  // ccp x piece index -> offset into acpbd array
     CCP ccpToMove = ccpWhite;
     CS csCur = csNone;
     SQ sqEnPassant = sqNil;
+    VMV vmvGame;
+    uint8_t cmvLastCaptureOrPawn = 0; // number of moves since last capture or pawn move
 
 private:
     static const string_view sParseBoard;

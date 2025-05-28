@@ -13,11 +13,11 @@
  *  Piece direction offsets in the raw board array
  */
 
-static const int adicpbdBishop[] = { -11, -9, 9, 11 };
-static const int adicpbdRook[] = { -10, -1, 1, 10 };
-static const int adicpbdKnight[] = { -21, -19, -12, -8, 8, 12, 19, 21 };
-static const int adicpbdKing[] = { -11, -10, -9, -1, 1, 9, 10, 11 };
-static const int adicpbdPawn[] = { 9, 11, -11, -9 };  /* first 2 are white, second 2 are black */
+static const int8_t adicpbdBishop[] = { -11, -9, 9, 11 };
+static const int8_t adicpbdRook[] = { -10, -1, 1, 10 };
+static const int8_t adicpbdKnight[] = { -21, -19, -12, -8, 8, 12, 19, 21 };
+static const int8_t adicpbdKing[] = { -11, -10, -9, -1, 1, 9, 10, 11 };
+static const int8_t adicpbdPawn[] = { 9, 11, -11, -9 };  /* first 2 are white, second 2 are black */
 
 /*
  *  BD::MoveGen
@@ -140,7 +140,7 @@ bool BD::FLastMoveWasLegal(MV mv) const noexcept
     return !FIsAttackedBy(icpbdKing, ccpToMove);
 }
 
-void BD::MoveGenPawn(int icpbdFrom, VMV& vmv) const noexcept
+void BD::MoveGenPawn(int8_t icpbdFrom, VMV& vmv) const noexcept
 {
     int dicpbd = (ccpToMove == ccpWhite) ? 10 : -10;
     int icpbdTo = icpbdFrom + dicpbd;
@@ -156,7 +156,7 @@ void BD::MoveGenPawn(int icpbdFrom, VMV& vmv) const noexcept
     MoveGenPawnNoisy(icpbdFrom, vmv);
 }
 
-void BD::MoveGenPawnNoisy(int icpbdFrom, VMV& vmv) const noexcept
+void BD::MoveGenPawnNoisy(int8_t icpbdFrom, VMV& vmv) const noexcept
 {
     int dicpbd = (ccpToMove == ccpWhite) ? 10 : -10;
     int icpbdTo = icpbdFrom + dicpbd;
@@ -175,7 +175,7 @@ void BD::MoveGenPawnNoisy(int icpbdFrom, VMV& vmv) const noexcept
     }
 }
 
-void BD::MoveGenKing(int icpbdFrom, VMV& vmv) const noexcept
+void BD::MoveGenKing(int8_t icpbdFrom, VMV& vmv) const noexcept
 {
     MoveGenSingle(icpbdFrom, adicpbdKing, size(adicpbdKing), vmv);
     if (csCur & Cs(csKing, ccpToMove))
@@ -184,7 +184,7 @@ void BD::MoveGenKing(int icpbdFrom, VMV& vmv) const noexcept
         AddCastle(icpbdFrom, fiC, fiQueenRook, fiD, csQueen, vmv);
 }
 
-void BD::MoveGenKingNoisy(int icpbdFrom, VMV& vmv) const noexcept
+void BD::MoveGenKingNoisy(int8_t icpbdFrom, VMV& vmv) const noexcept
 {
     MoveGenSingleNoisy(icpbdFrom, adicpbdKing, size(adicpbdKing), vmv);
 }
@@ -219,19 +219,19 @@ void BD::MoveGenKingNoisy(int icpbdFrom, VMV& vmv) const noexcept
  *  FLastMoveWasLegal.
  */
 
-void BD::AddCastle(int icpbdKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo, CS csMove, VMV& vmv) const noexcept
+void BD::AddCastle(int8_t icpbdKingFrom, int8_t fiKingTo, int8_t fiRookFrom, int8_t fiRookTo, CS csMove, VMV& vmv) const noexcept
 {
     /* NOTE: this all gets simpler with bitboards so I haven't killed myself 
        making it as optimal as possible */
 
-    int raBack = ra(SqFromIcpbd(icpbdKingFrom));
-    int icpbdKingTo = Icpbd(fiKingTo, raBack);
-    int icpbdRookFrom = Icpbd(fiRookFrom, raBack);
-    int icpbdRookTo = Icpbd(fiRookTo, raBack);
+    int8_t raBack = ra(SqFromIcpbd(icpbdKingFrom));
+    int8_t icpbdKingTo = Icpbd(fiKingTo, raBack);
+    int8_t icpbdRookFrom = Icpbd(fiRookFrom, raBack);
+    int8_t icpbdRookTo = Icpbd(fiRookTo, raBack);
 
-    int icpbdFirst = min(min(icpbdRookFrom, icpbdRookTo), min(icpbdKingFrom, icpbdKingTo));
-    int icpbdLast = max(max(icpbdRookFrom, icpbdRookTo), max(icpbdKingFrom, icpbdKingTo));
-    for (int icpbd = icpbdFirst; icpbd <= icpbdLast; icpbd++)
+    int8_t icpbdFirst = min(min(icpbdRookFrom, icpbdRookTo), min(icpbdKingFrom, icpbdKingTo));
+    int8_t icpbdLast = max(max(icpbdRookFrom, icpbdRookTo), max(icpbdKingFrom, icpbdKingTo));
+    for (int8_t icpbd = icpbdFirst; icpbd <= icpbdLast; icpbd++)
         if (icpbd != icpbdRookFrom && icpbd != icpbdKingFrom && acpbd[icpbd].cp() != cpEmpty)
             return;
 
@@ -245,7 +245,7 @@ void BD::AddCastle(int icpbdKingFrom, int fiKingTo, int fiRookFrom, int fiRookTo
  *  add the four promotion possibilities.
  */
 
-void BD::AddPawnMoves(int icpbdFrom, int icpbdTo, VMV& vmv) const noexcept
+void BD::AddPawnMoves(int8_t icpbdFrom, int8_t icpbdTo, VMV& vmv) const noexcept
 {
     int raTo = ra(SqFromIcpbd(icpbdTo));
     if (raTo != RaPromote(ccpToMove))
@@ -265,7 +265,7 @@ void BD::AddPawnMoves(int icpbdFrom, int icpbdTo, VMV& vmv) const noexcept
  *  particular direction
  */
 
-void BD::MoveGenSlider(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const noexcept
+void BD::MoveGenSlider(int8_t icpbdFrom, const int8_t adicpbd[], int8_t cdicpbd, VMV& vmv) const noexcept
 {
     for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
         int dicpbd = adicpbd[idicpbd];
@@ -280,7 +280,7 @@ void BD::MoveGenSlider(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv
     }
 }
 
-void BD::MoveGenSliderNoisy(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const noexcept
+void BD::MoveGenSliderNoisy(int8_t icpbdFrom, const int8_t adicpbd[], int8_t cdicpbd, VMV& vmv) const noexcept
 {
     for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
         int dicpbd = adicpbd[idicpbd];
@@ -303,20 +303,20 @@ void BD::MoveGenSliderNoisy(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV
  *  array of offsets.
  */
 
-void BD::MoveGenSingle(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const noexcept
+void BD::MoveGenSingle(int8_t icpbdFrom, const int8_t adicpbd[], int8_t cdicpbd, VMV& vmv) const noexcept
 {
-    for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
-        int icpbdTo = icpbdFrom + adicpbd[idicpbd];
+    for (int8_t idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
+        int8_t icpbdTo = icpbdFrom + adicpbd[idicpbd];
         CP cp = acpbd[icpbdTo].cp();
         if (cp == cpEmpty || ccp(cp) == ~ccpToMove)
             vmv.emplace_back(icpbdFrom, icpbdTo);
     }
 }
 
-void BD::MoveGenSingleNoisy(int icpbdFrom, const int adicpbd[], int cdicpbd, VMV& vmv) const noexcept
+void BD::MoveGenSingleNoisy(int8_t icpbdFrom, const int8_t adicpbd[], int8_t cdicpbd, VMV& vmv) const noexcept
 {
-    for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
-        int icpbdTo = icpbdFrom + adicpbd[idicpbd];
+    for (int8_t idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
+        int8_t icpbdTo = icpbdFrom + adicpbd[idicpbd];
         CP cp = acpbd[icpbdTo].cp();
         if (ccp(cp) == ~ccpToMove)
             vmv.emplace_back(icpbdFrom, icpbdTo);
@@ -334,7 +334,7 @@ bool BD::FInCheck(CCP ccp) const noexcept
  *  Checks if the square is under attack by a piece of color ccpBy.
  */
 
-bool BD::FIsAttackedBy(int icpbdAttacked, CCP ccpBy) const noexcept
+bool BD::FIsAttackedBy(int8_t icpbdAttacked, CCP ccpBy) const noexcept
 {
     if (FIsAttackedBySlider(icpbdAttacked, ((1 << tcpRook) | (1 << tcpQueen)) << (ccpBy << 3), adicpbdRook, size(adicpbdRook)))
         return true;
@@ -349,20 +349,20 @@ bool BD::FIsAttackedBy(int icpbdAttacked, CCP ccpBy) const noexcept
     return false;
 }
 
-bool BD::FIsAttackedBySingle(int icpbdAttacked, CP cp, const int adicpbd[], int cdicpbd) const noexcept
+bool BD::FIsAttackedBySingle(int8_t icpbdAttacked, CP cp, const int8_t adicpbd[], int8_t cdicpbd) const noexcept
 {
-    for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
+    for (int8_t idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
         if (acpbd[icpbdAttacked + adicpbd[idicpbd]].cp() == cp)
             return true;
     }
     return false;
 }
 
-bool BD::FIsAttackedBySlider(int icpbdAttacked, uint16_t grfCp, const int adicpbd[], int cdicpbd) const noexcept
+bool BD::FIsAttackedBySlider(int8_t icpbdAttacked, uint16_t grfCp, const int8_t adicpbd[], int8_t cdicpbd) const noexcept
 {
-    for (int idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
-        int dicpbd = adicpbd[idicpbd];
-        for (int icpbd = icpbdAttacked + dicpbd; ; icpbd += dicpbd) {
+    for (int8_t idicpbd = 0; idicpbd < cdicpbd; idicpbd++) {
+        int8_t dicpbd = adicpbd[idicpbd];
+        for (int8_t icpbd = icpbdAttacked + dicpbd; ; icpbd += dicpbd) {
             if ((1 << acpbd[icpbd].cp()) & grfCp)
                 return true;
             if (acpbd[icpbd].cp() != cpEmpty)
@@ -378,10 +378,10 @@ bool BD::FIsAttackedBySlider(int icpbdAttacked, uint16_t grfCp, const int adicpb
  *  Finds the position of the king on the board
  */
 
-int BD::IcpbdFindKing(CCP ccp) const noexcept
+int8_t BD::IcpbdFindKing(CCP ccp) const noexcept
 {
-    for (int icp = 0; icp < icpMax; icp++) {
-        int icpbd = aicpbd[ccp][icp];
+    for (int8_t icp = 0; icp < icpMax; icp++) {
+        int8_t icpbd = aicpbd[ccp][icp];
         if (icpbd != -1 && acpbd[icpbd].tcp == tcpKing)
             return icpbd;
     }
@@ -397,10 +397,10 @@ int BD::IcpbdFindKing(CCP ccp) const noexcept
  *  the game, it will remain in aicpbd[0] forever.
  */
 
-int BD::IcpUnused(int ccp, int tcpHint) const noexcept
+int8_t BD::IcpUnused(CCP ccp, TCP tcpHint) const noexcept
 {
-    static const int mptcpicpHint[] = { 0, 8, 6, 4, 2, 1, 0 };
-    for (int icp = mptcpicpHint[tcpHint]; ; icp = (icp+1) % icpMax)
+    static const int8_t mptcpicpHint[] = { 0, 8, 6, 4, 2, 1, 0 };
+    for (int8_t icp = mptcpicpHint[tcpHint]; ; icp = (icp+1) % icpMax)
         if (aicpbd[ccp][icp] == -1)
             return icp;
     return -1;

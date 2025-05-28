@@ -28,9 +28,7 @@ BD::BD(const string& fen)
 
 void BD::Empty(void)  noexcept
 {
-
     /* fill guard squares with invalid pieces */
-
     for (int icp = 0; icp < (fiMax+2) * 2; icp++) {
         acpbd[icp].cp(cpInvalid);
         acpbd[(fiMax+2)*(raMax+2)+icp].cp(cpInvalid);
@@ -41,17 +39,18 @@ void BD::Empty(void)  noexcept
     }
     
     /* fill play area with empty squares */
-
     for (SQ sq = 0; sq < sqMax; sq++) {
         (*this)[sq].icp = 0;
         (*this)[sq].cp(cpEmpty);
     }
 
     /* and none of the pieces are on the board */
-
     for (int ccp = 0; ccp < ccpMax; ccp++)
         for (int icp = 0; icp < icpMax; icp++)
             aicpbd[ccp][icp] = -1;
+
+    vmvGame.clear();
+    cmvLastCaptureOrPawn = 0;
 }
 
 /*
@@ -66,10 +65,12 @@ void BD::MakeMv(MV& mv) noexcept
 
     mv.csSav = csCur;
     mv.sqEnPassantSav = sqEnPassant;
+    mv.cmvLastCaptureOrPawnSav = cmvLastCaptureOrPawn;
     CPBD cpbdMove = (*this)[mv.sqFrom];
     SQ sqTake = mv.sqTo;
 
     if (cpbdMove.tcp == tcpPawn) {
+        cmvLastCaptureOrPawn = 0;
         /* keep track of en passant possibility */
         if (abs(mv.sqFrom - mv.sqTo) == 16)
             sqEnPassant = (mv.sqFrom + mv.sqTo) / 2;
@@ -84,6 +85,7 @@ void BD::MakeMv(MV& mv) noexcept
         }
     }
     else {
+        cmvLastCaptureOrPawn++;
         sqEnPassant = sqNil;
         if (cpbdMove.tcp == tcpRook) {
             /* clear castle state if we move a rook */
@@ -125,6 +127,7 @@ void BD::MakeMv(MV& mv) noexcept
     
     /* remove piece we're taking */
     if ((*this)[sqTake].cp() != cpEmpty) {
+        cmvLastCaptureOrPawn = 0;
         int icpTake = (*this)[sqTake].icp;
         mv.cpTake = (*this)[sqTake].cp();
         (*this)[sqTake] = CPBD(cpEmpty, 0);
@@ -146,7 +149,7 @@ void BD::MakeMv(MV& mv) noexcept
 
 Done:
     ccpToMove = ~ccpToMove;
-    
+    vmvGame.emplace_back(mv);
     Validate();
 }
 
@@ -156,9 +159,11 @@ Done:
 
 void BD::UndoMv(MV& mv) noexcept
 {
+    vmvGame.pop_back();
     ccpToMove = ~ccpToMove;
     csCur = mv.csSav;
     sqEnPassant = mv.sqEnPassantSav;
+    cmvLastCaptureOrPawn = mv.cmvLastCaptureOrPawnSav;
 
     CPBD cpbdMove = (*this)[mv.sqTo];
     if (mv.tcpPromote != tcpNone)
@@ -339,10 +344,35 @@ void BD::InitFromFen(istream& is)
     if (!(is >> sHalfMove >> sFullMove))
         throw ERRAPP(rssErrFenParseMissingPart);
 
-    /*
-    halfmoveClock = stoi(sHalfMove);
-    fullmoveNumber = stoi(sFullMove);
-    */
+    /* if we have a half-move clock, pad the move list with empty moves;
+       add extra padding to make white moves on even index boundaries */
+    
+    try {
+        int cmv = stoi(sHalfMove);
+        if (cmv < 0 || cmv >= 256)
+            throw;
+        cmvLastCaptureOrPawn = cmv; 
+        while (vmvGame.size() < cmvLastCaptureOrPawn)
+            vmvGame.emplace_back(mvNil);
+        if (ccpToMove == (vmvGame.size() % 2))
+            vmvGame.emplace_back(mvNil);
+    }
+    catch (...) {
+        throw ERRAPP(rssErrFenBadHalfMoveClock);
+    }
+
+    /* full move number is number (1-based) about to be played. */
+
+    try {
+        int cmv = (stoi(sFullMove)-1) * 2 + (ccpToMove == ccpBlack);
+        if (cmv < 0 || cmv >= 256)
+            throw;
+        while (vmvGame.size() < cmv)
+            vmvGame.emplace_back(mvNil);
+    }
+    catch (...) {
+        throw ERRAPP(rssErrFenBadFullMoveNumber);
+    }   
 
     Validate();
 }
@@ -409,8 +439,8 @@ string BD::FenRender(void) const
     
     /* half move clock and full move */
     
-    fen += " " + to_string(0);
-    fen += " " + to_string(1);
+    fen += " " + to_string(cmvLastCaptureOrPawn);
+    fen += " " + to_string(1 + vmvGame.size() / 2);
 
     return fen;
 }

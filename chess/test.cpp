@@ -480,7 +480,7 @@ bool WAPP::RunOnePerftTest(const char tag[], const char fen[], const int64_t mpd
 	/* TODO: we could probably compute this spMax on the fly which would let us 
 	   have a time limit option to the test */
 
-	float spMax = IfDebug(2000.0f, 23000.0f);	/* this is in moves per millisecond, determined emperically */
+	float spMax = IfDebug(2200.0f, 23000.0f);	/* this is in moves per millisecond, determined emperically */
 	int64_t cmvMax = (int64_t)(spMax * 1000.0f * 60.0f);	/* one minute max */
 
 	wntest << tag << endl;
