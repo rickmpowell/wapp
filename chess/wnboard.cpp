@@ -23,9 +23,39 @@ WNBD::WNBD(WN& wnParent, BD& bd) :
 {
 }
 
-void WNBD::BdChanged(GAME& game)
+void WNBD::BdChanged(void)
 {
     Redraw();
+}
+
+void WNBD::ShowMv(MV mv, bool fAnimate)
+{
+    if (!fAnimate)
+        return;
+
+    CP cp = bd[mv.sqFrom].cp();
+    RC rcFrom = RcFromSq(mv.sqFrom);
+    RC rcTo = RcFromSq(mv.sqTo);
+    PT dpt = rcTo.ptTopLeft() - rcFrom.ptTopLeft();
+
+    constexpr chrono::milliseconds dtmTotal(200);
+    auto tmStart = chrono::high_resolution_clock::now();
+
+    while (1) {
+        chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tmStart;
+        if (dtm >= dtmTotal)
+            break;
+        RC rc = rcFrom + dpt * (float)(dtm / dtmTotal);
+        BeginDraw();
+        Draw(rc);
+        DrawPiece(rc, cp, 1.0f);
+        EndDraw(RcInterior());
+    }
+}
+
+void WNBD::EnableUI(bool fEnable)
+{
+    /* no UI on these mini-board windows */
 }
 
 /*
@@ -143,13 +173,12 @@ void WNBD::DrawPieces(void)
 {
     for (SQ sq = 0; sq < sqMax; sq++) {
         if (bd[sq].cp() != cpEmpty)
-            DrawPiece(sq, RcFromSq(sq), bd[sq].cp());
+            DrawPiece(RcFromSq(sq), bd[sq].cp(), 1.0f);
     }
 }
-
-void WNBD::DrawPiece(SQ sq, const RC& rc, CP cp)
+void WNBD::DrawPiece(const RC& rc, CP cp, float opacity)
 {
-    DrawBmp(rc, pngPieces, RcPiecesFromCp(cp));
+    DrawBmp(rc, pngPieces, RcPiecesFromCp(cp), opacity);
 }
 
 RC WNBD::RcPiecesFromCp(CP cp) const
@@ -216,6 +245,7 @@ void WNBOARD::Draw(const RC& rcUpdate)
     GUARDDCTRANSFORM sav(*this, Matrix3x2F::Rotation(angleDraw, rcgBounds.ptCenter()));
     DrawBorder();
     DrawSquares();
+    DrawLastMove();
     DrawMoveHilites();
     DrawPieces();
     DrawDrag();
@@ -227,6 +257,14 @@ CO WNBOARD::CoSquare(SQ sq) const
     if (sq == sqDragFrom || sq == sqDragTo || sq == sqHoverCur)
         coBack = CoBlend(coBack, coRed);
     return coBack;
+}
+
+void WNBOARD::DrawPieces(void)
+{
+    for (SQ sq = 0; sq < sqMax; sq++) {
+        if (bd[sq].cp() != cpEmpty)
+            DrawPiece(RcFromSq(sq), bd[sq].cp(), sq == sqDragFrom ? 0.33f : 1.0f);
+    }
 }
 
 void WNBOARD::DrawMoveHilites(void)
@@ -259,9 +297,35 @@ void WNBOARD::DrawMoveHilites(void)
     }
 }
 
-void WNBOARD::DrawPiece(SQ sq, const RC& rc, CP cp)
+void WNBOARD::DrawLastMove(void)
 {
-    DrawBmp(rc, pngPieces, RcPiecesFromCp(cp), sq == sqDragFrom ? 0.33f : 1.0f);
+    if (bd.vmvGame.empty())
+        return;
+    MV& mvLast = bd.vmvGame.back();
+    if (mvLast.fIsNil())
+        return;
+    DrawLastMoveOutline(mvLast.sqFrom);
+    DrawLastMoveOutline(mvLast.sqTo);
+}
+
+/*
+ *  WNBOARD::DrawLastMoveOutline
+ *
+ *  Draws a cute little faded outline around the square
+ */
+
+void WNBOARD::DrawLastMoveOutline(SQ sq)
+{
+    RC rc(RcFromSq(sq));
+    HSV hsv(CoBlend(CoText(), CoBack()));
+    hsv.hue -= 120.0f; hsv.val = 1.0f; hsv.sat = 1.0f;
+    CO co(CoBlend(CoSquare(sq), hsv));
+    float dxyTotal = dxySquare * 0.17f;
+    for (float dxy = 1.0f; dxy < dxyTotal; dxy += 1.0f) {
+        DrawRc(rc, co, 1.0f);
+        rc.Inflate(-1.0f);
+        co.a = 1.0f - (dxy / dxyTotal);
+    }
 }
 
 void WNBOARD::DrawDrag(void)
@@ -315,13 +379,13 @@ bool WNBOARD::FLegalSqTo(SQ sqFrom, SQ sqTo, MV& mvHit) const
     return false;
 }
 
-void WNBOARD::BdChanged(GAME& game)
+void WNBOARD::BdChanged(void)
 {
     bd.MoveGen(vmvLegal);
-    WNBD::BdChanged(game);
+    WNBD::BdChanged();
 }
 
-void WNBOARD::EnableMoveUI(bool fEnableNew)
+void WNBOARD::EnableUI(bool fEnableNew)
 {
     fEnableMoveUI = fEnableNew;
 }
@@ -392,7 +456,6 @@ void WNBOARD::EndDrag(const PT& pt, unsigned mk)
     if (FPtToSq(pt, sqHit) && FLegalSqTo(sqDragFrom, sqHit, mvHit)) {
         pcmdMakeMove->SetMv(mvHit);
         Wapp(iwapp).PostCmd(*pcmdMakeMove);
-        EnableMoveUI(false);
     }
     cpDrag = cpEmpty;
     sqDragFrom = sqDragTo = sqNil;

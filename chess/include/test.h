@@ -5,20 +5,20 @@
  */
 
 #include "wapp.h"
-class WNTEST;
+class WNLOG;
 class DLGPERFT;
 class VSELPERFT;
 
 /*
- *  TOOLBARTEST
+ *  TOOLBARLOG
  * 
  *  Toolbar ont he test window
  */
 
-class TOOLBARTEST : public TOOLBAR
+class TOOLBARLOG : public TOOLBAR
 {
 public:
-    TOOLBARTEST(WNTEST& wntest);
+    TOOLBARLOG(WNLOG& wnlog);
     virtual void Layout(void) override;
 
 private:
@@ -27,7 +27,7 @@ private:
 };
 
 /*
- *  WNTEST
+ *  WNLOG
  *
  *  Test window, which is currently just displaying a scrollable log
  */
@@ -39,10 +39,10 @@ enum class TPERFT {
     Bulk
 };
 
-class WNTEST : public WNSTREAM, public SCROLLER
+class WNLOG : public WNSTREAM, public SCROLLER
 {
 public:
-    WNTEST(WN& wnParent);
+    WNLOG(WN& wnParent);
 
     virtual void Layout(void) override;
     virtual void Draw(const RC& rcUpdate) override;
@@ -65,7 +65,7 @@ public:
 
 private:
     TITLEBAR titlebar;
-    TOOLBARTEST toolbar;
+    TOOLBARLOG toolbar;
     vector<string> vs;
 
     TF tfTest;
@@ -128,9 +128,9 @@ private:
 class DLGPERFT : public DLG
 {
 public:
-    DLGPERFT(WN& wnOwner, WNTEST& wntest);
-    void Init(WNTEST& wntest);
-    void Extract(WNTEST& wntest);
+    DLGPERFT(WN& wnOwner, WNLOG& wnlog);
+    void Init(WNLOG& wnlog);
+    void Extract(WNLOG& wnlog);
 
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;

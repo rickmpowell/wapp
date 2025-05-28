@@ -40,7 +40,9 @@ public:
     virtual void Layout(void) override;
     virtual void Draw(const RC& rcUpdate) override;
 
-    virtual void BdChanged(GAME& game) override;
+    virtual void BdChanged(void) override;
+    virtual void ShowMv(MV mv, bool fAnimate) override;
+    virtual void EnableUI(bool fEnable) override;
 
 public:
     static PNGX pngPieces;
@@ -63,8 +65,8 @@ protected:
 
     void DrawBorder(void);
     void DrawSquares(void);
-    void DrawPieces(void);
-    virtual void DrawPiece(SQ sq, const RC& rc, CP cp);
+    virtual void DrawPieces(void);
+    void DrawPiece(const RC& rc, CP cp, float opacity);
 
     RC RcFromSq(int sq) const;
     RC RcFromSq(int fi, int ra) const;
@@ -87,8 +89,8 @@ public:
     virtual void Layout(void) override;
     virtual void Draw(const RC& rcUpdate) override;
 
-    virtual void BdChanged(GAME& game) override;
-    void EnableMoveUI(bool fEnableNew);
+    virtual void BdChanged(void) override;
+    virtual void EnableUI(bool fEnableNew) override;
 
     virtual void Hover(const PT& pt) override;
     virtual void SetDefCurs(void) override;
@@ -99,9 +101,11 @@ public:
     void FlipCcp(void);
 
 private:
-    virtual void DrawPiece(SQ sq, const RC& rc, CP cp) override;
+    virtual void DrawPieces(void) override;
     void DrawMoveHilites(void);
+    void DrawLastMove(void);
     void DrawDrag(void);
+    void DrawLastMoveOutline(SQ sq);
 
     bool FPtToSq(const PT& pt, SQ& sq) const;
     bool FLegalSqFrom(SQ sq) const;
@@ -161,7 +165,7 @@ public:
     mt19937_64 rand;
 
     WNBOARD wnboard;
-    WNTEST wntest;
+    WNLOG wnlog;
 
 private:
     const float wMarginPerWindow = 0.02f; // ratio of the size of of margin to the total window size

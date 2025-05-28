@@ -27,13 +27,7 @@ bool PLHUMAN::FIsHuman(void) const
     return true;
 }
 
-void PLHUMAN::AttachUI(WNBOARD* pwnboard)
-{
-    this->pwnboard = pwnboard;
-}
-
 void PLHUMAN::RequestMv(WAPP& wapp, GAME& game)
 {
-    assert(pwnboard);
-    pwnboard->EnableMoveUI(true);
+    game.NotifyEnableUI(true);
 }

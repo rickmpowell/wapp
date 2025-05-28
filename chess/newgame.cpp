@@ -345,8 +345,8 @@ CCP DLGNEWGAME::ExtractPlayer(GAME& game, VSELPLAYER& vsel)
         if (dataplayer.ngcp == 0)
             game.appl[dataplayer.ccp] = make_shared<PLHUMAN>(dataplayer.sNameHuman);
         else {
-            SETAI setai = { dataplayer.lvlComputer };
-            game.appl[dataplayer.ccp] = make_shared<PLCOMPUTER>(setai);
+            SETAI set = { dataplayer.lvlComputer };
+            game.appl[dataplayer.ccp] = make_shared<PLCOMPUTER>(set);
         }
     }
 

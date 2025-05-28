@@ -8,13 +8,6 @@
 #include "player.h"
 
 /*
- *  opening
- */
-
-EV mptcpevOpen[tcpMax] = { { 0 } };
-EV mptcpsqdevOpen[tcpMax][sqMax] = { {0} };
-
-/*
  *  middle game
  */
 

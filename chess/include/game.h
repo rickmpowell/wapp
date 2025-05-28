@@ -40,9 +40,10 @@ public:
 
     void InitFromFen(istream& is);
     void InitFromFen(const string& fenStart);
-    void AttachUI(WAPP& wapp);
     void AddListener(LGAME* plgame);
-    void NotifyListeners(void);
+    void NotifyBdChanged(void);
+    void NotifyShowMv(MV vm, bool fAnimate);
+    void NotifyEnableUI(bool fEnable);
 
     bool FGameOver(void) const;
     void RequestMv(WAPP& wapp);
@@ -78,5 +79,7 @@ private:
 class LGAME
 {
 public:
-    virtual void BdChanged(GAME& game) = 0;
+    virtual void BdChanged(void) = 0;   /* sent *after* the board has changed */
+    virtual void ShowMv(MV mv, bool fAnimate) = 0;  /* sent *before* a move has been made */
+    virtual void EnableUI(bool fEnable) = 0;    /* sent to enable/disable the move UI */
 };

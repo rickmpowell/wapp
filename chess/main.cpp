@@ -28,7 +28,7 @@ int Run(const string& sCmdLine, int sw)
 WAPP::WAPP(const string& wsCmdLine, int sw) : 
     game(fenStartPos, make_shared<PLHUMAN>("Rick"), make_shared<PLHUMAN>("Hazel")),
     wnboard(*this, game),
-    wntest(*this),
+    wnlog(*this),
     cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND),
     rand(3772432297UL)
 {
@@ -66,7 +66,7 @@ void WAPP::Layout(void)
 
     rc.left = rc.right + dxyMargin;
     rc.right = rc.left + 300;
-    wntest.SetBounds(rc);
+    wnlog.SetBounds(rc);
 }
 
 int WAPP::MsgPump(void)
@@ -146,7 +146,6 @@ public:
         dlg.Extract(wapp.game);
         wapp.game.InitFromFen(fenStartPos);
         wapp.game.cgaPlayed++;
-        wapp.game.AttachUI(wapp);
         wapp.game.RequestMv(wapp);
         return 1;
     }
@@ -160,7 +159,7 @@ public:
 
     virtual int Undo(void) override {
         wapp.game = gameUndo;
-        wapp.game.NotifyListeners();
+        wapp.game.NotifyBdChanged();
         return 1;
     }
 
@@ -188,10 +187,10 @@ public:
     
     virtual int Execute(void) override
     {
-        DLGPERFT dlg(wapp, wapp.wntest);
+        DLGPERFT dlg(wapp, wapp.wnlog);
         if (!FRunDlg(dlg))
             return 0;
-        dlg.Extract(wapp.wntest);
+        dlg.Extract(wapp.wnlog);
         wapp.RunPerft();
         return 1;
     }
@@ -221,7 +220,8 @@ CMDEXECUTE(CMDTESTPERFTSUITE)
 
 int CMDMAKEMOVE::Execute(void) 
 {
-    wapp.game.AttachUI(wapp);
+    wapp.game.NotifyEnableUI(false);
+    wapp.game.NotifyShowMv(mv, fAnimate);
     wapp.game.MakeMv(mv);
     unique_ptr<CMDREQUESTMOVE> pcmdRequest = make_unique<CMDREQUESTMOVE>(wapp);
     wapp.PostCmd(*pcmdRequest);
@@ -406,7 +406,7 @@ public:
 
     virtual int Undo(void) override {
         swap(wapp.game, gameUndo);
-        wapp.game.NotifyListeners();
+        wapp.game.NotifyBdChanged();
         return 1;
     }
 

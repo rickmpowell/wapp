@@ -228,9 +228,11 @@ bool BD::FMakeMvLegal(MV& mv) noexcept
     return false;
 }
 
+/* also used by eval */
+const int mptcpphase[tcpMax] = { 0, 0, phaseMinor, phaseMinor, phaseRook, phaseQueen, 0 };
+
 int BD::PhaseCur(void) const
 {
-    static const int mptcpphase[tcpMax] = { 0, 0, phaseMinor, phaseMinor, phaseRook, phaseQueen, 0 };
     int phase = phaseMax;
     for (CCP ccp = ccpWhite; ccp <= ccpBlack; ++ccp) {
         for (int icp = 0; icp < icpMax; ++icp) {
@@ -435,12 +437,15 @@ string BD::FenRender(void) const
 
     /* en passant */
 
-    fen += " " + to_string(sqEnPassant);
+    fen += " ";
+    fen += to_string(sqEnPassant);
     
     /* half move clock and full move */
     
-    fen += " " + to_string(cmvLastCaptureOrPawn);
-    fen += " " + to_string(1 + vmvGame.size() / 2);
+    fen += " ";
+    fen += to_string((int)cmvLastCaptureOrPawn);
+    fen += " ";
+    fen += to_string(1 + vmvGame.size() / 2);
 
     return fen;
 }

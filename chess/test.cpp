@@ -11,7 +11,7 @@
 bool fValidate = false;
 
 /*
- *	WNTEST
+ *	WNLOG
  * 
  *	Our test window, which is basically a fancy log viewer. The WNTEST class
  *	supports the ostream interface, so you can use << to write things to 
@@ -20,7 +20,7 @@ bool fValidate = false;
  *	wntest << "Log this" << endl;
  */
 
-WNTEST::WNTEST(WN& wnParent) : 
+WNLOG::WNLOG(WN& wnParent) : 
     WNSTREAM(wnParent), 
     SCROLLER((WN&)*this),
     titlebar(*this, "Tests"), 
@@ -30,7 +30,7 @@ WNTEST::WNTEST(WN& wnParent) :
 {
 }
 
-void WNTEST::Layout(void)
+void WNLOG::Layout(void)
 {
 	/* TODO: use layout engine */
     RC rcInt = RcInterior();
@@ -52,35 +52,35 @@ void WNTEST::Layout(void)
     dyLine = SzFromS("ag", tfTest).height + 2.0f;
 }
 
-void WNTEST::Draw(const RC& rcUpdate)
+void WNLOG::Draw(const RC& rcUpdate)
 {
     DrawView(rcUpdate & RcView());
 }
 
-CO WNTEST::CoText(void) const
+CO WNLOG::CoText(void) const
 {
     return coBlack;
 }
 
-CO WNTEST::CoBack(void) const
+CO WNLOG::CoBack(void) const
 {
     return coWhite;
 }
 
-void WNTEST::clear(void)
+void WNLOG::clear(void)
 {
     vs.clear();
     SetViewOffset(PT(0, 0));
     SetContentLines(1);
 }
 
-void WNTEST::ReceiveStream(const string& s)
+void WNLOG::ReceiveStream(const string& s)
 {
     vs.push_back(s);
     SetContentLines(vs.size());
 }
 
-void WNTEST::DrawView(const RC& rcUpdate)
+void WNLOG::DrawView(const RC& rcUpdate)
 {
     string s;
     RC rcLine(RcView());
@@ -98,13 +98,13 @@ void WNTEST::DrawView(const RC& rcUpdate)
 class CMDCOPYTEST : public CMD<CMDCOPYTEST, WAPP>
 {
 public:
-	CMDCOPYTEST(WNTEST& wntest) : CMD(Wapp(wntest.iwapp)), wntest(wntest) { }
+	CMDCOPYTEST(WNLOG& wnlog) : CMD(Wapp(wnlog.iwapp)), wnlog(wnlog) { }
 
 	virtual int Execute(void) override
 	{
 		try {
 			oclipstream os(wapp, CF_TEXT);
-			wntest.RenderLog(os);
+			wnlog.RenderLog(os);
 		}
 		catch (ERR err) {
 			wapp.Error(ERRAPP(rssErrCopyFailed), err);
@@ -114,28 +114,28 @@ public:
 	}
 
 protected:
-	WNTEST& wntest;
+	WNLOG& wnlog;
 };
 
 class CMDCLEARTEST : public CMD<CMDCLEARTEST, WAPP>
 {
 public:
-	CMDCLEARTEST(WNTEST& wntest) : CMD(Wapp(wntest.iwapp)), wntest(wntest) { }
+	CMDCLEARTEST(WNLOG& wnlog) : CMD(Wapp(wnlog.iwapp)), wnlog(wnlog) { }
 
 	virtual int Execute(void) override
 	{
-		wntest.clear();
+		wnlog.clear();
 		return 1;
 	}
 
 protected:
-	WNTEST& wntest;
+	WNLOG& wnlog;
 };
 
-TOOLBARTEST::TOOLBARTEST(WNTEST& wntest) :
-	TOOLBAR(wntest),
-	btnCopy(*this, new CMDCOPYTEST(wntest), SFromU8(u8"\u2398")),
-	btnClear(*this, new CMDCLEARTEST(wntest), SFromU8(u8"\u239a"))
+TOOLBARLOG::TOOLBARLOG(WNLOG& wnlog) :
+	TOOLBAR(wnlog),
+	btnCopy(*this, new CMDCOPYTEST(wnlog), SFromU8(u8"\u2398")),
+	btnClear(*this, new CMDCLEARTEST(wnlog), SFromU8(u8"\u239a"))
 {
 	btnCopy.SetLayout(LCTL::SizeToFit);
 	btnCopy.SetPadding(0);
@@ -143,7 +143,7 @@ TOOLBARTEST::TOOLBARTEST(WNTEST& wntest) :
 	btnClear.SetPadding(0);
 }
 
-void TOOLBARTEST::Layout(void)
+void TOOLBARLOG::Layout(void)
 {
 	/* TODO: use layout engine */
 	RC rc(RcInterior());
@@ -158,7 +158,7 @@ void TOOLBARTEST::Layout(void)
  *  Handles mouse wheeling over the scrollable area 
  */
 
-void WNTEST::Wheel(const PT& pt, int dwheel)
+void WNLOG::Wheel(const PT& pt, int dwheel)
 {
     if (!RcView().FContainsPt(pt) || vs.size() <= 1)
         return;
@@ -170,7 +170,7 @@ void WNTEST::Wheel(const PT& pt, int dwheel)
     Redraw();
 }
 
-void WNTEST::SetContentLines(size_t cs)
+void WNLOG::SetContentLines(size_t cs)
 {
     SetContent(RC(PT(0), SZ(RcView().dxWidth(), cs*dyLine)));
     float yc = RccView().bottom + 
@@ -179,17 +179,17 @@ void WNTEST::SetContentLines(size_t cs)
     Redraw();
 }
 
-int WNTEST::IsFromY(float y) const
+int WNLOG::IsFromY(float y) const
 {
     return (int)floorf((y - RcContent().top) / dyLine);
 }
 
-float WNTEST::YFromIs(int is) const
+float WNLOG::YFromIs(int is) const
 {
     return RcContent().top + is * dyLine;
 }
 
-void WNTEST::RenderLog(ostream& os) const
+void WNLOG::RenderLog(ostream& os) const
 {
 	for (int is = 0; is < vs.size(); is++)
 		os << vs[is] << endl;
@@ -204,39 +204,40 @@ void WNTEST::RenderLog(ostream& os) const
 void WAPP::RunPerft(void)
 {
     wnboard.Enable(false);
-    wntest.clear();
+    wnlog.clear();
 
-	switch (wntest.tperft) {
+	/* TODO: move these settings from wnlog to waoo */
+	switch (wnlog.tperft) {
 
 	case TPERFT::Perft:
 	case TPERFT::Bulk:
 	{
-		for (int d = 1; d <= wntest.dPerft; d++) {
+		for (int d = 1; d <= wnlog.dPerft; d++) {
 			auto tmStart = chrono::high_resolution_clock::now();
-			int64_t cmv = wntest.tperft == TPERFT::Perft ? game.bd.CmvPerft(d) : game.bd.CmvBulk(d);
+			int64_t cmv = wnlog.tperft == TPERFT::Perft ? game.bd.CmvPerft(d) : game.bd.CmvBulk(d);
 			chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tmStart;
-			wntest << (wntest.tperft == TPERFT::Perft ? "Perft" : "Bulk") << " " << d << ": " << cmv << endl;
-			wntest << indent(1) << "Time: " << (uint32_t)round(dtm.count() * 1000.0f) << " ms" << endl;
-			wntest << indent(1) << "moves/ms: " << (uint32_t)round((float)cmv / dtm.count() / 1000.0f) << endl;
+			wnlog << (wnlog.tperft == TPERFT::Perft ? "Perft" : "Bulk") << " " << d << ": " << cmv << endl;
+			wnlog << indent(1) << "Time: " << (uint32_t)round(dtm.count() * 1000.0f) << " ms" << endl;
+			wnlog << indent(1) << "moves/ms: " << (uint32_t)round((float)cmv / dtm.count() / 1000.0f) << endl;
 		}
 		break;
 	}
 
 	case TPERFT::Divide:
 	{
-		int d = wntest.dPerft;
+		int d = wnlog.dPerft;
 		VMV vmv;
 		game.bd.MoveGen(vmv);
 		int64_t cmv = 0;
-		wntest << "Divide depth " << d << endl;
+		wnlog << "Divide depth " << d << endl;
 		for (MV& mv : vmv) {
 			game.bd.MakeMv(mv);
 			int64_t cmvMove = game.bd.CmvPerft(d - 1);
-			wntest << indent(1) << (string)mv << " " << cmvMove << endl;
+			wnlog << indent(1) << (string)mv << " " << cmvMove << endl;
 			cmv += cmvMove;
 			game.bd.UndoMv(mv);
 		}
-		wntest << "Total: " << cmv << endl;
+		wnlog << "Total: " << cmv << endl;
 		break;
 	}
 	}
@@ -448,7 +449,7 @@ struct {
 
 void WAPP::RunPerftSuite(void)
 {
-	wntest.clear();
+	wnlog.clear();
 
 	chrono::microseconds usTotal = chrono::microseconds(0);
 	int64_t cmvTotal = 0;
@@ -462,7 +463,7 @@ void WAPP::RunPerftSuite(void)
 	}
 
 	float sp = 1000.0f * (float)cmvTotal / (float)usTotal.count();
-	wntest << "Average Speed: " << (int)round(sp) << " moves/ms" << endl;
+	wnlog << "Average Speed: " << (int)round(sp) << " moves/ms" << endl;
 }
 
 /*	WAPP::RunOnePerftTest
@@ -483,13 +484,13 @@ bool WAPP::RunOnePerftTest(const char tag[], const char fen[], const int64_t mpd
 	float spMax = IfDebug(2200.0f, 23000.0f);	/* this is in moves per millisecond, determined emperically */
 	int64_t cmvMax = (int64_t)(spMax * 1000.0f * 60.0f);	/* one minute max */
 
-	wntest << tag << endl;
+	wnlog << tag << endl;
 	for (int d = 1; mpdcmv[d] && mpdcmv[d] < cmvMax; d++) {
 
 		if (mpdcmv[d] < 0)
 			continue;
-		wntest << indent(1) << "Depth: " << d << endl;
-		wntest << indent(2) << "Expected: " << mpdcmv[d] << endl;
+		wnlog << indent(1) << "Depth: " << d << endl;
+		wnlog << indent(2) << "Expected: " << mpdcmv[d] << endl;
 
 		/* time the perft */
 		chrono::time_point<chrono::high_resolution_clock> tpStart = chrono::high_resolution_clock::now();
@@ -500,14 +501,14 @@ bool WAPP::RunOnePerftTest(const char tag[], const char fen[], const int64_t mpd
 		chrono::duration dtp = tpEnd - tpStart;
 		chrono::microseconds us = duration_cast<chrono::microseconds>(dtp);
 		float sp = 1000.0f * (float)cmvActual / (float)us.count();
-		wntest << indent(2) << "Actual: " << cmvActual << endl;
-		wntest << indent(2) << "Speed: " << (int)round(sp) << " moves/ms" << endl;
+		wnlog << indent(2) << "Actual: " << cmvActual << endl;
+		wnlog << indent(2) << "Speed: " << (int)round(sp) << " moves/ms" << endl;
 		usTotal += us;
 		cmvTotal += cmvActual;
 
 		/* handle success/failure */
 		if (mpdcmv[d] != cmvActual) {
-			wntest << indent(2) << "Failed" << endl;
+			wnlog << indent(2) << "Failed" << endl;
 			return false;
 		}
 	}
@@ -553,7 +554,7 @@ int64_t BD::CmvBulk(int d)
 	return cmv;
 }
 
-int64_t WNTEST::CmvDivide(BD& bd, int d)
+int64_t WNLOG::CmvDivide(BD& bd, int d)
 {
 	if (d == 0)
 		return 1;
@@ -595,7 +596,7 @@ protected:
 	VSELPERFT& vsel;
 };
 
-DLGPERFT::DLGPERFT(WN& wnParent, WNTEST& wntest) :
+DLGPERFT::DLGPERFT(WN& wnParent, WNLOG& wnlog) :
 	DLG(wnParent),
 	title(*this, rssPerftTitle),
 	instruct(*this, rssPerftInstructions),
@@ -604,21 +605,21 @@ DLGPERFT::DLGPERFT(WN& wnParent, WNTEST& wntest) :
 	cycleDepth(*this, nullptr),
 	btnok(*this)
 {
-	Init(wntest);
+	Init(wnlog);
 	staticDepth.SetFont(sFontUI, 24);
 	cycleDepth.SetFont(sFontUI, 24);
 }
 
-void DLGPERFT::Init(WNTEST& wntest)
+void DLGPERFT::Init(WNLOG& wnlog)
 {
-	cycleDepth.SetValue(wntest.dPerft);
-	vselperft.SetSelectorCur(static_cast<int>(wntest.tperft) - 1);
+	cycleDepth.SetValue(wnlog.dPerft);
+	vselperft.SetSelectorCur(static_cast<int>(wnlog.tperft) - 1);
 }
 
-void DLGPERFT::Extract(WNTEST& wntest)
+void DLGPERFT::Extract(WNLOG& wnlog)
 {
-	wntest.dPerft = cycleDepth.ValueGet();
-	wntest.tperft = static_cast<TPERFT>(vselperft.GetSelectorCur() + 1);
+	wnlog.dPerft = cycleDepth.ValueGet();
+	wnlog.tperft = static_cast<TPERFT>(vselperft.GetSelectorCur() + 1);
 }
 
 void DLGPERFT::Layout(void)

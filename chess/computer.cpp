@@ -8,14 +8,14 @@
 
 #include "chess.h"
 
-WNTEST* pwntest = nullptr;  // logging
+WNLOG* pwnlog = nullptr;  // logging
 
 PL::PL(void)
 {
 }
 
-PLCOMPUTER::PLCOMPUTER(const SETAI& setai) :
-    setai(setai)
+PLCOMPUTER::PLCOMPUTER(const SETAI& set) :
+    set(set)
 {
 }
 
@@ -31,21 +31,17 @@ bool PLCOMPUTER::FIsHuman(void) const
 
 int PLCOMPUTER::Level(void) const
 {
-    return setai.level;
+    return set.level;
 }
 
 void PLCOMPUTER::SetLevel(int level)
 {
-    setai.level = level;
-}
-
-void PLCOMPUTER::AttachUI(WNBOARD* pwnboard)
-{
+    set.level = level;
 }
 
 void PLCOMPUTER::RequestMv(WAPP& wapp, GAME& game)
 {
-    pwntest = &wapp.wntest;
+    pwnlog = &wapp.wnlog;
     MV mv = MvBest(game.bd);
     unique_ptr<CMDMAKEMOVE> pcmdMakeMove = make_unique<CMDMAKEMOVE>(wapp);
     pcmdMakeMove->SetMv(mv);
@@ -62,28 +58,33 @@ void PLCOMPUTER::RequestMv(WAPP& wapp, GAME& game)
 MV PLCOMPUTER::MvBest(BD& bd) noexcept
 {
     /* prepare for search */
+    InitStats();
     InitWeightTables();
 
     VMV vmv;
     bd.MoveGen(vmv);
+    cmvMoveGen += vmv.size();
     MV mvBest;
     AB ab(-evInfinity, evInfinity);
 
-    *pwntest << "Eval: " << EvStatic(bd) << endl;
+    *pwnlog << "FEN: " << bd.FenRender() << endl;
+    *pwnlog << indent(1) << "Eval: " << EvStatic(bd) << endl;
 
     for (MV mv : vmv) {
-        *pwntest << indent(1) << to_string(mv) << " ";
+        *pwnlog << indent(1) << to_string(mv) << " ";
         bd.MakeMv(mv);
-        EV ev = -EvSearch(bd, -ab, 0, 4);
+        EV ev = -EvSearch(bd, -ab, 0, set.level+1);
         bd.UndoMv(mv);
-        *pwntest << ev << endl;
+        *pwnlog << ev << endl;
         if (ev > ab.evAlpha) {
             ab.evAlpha = ev;
             mvBest = mv;
         }
     }
 
-    *pwntest << "Best move: " << to_string(mvBest) << endl;
+    chrono::time_point<chrono::high_resolution_clock> tpEnd = chrono::high_resolution_clock::now();
+    *pwnlog << "Best move: " << to_string(mvBest) << endl;
+    LogStats(tpEnd);
 
     return mvBest;
 }
@@ -104,14 +105,16 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
     if (d >= dLim)
         return EvQuiescent(bd, ab, d);
 
+    cmvSearch++;
     VMV vmv;
     bd.MoveGenPseudo(vmv);
+    cmvMoveGen += vmv.size();
     int cmvLegal = 0;
     for (MV mv : vmv) {
         if (!bd.FMakeMvLegal(mv))
             continue;
         cmvLegal++;
-            EV ev = -EvSearch(bd, -ab, d+1, dLim);
+        EV ev = -EvSearch(bd, -ab, d+1, dLim);
         bd.UndoMv(mv);
         if (ab.FPrune(ev))
             return ab.evBeta;
@@ -142,8 +145,10 @@ EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
     if (ab.FPrune(ev))
         return ab.evBeta;
 
+    cmvSearch++;
     VMV vmv;
     bd.MoveGenNoisy(vmv);
+    cmvMoveGen += vmv.size();
     for (MV mv : vmv) {
         if (!bd.FMakeMvLegal(mv))
             continue;
@@ -164,6 +169,7 @@ EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
 
 EV PLCOMPUTER::EvStatic(BD& bd) noexcept
 {
+    cmvEval++;
     EV ev = 0;
     ev += EvFromPst(bd);
     return ev;
@@ -178,79 +184,26 @@ EV PLCOMPUTER::EvStatic(BD& bd) noexcept
 
 EV PLCOMPUTER::EvFromPst(const BD& bd) const noexcept
 {
-    EV mpccpev1[2] = { 0, 0 };
-    EV mpccpev2[2] = { 0, 0 };
-    int phase = bd.PhaseCur();	
+    EV mpccpevMid[2] = { 0, 0 };
+    EV mpccpevEnd[2] = { 0, 0 };
+    int phase = phaseMax;	
 
-    /* opening */
-
-    if (phase < phaseOpeningLim) {
-        ComputeWeightedEv1(bd, mpccpev1, mpcpsqevOpen);
-        return mpccpev1[bd.ccpToMove] - mpccpev1[~bd.ccpToMove];
-    }
-
-    /* end game */
-
-    if (phase >= phaseEndFirst) {
-        ComputeWeightedEv1(bd, mpccpev1, mpcpsqevEnd);
-        return mpccpev1[bd.ccpToMove] - mpccpev1[~bd.ccpToMove];
-    }
-
-    /* middle game, which ramps from opening to mid-mid, then ramps from mid-mid
-       to end game */
-
-    if (phase < phaseMidMid) {
-        ComputeWeightedEv2(bd, mpccpev1, mpccpev2, mpcpsqevOpen, mpcpsqevMid);
-        return EvInterpolate(phase, 
-                             mpccpev1[bd.ccpToMove] - mpccpev1[~bd.ccpToMove], phaseOpeningLim,
-                             mpccpev2[bd.ccpToMove] - mpccpev2[~bd.ccpToMove], phaseMidMid);
-    }
-    else {
-        ComputeWeightedEv2(bd, mpccpev1, mpccpev2, mpcpsqevMid, mpcpsqevEnd);
-        return EvInterpolate(phase,
-                             mpccpev1[bd.ccpToMove] - mpccpev1[~bd.ccpToMove], phaseMidMid,
-                             mpccpev2[bd.ccpToMove] - mpccpev2[~bd.ccpToMove], phaseEndFirst);
-    }
-}
-
-/*	
- *  PLCOMPUTER::ComputeWeightedEv1
- *
- *	Scans the board looking for pieces, looks them up in the piece/square
- *	valuation table, and keeps a running sum of the square/piece values for
- *	each side. Stores the result in mpccpev.
- */
-
-void PLCOMPUTER::ComputeWeightedEv1(const BD& bd, 
-                                    EV mpccpev[], 
-                                    const EV mpcpsqev[cpMax][sqMax]) const noexcept
-{
     for (CCP ccp = ccpWhite; ccp <= ccpBlack; ++ccp) {
         for (int icp = 0; icp < 16; ++icp) {
             int icpbd = bd.aicpbd[ccp][icp];
             if (icpbd == -1)
                 continue;
             SQ sq = SqFromIcpbd(icpbd);
-            mpccpev[ccp] += mpcpsqev[bd.acpbd[icpbd].cp()][sq];
+            CP cp = bd.acpbd[icpbd].cp();
+            mpccpevMid[ccp] += mpcpsqevMid[cp][sq];
+            mpccpevEnd[ccp] += mpcpsqevEnd[cp][sq];
+            phase -= mptcpphase[bd.acpbd[icpbd].tcp];
         }
     }
-}
 
-void PLCOMPUTER::ComputeWeightedEv2(const BD& bd, 
-                                    EV mpccpev1[], EV mpccpev2[],
-                                    const EV mpcpsqev1[cpMax][sqMax],
-                                    const EV mpcpsqev2[cpMax][sqMax]) const noexcept
-{
-    for (CCP ccp = ccpWhite; ccp <= ccpBlack; ++ccp) {
-        for (int icp = 0; icp < 16; ++icp) {
-            int icpbd = bd.aicpbd[ccp][icp];
-            if (icpbd == -1)
-                continue;
-            SQ sq = SqFromIcpbd(icpbd);
-            mpccpev1[ccp] += mpcpsqev1[bd.acpbd[icpbd].cp()][sq];
-            mpccpev2[ccp] += mpcpsqev2[bd.acpbd[icpbd].cp()][sq];
-        }
-    }
+    return EvInterpolate(clamp(phase, phaseMidFirst, phaseEndFirst),
+                         mpccpevMid[bd.ccpToMove] - mpccpevMid[~bd.ccpToMove], phaseMidFirst,
+                         mpccpevEnd[bd.ccpToMove] - mpccpevEnd[~bd.ccpToMove], phaseEndFirst);
 }
 
 #include "piecetables.h"
@@ -259,12 +212,12 @@ void PLCOMPUTER::ComputeWeightedEv2(const BD& bd,
  *  PLCOMPUTER::InitWeightTables
  *
  *	Initializes the piece value weight tables for the different phases of the
- *	game.
+ *	game. We may build these tables on the fly in the future, but for now
+ *  we waste a little time at beginning of search, but it's not a big deal.
  */
 
 void PLCOMPUTER::InitWeightTables(void) noexcept
 {
-    InitWeightTable(mptcpevOpen, mptcpsqdevOpen, mpcpsqevOpen);
     InitWeightTable(mptcpevMid, mptcpsqdevMid, mpcpsqevMid);
     InitWeightTable(mptcpevEnd, mptcpsqdevEnd, mpcpsqevEnd);
 }
@@ -274,8 +227,8 @@ void PLCOMPUTER::InitWeightTable(EV mptcpev[tcpMax], EV mptcpsqdev[tcpMax][sqMax
     memset(mpcpsqev, 0, sizeof(EV)*cpMax*sqMax);
     for (TCP tcp = tcpPawn; tcp < tcpMax; ++tcp) {
         for (SQ sq = 0; sq < sqMax; ++sq) {
-            mpcpsqev[Cp(ccpWhite, tcp)][sq] = mptcpev[tcp] + mptcpsqdev[tcp][sq];
-            mpcpsqev[Cp(ccpBlack, tcp)][sq] = mptcpev[tcp] + mptcpsqdev[tcp][SqFlip(sq)];
+            mpcpsqev[Cp(ccpWhite, tcp)][sq] = mptcpev[tcp] + mptcpsqdev[tcp][SqFlip(sq)];
+            mpcpsqev[Cp(ccpBlack, tcp)][sq] = mptcpev[tcp] + mptcpsqdev[tcp][sq];
         }
     }
 }
@@ -289,6 +242,30 @@ void PLCOMPUTER::InitWeightTable(EV mptcpev[tcpMax], EV mptcpsqdev[tcpMax][sqMax
 EV PLCOMPUTER::EvInterpolate(int phaseCur, EV evFirst, int phaseFirst, EV evLim, int phaseLim) const noexcept
 {
     assert(phaseCur >= phaseFirst && phaseCur <= phaseLim);
-    return evFirst + (evLim-evFirst) * (phaseCur-phaseFirst) / (phaseLim-phaseFirst);
+    return (evFirst * (phaseLim-phaseFirst) + 
+           (evLim-evFirst) * (phaseCur-phaseFirst)) / (phaseLim-phaseFirst);
 }
 
+/*
+ *  search statistics
+ */
+
+void PLCOMPUTER::InitStats(void) noexcept
+{
+    cmvSearch = 0;
+    cmvMoveGen = 0;
+    cmvEval = 0;
+    tpStart = chrono::high_resolution_clock::now();
+}
+
+void PLCOMPUTER::LogStats(chrono::time_point<chrono::high_resolution_clock>& tpEnd) noexcept
+{
+    chrono::duration dtp = tpEnd - tpStart;
+    chrono::microseconds us = duration_cast<chrono::microseconds>(dtp);
+    *pwnlog << indent(1) << "Moves: " << cmvMoveGen << endl;
+    *pwnlog << indent(1) << "Nodes: " << cmvSearch << " | "
+             << (int)roundf((float)(1000*cmvSearch) / us.count()) << " n/ms | "
+             << fixed << setprecision(2) << ((float)(100*cmvSearch) / cmvMoveGen) << " % "
+             << endl;
+    *pwnlog << indent(1) << "Eval: " << cmvEval << endl;
+}

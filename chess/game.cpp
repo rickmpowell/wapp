@@ -39,31 +39,43 @@ void GAME::AddListener(LGAME* plgame)
 void GAME::InitFromFen(istream& is)
 {
     bd.InitFromFen(is);
-    NotifyListeners();
+    NotifyBdChanged();
 }
 
 void GAME::InitFromFen(const string& fen)
 {
     bd.InitFromFen(fen);
-    NotifyListeners();
+    NotifyBdChanged();
 }
 
 void GAME::MakeMv(MV mv)
 {
     bd.MakeMv(mv);
-    NotifyListeners();
+    NotifyBdChanged();
 }
 
 void GAME::UndoMv(MV mv)
 {
     bd.UndoMv(mv);
-    NotifyListeners();
+    NotifyBdChanged();
 }
 
-void GAME::NotifyListeners(void)
+void GAME::NotifyBdChanged(void)
 {
     for (LGAME* plgame : vplgame)
-        plgame->BdChanged(*this);
+        plgame->BdChanged();
+}
+
+void GAME::NotifyShowMv(MV mv, bool fAnimate)
+{
+    for (LGAME* plgame : vplgame)
+        plgame->ShowMv(mv, fAnimate);
+}
+
+void GAME::NotifyEnableUI(bool fEnable)
+{
+    for (LGAME* plgame : vplgame)
+        plgame->EnableUI(fEnable);
 }
 
 bool GAME::FGameOver(void) const
@@ -78,10 +90,4 @@ void GAME::RequestMv(WAPP& wapp)
     if (FGameOver())
         return;
     appl[bd.ccpToMove]->RequestMv(wapp, *this);
-}
-
-void GAME::AttachUI(WAPP& wapp)
-{
-    for (auto ppl : appl)
-        ppl->AttachUI(&wapp.wnboard);
 }

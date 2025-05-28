@@ -199,6 +199,12 @@ public:
         return *this;
     }
 
+    HSV& Complement(void) 
+    {
+        hue = fmod(hue + 180.0f, 360.0f);
+        return *this;
+    }
+
 public:
     float hue, sat, val;
 };

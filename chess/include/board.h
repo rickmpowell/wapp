@@ -447,6 +447,7 @@ public:
     };
 
     inline int size(void) const noexcept { return imvMac; }
+    inline bool empty(void) const noexcept { return imvMac == 0; }
     inline MV& operator [] (int imv) noexcept { return reinterpret_cast<MV*>(amv)[imv]; }
     inline iterator begin(void) noexcept { return iterator(&reinterpret_cast<MV*>(amv)[0]); }
     inline iterator end(void) noexcept { return iterator(&reinterpret_cast<MV*>(amv)[imvMac]); }
@@ -468,6 +469,12 @@ public:
     {
         assert(imvMac > 0);
         --imvMac;
+    }
+
+    inline MV& back(void) noexcept
+    {
+        assert(imvMac > 0);
+        return reinterpret_cast<MV*>(amv)[imvMac - 1];
     }
 
 private:
@@ -497,12 +504,13 @@ constexpr int phaseQueen = 4;
 
 constexpr int phaseMax = 2*phaseQueen + 4*phaseRook + 8*phaseMinor;
 constexpr int phaseMin = 0;
-constexpr int phaseOpeningLim = 0;
-constexpr int phaseMidMid = 0;
+constexpr int phaseMidFirst = phaseMin + 2*phaseMinor;
 constexpr int phaseEndFirst = phaseMax - 2*phaseQueen;
 
 class BD
 {
+    friend class WNBD;
+
 public:
     BD(void);
     BD(const string& fen);
@@ -601,3 +609,5 @@ private:
     }
 #endif
 };
+
+extern const int mptcpphase[tcpMax];

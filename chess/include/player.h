@@ -24,7 +24,6 @@ public:
     virtual bool FIsHuman(void) const = 0;
     virtual string_view SName(void) const = 0;
 
-    virtual void AttachUI(WNBOARD* pwnboard) = 0;
     virtual void RequestMv(WAPP& wapp, GAME& game) = 0;
 
 public:
@@ -44,12 +43,10 @@ public:
     virtual bool FIsHuman(void) const override;
     virtual string_view SName(void) const override;
     void SetName(string_view sName);
-    virtual void AttachUI(WNBOARD* pwnboard) override;
     virtual void RequestMv(WAPP& wapp, GAME& game) override;
 
 private:
     string sName;
-    WNBOARD* pwnboard = nullptr;
 };
 
 /*
@@ -141,7 +138,6 @@ public:
     int Level(void) const;
     void SetLevel(int level);
 
-    virtual void AttachUI(WNBOARD* pwnboard) override;
     virtual void RequestMv(WAPP& wapp, GAME& game) override;
 
     MV MvBest(BD& bd) noexcept;
@@ -149,19 +145,10 @@ public:
     EV EvQuiescent(BD& bd, AB ab, int d) noexcept;
     EV EvStatic(BD& bd) noexcept;
 
-public:
-    SETAI setai;
-
+private:
     /* piece tables */
 
     EV EvFromPst(const BD& bd) const noexcept;
-    void ComputeWeightedEv1(const BD& bd,
-                            EV mpccpev[],
-                            const EV mpcpsqev[cpMax][sqMax]) const noexcept;
-    void ComputeWeightedEv2(const BD& bd,
-                            EV mpccpev1[], EV mpccpev2[],
-                            const EV mpcpsqev1[cpMax][sqMax],
-                            const EV mpcpsqev2[cpMax][sqMax]) const noexcept;
     void InitWeightTables(void) noexcept;
     void InitWeightTable(EV mptpcev[tcpMax], 
                          EV mptcpsqdev[tcpMax][sqMax], 
@@ -169,8 +156,19 @@ public:
     EV EvInterpolate(int phase, 
                      EV evFirst, int phaseFirst, 
                      EV evLim, int phaseLim) const noexcept;
-    EV mpcpsqevOpen[cpMax][sqMax];
     EV mpcpsqevMid[cpMax][sqMax];
     EV mpcpsqevEnd[cpMax][sqMax];
+
+    /* stats */
+
+    void InitStats(void) noexcept;
+    void LogStats(chrono::time_point<chrono::high_resolution_clock>& tpEnd) noexcept;
+    int64_t cmvSearch = 0;
+    int64_t cmvMoveGen = 0;
+    int64_t cmvEval = 0;
+    chrono::time_point<chrono::high_resolution_clock> tpStart;
+
+public:
+    SETAI set;
 };
 
