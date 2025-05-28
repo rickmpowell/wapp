@@ -19,7 +19,8 @@ string SFromWs(wstring_view ws);
 
 string SCapitalizeFirst(const string& s);
 
-inline const char* SFromU8(const char8_t* s) {
+inline const char* SFromU8(const char8_t* s) 
+{
     return reinterpret_cast<const char*>(s);
 }
 
@@ -28,7 +29,8 @@ inline const char* SFromU8(const char8_t* s) {
  */
 
 template <typename T>
-bool inrange(const T& t, const T& tFirst, const T& tLast) {
+bool inrange(const T& t, const T& tFirst, const T& tLast) 
+{
     return t >= tFirst && t <= tLast;
 }
 

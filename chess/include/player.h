@@ -73,9 +73,20 @@ constexpr EV evMax = evCanceled + 1;
 constexpr EV evBias = evInfinity;						/* used to bias evaluations for saving as an unsigned */
 static_assert(evMax <= 16384);					/* there is code that asssumes EV stores in 15 bits */
 
-inline EV EvMate(int d) noexcept { return evMate - d; }
-inline bool FEvIsMate(EV ev) noexcept { return ev >= evMateMin; }
-inline int DFromEvMate(EV ev) noexcept { return evMate - ev; }
+inline EV EvMate(int d) noexcept 
+{
+    return evMate - d; 
+}
+
+inline bool FEvIsMate(EV ev) noexcept 
+{
+    return ev >= evMateMin; 
+}
+
+inline int DFromEvMate(EV ev) noexcept 
+{
+    return evMate - ev; 
+}
 
 /*
  *  AB 

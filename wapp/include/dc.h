@@ -84,8 +84,15 @@ public:
 public:
     BMP(void) : pbitmap(nullptr) {}
 
-    operator ID2D1Bitmap1* () const { return pbitmap.Get(); }
-    SZ sz(void) const { return pbitmap->GetSize(); }
+    operator ID2D1Bitmap1* () const 
+    {
+        return pbitmap.Get(); 
+    }
+    
+    SZ sz(void) const 
+    { 
+        return pbitmap->GetSize(); 
+    }
 
     void reset(void);
     ID2D1Bitmap* release(void);
@@ -115,7 +122,8 @@ public:
     explicit GEOM(DC& dc, const vector<PT>& vpt);
     explicit GEOM(DC& dc, const PT apt[], size_t cpt);
 
-    operator ID2D1PathGeometry* () const {
+    operator ID2D1PathGeometry* () const 
+    {
         return pgeometry.Get();
     }
 

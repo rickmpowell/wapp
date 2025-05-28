@@ -182,12 +182,15 @@ private:
 class GUARDTFALIGNMENT
 {
 public:
-    GUARDTFALIGNMENT(TF& tf, DWRITE_TEXT_ALIGNMENT ta) : tf(tf) {
+    GUARDTFALIGNMENT(TF& tf, DWRITE_TEXT_ALIGNMENT ta) : 
+        tf(tf) 
+    {
         taSav = tf.ptf->GetTextAlignment();
         tf.ptf->SetTextAlignment(ta);
     }
 
-    ~GUARDTFALIGNMENT() {
+    ~GUARDTFALIGNMENT() 
+    {
         tf.ptf->SetTextAlignment(taSav);
     }
 
@@ -205,12 +208,15 @@ private:
 struct GUARDDCTRANSFORM
 {
 public:
-    GUARDDCTRANSFORM(DC& dc, const D2D1_MATRIX_3X2_F& matrix) : dc(dc) {
+    GUARDDCTRANSFORM(DC& dc, const D2D1_MATRIX_3X2_F& matrix) : 
+        dc(dc) 
+    {
         dc.iwapp.pdc2->GetTransform(&matrixSav);
         dc.iwapp.pdc2->SetTransform(matrix);
     }
 
-    ~GUARDDCTRANSFORM() {
+    ~GUARDDCTRANSFORM()
+    {
         dc.iwapp.pdc2->SetTransform(matrixSav);
     }
 
@@ -228,12 +234,15 @@ private:
 struct GUARDDCAA
 {
 public:
-    GUARDDCAA(DC& dc, D2D1_ANTIALIAS_MODE aa) : dc(dc) {
+    GUARDDCAA(DC& dc, D2D1_ANTIALIAS_MODE aa) :
+        dc(dc) 
+    {
         aaSav = dc.iwapp.pdc2->GetAntialiasMode();
         dc.iwapp.pdc2->SetAntialiasMode(aa);
     }
 
-    ~GUARDDCAA() {
+    ~GUARDDCAA() 
+    {
         dc.iwapp.pdc2->SetAntialiasMode(aaSav);
     }
 

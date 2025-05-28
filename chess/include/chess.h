@@ -171,7 +171,8 @@ private:
     queue<unique_ptr<ICMD>> qpcmd; // command queue
 };
 
-inline WAPP& Wapp(IWAPP& iwapp) {
+inline WAPP& Wapp(IWAPP& iwapp) 
+{
     return static_cast<WAPP&>(iwapp);
 }
 

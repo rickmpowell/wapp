@@ -17,58 +17,68 @@
 class CO : public D2D1_COLOR_F
 {
 public:
-    CO(void) {
+    CO(void) 
+    {
         this->r = 0;
         this->g = 0;
         this->b = 0;
         this->a = 1.0f;
     }
 
-    constexpr CO(float r, float g, float b, float a=1.0f) {
+    constexpr CO(float r, float g, float b, float a=1.0f) 
+    {
         this->r = r;
         this->g = g;
         this->b = b;
         this->a = a;
     }
 
-    constexpr CO(UINT32 rgb, float a=1.0f) {
+    constexpr CO(UINT32 rgb, float a=1.0f) 
+    {
         this->r = static_cast<float>((rgb & 0xff0000) >> 16) / 255.f;
         this->g = static_cast<float>((rgb & 0x00ff00) >> 8) / 255.f;
         this->b = static_cast<float>((rgb & 0x0000ff) >> 0) / 255.f;
         this->a = a;
     }
 
-    constexpr CO(const CO& co, float a) {
+    constexpr CO(const CO& co, float a) 
+    {
         this->r = co.r;
         this->g = co.g;
         this->b = co.b;
         this->a = a;
     }
 
-    bool operator == (const CO& co) const {
+    bool operator == (const CO& co) const 
+    {
         return r == co.r && g == co.g && b == co.b && a == co.a;
     }
 
-    bool operator != (const CO& co) const {
+    bool operator != (const CO& co) const 
+    {
         return !(*this == co);
     }
 
-    CO operator * (float scale) const {
+    CO operator * (float scale) const 
+    {
         return CO(r*scale, g*scale, b*scale);
     }
 
-    CO& operator *= (float scale) {
+    CO& operator *= (float scale) 
+    {
         r *= scale;
         g *= scale;
         b *= scale;
         return *this;
     }
 
-    CO operator / (float scale) const {
+    CO operator / (float scale) const 
+    {
         return CO(r/scale, g/scale, b/scale);
     }
 
-    CO& operator /= (float scale) {
+    CO& operator /= (float scale) 
+    {
         r /= scale;
         g /= scale;
         b /= scale;
@@ -79,31 +89,37 @@ public:
     CO& SetSaturation(float sat);
     CO& SetValue(float val);
 
-    CO CoSetHue(float hue) const {
+    CO CoSetHue(float hue) const 
+    {
         CO co(*this);
         return co.SetHue(hue);
     }
 
-    CO CoSetSaturation(float sat) const {
+    CO CoSetSaturation(float sat) const 
+    {
         CO co(*this);
         return co.SetSaturation(sat);
     }
 
-    CO CoSetValue(float val) const {
+    CO CoSetValue(float val) const 
+    {
         CO co(*this);
         return co.SetValue(val);
     }
 
-    float luminance(void) const {
+    float luminance(void) const 
+    {
         return r*0.299f + g*0.587f + b*0.114f;
     }
 
-    CO& MakeGrayscale(void) {
+    CO& MakeGrayscale(void) 
+    {
         r = g = b = luminance();
         return *this;
     }
 
-    CO CoGrayscale(void) const {
+    CO CoGrayscale(void) const 
+    {
         CO co(*this);
         return co.MakeGrayscale();
     }
@@ -146,7 +162,8 @@ public:
         }
     }
 
-    operator CO() const {
+    operator CO() const 
+    {
         int sex = (int)(hue / 60) % 6;
         float dsex = (hue / 60) - (float)sex;  // distnce from the sextant boundary
         float p = val * (1 - sat);
@@ -164,17 +181,20 @@ public:
         }
     }
 
-    HSV& SetHue(float hueNew) {
+    HSV& SetHue(float hueNew) 
+    {
         hue = hueNew;
         return *this;
     }
 
-    HSV& SetSaturation(float satNew) {
+    HSV& SetSaturation(float satNew) 
+    {
         sat = satNew;
         return *this;
     }
 
-    HSV& SetValue(float valNew) {
+    HSV& SetValue(float valNew) 
+    {
         val = valNew;
         return *this;
     }
@@ -183,17 +203,20 @@ public:
     float hue, sat, val;
 };
 
-inline CO& CO::SetHue(float hueNew) {
+inline CO& CO::SetHue(float hueNew) 
+{
     HSV hsv(*this);
     return *this = hsv.SetHue(hueNew);
 }
 
-inline CO& CO::SetSaturation(float satNew) {
+inline CO& CO::SetSaturation(float satNew) 
+{
     HSV hsv(*this);
     return *this = hsv.SetSaturation(satNew);
 }
 
-inline CO& CO::SetValue(float valNew) {
+inline CO& CO::SetValue(float valNew) 
+{
     HSV hsv(*this);
     return *this = hsv.SetValue(valNew);
 }
@@ -222,12 +245,14 @@ inline constexpr float hueMagenta = 300;
  *      pow((1-alpha) * pow(a, gamma) + alpha * pow(b, gamma), 1/gamma)
  */
 
-inline float CompBlend(float a, float b, float alpha) {
+inline float CompBlend(float a, float b, float alpha) 
+{
     return sqrt((1.f-alpha) * a*a +
                 alpha * b*b);
 }
 
-inline CO CoBlend(CO co1, CO co2, float pct = 0.5f) {
+inline CO CoBlend(CO co1, CO co2, float pct = 0.5f) 
+{
     return CO(CompBlend(co1.r, co2.r, pct),
               CompBlend(co1.g, co2.g, pct),
               CompBlend(co1.b, co2.b, pct),

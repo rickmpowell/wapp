@@ -76,7 +76,8 @@ private:
     float YFromIs(int is) const;
 };
 
-class indent {
+class indent 
+{
     int cIndent;
 public:
     explicit indent(int c) : cIndent(c) {}

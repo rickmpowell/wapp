@@ -61,7 +61,8 @@ class CMDOK : public CMD<CMDOK, IWAPP>
 public:
     CMDOK(DLG& dlg) : CMD(dlg.iwapp), dlg(dlg) {}
 
-    virtual int Execute(void) override {
+    virtual int Execute(void) override
+    {
         try {
             dlg.Validate();
             dlg.End(1);
@@ -90,11 +91,13 @@ class CMDCANCEL : public CMDOK
 public:
     CMDCANCEL(DLG& dlg) : CMDOK(dlg) { }
 
-    virtual ICMD* clone(void) const override {
+    virtual ICMD* clone(void) const override 
+    {
         return new CMDCANCEL(*this);
     }
 
-    virtual int Execute(void) override {
+    virtual int Execute(void) override 
+    {
         dlg.End(0);
         return 1;
     }
@@ -105,7 +108,8 @@ class BTNOK : public BTNS
 public:
     /* TODO: localization */
     BTNOK(DLG& dlg, const string& sText = "OK") : 
-        BTNS(dlg, new CMDOK(dlg), sText) {
+        BTNS(dlg, new CMDOK(dlg), sText) 
+    {
     }
 };
 

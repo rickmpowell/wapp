@@ -596,6 +596,8 @@ private:
 #ifndef NDEBUG
     void Validate(void) const noexcept;
 #else
-    inline void Validate(void) const noexcept { }
+    inline void Validate(void) const noexcept 
+    {
+    }
 #endif
 };

@@ -102,7 +102,9 @@ class CMD : public ICMD
 {
 public:
     CMD(WAPP& wapp) : ICMD(), wapp(wapp) {}
-    virtual ICMD* clone(void) const override {
+
+    virtual ICMD* clone(void) const override 
+    {
         return new D(static_cast<const D&>(*this));
     }
 
@@ -124,17 +126,20 @@ public:
     using pointer = MENUITEMINFOW*;
     using reference = MENUITEMINFO&;
 
-    menuiterator(HMENU hmenu, int pos) : hmenu(hmenu), pos(pos) {
+    menuiterator(HMENU hmenu, int pos) : hmenu(hmenu), pos(pos) 
+    {
         memset(&mii, 0, sizeof(mii));
     }
 
-    menuiterator& operator++() {
+    menuiterator& operator++() 
+    {
         ++pos;
         mii.cbSize = 0; // invalidate the mii
         return *this;
     }
 
-    menuiterator operator++ (int) {
+    menuiterator operator++ (int) 
+    {
         if (mii.cbSize == 0)
             UpdateMmi();
         menuiterator it = *this;
@@ -143,31 +148,37 @@ public:
         return it;
     }
 
-    bool operator == (const menuiterator& it) const {
+    bool operator == (const menuiterator& it) const 
+    {
         return hmenu == it.hmenu && pos == it.pos;
     }
 
-    bool operator != (const menuiterator& it) const {
+    bool operator != (const menuiterator& it) const 
+    {
         return !(*this == it);
     }
 
-    difference_type operator - (const menuiterator& it) const {
+    difference_type operator - (const menuiterator& it) const 
+    {
         return static_cast<difference_type>(pos) - static_cast<difference_type>(it.pos);
     }
 
-    reference operator * () {
+    reference operator * () 
+    {
         if (mii.cbSize == 0)
             UpdateMmi();
         return mii;
     }
 
-    pointer operator -> () {
+    pointer operator -> () 
+    {
         if (mii.cbSize == 0)
             UpdateMmi();
         return &mii;
     }
 
-    void UpdateMmi(void) {
+    void UpdateMmi(void) 
+    {
         mii.cbSize = sizeof(mii);
         mii.fMask = MIIM_ID | MIIM_FTYPE | MIIM_SUBMENU;
         mii.cch = 0;
@@ -187,18 +198,21 @@ private:
 class MENU
 {
 public:
-    MENU(HMENU hmenu) : hmenu(hmenu) {
+    MENU(HMENU hmenu) : hmenu(hmenu) 
+    {
         if (hmenu == NULL)
             citem = 0;
         else
             citem = ::GetMenuItemCount(hmenu);
     }
 
-    menuiterator begin(void) {
+    menuiterator begin(void) 
+    {
         return menuiterator(hmenu, 0);
     }
 
-    menuiterator end(void) {
+    menuiterator end(void) 
+    {
         return menuiterator(hmenu, citem);
     }
 

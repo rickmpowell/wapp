@@ -21,12 +21,35 @@ const unsigned facilityApp = 0x0100;
 class ERR
 {
 public:
-    ERR(HRESULT hr, const string& sArg = "") : hr(hr), sArg(sArg) {}
-    bool fApp(void) const { return HRESULT_FACILITY(hr) == facilityApp; }
-    bool fHasVar(void) const { return !sArg.empty(); }
-    string& sVar(void) { return sArg; }
-    int code(void) const { return HRESULT_CODE(hr); }
-    operator HRESULT() const { return hr; }
+    ERR(HRESULT hr, const string& sArg = "") : 
+        hr(hr), sArg(sArg) 
+    {
+    }
+    
+    bool fApp(void) const 
+    { 
+        return HRESULT_FACILITY(hr) == facilityApp; 
+    }
+    
+    bool fHasVar(void) const 
+    { 
+        return !sArg.empty(); 
+    }
+   
+    string& sVar(void) 
+    { 
+        return sArg;
+    }
+    
+    int code(void) const 
+    { 
+        return HRESULT_CODE(hr); 
+    }
+    
+    operator HRESULT() const 
+    { 
+        return hr; 
+    }
 
 private:
     HRESULT hr;
@@ -45,7 +68,9 @@ private:
 class ERRAPP : public ERR
 {
 public:
-    ERRAPP(int rss, const string& sArg = "") : ERR(MAKE_HRESULT(1, facilityApp, rss), sArg) {}
+    ERRAPP(int rss, const string& sArg = "") : ERR(MAKE_HRESULT(1, facilityApp, rss), sArg) 
+    {
+    }
 };
 
 /*
@@ -57,7 +82,9 @@ public:
 class ERRLAST : public ERR
 {
 public:
-    ERRLAST(void) : ERR(::GetLastError()) {}
+    ERRLAST(void) : ERR(::GetLastError()) 
+    {
+    }
 };
 
 /*
@@ -71,7 +98,8 @@ extern const ERR errFail;
  *  ThrowError - throws an error if we have a failed operation
  */
 
-inline void ThrowError(HRESULT hr) {
+inline void ThrowError(HRESULT hr) 
+{
     if (hr != S_OK)
         throw ERR(hr);
 }
