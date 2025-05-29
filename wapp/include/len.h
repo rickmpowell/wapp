@@ -32,13 +32,14 @@ public:
     LEN(WN& wn, const PAD& pad, const PAD& margin);
     LEN(const RC& rc, const PAD& pad, const PAD& margin);
 
-    void Position(CTL& ctl);
+    void Position(WN& wn);
     void PositionBottom(CTL& ctl);
 
     void StartFlow(void);
     void EndFlow(void);
-    void PositionLeft(CTL& ctl);
-    void PositionRight(CTL& ctl);
+    void PositionLeft(WN& wn);
+    void PositionLeft(WN& wn, const SZ& sz);
+    void PositionRight(WN& wn);
     void PositionOK(CTL& ctl);
 
     void StartCenter(CLEN clen);
@@ -57,7 +58,7 @@ private:
     RC rcFlow;
 
     /* centering */
-    vector<CTL*> vpctl;
+    vector<WN*> vpwn;
     PT ptCenterStart;
     SZ szCenterTotal;
     CLEN clen;

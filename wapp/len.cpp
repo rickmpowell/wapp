@@ -35,22 +35,22 @@ LENDLG::LENDLG(DLG& dlg) :
  *  Lays out a control full-width within the layout rectangle
  */
 
-void LEN::Position(CTL& ctl) 
+void LEN::Position(WN& wn) 
 {
     RC rc(rcWithin);
-    rc.SetSz(ctl.SzRequestLayout(rcWithin));
-    ctl.SetBounds(rc);
+    rc.SetSz(wn.SzRequestLayout(rcWithin));
+    wn.SetBounds(rc);
     switch (clen) {
     case CLEN::None:
         rcWithin.top = rc.bottom + marginDef.bottom;
         break;
     case CLEN::Vertical:
         rcWithin.top = rc.bottom + marginDef.bottom;
-        vpctl.push_back(&ctl);
+        vpwn.push_back(&wn);
         break;
     case CLEN::Horizontal:
         rcWithin.left = rc.right + marginDef.right;
-        vpctl.push_back(&ctl);
+        vpwn.push_back(&wn);
         break;
     }
 }
@@ -68,7 +68,7 @@ void LEN::PositionBottom(CTL& ctl)
 /*
  *  LENG::StartFlow
  *
- *  Start laying out a flowing left-to-right sequence of controls
+ *  Start laying out a flowing left-to-right sequence of windows
  */
 
 void LEN::StartFlow(void) 
@@ -82,7 +82,17 @@ void LEN::EndFlow(void)
     rcWithin.top = rcFlow.bottom + marginDef.bottom;
 }
 
-void LEN::PositionLeft(CTL& ctl) 
+/*
+ *  LEN::PositionLeft
+ * 
+ *  Positions a control in the flow area, wrapping to the next line if necessary.
+ *  The control is positioned at the left edge of the flow area, and will wrap
+ *  to the next line if it exceeds the right edge.
+ *
+ *  TODO: these two variants share a lot of code, should refactor
+ */
+
+void LEN::PositionLeft(WN& wn, const SZ& sz)
 {
     /* if we're aleady beyond the right edge, go ahead and wrap now */
     if (rcFlow.left >= rcFlow.right)
@@ -90,24 +100,24 @@ void LEN::PositionLeft(CTL& ctl)
 
     /* layout the control within the flow area */
     RC rc(rcFlow);
-    rc.SetSz(ctl.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
+    rc.SetSz(sz);
 
-    /* if we're beyond the right edge now, wrap ande re-layout with extra width */
+    /* if we're beyond the right edge now, wrap and re-layout with extra width */
     if (rc.right > rcFlow.right) {
         rcFlow = RC(rcWithin.left, rcFlow.bottom, rcWithin.right, rcFlow.bottom);
         rc = rcFlow;
-        rc.SetSz(ctl.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
+        rc.SetSz(wn.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
     }
 
     /* position the control */
-    ctl.SetBounds(rc);
+    wn.SetBounds(rc);
 
     /* adjust the flow area */
     rcFlow.left = rc.right + marginDef.right;
     rcFlow.bottom = max(rc.bottom, rcFlow.bottom);
 }
 
-void LEN::PositionRight(CTL& ctl)
+void LEN::PositionLeft(WN& wn) 
 {
     /* if we're aleady beyond the right edge, go ahead and wrap now */
     if (rcFlow.left >= rcFlow.right)
@@ -115,19 +125,44 @@ void LEN::PositionRight(CTL& ctl)
 
     /* layout the control within the flow area */
     RC rc(rcFlow);
-    rc.SetSz(ctl.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
+    rc.SetSz(wn.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
+
+    /* if we're beyond the right edge now, wrap ande re-layout with extra width */
+    if (rc.right > rcFlow.right) {
+        rcFlow = RC(rcWithin.left, rcFlow.bottom, rcWithin.right, rcFlow.bottom);
+        rc = rcFlow;
+        rc.SetSz(wn.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
+    }
+
+    /* position the control */
+    wn.SetBounds(rc);
+
+    /* adjust the flow area */
+    rcFlow.left = rc.right + marginDef.right;
+    rcFlow.bottom = max(rc.bottom, rcFlow.bottom);
+}
+
+void LEN::PositionRight(WN& wn)
+{
+    /* if we're aleady beyond the right edge, go ahead and wrap now */
+    if (rcFlow.left >= rcFlow.right)
+        rcFlow = RC(rcWithin.left, rcFlow.bottom, rcWithin.right, rcFlow.bottom);
+
+    /* layout the control within the flow area */
+    RC rc(rcFlow);
+    rc.SetSz(wn.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
     rc -= PT(rc.right - rcFlow.right, 0);
 
     /* if we're beyond the right edge now, wrap ande re-layout with extra width */
     if (rc.left < rcFlow.left) {
         rcFlow = RC(rcWithin.left, rcFlow.bottom, rcWithin.right, rcFlow.bottom);
         rc = rcFlow;
-        rc.SetSz(ctl.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
+        rc.SetSz(wn.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
         rc -= PT(rc.right - rcFlow.right, 0);
     }
 
     /* position the control */
-    ctl.SetBounds(rc);
+    wn.SetBounds(rc);
 
     /* adjust the flow area */
     rcFlow.right = rc.left - marginDef.right;
@@ -148,7 +183,7 @@ void LEN::StartCenter(CLEN clen)
     default:
         break;
     }
-    vpctl.clear();
+    vpwn.clear();
 }
 
 void LEN::EndCenter(void)
@@ -160,19 +195,19 @@ void LEN::EndCenter(void)
     case CLEN::Vertical:
         ptCenterEnd.y -= marginDef.bottom;
         sz = SZ(0, (szCenterTotal.height - (ptCenterEnd.y - ptCenterStart.y))/2);
-        for (CTL* pctl : vpctl)
-            pctl->SetBounds(pctl->RcBounds() + sz);
+        for (WN* pwn : vpwn)
+            pwn->SetBounds(pwn->RcBounds() + sz);
         break;
     case CLEN::Horizontal:
         ptCenterEnd.x -= marginDef.right;
         sz = SZ((szCenterTotal.width - (ptCenterEnd.x - ptCenterStart.x)) / 2, 0);
-        for (CTL* pctl : vpctl)
-            pctl->SetBounds(pctl->RcBounds() + sz);
+        for (WN* pwn : vpwn)
+            pwn->SetBounds(pwn->RcBounds() + sz);
         break;
     default:
         break;
     }
-    vpctl.clear();
+    vpwn.clear();
 }
 
 /* 

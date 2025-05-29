@@ -52,7 +52,8 @@ void PLCOMPUTER::RequestMv(WAPP& wapp, GAME& game)
 /*
  *  PLCOMPUTER::MvBest
  * 
- *  Search for the best move
+ *  Search for the best move. This is the root node of the search and has
+ *  a little different processing.
  */
 
 MV PLCOMPUTER::MvBest(BD& bd) noexcept
@@ -76,10 +77,7 @@ MV PLCOMPUTER::MvBest(BD& bd) noexcept
         EV ev = -EvSearch(bd, -ab, 0, set.level+1);
         bd.UndoMv(mv);
         *pwnlog << ev << endl;
-        if (ev > ab.evAlpha) {
-            ab.evAlpha = ev;
-            mvBest = mv;
-        }
+        ab.FPrune(ev, mv, mvBest);
     }
 
     chrono::time_point<chrono::high_resolution_clock> tpEnd = chrono::high_resolution_clock::now();
@@ -145,7 +143,7 @@ EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
     if (ab.FPrune(ev))
         return ab.evBeta;
 
-    cmvSearch++;
+    cmvSearch++; cmvQSearch++;
     VMV vmv;
     bd.MoveGenNoisy(vmv);
     cmvMoveGen += vmv.size();
@@ -252,8 +250,9 @@ EV PLCOMPUTER::EvInterpolate(int phaseCur, EV evFirst, int phaseFirst, EV evLim,
 
 void PLCOMPUTER::InitStats(void) noexcept
 {
-    cmvSearch = 0;
     cmvMoveGen = 0;
+    cmvSearch = 0;
+    cmvQSearch = 0;
     cmvEval = 0;
     tpStart = chrono::high_resolution_clock::now();
 }

@@ -59,22 +59,17 @@ CO WAPP::CoBack(void) const
 
 void WAPP::Layout(void)
 {
+    /* TODO: use layout engine */
     RC rc(RcInterior());
     float dxyWindow = roundf(min(rc.dxWidth(), rc.dyHeight()));
     float dxyMargin = roundf(max(dxyWindow*wMarginPerWindow, dxyMarginMax));
     float dxyBoard = max(dxyWindow - 2*dxyMargin, raMax*dxySquareMin);
-    rc = RC(PT(dxyMargin), SZ(dxyBoard));
-    wnboard.SetBounds(rc);
 
-    rc.left = rc.right + dxyMargin;
-    rc.right = RcInterior().right;
-    SZ sz = wnml.SzRequestLayout(rc);
-    rc.right = rc.left + sz.width;
-    wnml.SetBounds(rc);
-
-    rc.left = rc.right + dxyMargin;
-    rc.right = rc.left + 300;
-    wnlog.SetBounds(rc);
+    LEN len(*this, PAD(dxyMargin), PAD(dxyMargin));
+    len.StartFlow();
+    len.PositionLeft(wnboard, SZ(dxyBoard));
+    len.PositionLeft(wnml);
+    len.PositionLeft(wnlog);
 }
 
 int WAPP::MsgPump(void)

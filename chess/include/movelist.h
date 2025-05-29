@@ -60,7 +60,7 @@ private:
  *  and the actual move list.
  */
 
-class WNML : public WN, public LGAME
+class WNML : public WN, public SCROLLER, public LGAME
 {
 public:
     WNML(WN& wnParent, GAME& game);
@@ -70,11 +70,23 @@ public:
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    void DrawView(const RC& rcUpdate);
 
     virtual void PlChanged(void) override;
+    virtual void BdChanged(void) override;
+
+private:
+    void SetContentLines(int fnm);
+    int FmnFromY(float y) const;
+    float YFromFmn(int fmn) const;
 
 private:
     array<WNPLAYER, 2> awnplayer;
     array<WNCLOCK, 2> awnclock;
     GAME& game;
+
+    TF tf;
+    float dyLine = 12;
+    float dxGutter = 4;
+    float dxMoveNum = 24;
 };

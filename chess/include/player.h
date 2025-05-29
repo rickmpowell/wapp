@@ -113,6 +113,17 @@ public:
         return false;
     }
 
+    bool FPrune(EV ev, MV mv, MV& mvBest) noexcept    
+    {
+        if (ev >= evBeta)
+            return true;
+        if (ev > evAlpha) {
+            evAlpha = ev;
+            mvBest = mv;
+        }
+        return false;
+    }
+
     EV evAlpha;
     EV evBeta;
 };
@@ -164,6 +175,7 @@ private:
     void InitStats(void) noexcept;
     void LogStats(chrono::time_point<chrono::high_resolution_clock>& tpEnd) noexcept;
     int64_t cmvSearch = 0;
+    int64_t cmvQSearch = 0;
     int64_t cmvMoveGen = 0;
     int64_t cmvEval = 0;
     chrono::time_point<chrono::high_resolution_clock> tpStart;

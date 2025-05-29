@@ -356,7 +356,7 @@ void BD::InitFromFen(istream& is)
         cmvLastCaptureOrPawn = cmv; 
         while (vmvGame.size() < cmvLastCaptureOrPawn)
             vmvGame.emplace_back(mvNil);
-        if (ccpToMove == (vmvGame.size() % 2))
+        if (ccpToMove != (vmvGame.size() % 2))
             vmvGame.emplace_back(mvNil);
     }
     catch (...) {

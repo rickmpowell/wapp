@@ -45,6 +45,8 @@ public:
     WNLOG(WN& wnParent);
 
     virtual void Layout(void) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const;
+
     virtual void Draw(const RC& rcUpdate) override;
     virtual void DrawView(const RC& rcUpdate);
     virtual CO CoText(void) const override;

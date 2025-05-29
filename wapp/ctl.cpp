@@ -499,7 +499,7 @@ SZ TITLEBAR::SzRequestLayout(const RC& rcWithin) const
     (void)rcWithin;
 
     SZ sz = SzFromS(sTitle, tf);
-    return SZ(-1, sz.height + 8);
+    return SZ(rcWithin.dxWidth(), sz.height + 2*4);
 }
 
 /*

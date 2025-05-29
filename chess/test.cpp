@@ -32,24 +32,17 @@ WNLOG::WNLOG(WN& wnParent) :
 
 void WNLOG::Layout(void)
 {
-	/* TODO: use layout engine */
-    RC rcInt = RcInterior();
-    RC rc = rcInt;
-    SZ sz = titlebar.SzRequestLayout(rc);
-    rc.bottom = rc.top + sz.height;
-    titlebar.SetBounds(rc);
-
-	rc.top = rc.bottom;
-	rc.bottom = rcInt.bottom;
-	sz = toolbar.SzRequestLayout(rc);
-	rc.bottom = rc.top + sz.height;
-	toolbar.SetBounds(rc);
-
-	rc.top = rc.bottom;
-	rc.bottom = rcInt.bottom;
-    SetView(rc);
+	LEN len(*this, PAD(0), PAD(0));
+	len.Position(titlebar);
+	len.Position(toolbar);
+    SetView(len.RcLayout());
 
     dyLine = SzFromS("ag", tfTest).height + 2.0f;
+}
+
+SZ WNLOG::SzRequestLayout(const RC& rcWithin) const
+{
+	return SZ(300, rcWithin.dyHeight());
 }
 
 void WNLOG::Draw(const RC& rcUpdate)
@@ -82,7 +75,6 @@ void WNLOG::ReceiveStream(const string& s)
 
 void WNLOG::DrawView(const RC& rcUpdate)
 {
-    string s;
     RC rcLine(RcView());
     int isFirst = IsFromY(rcLine.top);
     rcLine.top = YFromIs(isFirst);    // back up to start of line
@@ -93,65 +85,6 @@ void WNLOG::DrawView(const RC& rcUpdate)
         if (rcLine.top > RcView().bottom)
             break;
     }
-}
-
-class CMDCOPYTEST : public CMD<CMDCOPYTEST, WAPP>
-{
-public:
-	CMDCOPYTEST(WNLOG& wnlog) : CMD(Wapp(wnlog.iwapp)), wnlog(wnlog) { }
-
-	virtual int Execute(void) override
-	{
-		try {
-			oclipstream os(wapp, CF_TEXT);
-			wnlog.RenderLog(os);
-		}
-		catch (ERR err) {
-			wapp.Error(ERRAPP(rssErrCopyFailed), err);
-		}
-
-		return 1;
-	}
-
-protected:
-	WNLOG& wnlog;
-};
-
-class CMDCLEARTEST : public CMD<CMDCLEARTEST, WAPP>
-{
-public:
-	CMDCLEARTEST(WNLOG& wnlog) : CMD(Wapp(wnlog.iwapp)), wnlog(wnlog) { }
-
-	virtual int Execute(void) override
-	{
-		wnlog.clear();
-		return 1;
-	}
-
-protected:
-	WNLOG& wnlog;
-};
-
-TOOLBARLOG::TOOLBARLOG(WNLOG& wnlog) :
-	TOOLBAR(wnlog),
-	btnCopy(*this, new CMDCOPYTEST(wnlog), SFromU8(u8"\u2398")),
-	btnClear(*this, new CMDCLEARTEST(wnlog), SFromU8(u8"\u239a"))
-{
-	btnCopy.SetLayout(LCTL::SizeToFit);
-	btnCopy.SetPadding(0);
-	btnClear.SetLayout(LCTL::SizeToFit);
-	btnClear.SetPadding(0);
-}
-
-void TOOLBARLOG::Layout(void)
-{
-	/* TODO: use layout engine */
-	RC rc(RcInterior());
-	rc.Inflate(-8, -2);
-	rc.right = rc.left + rc.dyHeight();
-	btnCopy.SetBounds(rc);
-	rc.Offset(rc.dxWidth() + 8, 0);
-	btnClear.SetBounds(rc);
 }
 
 /*
@@ -194,6 +127,66 @@ void WNLOG::RenderLog(ostream& os) const
 	for (int is = 0; is < vs.size(); is++)
 		os << vs[is] << endl;
 }
+
+class CMDCOPYTEST : public CMD<CMDCOPYTEST, WAPP>
+{
+public:
+	CMDCOPYTEST(WNLOG& wnlog) : CMD(Wapp(wnlog.iwapp)), wnlog(wnlog) {}
+
+	virtual int Execute(void) override
+	{
+		try {
+			oclipstream os(wapp, CF_TEXT);
+			wnlog.RenderLog(os);
+		}
+		catch (ERR err) {
+			wapp.Error(ERRAPP(rssErrCopyFailed), err);
+		}
+
+		return 1;
+	}
+
+protected:
+	WNLOG& wnlog;
+};
+
+class CMDCLEARTEST : public CMD<CMDCLEARTEST, WAPP>
+{
+public:
+	CMDCLEARTEST(WNLOG& wnlog) : CMD(Wapp(wnlog.iwapp)), wnlog(wnlog) {}
+
+	virtual int Execute(void) override
+	{
+		wnlog.clear();
+		return 1;
+	}
+
+protected:
+	WNLOG& wnlog;
+};
+
+TOOLBARLOG::TOOLBARLOG(WNLOG& wnlog) :
+	TOOLBAR(wnlog),
+	btnCopy(*this, new CMDCOPYTEST(wnlog), SFromU8(u8"\u2398")),
+	btnClear(*this, new CMDCLEARTEST(wnlog), SFromU8(u8"\u239a"))
+{
+	btnCopy.SetLayout(LCTL::SizeToFit);
+	btnCopy.SetPadding(0);
+	btnClear.SetLayout(LCTL::SizeToFit);
+	btnClear.SetPadding(0);
+}
+
+void TOOLBARLOG::Layout(void)
+{
+	/* TODO: use layout engine */
+	RC rc(RcInterior());
+	rc.Inflate(-8, -2);
+	rc.right = rc.left + rc.dyHeight();
+	btnCopy.SetBounds(rc);
+	rc.Offset(rc.dxWidth() + 8, 0);
+	btnClear.SetBounds(rc);
+}
+
 
 /*
  *  WNAPP::RunPerft
