@@ -60,7 +60,7 @@ private:
  *  and the actual move list.
  */
 
-class WNML : public WN, public SCROLLER, public LGAME
+class WNML : public WN, public SCROLLLNFIXED, public LGAME
 {
 public:
     WNML(WN& wnParent, GAME& game);
@@ -70,15 +70,15 @@ public:
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
-    void DrawView(const RC& rcUpdate);
+ 
+    virtual void Wheel(const PT& pt, int dwheel) override;
 
     virtual void PlChanged(void) override;
     virtual void BdChanged(void) override;
 
 private:
-    void SetContentLines(int fnm);
-    int FmnFromY(float y) const;
-    float YFromFmn(int fmn) const;
+    virtual float DyLine(void) const;
+    virtual void DrawLine(const RC& rcLine, int li) override;
 
 private:
     array<WNPLAYER, 2> awnplayer;
@@ -87,6 +87,5 @@ private:
 
     TF tf;
     float dyLine = 12;
-    float dxGutter = 4;
     float dxMoveNum = 24;
 };

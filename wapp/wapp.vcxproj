@@ -187,6 +187,7 @@
     <ClCompile Include="ev.cpp" />
     <ClCompile Include="len.cpp" />
     <ClCompile Include="rt.cpp" />
+    <ClCompile Include="scroll.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="wapp.cpp" />
     <ClCompile Include="wn.cpp" />

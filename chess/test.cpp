@@ -22,11 +22,11 @@ bool fValidate = false;
 
 WNLOG::WNLOG(WN& wnParent) : 
     WNSTREAM(wnParent), 
-    SCROLLER((WN&)*this),
+    SCROLLLNFIXED((WN&)*this),
     titlebar(*this, "Tests"), 
 	toolbar(*this),
-    tfTest(*this, sFontUI, 12.0f),
-    dyLine(0.0f)
+    tfTest(*this, sFontUI, 12),
+    dyLine(12)
 {
 }
 
@@ -37,7 +37,7 @@ void WNLOG::Layout(void)
 	len.Position(toolbar);
     SetView(len.RcLayout());
 
-    dyLine = SzFromS("ag", tfTest).height + 2.0f;
+    dyLine = SzFromS("ag", tfTest).height + 2;
 }
 
 SZ WNLOG::SzRequestLayout(const RC& rcWithin) const
@@ -64,62 +64,31 @@ void WNLOG::clear(void)
 {
     vs.clear();
     SetViewOffset(PT(0, 0));
-    SetContentLines(1);
+    SetContentCli(1);
 }
 
 void WNLOG::ReceiveStream(const string& s)
 {
     vs.push_back(s);
-    SetContentLines(vs.size());
+    SetContentCli((int)vs.size());
 }
 
-void WNLOG::DrawView(const RC& rcUpdate)
+void WNLOG::DrawLine(const RC& rcLine, int li)
 {
-    RC rcLine(RcView());
-    int isFirst = IsFromY(rcLine.top);
-    rcLine.top = YFromIs(isFirst);    // back up to start of line
-    for (int is = isFirst; is < vs.size(); is++) {
-        rcLine.bottom = rcLine.top + dyLine;
-        DrawS(vs[is], tfTest, rcLine);
-        rcLine.top = rcLine.bottom;
-        if (rcLine.top > RcView().bottom)
-            break;
-    }
+	DrawS(vs[li], tfTest, rcLine);
 }
 
-/*
- *  Handles mouse wheeling over the scrollable area 
- */
+float WNLOG::DyLine(void) const
+{
+	return dyLine;
+}
 
 void WNLOG::Wheel(const PT& pt, int dwheel)
 {
-    if (!RcView().FContainsPt(pt) || vs.size() <= 1)
+    if (!RcView().FContainsPt(pt))
         return;
-    dwheel /= 120;
-    int iwsFirst = (int)(roundf((RccView().top - RccContent().top) / dyLine));
-    iwsFirst = clamp(iwsFirst - dwheel, 0, (int)vs.size() - 1);
-    float ycTop = RccContent().top + iwsFirst * dyLine;
-    SetViewOffset(PT(0.0f, ycTop));
+	ScrollDli(dwheel / 120);
     Redraw();
-}
-
-void WNLOG::SetContentLines(size_t cs)
-{
-    SetContent(RC(PT(0), SZ(RcView().dxWidth(), cs*dyLine)));
-    float yc = RccView().bottom + 
-        dyLine * ceilf((RccContent().bottom - RccView().bottom)/dyLine);
-    FMakeVis(PT(0.0f, yc));
-    Redraw();
-}
-
-int WNLOG::IsFromY(float y) const
-{
-    return (int)floorf((y - RcContent().top) / dyLine);
-}
-
-float WNLOG::YFromIs(int is) const
-{
-    return RcContent().top + is * dyLine;
 }
 
 void WNLOG::RenderLog(ostream& os) const
@@ -186,7 +155,6 @@ void TOOLBARLOG::Layout(void)
 	rc.Offset(rc.dxWidth() + 8, 0);
 	btnClear.SetBounds(rc);
 }
-
 
 /*
  *  WNAPP::RunPerft

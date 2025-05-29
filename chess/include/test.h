@@ -39,7 +39,7 @@ enum class TPERFT {
     Bulk
 };
 
-class WNLOG : public WNSTREAM, public SCROLLER
+class WNLOG : public WNSTREAM, public SCROLLLNFIXED
 {
 public:
     WNLOG(WN& wnParent);
@@ -48,7 +48,6 @@ public:
     virtual SZ SzRequestLayout(const RC& rcWithin) const;
 
     virtual void Draw(const RC& rcUpdate) override;
-    virtual void DrawView(const RC& rcUpdate);
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
 
@@ -72,10 +71,8 @@ private:
 
     TF tfTest;
     float dyLine;
-
-    void SetContentLines(size_t cs);
-    int IsFromY(float y) const;
-    float YFromIs(int is) const;
+    virtual void DrawLine(const RC& rcLine, int li) override;
+    virtual float DyLine(void) const override;
 };
 
 class indent 

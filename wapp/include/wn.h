@@ -112,18 +112,17 @@ private:
 };
 
 /*
- *  SCROLLER
+ *  SCROLL
  * 
  *  A scrollable interior. Multiple inherit into a WN to implement
- *  scrolling area, with a conetent and view rectangle.
+ *  scrolling area, with a conetent and view rectangle. Base class is
+ *  a genneral scrolling area, 
  */
 
-class SCROLLER
+class SCROLL
 {
 public:
-    SCROLLER(WN& wnOwner);
-    SCROLLER(SCROLLER&) = delete;
-    SCROLLER& operator = (const SCROLLER&) = delete;
+    SCROLL(WN& wnOwner);
 
     void SetView(const RC& rcNew);
     void SetContent(const RC& rccContent);
@@ -150,6 +149,50 @@ private:
     RC rccContent;
     RC rcView;
     PT ptcViewOffset; // point within the content rectangle of the top-left corner of the view
+};
+
+/*
+ *  SCROLLLN    
+ * 
+ *  A scrollable window that scrolls vertically with lines of text as
+ *  its data.
+ */
+
+class SCROLLLN : public SCROLL
+{
+public:
+    SCROLLLN(WN& wnOwner);
+
+    virtual void DrawView(const RC& rcUpdate);
+    virtual void SetContentCli(int cliNew);
+    virtual void ScrollDli(int dli);
+
+    virtual int LiFromY(float y) const = 0;
+    virtual float YcTopFromLi(int li) const = 0;
+    virtual float DyHeightFromLi(int li) const = 0;
+    virtual void DrawLine(const RC& rcLine, int li) = 0;
+
+protected:
+    int cli;
+};
+
+/*
+ *  SCROLLLNFIXED
+ * 
+ *  A scrollable window that scrolls vertically with fixed-height lines of text.
+ */ 
+
+class SCROLLLNFIXED : public SCROLLLN
+{
+public:
+    SCROLLLNFIXED(WN& wnOwner);
+
+    virtual void SetContentCli(int cliNew) override;
+    virtual int LiFromY(float y) const override;
+    virtual float YcTopFromLi(int li) const override;
+    virtual float DyHeightFromLi(int li) const override;
+
+    virtual float DyLine(void) const = 0;
 };
 
 /*

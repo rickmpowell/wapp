@@ -3,7 +3,7 @@
 
 WNML::WNML(WN& wnParent, GAME& game) :
     WN(wnParent),
-    SCROLLER((WN&)*this),
+    SCROLLLNFIXED((WN&)*this),
     game(game),
     awnclock{ WNCLOCK(*this, game, ccpBlack), WNCLOCK(*this, game, ccpWhite) },
     awnplayer{ WNPLAYER(*this, game, ccpBlack), WNPLAYER(*this, game, ccpWhite) },
@@ -38,7 +38,6 @@ void WNML::Layout(void)
     tf.SetHeight(*this, 14);
     dyLine = SzFromS("Rg1xRh8+ e.p.", tf).height + 2 * 2;
     dxMoveNum = SzFromS("999", tf).width;
-    dxGutter = dxMoveNum * 0.33f;
 }
 
 SZ WNML::SzRequestLayout(const RC& rcWithin) const
@@ -46,48 +45,44 @@ SZ WNML::SzRequestLayout(const RC& rcWithin) const
     return SZ(200, rcWithin.dyHeight());
 }
 
-void WNML::DrawView(const RC& rcUpdate)
+void WNML::Wheel(const PT& pt, int dwheel)
 {
-    RC rcLine(RcView());
-    int fmnFirst = FmnFromY(rcLine.top);
-    rcLine.top = YFromFmn(fmnFirst);    // back up to start of line
-    for (int fmn = fmnFirst; ; fmn++) {
-        rcLine.bottom = rcLine.top + dyLine;
-        RC rc = rcLine;
-        rc.top += 2;
-        rc.right = rc.left + dxMoveNum;
-        {
-            GUARDTFALIGNMENT taSav(tf, DWRITE_TEXT_ALIGNMENT_TRAILING);
-            DrawS(to_string(fmn), tf, rc);
-        }
-
-        int imv = (fmn - 1) * 2;
-        if (imv >= game.bd.vmvGame.size())
-            break;
-        rc = rcLine;
-        rc.top += 2;
-        rc.left += dxMoveNum + dxGutter;
-        DrawS(to_string(game.bd.vmvGame[imv]), tf, rc);
-
-        if (imv + 1 >= game.bd.vmvGame.size())
-            break;
-        rc.left = (rc.left + rc.right) / 2;
-        DrawS(to_string(game.bd.vmvGame[imv+1]), tf, rc);
-
-        rcLine.top = rcLine.bottom;
-        if (rcLine.top > RcView().bottom)
-            break;
-    }
+    if (!RcView().FContainsPt(pt))
+        return;
+    ScrollDli(dwheel / 120);
+    Redraw();
 }
 
-int WNML::FmnFromY(float y) const
+void WNML::DrawLine(const RC& rcLine, int li)
 {
-    return (int)floorf((y - RcContent().top) / dyLine) + 1;
+    RC rc = rcLine;
+    rc.top += 2;
+    rc.right = rc.left + dxMoveNum;
+    DrawSCenter(to_string(li+1), tf, rc);
+
+    int imv = li * 2;
+    if (imv >= game.bd.vmvGame.size())
+        return;
+
+    rc = rcLine;
+    rc.right -= dxMoveNum;
+    rc.top += 2;
+    rc.left += dxMoveNum;
+    rc.right = (rc.left + rc.right) / 2;
+    DrawSCenter(to_string(game.bd.vmvGame[imv]), tf, rc);
+
+    imv++;
+    if (imv >= game.bd.vmvGame.size())
+        return;
+
+    rc.left = rc.right;
+    rc.right = rcLine.right - dxMoveNum;
+    DrawSCenter(to_string(game.bd.vmvGame[imv]), tf, rc);
 }
 
-float WNML::YFromFmn(int fmn) const
+float WNML::DyLine(void) const
 {
-    return RcContent().top + (fmn-1) * dyLine;
+    return dyLine;
 }
 
 void WNML::PlChanged(void)
@@ -99,16 +94,7 @@ void WNML::PlChanged(void)
 void WNML::BdChanged(void)
 {
     int fnm = game.bd.vmvGame.size() / 2 + 1;
-    SetContentLines(fnm);
-    Redraw();
-}
-
-void WNML::SetContentLines(int fnm)
-{
-    SetContent(RC(PT(0), SZ(RcView().dxWidth(), fnm * dyLine)));
-    float yc = RccView().bottom +
-        dyLine * ceilf((RccContent().bottom - RccView().bottom) / dyLine);
-    FMakeVis(PT(0.0f, yc));
+    SetContentCli(fnm);
     Redraw();
 }
 
