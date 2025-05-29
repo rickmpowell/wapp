@@ -53,11 +53,6 @@ void WNBD::ShowMv(MV mv, bool fAnimate)
     }
 }
 
-void WNBD::EnableUI(bool fEnable)
-{
-    /* no UI on these mini-board windows */
-}
-
 /*
  *  CoBack and CoText
  *
@@ -237,7 +232,8 @@ void WNBOARD::Layout(void)
     WNBD::Layout();
 
     PT ptBotRight(RcInterior().ptBottomRight() - SZ(8.0f));
-    btnFlip.SetBounds(RC(ptBotRight - SZ(dxyBorder - 16.0f - 2*dxyOutline), ptBotRight));
+    float dxy = max(4, dxy = dxyBorder - 16 - 2 * dxyOutline);
+    btnFlip.SetBounds(RC(ptBotRight - SZ(dxy), ptBotRight));
 }
 
 void WNBOARD::Draw(const RC& rcUpdate)

@@ -55,6 +55,16 @@ void LEN::Position(CTL& ctl)
     }
 }
 
+void LEN::PositionBottom(CTL& ctl)
+{
+    RC rc(rcWithin);
+    SZ sz(ctl.SzRequestLayout(rcWithin));
+    rc.top = rc.bottom - sz.height;
+    rc.left = rc.right - sz.width;
+    ctl.SetBounds(rc);
+    rcWithin.bottom = rc.top - marginDef.top;
+}
+
 /*
  *  LENG::StartFlow
  *

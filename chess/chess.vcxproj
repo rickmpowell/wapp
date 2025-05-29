@@ -173,6 +173,7 @@
     <ClCompile Include="human.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="movegen.cpp" />
+    <ClCompile Include="movelist.cpp" />
     <ClCompile Include="newgame.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="wnboard.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="include\board.h" />
     <ClInclude Include="include\chess.h" />
     <ClInclude Include="include\game.h" />
+    <ClInclude Include="include\movelist.h" />
     <ClInclude Include="include\newgame.h" />
     <ClInclude Include="include\piecetables.h" />
     <ClInclude Include="include\player.h" />

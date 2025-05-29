@@ -33,6 +33,7 @@ public:
     LEN(const RC& rc, const PAD& pad, const PAD& margin);
 
     void Position(CTL& ctl);
+    void PositionBottom(CTL& ctl);
 
     void StartFlow(void);
     void EndFlow(void);

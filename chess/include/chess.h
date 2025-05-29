@@ -42,7 +42,6 @@ public:
 
     virtual void BdChanged(void) override;
     virtual void ShowMv(MV mv, bool fAnimate) override;
-    virtual void EnableUI(bool fEnable) override;
 
 public:
     static PNGX pngPieces;
@@ -131,6 +130,7 @@ private:
 
 #include "test.h"
 #include "newgame.h"
+#include "movelist.h"
 
 /*
  *  WAPP
@@ -165,6 +165,7 @@ public:
     mt19937_64 rand;
 
     WNBOARD wnboard;
+    WNML wnml;
     WNLOG wnlog;
 
 private:

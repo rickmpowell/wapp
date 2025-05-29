@@ -28,11 +28,13 @@ int Run(const string& sCmdLine, int sw)
 WAPP::WAPP(const string& wsCmdLine, int sw) : 
     game(fenStartPos, make_shared<PLHUMAN>("Rick"), make_shared<PLHUMAN>("Hazel")),
     wnboard(*this, game),
+    wnml(*this, game),
     wnlog(*this),
     cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND),
     rand(3772432297UL)
 {
     game.AddListener(&wnboard);
+    game.AddListener(&wnml);
     CreateWnd(rssAppTitle);
     PushFilterMsg(new FILTERMSGACCEL(*this, rsaApp));
     Show();
@@ -63,6 +65,12 @@ void WAPP::Layout(void)
     float dxyBoard = max(dxyWindow - 2*dxyMargin, raMax*dxySquareMin);
     rc = RC(PT(dxyMargin), SZ(dxyBoard));
     wnboard.SetBounds(rc);
+
+    rc.left = rc.right + dxyMargin;
+    rc.right = RcInterior().right;
+    SZ sz = wnml.SzRequestLayout(rc);
+    rc.right = rc.left + sz.width;
+    wnml.SetBounds(rc);
 
     rc.left = rc.right + dxyMargin;
     rc.right = rc.left + 300;
@@ -144,6 +152,7 @@ public:
             return 0;
         gameUndo = wapp.game;
         dlg.Extract(wapp.game);
+        wapp.game.NotifyPlChanged();
         wapp.game.InitFromFen(fenStartPos);
         wapp.game.cgaPlayed++;
         wapp.game.RequestMv(wapp);

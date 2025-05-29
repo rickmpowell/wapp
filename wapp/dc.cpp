@@ -281,6 +281,7 @@ DC::DC(IWAPP &iwapp) : iwapp(iwapp), rcgBounds(0, 0, 0, 0)
 
 void DC::SetBounds(const RC& rcgNew)
 {
+    assert(rcgNew.right >= rcgNew.left && rcgNew.bottom >= rcgNew.top);
     rcgBounds = rcgNew;
 }
 

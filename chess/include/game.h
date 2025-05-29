@@ -44,6 +44,7 @@ public:
     void NotifyBdChanged(void);
     void NotifyShowMv(MV vm, bool fAnimate);
     void NotifyEnableUI(bool fEnable);
+    void NotifyPlChanged(void);
 
     bool FGameOver(void) const;
     void RequestMv(WAPP& wapp);
@@ -79,7 +80,8 @@ private:
 class LGAME
 {
 public:
-    virtual void BdChanged(void) = 0;   /* sent *after* the board has changed */
-    virtual void ShowMv(MV mv, bool fAnimate) = 0;  /* sent *before* a move has been made */
-    virtual void EnableUI(bool fEnable) = 0;    /* sent to enable/disable the move UI */
+    virtual void BdChanged(void) {};   /* sent *after* the board has changed */
+    virtual void ShowMv(MV mv, bool fAnimate) {};  /* sent *before* a move has been made */
+    virtual void EnableUI(bool fEnable) {};    /* sent to enable/disable the move UI */
+    virtual void PlChanged(void) {};  /* sent when the players change */
 };

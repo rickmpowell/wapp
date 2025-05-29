@@ -42,6 +42,9 @@
     <ClCompile Include="computer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="movelist.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\1920px-Chess_Pieces_Sprite.svg.png">
@@ -88,6 +91,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\piecetables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\movelist.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

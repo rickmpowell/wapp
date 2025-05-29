@@ -78,6 +78,12 @@ void GAME::NotifyEnableUI(bool fEnable)
         plgame->EnableUI(fEnable);
 }
 
+void GAME::NotifyPlChanged(void)
+{
+    for (LGAME* plgame : vplgame)
+        plgame->PlChanged();
+}
+
 bool GAME::FGameOver(void) const
 {
     VMV vmv;
