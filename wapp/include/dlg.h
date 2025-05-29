@@ -42,6 +42,8 @@ public:
     virtual int QuitPump(MSG& msg) override;
     virtual bool FQuitPump(MSG& msg) const override;
 
+    virtual bool FKeyDown(int vk) override;
+
     virtual void End(int val);
     virtual void Validate(void);
 

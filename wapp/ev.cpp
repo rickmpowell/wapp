@@ -225,3 +225,20 @@ bool EVD::FDragging(const WN* pwn) const
 {
     return pwn == pwnDrag;
 }
+
+/*
+ *  keyboard handling
+ */
+
+void EVD::SetFocus(WN* pwnNew)
+{
+    pwnFocus = pwnNew;
+}
+
+bool EVD::FKeyDown(int vk)
+{
+    if (!pwnFocus)
+        return false;
+
+    return pwnFocus->FKeyDown(vk);
+}

@@ -133,17 +133,41 @@ void DLG::EnterPump(void)
 {
     fEnd = false;
     ShowCentered();
+    iwapp.SetFocus(this);
 }
 
 int DLG::QuitPump(MSG& msg)
 {
     Show(false);
+    iwapp.SetFocus(pwnParent);
     return val;
 }
 
 bool DLG::FQuitPump(MSG& msg) const
 {
     return EVD::FQuitPump(msg) || fEnd;
+}
+
+bool DLG::FKeyDown(int vk)
+{
+    unique_ptr<ICMD> pcmd;
+
+    switch (vk) {
+
+    case VK_RETURN:
+        pcmd = make_unique<CMDOK>(*this);
+        iwapp.FExecuteCmd(*pcmd);
+        return true;
+
+    case VK_ESCAPE:
+        pcmd = make_unique<CMDCANCEL>(*this);
+        iwapp.FExecuteCmd(*pcmd);
+        return true;;
+
+    default:
+        break;
+    }
+    return false;
 }
 
 /*

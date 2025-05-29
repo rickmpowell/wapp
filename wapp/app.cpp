@@ -244,6 +244,11 @@ LRESULT CALLBACK WND::WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
         pwnd->OnMouseWheel(pt, GET_WHEEL_DELTA_WPARAM(wParam));
         return 0;
     }
+
+    case WM_KEYDOWN:
+        pwnd->OnKeyDown((int)wParam);
+        return 0;
+
     case WM_COMMAND:
         if (pwnd->OnCommand(LOWORD(wParam)))
             return 0;
@@ -320,6 +325,11 @@ void WND::OnMouseWheel(const PT& pt, int dwheel)
 {
     (void)pt;
     (void)dwheel;
+}
+
+void WND::OnKeyDown(int vk)
+{
+    (void)vk;
 }
 
 int WND::OnCommand(int cmd)

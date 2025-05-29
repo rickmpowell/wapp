@@ -45,10 +45,13 @@ public:
     virtual void MouseDown(const PT& ptg, int mk);
     virtual void MouseUp(const PT& ptg, int mk);
     virtual void MouseWheel(const PT& ptg, int mk);
-
+    
     bool FDragging(const WN* pwn) const;
 
     /* raw keyboard input */
+    
+    virtual void SetFocus(WN* pwn);
+    virtual bool FKeyDown(int vk);
 
     /* command dispatch */
 

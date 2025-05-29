@@ -191,6 +191,15 @@ void IWAPP::OnInitMenuPopup(HMENU hmenu)
     InitPopupMenuCmds(hmenu);
 }
 
+void IWAPP::OnKeyDown(int vk)
+{
+    /* TODO: what to do if FKeyDown returns false? Should we be doing keyboard
+       processing in the event loop instead of WndProc? This will make a difference
+       if and when we need to coexist with native Windows HWND WNs */
+
+    vpevd.back()->FKeyDown(vk);
+}
+
 /*
  *  Window operations that make sense for the top-level HWND
  */
@@ -316,6 +325,11 @@ void IWAPP::PushEvd(EVD& evd)
 void IWAPP::PopEvd(void)
 {
     vpevd.pop_back();
+}
+
+void IWAPP::SetFocus(WN* pwn)
+{
+    vpevd.back()->SetFocus(pwn);
 }
 
 /*

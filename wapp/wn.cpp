@@ -381,6 +381,15 @@ void WN::SetDefCurs(void)
 }
 
 /*
+ *  Keyboard
+ */
+
+bool WN::FKeyDown(int vk)
+{
+    return false;
+}
+
+/*
  *  SCROLLER
  * 
  *  A scrollable interior section.

@@ -91,6 +91,10 @@ public:
     virtual void SetDefCurs(void);
     void SetCurs(const CURS& curs);
 
+    /* keyboard */
+
+    virtual bool FKeyDown(int vk);
+
 protected:
     WN* pwnParent;  // will be nullptr at root
     vector<WN*> vpwnChildren;

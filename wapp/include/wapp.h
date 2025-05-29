@@ -80,6 +80,7 @@ public:
     virtual void OnMouseDown(const PT& ptg, unsigned mk) override;
     virtual void OnMouseUp(const PT& ptg, unsigned mk) override;
     virtual void OnMouseWheel(const PT& ptg, int dwheel) override;
+    virtual void OnKeyDown(int vk) override;
     virtual int OnCommand(int cmd) override;
     //virtual void OnInitMenu(void) override;
     virtual void OnInitMenuPopup(HMENU hmenu) override;
@@ -110,6 +111,8 @@ public:
     bool FRedoCmd(void);
     bool FTopUndoCmd(ICMD*& pcmd);
     bool FTopRedoCmd(ICMD*& pcmd);
+
+    void SetFocus(WN* pwn);
 
     /* Menu commands */
 

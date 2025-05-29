@@ -128,6 +128,7 @@ public:
     virtual void OnMouseDown(const PT& ptg, unsigned mk);
     virtual void OnMouseUp(const PT& ptg, unsigned mk);
     virtual void OnMouseWheel(const PT& ptg, int dwheel);
+    virtual void OnKeyDown(int vk);
     virtual void OnPaint(void);
     virtual int OnCommand(int cmd);
     virtual void OnInitMenu(void);
