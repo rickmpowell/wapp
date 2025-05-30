@@ -472,7 +472,7 @@ void VSELPLAYER::Layout(void)
     selComputer.SetPadding(PAD(dyPlayer * 0.17f));
     RC rc(PT(dxPlayerMargin, 48), SZ(dxPlayer, dyPlayer));
     selHuman.SetBounds(rc);
-    selComputer.SetBounds(rc + SZ(rc.dxWidth() + dxyPlayerGutter, 0));
+    selComputer.SetBounds(rc.RcShiftRight(rc.dxWidth() + dxyPlayerGutter));
     
     RC rcCont(RcContent());
     rc = RC(dxyPlayerPadding, 

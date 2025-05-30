@@ -55,29 +55,19 @@ void WNML::Wheel(const PT& pt, int dwheel)
 
 void WNML::DrawLine(const RC& rcLine, int li)
 {
-    RC rc = rcLine;
-    rc.top += 2;
-    rc.right = rc.left + dxMoveNum;
-    DrawSCenter(to_string(li+1), tf, rc);
+    RC rc = rcLine.RcInflate(0, -2);
+    DrawSCenter(to_string(li+1), tf, rc.RcSetWidth(dxMoveNum));
 
     int imv = li * 2;
     if (imv >= game.bd.vmvGame.size())
         return;
-
-    rc = rcLine;
-    rc.right -= dxMoveNum;
-    rc.top += 2;
-    rc.left += dxMoveNum;
-    rc.right = (rc.left + rc.right) / 2;
+    rc.Inflate(-dxMoveNum, 0);
+    rc.right = rc.ptCenter().x;
     DrawSCenter(to_string(game.bd.vmvGame[imv]), tf, rc);
 
-    imv++;
-    if (imv >= game.bd.vmvGame.size())
+    if (++imv >= game.bd.vmvGame.size())
         return;
-
-    rc.left = rc.right;
-    rc.right = rcLine.right - dxMoveNum;
-    DrawSCenter(to_string(game.bd.vmvGame[imv]), tf, rc);
+    DrawSCenter(to_string(game.bd.vmvGame[imv]), tf, rc.RcTileRight());
 }
 
 float WNML::DyLine(void) const
@@ -121,19 +111,17 @@ CO WNPLAYER::CoText(void) const
 
 void WNPLAYER::Draw(const RC& rcUpdate)
 {
-    RC rc(RcContent());
-    rc.Inflate(-8, -6);
-    rc.right = rc.left + rc.dyHeight();
+    RC rc(RcContent().RcInflate(-8, -6));
+    rc.SetWidth(rc.dyHeight());
     FillEll(rc, ccp == ccpWhite ? coWhite : coBlack);
     DrawEll(rc);
     
-    rc = RcInterior().RcSetLeft(rc.right + 12);
+    rc = RcContent().RcSetLeft(rc.right + 12);
     DrawSCenterY(string(game.appl[ccp]->SName()), tf, rc);
 }
 
 void WNPLAYER::Layout(void)
 {
-    // Layout player information
 }
 
 SZ WNPLAYER::SzRequestLayout(const RC& rcWithin) const

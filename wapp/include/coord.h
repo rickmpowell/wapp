@@ -671,6 +671,62 @@ public:
         return rc;
     }
 
+    RC RcTileRight(void) const
+    {
+        RC rc(*this);
+        rc += PT(right - left, 0);
+        return rc;
+    }
+
+    RC RcTileLeft(void) const
+    {
+        RC rc(*this);
+        rc -= PT(right - left, 0);
+        return rc;
+    }
+
+    RC RcTileDown(void) const
+    {
+        RC rc(*this);
+        rc += PT(0, bottom - top);
+        return rc;
+    }
+
+    RC RcTileUp(void) const
+    {
+        RC rc(*this);
+        rc -= PT(0, bottom - top);
+        return rc;
+    }
+
+    RC RcShiftRight(float dx) const
+    {
+        RC rc(*this);
+        rc += PT(dx, 0);
+        return rc;
+    }
+
+    RC RcShiftLeft(float dx) const
+    {
+        RC rc(*this);
+        rc -= PT(dx, 0);
+        return rc;
+    }
+
+    RC RcShiftDown(float dy) const
+    {
+        RC rc(*this);
+        rc += PT(0, dy);
+        return rc;
+    }
+
+    RC RcShiftUp(float dy) const
+    {
+        RC rc(*this);
+        rc -= PT(0, dy);
+        return rc;
+    }
+
     RC& SetSz(const SZ& sz) 
     {
         right = left + sz.width;
@@ -682,6 +738,32 @@ public:
     {
         RC rc(*this);
         rc.SetSz(sz);
+        return rc;
+    }
+
+    RC& SetWidth(float dx)
+    {
+        right = left + dx;
+        return *this;
+    }
+
+    RC& SetHeight(float dy)
+    {
+        bottom = top + dy;
+        return *this;
+    }
+
+    RC RcSetWidth(float dx) const
+    {
+        RC rc(*this);
+        rc.right = rc.left + dx;
+        return rc;
+    }
+
+    RC RcSetHeight(float dy) const
+    {
+        RC rc(*this);
+        rc.bottom = rc.top + dy;
         return rc;
     }
 
