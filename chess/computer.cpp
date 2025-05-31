@@ -75,7 +75,7 @@ MV PLCOMPUTER::MvBest(BD& bd) noexcept
         *pwnlog << indent(1) << to_string(mv) << " ";
         bd.MakeMv(mv);
         EV ev = -EvSearch(bd, -ab, 0, set.level+1);
-        bd.UndoMv(mv);
+        bd.UndoMv();
         *pwnlog << ev << endl;
         ab.FPrune(ev, mv, mvBest);
     }
@@ -113,7 +113,7 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
             continue;
         cmvLegal++;
         EV ev = -EvSearch(bd, -ab, d+1, dLim);
-        bd.UndoMv(mv);
+        bd.UndoMv();
         if (ab.FPrune(ev))
             return ab.evBeta;
     }
@@ -151,7 +151,7 @@ EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
         if (!bd.FMakeMvLegal(mv))
             continue;
         EV ev = -EvQuiescent(bd, -ab, d+1);
-        bd.UndoMv(mv);
+        bd.UndoMv();
         if (ab.FPrune(ev))
             return ab.evBeta;
     }

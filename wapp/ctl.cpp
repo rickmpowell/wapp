@@ -529,7 +529,7 @@ void TOOLBAR::Draw(const RC& rcUpdate)
 
 SZ TOOLBAR::SzRequestLayout(const RC& rc) const
 {
-    return SZ(rc.dxWidth(), 30.0f);
+    return SZ(rc.dxWidth(), 40.0f);
 }
 
 /*

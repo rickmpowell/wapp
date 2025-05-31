@@ -41,7 +41,12 @@ public:
 
     virtual void SetLayout(LCTL lctl);
     virtual RC RcContent(void) const;
+    
     virtual void SetPadding(const PAD& pad);
+    void SetPadding(float dxyPadding) { SetPadding(PAD(dxyPadding)); }
+    void SetPadding(float dxPadding, float dyPadding) { SetPadding(PAD(dxPadding, dyPadding)); }
+    void SetPadding(float dxLeft, float dyTop, float dxRight, float dyBottom) { SetPadding(PAD(dxLeft, dyTop, dxRight, dyBottom)); }
+    
     virtual void SetBorder(const PAD& border);
     virtual void SetMargin(const PAD& margin);
 

@@ -19,6 +19,7 @@
 #define cmdFlipBoard 18
 #define cmdTestPerft 19
 #define cmdTestPerftSuite 20
+#define cmdTestPolyglot 21
 
 /*
  *  Accelerator tables
@@ -77,6 +78,7 @@
 #define rssPerftPerft 1402
 #define rssPerftDivide 1403
 #define rssPerftBulk 1404
+#define rssPerftHash 1405
 
 /*
  *  Dialogs

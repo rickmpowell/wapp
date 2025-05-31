@@ -22,6 +22,7 @@ public:
     virtual void Layout(void) override;
 
 private:
+    BTNS btnSave;
     BTNS btnCopy;
     BTNS btnClear;
 };
@@ -36,7 +37,8 @@ enum class TPERFT {
     None = 0,
     Perft,
     Divide,
-    Bulk
+    Bulk,
+    Hash
 };
 
 class WNLOG : public WNSTREAM, public SCROLLLNFIXED
@@ -106,7 +108,7 @@ public:
 
     virtual SZ SzRequestLayout(const RC& rcWithin) const override
     {
-        return SZ(160, 48);
+        return SZ(150, 48);
     }
 };
 
@@ -122,6 +124,7 @@ private:
     SELPERFT selPerft;
     SELPERFT selDivide;
     SELPERFT selBulk;
+    SELPERFT selHash;
 };
 
 class DLGPERFT : public DLG

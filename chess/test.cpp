@@ -23,7 +23,7 @@ bool fValidate = false;
 WNLOG::WNLOG(WN& wnParent) : 
     WNSTREAM(wnParent), 
     SCROLLLNFIXED((WN&)*this),
-    titlebar(*this, "Tests"), 
+    titlebar(*this, "Log"), 
 	toolbar(*this),
     tfTest(*this, sFontUI, 12),
     dyLine(12)
@@ -64,18 +64,21 @@ void WNLOG::clear(void)
 {
     vs.clear();
     SetViewOffset(PT(0, 0));
-    SetContentCli(1);
+	SetContentCli(0);
+	Redraw();
 }
 
 void WNLOG::ReceiveStream(const string& s)
 {
     vs.push_back(s);
     SetContentCli((int)vs.size());
+	Redraw();
 }
 
 void WNLOG::DrawLine(const RC& rcLine, int li)
 {
-	DrawS(vs[li], tfTest, rcLine);
+	RC rc = rcLine.RcSetRight(8000);
+	DrawS(vs[li], tfTest, rc);
 }
 
 float WNLOG::DyLine(void) const
@@ -134,25 +137,45 @@ protected:
 	WNLOG& wnlog;
 };
 
+class CMDSAVETEST : public CMD<CMDSAVETEST, WAPP>
+{
+public:
+	CMDSAVETEST(WNLOG& wnlog) : CMD(Wapp(wnlog.iwapp)), wnlog(wnlog) {}
+
+	virtual int Execute(void) override
+	{
+		return 1;
+	}
+
+protected:
+	WNLOG& wnlog;
+};
+
 TOOLBARLOG::TOOLBARLOG(WNLOG& wnlog) :
 	TOOLBAR(wnlog),
+	btnSave(*this, new CMDSAVETEST(wnlog), SFromU8(u8"\U0001F4BE")),
 	btnCopy(*this, new CMDCOPYTEST(wnlog), SFromU8(u8"\u2398")),
 	btnClear(*this, new CMDCLEARTEST(wnlog), SFromU8(u8"\u239a"))
 {
+	btnSave.SetLayout(LCTL::SizeToFit);
+	btnSave.SetPadding(7);
 	btnCopy.SetLayout(LCTL::SizeToFit);
 	btnCopy.SetPadding(0);
 	btnClear.SetLayout(LCTL::SizeToFit);
-	btnClear.SetPadding(0);
+	btnClear.SetPadding(0, 0, 0, 3);
 }
 
 void TOOLBARLOG::Layout(void)
 {
 	/* TODO: use layout engine */
+	LEN len(*this, PAD(8, 1, 8, 1), PAD(8));
 	RC rc(RcInterior());
 	rc.Inflate(-8, -2);
 	rc.right = rc.left + rc.dyHeight();
+	btnSave.SetBounds(rc);
+	rc.TileRight(4);
 	btnCopy.SetBounds(rc);
-	rc.Offset(rc.dxWidth() + 8, 0);
+	rc.TileRight(4);
 	btnClear.SetBounds(rc);
 }
 
@@ -177,34 +200,77 @@ void WAPP::RunPerft(void)
 			auto tmStart = chrono::high_resolution_clock::now();
 			int64_t cmv = wnlog.tperft == TPERFT::Perft ? game.bd.CmvPerft(d) : game.bd.CmvBulk(d);
 			chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tmStart;
-			wnlog << (wnlog.tperft == TPERFT::Perft ? "Perft" : "Bulk") << " " << d << ": " << cmv << endl;
-			wnlog << indent(1) << "Time: " << (uint32_t)round(dtm.count() * 1000.0f) << " ms" << endl;
-			wnlog << indent(1) << "moves/ms: " << (uint32_t)round((float)cmv / dtm.count() / 1000.0f) << endl;
+			wnlog << (wnlog.tperft == TPERFT::Perft ? "Perft" : "Bulk") << " " 
+				  << dec << d << ": " 
+				  << cmv << endl;
+			wnlog << indent(1) << "Time: "
+				  << dec << (uint32_t)round(dtm.count() * 1000.0f) << " ms" << endl;
+			wnlog << indent(1) << "moves/ms: " 
+				  << dec << (uint32_t)round((float)cmv / dtm.count() / 1000.0f) << endl;
 		}
 		break;
 	}
 
 	case TPERFT::Divide:
 	{
-		int d = wnlog.dPerft;
 		VMV vmv;
 		game.bd.MoveGen(vmv);
 		int64_t cmv = 0;
-		wnlog << "Divide depth " << d << endl;
+		wnlog << "Divide depth "
+			  << dec << wnlog.dPerft << endl;
 		for (MV& mv : vmv) {
 			game.bd.MakeMv(mv);
-			int64_t cmvMove = game.bd.CmvPerft(d - 1);
+			int64_t cmvMove = game.bd.CmvPerft(wnlog.dPerft - 1);
 			wnlog << indent(1) << (string)mv << " " << cmvMove << endl;
 			cmv += cmvMove;
-			game.bd.UndoMv(mv);
+			game.bd.UndoMv();
 		}
-		wnlog << "Total: " << cmv << endl;
+		wnlog << "Total: " 
+			  << cmv << endl;
+		break;
+	}
+
+	case TPERFT::Hash:
+	{
+		wnlog << "Testing hash to depth "
+			  << dec << wnlog.dPerft << endl;
+		if (FRunHash(game.bd, wnlog.dPerft))
+			wnlog << "Success" << endl;
 		break;
 	}
 	}
 
     wnboard.Enable(true);
 }
+
+bool WAPP::FRunHash(BD& bd, int d)
+{
+	if (d == 0)
+		return true;
+
+	VMV vmv;
+	bd.MoveGen(vmv);
+	for (MV mv : vmv) {
+		bd.MakeMv(mv);
+		HA ha = genha.HaFromBd(bd);
+		if (bd.ha != ha) {
+			HA haAct = bd.ha;
+			bd.UndoMv();
+			wnlog << indent(1) << "Hash mismatch" <<endl;
+			wnlog << indent(1) << bd.FenRender() << endl;
+			wnlog << indent(1) << "Then move: " << (string)mv << endl;
+			wnlog << indent(1) << "Exected: " << hex << ha << endl;
+			wnlog << indent(1) << "Actual: " << hex << haAct << endl;
+			return false;
+		}
+		bool fSuccess = FRunHash(bd, d - 1);
+		bd.UndoMv();
+		if (!fSuccess)
+			return false;
+	}
+	return true;
+}
+
 
 /*
  *  WAPP::RunPerftSuite
@@ -424,15 +490,18 @@ void WAPP::RunPerftSuite(void)
 	}
 
 	float sp = 1000.0f * (float)cmvTotal / (float)usTotal.count();
-	wnlog << "Average Speed: " << (int)round(sp) << " moves/ms" << endl;
+	wnlog << "Average Speed: " 
+		  << (int)round(sp) << " moves/ms" << endl;
 }
 
-/*	WAPP::RunOnePerftTest
+/*	
+ *	WAPP::RunOnePerftTest
  *
  *	Runs one particular perft test starting with the board position in fen 
  *	cycles through each d from 1 to dLast, verifying move counts. Returns
  *	false on failure.
  */
+
 bool WAPP::RunOnePerftTest(const char tag[], const char fen[], const int64_t mpdcmv[], 
 						   chrono::microseconds& usTotal, int64_t& cmvTotal)
 {
@@ -446,13 +515,17 @@ bool WAPP::RunOnePerftTest(const char tag[], const char fen[], const int64_t mpd
 	int64_t cmvMax = (int64_t)(spMax * 1000.0f * 60.0f);	/* one minute max */
 
 	wnlog << tag << endl;
+	wnlog << indent(1) << fen << endl;
+
 	for (int d = 1; mpdcmv[d] && mpdcmv[d] < cmvMax; d++) {
 
 		if (mpdcmv[d] < 0)
 			continue;
-		wnlog << indent(1) << "Depth: " << d << endl;
-		wnlog << indent(2) << "Expected: " << mpdcmv[d] << endl;
-
+		wnlog << indent(1) << "Depth: " 
+			  << dec << d << endl;
+		wnlog << indent(2) << "Expected: " 
+			  << mpdcmv[d] << endl;
+		
 		/* time the perft */
 		chrono::time_point<chrono::high_resolution_clock> tpStart = chrono::high_resolution_clock::now();
 		int64_t cmvActual = bd.CmvPerft(d);
@@ -462,8 +535,10 @@ bool WAPP::RunOnePerftTest(const char tag[], const char fen[], const int64_t mpd
 		chrono::duration dtp = tpEnd - tpStart;
 		chrono::microseconds us = duration_cast<chrono::microseconds>(dtp);
 		float sp = 1000.0f * (float)cmvActual / (float)us.count();
-		wnlog << indent(2) << "Actual: " << cmvActual << endl;
-		wnlog << indent(2) << "Speed: " << (int)round(sp) << " moves/ms" << endl;
+		wnlog << indent(2) << "Actual: " 
+			  << cmvActual << endl;
+		wnlog << indent(2) << "Speed: " 
+			  << (int)round(sp) << " moves/ms" << endl;
 		usTotal += us;
 		cmvTotal += cmvActual;
 
@@ -475,6 +550,49 @@ bool WAPP::RunOnePerftTest(const char tag[], const char fen[], const int64_t mpd
 	}
 
 	return true;
+}
+
+void WAPP::RunPolyglotTest(void)
+{
+	/* http://hgm.nubati.net/book_format.html */
+	/* TODO: this is a pretty lame set of tests. */
+
+	static struct {
+		const char* sTitle;
+		const char* fen;
+		HA ha;
+	} apolyglot[] = {
+		{ "starting position", 
+		  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 0x463b96181691fc9cULL },
+		{ "position after e2e4", 
+		  "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", 0x823c9b50fd114196ULL },
+		{ "position after e2e4 d75", 
+		  "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2", 0x0756b94461c50fb0ULL },
+		{ "position after e2e4 d7d5 e4e5",
+		  "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2", 0x662fafb965db29d4ULL },
+		{ "position after e2e4 d7d5 e4e5 f7f5",
+		  "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3", 0x22a48b5a8e47ff78ULL },
+		{ "position after e2e4 d7d5 e4e5 f7f5 e1e2",
+		  "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR b kq - 0 3", 0x652a607ca3f242c1ULL },
+		{ "position after e2e4 d7d5 e4e5 f7f5 e1e2 e8f7",
+		  "rnbq1bnr/ppp1pkpp/8/3pPp2/8/8/PPPPKPPP/RNBQ1BNR w - - 0 4", 0x00fdd303c946bdd9ULL },
+		{ "position after a2a4 b7b5 h2h4 b5b4 c2c4",
+		  "rnbqkbnr/p1pppppp/8/8/PpP4P/8/1P1PPPP1/RNBQKBNR b KQkq c3 0 3", 0x3c8123ea7b067637ULL },
+		{ "position after a2a4 b7b5 h2h4 b5b4 c2c4 b4c3 a1a3",
+		  "rnbqkbnr/p1pppppp/8/8/P6P/R1p5/1P1PPPP1/1NBQKBNR b Kkq - 0 4", 0x5c3f9b829b279560ULL },
+		{ nullptr, nullptr, 0}
+	};
+
+	for (int ipolyglot = 0; apolyglot[ipolyglot].fen; ipolyglot++) {
+		wnlog << apolyglot[ipolyglot].sTitle << endl;
+        const char* fen = apolyglot[ipolyglot].fen;
+		BD bd(fen);
+        HA ha = genha.HaPolyglotFromBd(bd);
+		wnlog << indent(1) << fen << endl;
+		wnlog << indent(1) << hex << ha << endl;
+		if (ha != apolyglot[ipolyglot].ha)
+			wnlog << indent(1) << "Failed, expected: " << hex << apolyglot[ipolyglot].ha << endl;
+	}
 }
 
 /*
@@ -495,7 +613,7 @@ int64_t BD::CmvPerft(int d)
         MakeMv(mv);
         if (FLastMoveWasLegal(mv))
             cmv += CmvPerft(d - 1);
-        UndoMv(mv);
+        UndoMv();
     }
     return cmv;
 }
@@ -510,7 +628,7 @@ int64_t BD::CmvBulk(int d)
 	for (MV mv : vmv) {
 		MakeMv(mv);
 		cmv += CmvBulk(d - 1);
-		UndoMv(mv);
+		UndoMv();
 	}
 	return cmv;
 }
@@ -531,7 +649,7 @@ int64_t WNLOG::CmvDivide(BD& bd, int d)
 		int64_t cmv = bd.CmvPerft(d - 1);
 		*this << indent(2) << to_string(mv) << " " << cmv << endl;
 		cmvTotal += cmv;;
-		bd.UndoMv(mv);
+		bd.UndoMv();
 	}
 	return cmvTotal;
 }
@@ -606,7 +724,8 @@ VSELPERFT::VSELPERFT(DLGPERFT& dlg, ICMD* pcmd) :
 	VSEL(dlg, pcmd),
 	selPerft(*this, rssPerftPerft),
 	selDivide(*this, rssPerftDivide),
-	selBulk(*this, rssPerftBulk)
+	selBulk(*this, rssPerftBulk),
+	selHash(*this, rssPerftHash) 
 {
 }
 
@@ -622,6 +741,6 @@ void VSELPERFT::Layout(void)
 
 SZ VSELPERFT::SzRequestLayout(const RC& rcWithin) const
 {
-	return SZ(rcWithin.dxWidth(), 64);
+	return SZ(rcWithin.dxWidth(), 48);
 }
 

@@ -159,7 +159,7 @@ void WNCLOCK::Draw(const RC& rcUpdate)
     RC rc(RcInterior());
     rc.top = rc.bottom - 16;
     Line(rc.ptTopLeft(), rc.ptTopRight(), CoText(), 1.5f);
-    DrawSCenterXY("Clock Not Yet Implemented", tfControls, rc);
+    DrawSCenterXY("Time controls NYI", tfControls, rc);
 }
 
 void WNCLOCK::Layout(void)

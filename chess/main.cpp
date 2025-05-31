@@ -214,6 +214,12 @@ CMDEXECUTE(CMDTESTPERFTSUITE)
     return 1;
 }
 
+CMDEXECUTE(CMDTESTPOLYGLOT)
+{
+    wapp.RunPolyglotTest();
+    return 1;
+}
+
 /*
  *  CMDMAKEMOVE 
  *
@@ -234,7 +240,7 @@ int CMDMAKEMOVE::Execute(void)
 
 int CMDMAKEMOVE::Undo(void)
 {
-    wapp.game.UndoMv(mv);
+    wapp.game.UndoMv();
     unique_ptr<CMDREQUESTMOVE> pcmdRequest = make_unique<CMDREQUESTMOVE>(wapp);
     wapp.PostCmd(*pcmdRequest);
     return 1;
@@ -480,6 +486,7 @@ void WAPP::RegisterMenuCmds(void)
 
     REGMENUCMD(cmdTestPerft, CMDTESTPERFT);
     REGMENUCMD(cmdTestPerftSuite, CMDTESTPERFTSUITE);
+    REGMENUCMD(cmdTestPolyglot, CMDTESTPOLYGLOT);
     REGMENUCMD(cmdAbout, CMDABOUT);
     
     assert(FVerifyMenuCmdsRegistered());

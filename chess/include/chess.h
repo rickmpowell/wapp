@@ -152,9 +152,11 @@ public:
     virtual void PostCmd(const ICMD& cmd);
 
     void RunPerft(void);
+    bool FRunHash(BD& bd, int d);
     void RunPerftSuite(void);
     bool RunOnePerftTest(const char tag[], const char fen[], const int64_t mpdcmv[],  
                          chrono::microseconds& dtpTotal, int64_t& cmvTotal);
+    void RunPolyglotTest(void);
 
 public:
     GAME game;

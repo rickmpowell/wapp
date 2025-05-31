@@ -51,12 +51,13 @@ void GAME::InitFromFen(const string& fen)
 void GAME::MakeMv(MV mv)
 {
     bd.MakeMv(mv);
+    assert(bd.ha == genha.HaFromBd(bd));
     NotifyBdChanged();
 }
 
-void GAME::UndoMv(MV mv)
+void GAME::UndoMv(void)
 {
-    bd.UndoMv(mv);
+    bd.UndoMv();
     NotifyBdChanged();
 }
 

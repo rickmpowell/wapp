@@ -118,7 +118,7 @@ void BD::RemoveChecks(VMV& vmv) const noexcept
         bdT.MakeMv(vmv[imv]);
         if (bdT.FLastMoveWasLegal(vmv[imv]))
             vmv[imvTo++] = vmv[imv];
-        bdT.UndoMv(vmv[imv]);
+        bdT.UndoMv();
     }
     vmv.resize(imvTo);
 }

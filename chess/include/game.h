@@ -50,7 +50,7 @@ public:
     void RequestMv(WAPP& wapp);
 
     void MakeMv(MV mv);
-    void UndoMv(MV mv);
+    void UndoMv(void);
 
 public:
     BD bd;

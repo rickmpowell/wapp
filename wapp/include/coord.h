@@ -671,31 +671,51 @@ public:
         return rc;
     }
 
-    RC RcTileRight(void) const
+    RC& TileRight(float dxMargin = 0) 
+    {
+        return Offset(right - left + dxMargin, 0);;
+    }
+
+    RC& TileLeft(float dxMargin = 0)
+    {
+        return Offset(left - right - dxMargin, 0);
+    }
+
+    RC& TileDown(float dyMargin = 0)
+    {
+        return Offset(0, bottom - top + dyMargin);
+    }
+
+    RC& TileUp(float dyMargin = 0)
+    {
+        return Offset(0, top - bottom - dyMargin);
+    }
+
+    RC RcTileRight(float dxMargin = 0) const
     {
         RC rc(*this);
-        rc += PT(right - left, 0);
+        rc.TileRight(dxMargin);
         return rc;
     }
 
-    RC RcTileLeft(void) const
+    RC RcTileLeft(float dxMargin = 0) const
     {
         RC rc(*this);
-        rc -= PT(right - left, 0);
+        rc.TileLeft(dxMargin);
         return rc;
     }
 
-    RC RcTileDown(void) const
+    RC RcTileDown(float dyMargin = 0) const
     {
         RC rc(*this);
-        rc += PT(0, bottom - top);
+        rc.TileDown(dyMargin);
         return rc;
     }
 
-    RC RcTileUp(void) const
+    RC RcTileUp(float dyMargin = 0) const
     {
         RC rc(*this);
-        rc -= PT(0, bottom - top);
+        rc.TileUp(dyMargin);
         return rc;
     }
 

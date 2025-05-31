@@ -8,6 +8,7 @@
  */
 
 #include "framework.h"
+class BD;
 
 /*
  *  CCP
@@ -39,6 +40,19 @@ inline CCP operator ++ (CCP& ccp, int) noexcept
 {
     CCP ccpT = ccp;
     ccp = static_cast<CCP>(static_cast<uint8_t>(ccp) + 1);
+    return ccpT;
+}
+
+inline CCP& operator -- (CCP& ccp) noexcept
+{
+    ccp = static_cast<CCP>(static_cast<uint8_t>(ccp) - 1);
+    return ccp;
+}
+
+inline CCP operator -- (CCP& ccp, int) noexcept
+{
+    CCP ccpT = ccp;
+    ccp = static_cast<CCP>(static_cast<uint8_t>(ccp) - 1);
     return ccpT;
 }
 
@@ -347,6 +361,12 @@ inline int IcpbdFromSq(int fi, int ra) noexcept
 }
 
 /*
+ *  board hash - Zobrist hashing.
+ */
+
+typedef uint64_t HA;
+
+/*
  *  MV class
  * 
  *  The chess move on the board. 
@@ -366,6 +386,7 @@ public:
     CS csSav = csNone;  
     SQ sqEnPassantSav = sqNil;
     uint8_t cmvLastCaptureOrPawnSav = 0;
+    HA haSav = 0;
 
     inline MV(void) noexcept
     {
@@ -484,6 +505,89 @@ private:
 };
 
 /*
+ *	GENHA class
+ *
+ *	Generate game board hashing. This uses Zobrist hashing, which creates a large
+ *	bit-array for each possible individual square state on the board. The hash is
+ *	the XOR of all the individual states.
+ *
+ *	The advantage of Zobrist hashing is it's inexpensive to keep up-to-date during
+ *	move/undo with two or three simple xor operations.
+ */
+
+class GENHA
+{
+public:
+    GENHA(void);
+    HA HaRandom(void);
+    HA HaFromBd(const BD& bd) const;
+    HA HaPolyglotFromBd(const BD& bd) const;
+    bool FEnPassantPolyglot(const BD& bd) const;
+
+    /*
+     *  TogglePiece
+     *
+     *	Toggles the square in the hash at the given square.
+     */
+
+    inline static void TogglePiece(HA& ha, SQ sq, CP cp) noexcept
+    {
+        ha ^= ahaPiece[sq][cp];
+    }
+
+    /*
+     *  ToggleToMove
+     *
+     *	Toggles the player to move in the hash.
+     */
+
+    inline static void ToggleToMove(HA& ha)
+    {
+        ha ^= haToMove;
+    }
+
+    /*
+     *  ToggleCastle
+     *
+     *	Toggles the castle state in the hash
+     */
+
+    inline static void ToggleCastle(HA& ha, int cs)
+    {
+        ha ^= ahaCastle[cs];
+    }
+
+    /*
+     *  ToggleEnPassant
+     *
+     *	Toggles the en passant state in the hash
+     */
+
+    inline static void ToggleEnPassant(HA& ha, SQ sq)
+    {
+        if (sq == sqNil)
+            return;
+        ha ^= ahaEnPassant[fi(sq)];
+    }
+
+private:
+    /* hash values in convenient form to quickly keep hash value up-to-date */
+
+    static HA ahaPiece[sqMax][cpMax];
+    static HA ahaCastle[16];
+    static HA ahaEnPassant[8];
+    static HA haToMove;
+
+    /* hash data can be random, but there are 3rd party tools that use hard-coded
+       values, which is this */
+
+    int ihaRandom;
+    static const uint64_t ahaRandom[781];
+};
+
+extern GENHA genha;
+
+/*
  *  BD class
  * 
  *  And the actual game board class. 
@@ -540,7 +644,7 @@ public:
     /* make and undo move */
 
     void MakeMv(MV& mv) noexcept;
-    void UndoMv(MV& mv) noexcept;
+    void UndoMv(void) noexcept;
     bool FMakeMvLegal(MV& mv) noexcept;
 
     /* move generation */
@@ -586,6 +690,13 @@ private:
     int8_t IcpbdFindKing(CCP ccpKing) const noexcept;
     int8_t IcpUnused(CCP ccp, TCP tcpHint) const noexcept;
 
+    inline void ClearCs(CS cs, CCP ccp) noexcept
+    {
+        cs = Cs(cs, ccp);
+        genha.ToggleCastle(ha, cs & csCur);
+        csCur &= ~cs;
+    }
+
 public:
     CPBD acpbd[(raMax+4)*(fiMax+2)];  // 8x8 plus 4 guard ranks and 2 guard files
     static constexpr uint8_t icpMax = 16;
@@ -595,6 +706,7 @@ public:
     SQ sqEnPassant = sqNil;
     VMV vmvGame;
     uint8_t cmvLastCaptureOrPawn = 0; // number of moves since last capture or pawn move
+    HA ha = 0;  // zobrist hash of the board
 
 private:
     static const string_view sParseBoard;
@@ -611,3 +723,4 @@ private:
 };
 
 extern const int mptcpphase[tcpMax];
+
