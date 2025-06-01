@@ -35,7 +35,7 @@ void WNML::Layout(void)
     len.PositionBottom(awnclock[1]);
     SetView(len.RcLayout());
 
-    tf.SetHeight(*this, 14);
+    tf.SetHeight(*this, 15);
     dyLine = SzFromS("Rg1xRh8+ e.p.", tf).height + 2 * 2;
     dxMoveNum = SzFromS("999", tf).width;
 }
@@ -59,15 +59,15 @@ void WNML::DrawLine(const RC& rcLine, int li)
     DrawSCenter(to_string(li+1), tf, rc.RcSetWidth(dxMoveNum));
 
     int imv = li * 2;
-    if (imv >= game.bd.vmvGame.size())
+    if (imv >= game.bd.vmvuGame.size())
         return;
     rc.Inflate(-dxMoveNum, 0);
     rc.right = rc.ptCenter().x;
-    DrawSCenter(to_string(game.bd.vmvGame[imv]), tf, rc);
+    DrawSCenter(to_string(game.bd.vmvuGame[imv]), tf, rc);
 
-    if (++imv >= game.bd.vmvGame.size())
+    if (++imv >= game.bd.vmvuGame.size())
         return;
-    DrawSCenter(to_string(game.bd.vmvGame[imv]), tf, rc.RcTileRight());
+    DrawSCenter(to_string(game.bd.vmvuGame[imv]), tf, rc.RcTileRight());
 }
 
 float WNML::DyLine(void) const
@@ -83,7 +83,7 @@ void WNML::PlChanged(void)
 
 void WNML::BdChanged(void)
 {
-    int fnm = game.bd.vmvGame.size() / 2 + 1;
+    int fnm = (int)game.bd.vmvuGame.size() / 2 + 1;
     SetContentCli(fnm);
     Redraw();
 }

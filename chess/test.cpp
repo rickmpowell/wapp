@@ -100,6 +100,15 @@ void WNLOG::RenderLog(ostream& os) const
 		os << vs[is] << endl;
 }
 
+void WNLOG::Save(void) const
+{
+	wchar_t wsPath[MAX_PATH];
+	::GetModuleFileName(NULL, wsPath, MAX_PATH);
+	filesystem::path path = SFromWs(wstring(wsPath));
+	ofstream os(path.parent_path() / "chess.log");
+	RenderLog(os);
+}
+
 class CMDCOPYTEST : public CMD<CMDCOPYTEST, WAPP>
 {
 public:
@@ -221,7 +230,7 @@ void WAPP::RunPerft(void)
 		for (MV& mv : vmv) {
 			game.bd.MakeMv(mv);
 			int64_t cmvMove = game.bd.CmvPerft(wnlog.dPerft - 1);
-			wnlog << indent(1) << (string)mv << " " << cmvMove << endl;
+			wnlog << indent(1) << to_string(mv) << " " << cmvMove << endl;
 			cmv += cmvMove;
 			game.bd.UndoMv();
 		}
@@ -258,7 +267,7 @@ bool WAPP::FRunHash(BD& bd, int d)
 			bd.UndoMv();
 			wnlog << indent(1) << "Hash mismatch" <<endl;
 			wnlog << indent(1) << bd.FenRender() << endl;
-			wnlog << indent(1) << "Then move: " << (string)mv << endl;
+			wnlog << indent(1) << "Then move: " << to_string(mv) << endl;
 			wnlog << indent(1) << "Exected: " << hex << ha << endl;
 			wnlog << indent(1) << "Actual: " << hex << haAct << endl;
 			return false;

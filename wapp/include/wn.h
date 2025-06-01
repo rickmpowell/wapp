@@ -131,7 +131,7 @@ public:
     RC RccContent(void) const;
     RC RccView(void) const;
 
-    bool FMakeVis(const PT& ptcShow);
+    bool FMakeVis(const RC& rccShow);
     void Scroll(const PT& dpt);
     void SetViewOffset(const PT& ptc);
     

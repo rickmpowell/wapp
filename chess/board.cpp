@@ -8,7 +8,6 @@
 #include "chess.h"
 #include "resource.h"
 
-
 const char fenStartPos[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 const char fenEmpty[] = "8/8/8/8/8/8/8/8 w - - 0 1";
 
@@ -49,8 +48,8 @@ void BD::Empty(void)  noexcept
         for (int icp = 0; icp < icpMax; icp++)
             aicpbd[ccp][icp] = -1;
 
-    vmvGame.clear();
-    cmvLastCaptureOrPawn = 0;
+    vmvuGame.clear();
+    cmvNoCaptureOrPawn = 0;
 }
 
 /*
@@ -59,21 +58,18 @@ void BD::Empty(void)  noexcept
  *  Makes a move on the board. 
  */
 
-void BD::MakeMv(MV& mv) noexcept
+void BD::MakeMv(MV mv) noexcept
 {
     assert(mv.sqFrom != sqNil && mv.sqTo != sqNil);
 
-    mv.csSav = csCur;
-    mv.sqEnPassantSav = sqEnPassant;
-    mv.cmvLastCaptureOrPawnSav = cmvLastCaptureOrPawn;
-    mv.haSav = ha;
+    vmvuGame.emplace_back(mv, *this);
 
     CPBD cpbdMoveFrom = (*this)[mv.sqFrom];
     CPBD cpbdMoveTo = cpbdMoveFrom;
     SQ sqTake = mv.sqTo;
 
     if (cpbdMoveFrom.tcp == tcpPawn) {
-        cmvLastCaptureOrPawn = 0;
+        cmvNoCaptureOrPawn = 0;
         /* keep track of en passant possibility */
         if (abs(mv.sqFrom - mv.sqTo) == 16) {
             genha.ToggleEnPassant(ha, sqEnPassant);
@@ -92,7 +88,7 @@ void BD::MakeMv(MV& mv) noexcept
         }
     }
     else {
-        cmvLastCaptureOrPawn++;
+        cmvNoCaptureOrPawn++;
         genha.ToggleEnPassant(ha, sqEnPassant);
         sqEnPassant = sqNil;
         if (cpbdMoveFrom.tcp == tcpRook) {
@@ -138,13 +134,14 @@ Castle:
     /* remove piece we're taking */
 
     if ((*this)[sqTake].cp() != cpEmpty) {
-        cmvLastCaptureOrPawn = 0;
-        mv.cpTake = (*this)[sqTake].cp();
+        cmvNoCaptureOrPawn = 0;
+        CP cpTake = (*this)[sqTake].cp();
+        vmvuGame.back().cpTake = cpTake;
         aicpbd[~ccpToMove][(*this)[sqTake].icp] = -1;
         (*this)[sqTake] = CPBD(cpEmpty, 0);
-        genha.TogglePiece(ha, sqTake, mv.cpTake);
+        genha.TogglePiece(ha, sqTake, cpTake);
         /* when taking rooks, we may need to clear castle bits */
-        if (tcp(mv.cpTake) == tcpRook && ra(sqTake) == RaBack(~ccpToMove)) {
+        if (tcp(cpTake) == tcpRook && ra(sqTake) == RaBack(~ccpToMove)) {
             if (fi(sqTake) == fiQueenRook)
                 ClearCs(csQueen, ~ccpToMove);
             else if (fi(sqTake) == fiKingRook)
@@ -163,7 +160,6 @@ PlaceMovePiece:
 
     genha.ToggleToMove(ha);
     ccpToMove = ~ccpToMove;
-    vmvGame.emplace_back(mv);
     Validate();
 }
 
@@ -176,64 +172,64 @@ PlaceMovePiece:
 
 void BD::UndoMv(void) noexcept
 {
-    MV mv(vmvGame.back());
-    vmvGame.pop_back();
+    MVU mvu(vmvuGame.back());
+    vmvuGame.pop_back();
 
     ccpToMove = ~ccpToMove;
-    csCur = mv.csSav;
-    sqEnPassant = mv.sqEnPassantSav;
-    cmvLastCaptureOrPawn = mv.cmvLastCaptureOrPawnSav;
-    ha = mv.haSav;
+    csCur = mvu.csSav;
+    sqEnPassant = mvu.sqEnPassantSav;
+    cmvNoCaptureOrPawn = mvu.cmvNoCaptureOrPawnSav;
+    ha = mvu.haSav;
 
-    CPBD cpbdMove = (*this)[mv.sqTo];
-    if (mv.tcpPromote != tcpNone)
+    CPBD cpbdMove = (*this)[mvu.sqTo];
+    if (mvu.tcpPromote != tcpNone)
         cpbdMove.tcp = tcpPawn;
 
-    if (mv.cpTake != cpEmpty) {
-        if (mv.sqTo == mv.sqEnPassantSav) {
-            SQ sqTake = mv.sqTo;
-            int icpTake = IcpUnused(~ccpToMove, tcp(mv.cpTake));
+    if (mvu.cpTake != cpEmpty) {
+        if (mvu.sqTo == mvu.sqEnPassantSav) {
+            SQ sqTake = mvu.sqTo;
+            int icpTake = IcpUnused(~ccpToMove, tcp(mvu.cpTake));
             sqTake += ccpToMove == ccpWhite ? -8 : 8;
-            (*this)[sqTake] = CPBD(mv.cpTake, icpTake);
-            (*this)[mv.sqTo] = CPBD(cpEmpty, 0);
-            (*this)[mv.sqFrom] = cpbdMove;
-            aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqFrom);
+            (*this)[sqTake] = CPBD(mvu.cpTake, icpTake);
+            (*this)[mvu.sqTo] = CPBD(cpEmpty, 0);
+            (*this)[mvu.sqFrom] = cpbdMove;
+            aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
             aicpbd[~ccpToMove][icpTake] = IcpbdFromSq(sqTake);
         }
         else {
-            int icpTake = IcpUnused(~ccpToMove, tcp(mv.cpTake));
-            (*this)[mv.sqTo] = CPBD(mv.cpTake, icpTake);
-            (*this)[mv.sqFrom] = cpbdMove;
-            aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqFrom);
-            aicpbd[~ccpToMove][icpTake] = IcpbdFromSq(mv.sqTo);
+            int icpTake = IcpUnused(~ccpToMove, tcp(mvu.cpTake));
+            (*this)[mvu.sqTo] = CPBD(mvu.cpTake, icpTake);
+            (*this)[mvu.sqFrom] = cpbdMove;
+            aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
+            aicpbd[~ccpToMove][icpTake] = IcpbdFromSq(mvu.sqTo);
         }
     }
-    else if (mv.csMove & csKing) {
+    else if (mvu.csMove & csKing) {
         int raBack = RaBack(ccpToMove);
         int icpRook = (*this)(fiF, raBack).icp;
         CPBD cpbdRook = acpbd[aicpbd[ccpToMove][icpRook]];
-        (*this)[mv.sqTo] = CPBD(cpEmpty, 0);
+        (*this)[mvu.sqTo] = CPBD(cpEmpty, 0);
         (*this)(fiF, raBack) = CPBD(cpEmpty, 0);
         (*this)(fiKingRook, raBack) = cpbdRook;
-        (*this)[mv.sqFrom] = cpbdMove;
+        (*this)[mvu.sqFrom] = cpbdMove;
         aicpbd[ccpToMove][icpRook] = IcpbdFromSq(fiKingRook, raBack);
-        aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqFrom);
+        aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
     }
-    else if (mv.csMove & csQueen) {
+    else if (mvu.csMove & csQueen) {
         int raBack = RaBack(ccpToMove);
         int icpRook = (*this)(fiD, raBack).icp;
         CPBD cpbdRook = acpbd[aicpbd[ccpToMove][icpRook]];
-        (*this)[mv.sqTo] = CPBD(cpEmpty, 0);
+        (*this)[mvu.sqTo] = CPBD(cpEmpty, 0);
         (*this)(fiD, raBack) = CPBD(cpEmpty, 0);
         (*this)(fiQueenRook, raBack) = cpbdRook;
-        (*this)[mv.sqFrom] = cpbdMove;
+        (*this)[mvu.sqFrom] = cpbdMove;
         aicpbd[ccpToMove][icpRook] = IcpbdFromSq(fiQueenRook, raBack);
-        aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqFrom);
+        aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
     }
     else {
-        (*this)[mv.sqTo] = CPBD(cpEmpty, 0);
-        (*this)[mv.sqFrom] = cpbdMove;
-        aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mv.sqFrom);
+        (*this)[mvu.sqTo] = CPBD(cpEmpty, 0);
+        (*this)[mvu.sqFrom] = cpbdMove;
+        aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
     }
 
     Validate();
@@ -253,7 +249,7 @@ bool BD::FMakeMvLegal(MV& mv) noexcept
 /* also used by eval */
 const int mptcpphase[tcpMax] = { 0, 0, phaseMinor, phaseMinor, phaseRook, phaseQueen, 0 };
 
-int BD::PhaseCur(void) const
+int BD::PhaseCur(void) const noexcept
 {
     int phase = phaseMax;
     for (CCP ccp = ccpWhite; ccp <= ccpBlack; ++ccp) {
@@ -265,6 +261,33 @@ int BD::PhaseCur(void) const
         }
     }
     return max(phase, phaseMin);
+}
+
+bool BD::FGameDrawn(void) const noexcept
+{
+    if (vmvuGame.size() >= 256)  // our app can't handle games more than 256 moves
+        return  true;
+    if (cmvNoCaptureOrPawn >= 2*50)   // 50 move rule
+        return true;
+    if (FDrawRepeat(3)) // 3-fold repetition rule
+        return true;
+    return false;
+}
+
+bool BD::FDrawRepeat(int cbdDraw) const noexcept
+{
+    if (cmvNoCaptureOrPawn < (cbdDraw - 1) * 2 * 2)
+        return false;
+    int cbdSame = 1;
+    int imvLastCaptureOrPawn = (int)vmvuGame.size() - cmvNoCaptureOrPawn;
+    for (int imv = (int)vmvuGame.size() - 4; imv >= imvLastCaptureOrPawn; imv -= 2) {
+        if (vmvuGame[imv].haSav == ha) {
+            if (++cbdSame >= cbdDraw)
+                return true;
+            imv -= 2;
+       }
+    }
+    return false;
 }
 
 /*
@@ -280,7 +303,7 @@ static int IchFind(const string_view& s, char ch)
     return static_cast<int>(ich);
 }
 
-/* these constant parsing strings are all cleverly ordered to line up with 
+/* these constant parsing strings are all cleverly ordered to line up with
    the numerical definitions of various board, piece, and color values */
 
 constexpr string_view BD::sParseBoard("/PNBRQK /pnbrqk /12345678");
@@ -319,7 +342,7 @@ void BD::InitFromFen(istream& is)
 
     Empty();
     int ich;
-    int ra = raMax-1;
+    int ra = raMax - 1;
     SQ sq = Sq(0, ra);
     for (char ch : sBoard) {
         if ((ich = IchFind(sParseBoard, ch)) == 0) // slash, move to next rank
@@ -368,35 +391,24 @@ void BD::InitFromFen(istream& is)
     if (!(is >> sHalfMove >> sFullMove))
         throw ERRAPP(rssErrFenParseMissingPart);
 
-    /* if we have a half-move clock, pad the move list with empty moves;
-       add extra padding to make white moves on even index boundaries */
-    
-    try {
-        int cmv = stoi(sHalfMove);
-        if (cmv < 0 || cmv >= 256)
-            throw;
-        cmvLastCaptureOrPawn = cmv; 
-        while (vmvGame.size() < cmvLastCaptureOrPawn)
-            vmvGame.emplace_back(mvNil);
-        if (ccpToMove != (vmvGame.size() % 2))
-            vmvGame.emplace_back(mvNil);
-    }
-    catch (...) {
+    /* if we have a half-move clock, pad the move list with empty moves */
+
+    int cmv;
+    from_chars_result res = from_chars(sHalfMove.data(), sHalfMove.data() + sHalfMove.size(), cmv);
+    if (res.ec != errc{} || cmv < 0 || cmv >= 256)
         throw ERRAPP(rssErrFenBadHalfMoveClock);
-    }
+    cmvNoCaptureOrPawn = cmv;
+    while (vmvuGame.size() < cmvNoCaptureOrPawn)
+        vmvuGame.emplace_back(mvNil, *this);
 
     /* full move number is number (1-based) about to be played. */
 
-    try {
-        int cmv = (stoi(sFullMove)-1) * 2 + (ccpToMove == ccpBlack);
-        if (cmv < 0 || cmv >= 256)
-            throw;
-        while (vmvGame.size() < cmv)
-            vmvGame.emplace_back(mvNil);
-    }
-    catch (...) {
+    res = from_chars(sFullMove.data(), sFullMove.data() + sFullMove.size(), cmv);
+    cmv = (cmv - 1) * 2 + (ccpToMove == ccpBlack);
+    if (res.ec != errc{} || cmv < 0 || cmv >= 256)
         throw ERRAPP(rssErrFenBadFullMoveNumber);
-    }   
+    while (vmvuGame.size() < cmv)
+        vmvuGame.emplace_back(mvNil, *this);
 
     ha = genha.HaFromBd(*this);
 
@@ -439,8 +451,7 @@ string BD::FenRender(void) const
             else
                 fen += FenEmpties(csqEmpty) + sParseBoard[cp];
         }
-        fen += FenEmpties(csqEmpty);
-        fen += sParseBoard[0];
+        fen += FenEmpties(csqEmpty) + sParseBoard[0];
     }
     fen[fen.size()-1] = ' ';    // loop puts an extra slash at the end
 
@@ -467,9 +478,9 @@ string BD::FenRender(void) const
     /* half move clock and full move */
     
     fen += " ";
-    fen += to_string((int)cmvLastCaptureOrPawn);
+    fen += to_string((int)cmvNoCaptureOrPawn);
     fen += " ";
-    fen += to_string(1 + vmvGame.size() / 2);
+    fen += to_string(1 + vmvuGame.size() / 2);
 
     return fen;
 }

@@ -89,7 +89,11 @@ bool GAME::FGameOver(void) const
 {
     VMV vmv;
     bd.MoveGen(vmv);
-    return vmv.size() == 0;
+    if (vmv.size() == 0)
+        return true;
+    if (bd.FGameDrawn())
+        return true;
+    return false;
 }
 
 void GAME::RequestMv(WAPP& wapp)

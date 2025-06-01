@@ -295,13 +295,13 @@ void WNBOARD::DrawMoveHilites(void)
 
 void WNBOARD::DrawLastMove(void)
 {
-    if (bd.vmvGame.empty())
+    if (bd.vmvuGame.empty())
         return;
-    MV& mvLast = bd.vmvGame.back();
-    if (mvLast.fIsNil())
+    MVU& mvuLast = bd.vmvuGame.back();
+    if (mvuLast.fIsNil())
         return;
-    DrawLastMoveOutline(mvLast.sqFrom);
-    DrawLastMoveOutline(mvLast.sqTo);
+    DrawLastMoveOutline(mvuLast.sqFrom);
+    DrawLastMoveOutline(mvuLast.sqTo);
 }
 
 /*

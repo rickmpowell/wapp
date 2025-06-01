@@ -61,13 +61,18 @@ protected:
 class CMDOK : public CMD<CMDOK, IWAPP>
 {
 public:
-    CMDOK(DLG& dlg) : CMD(dlg.iwapp), dlg(dlg) {}
+    CMDOK(DLG& dlg, int val=1) : 
+        CMD(dlg.iwapp), 
+        dlg(dlg),
+        val(val)
+    {
+    }
 
     virtual int Execute(void) override
     {
         try {
             dlg.Validate();
-            dlg.End(1);
+            dlg.End(val);
         }
         catch (ERR err) {
             dlg.iwapp.Error(err);
@@ -77,6 +82,7 @@ public:
 
 protected:
     DLG& dlg;
+    int val;
 };
 
 /*
@@ -109,8 +115,8 @@ class BTNOK : public BTNS
 {
 public:
     /* TODO: localization */
-    BTNOK(DLG& dlg, const string& sText = "OK") : 
-        BTNS(dlg, new CMDOK(dlg), sText) 
+    BTNOK(DLG& dlg, const string& sText = "OK", int val=1) : 
+        BTNS(dlg, new CMDOK(dlg, val), sText) 
     {
     }
 };

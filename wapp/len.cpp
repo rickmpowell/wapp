@@ -225,7 +225,7 @@ void LEN::PositionOK(CTL& ctl)
                                 ctl.SzRequestLayout(rcWithin) -
                                 SZ(2*32.0f, 0.0f)));
     ctl.SetBounds(rc);
-    rcWithin.bottom = rc.top - marginDef.top;
+    rcWithin.right = rc.left - marginDef.top;
 }
 
 void LEN::AdjustMarginDy(float dy) 

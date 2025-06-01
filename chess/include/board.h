@@ -56,6 +56,8 @@ inline CCP operator -- (CCP& ccp, int) noexcept
     return ccpT;
 }
 
+string to_string(CCP ccp);
+
 /*
  *  TCP
  *
@@ -381,13 +383,6 @@ public:
     TCP tcpPromote = tcpNone;
     CS csMove = csNone;     // set on castle moves
 
-    /* undo information saved on MakeMv */
-    CP cpTake = cpEmpty;
-    CS csSav = csNone;  
-    SQ sqEnPassantSav = sqNil;
-    uint8_t cmvLastCaptureOrPawnSav = 0;
-    HA haSav = 0;
-
     inline MV(void) noexcept
     {
     }
@@ -420,13 +415,30 @@ public:
     {
         return sqFrom == sqNil;
     }
+};
 
-    operator string () const;
+/*
+ *  MVU
+ * 
+ *  Move with undo information to take back a MakeMv
+ */
+
+class MVU : public MV
+{
+public:
+    inline MVU(MV mv, const BD& bd);
+
+    /* undo information saved on MakeMv */
+    CP cpTake;
+    CS csSav;
+    SQ sqEnPassantSav;
+    uint8_t cmvNoCaptureOrPawnSav;
+    HA haSav;
 };
 
 inline const MV mvNil;
 
-string to_string(MV mv);
+string to_string(const MV& mv);
 
 /*
  *  VMV - Move list type.
@@ -470,6 +482,7 @@ public:
     inline int size(void) const noexcept { return imvMac; }
     inline bool empty(void) const noexcept { return imvMac == 0; }
     inline MV& operator [] (int imv) noexcept { return reinterpret_cast<MV*>(amv)[imv]; }
+    inline const MV& operator [] (int imv) const noexcept { return reinterpret_cast<const MV*>(amv)[imv]; }
     inline iterator begin(void) noexcept { return iterator(&reinterpret_cast<MV*>(amv)[0]); }
     inline iterator end(void) noexcept { return iterator(&reinterpret_cast<MV*>(amv)[imvMac]); }
     inline citerator begin(void) const noexcept { return citerator(&reinterpret_cast<const MV*>(amv)[0]); }
@@ -499,7 +512,6 @@ public:
     }
 
 private:
-    /* TODO: for debug convenience, figure out a better size item for the raw data */
     alignas(MV) uint8_t amv[256 * sizeof(MV)];
     int16_t imvMac = 0;
 };
@@ -643,7 +655,7 @@ public:
 
     /* make and undo move */
 
-    void MakeMv(MV& mv) noexcept;
+    void MakeMv(MV mv) noexcept;
     void UndoMv(void) noexcept;
     bool FMakeMvLegal(MV& mv) noexcept;
 
@@ -657,7 +669,9 @@ public:
     bool FInCheck(CCP ccp) const noexcept;
     bool FIsAttackedBy(int8_t icpAttacked, CCP ccpBy) const noexcept;
 
-    int PhaseCur(void) const;
+    int PhaseCur(void) const noexcept;
+    bool FGameDrawn(void) const noexcept;
+    bool FDrawRepeat(int cbdDraw) const noexcept;
 
     /* FEN reading and writing */
 
@@ -704,9 +718,9 @@ public:
     CCP ccpToMove = ccpWhite;
     CS csCur = csNone;
     SQ sqEnPassant = sqNil;
-    VMV vmvGame;
-    uint8_t cmvLastCaptureOrPawn = 0; // number of moves since last capture or pawn move
+    uint8_t cmvNoCaptureOrPawn = 0; // number of moves since last capture or pawn move
     HA ha = 0;  // zobrist hash of the board
+    vector<MVU> vmvuGame;
 
 private:
     static const string_view sParseBoard;
@@ -723,4 +737,18 @@ private:
 };
 
 extern const int mptcpphase[tcpMax];
+
+/*
+ *  Move undo constructor
+ */
+
+MVU::MVU(MV mv, const BD& bd) :
+    MV(mv),
+    cpTake(cpEmpty),
+    csSav(bd.csCur),
+    sqEnPassantSav(bd.sqEnPassant),
+    cmvNoCaptureOrPawnSav(bd.cmvNoCaptureOrPawn),
+    haSav(bd.ha)
+{
+}
 

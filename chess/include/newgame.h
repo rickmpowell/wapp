@@ -220,6 +220,7 @@ public:
     BTNRANDOM btnrandom;
     BTNS btnSettings;
     VSELTIME vseltime;
+    BTNOK btnResume;
     BTNOK btnStart;
 
 public:

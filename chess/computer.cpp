@@ -56,19 +56,21 @@ void PLCOMPUTER::RequestMv(WAPP& wapp, GAME& game)
  *  a little different processing.
  */
 
-MV PLCOMPUTER::MvBest(BD& bd) noexcept
+MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
 {
     /* prepare for search */
     InitStats();
     InitWeightTables();
 
+    BD bd(bdGame);
     VMV vmv;
     bd.MoveGen(vmv);
     cmvMoveGen += vmv.size();
     MV mvBest;
     AB ab(-evInfinity, evInfinity);
 
-    *pwnlog << "FEN: " << bd.FenRender() << endl;
+    *pwnlog << to_string(bd.ccpToMove) << " to move" << endl;
+    *pwnlog << bd.FenRender() << endl;
     *pwnlog << indent(1) << "Eval: " << EvStatic(bd) << endl;
 
     for (MV mv : vmv) {
@@ -83,6 +85,7 @@ MV PLCOMPUTER::MvBest(BD& bd) noexcept
     chrono::time_point<chrono::high_resolution_clock> tpEnd = chrono::high_resolution_clock::now();
     *pwnlog << "Best move: " << to_string(mvBest) << endl;
     LogStats(tpEnd);
+    pwnlog->Save();
 
     return mvBest;
 }
@@ -104,6 +107,10 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
         return EvQuiescent(bd, ab, d);
 
     cmvSearch++;
+    FInterrupt();
+    if (bd.FGameDrawn())
+        return evDraw;
+
     VMV vmv;
     bd.MoveGenPseudo(vmv);
     cmvMoveGen += vmv.size();
@@ -119,7 +126,7 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
     }
 
     if (cmvLegal == 0)
-        return fInCheck ? -evInfinity + d : evDraw;
+        return fInCheck ? -EvMate(d) : evDraw;
 
     return ab.evAlpha;
 }
@@ -144,6 +151,8 @@ EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
         return ab.evBeta;
 
     cmvSearch++; cmvQSearch++;
+    FInterrupt();
+
     VMV vmv;
     bd.MoveGenNoisy(vmv);
     cmvMoveGen += vmv.size();
@@ -261,10 +270,33 @@ void PLCOMPUTER::LogStats(chrono::time_point<chrono::high_resolution_clock>& tpE
 {
     chrono::duration dtp = tpEnd - tpStart;
     chrono::microseconds us = duration_cast<chrono::microseconds>(dtp);
-    *pwnlog << indent(1) << "Moves: " << cmvMoveGen << endl;
-    *pwnlog << indent(1) << "Nodes: " << cmvSearch << " | "
+    *pwnlog << indent(1) << "Moves generated: " << cmvMoveGen << endl;
+    *pwnlog << indent(1) << "Nodes visited: " << cmvSearch << " | "
              << (int)roundf((float)(1000*cmvSearch) / us.count()) << " n/ms | "
-             << fixed << setprecision(2) << ((float)(100*cmvSearch) / cmvMoveGen) << " % "
+             << fixed << setprecision(1) << ((float)(100*cmvSearch) / cmvMoveGen) << "%"
              << endl;
+    *pwnlog << indent(1) << "Quiescent nodes: "
+            << cmvQSearch << " | "
+            << fixed << setprecision(1) << ((float)(100*cmvQSearch) / cmvSearch) << "%"
+            << endl;
     *pwnlog << indent(1) << "Eval: " << cmvEval << endl;
+}
+
+/*
+ *  PLCOMPUTER::DoYield
+ * 
+ *  Lets the system work for a bit
+ * 
+ *  TODO: This is nowhere near sophisticated enough, and we'll almost certainly
+ *  crash due to UI re-entrancy during AI search.
+ */
+
+void PLCOMPUTER::DoYield(void) noexcept
+{
+    MSG msg;
+    while (::PeekMessageW(&msg, nullptr, 0, 0, PM_NOREMOVE | PM_NOYIELD)) {
+        ::PeekMessageW(&msg, msg.hwnd, msg.message, msg.message, PM_REMOVE);
+        ::TranslateMessage(&msg);
+        ::DispatchMessageW(&msg);
+    }
 }

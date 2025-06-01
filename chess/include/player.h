@@ -156,6 +156,16 @@ public:
     EV EvQuiescent(BD& bd, AB ab, int d) noexcept;
     EV EvStatic(BD& bd) noexcept;
 
+    void DoYield(void) noexcept;
+    inline bool FInterrupt(void) noexcept
+    {
+        static uint32_t cYield = 0;
+        if (++cYield % 4096 == 0)
+            DoYield();
+        return false;
+    }
+
+
 private:
     /* piece tables */
 

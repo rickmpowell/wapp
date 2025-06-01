@@ -1,27 +1,43 @@
 #include <windows.h>
 #include <memory>
+#include <vector>
 
-class base
+
+class MV
 {
 public:
-    virtual void execute(void) = 0;
-};
-
-class derived : public base
-{
-public:
-    virtual void execute(void) override {
+    MV(int sqFrom, int sqTo) :
+        sqFrom(sqFrom), sqTo(sqTo)
+    {
     }
+
+private:
+    int sqFrom, sqTo;
 };
 
-void dispatch(base& item)
+class MVU : public MV
 {
-    item.execute();
-}
+public:
+    MVU(const MV& mv, int cp) :
+        MV(mv),
+        cpTake(cp)
+    {
+    }
+
+private:
+    int cpTake;
+};
+
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
-    derived cmd;
-    dispatch(cmd);
     return 1;
+}
+
+std::vector<MVU> vmvu;
+
+void Test(MV mv)
+{
+    vmvu.emplace_back(mv, 7);
+
 }

@@ -59,6 +59,7 @@ public:
     virtual void ReceiveStream(const string& s) override;
 
     void RenderLog(ostream& os) const;
+    void Save(void) const;
 
     /* perft tests */
 

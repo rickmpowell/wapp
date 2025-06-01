@@ -253,6 +253,7 @@ DLGNEWGAME::DLGNEWGAME(WN& wnParent, GAME& game) :
     btnSettings(*this, new CMDGAMESETTINGS(*this), SFromU8(sIconSettings), rssStandardGame),
     vseltime(*this, new CMDTIME(*this)),
     /* TODO: resource */
+    btnResume(*this, SFromU8(u8"Resume \U0001F846"), 2),
     btnStart(*this, SFromU8(u8"Start \U0001F846"))
 {
     btnSettings.SetFont(sFontSymbol, 24);
@@ -333,6 +334,11 @@ void DLGNEWGAME::Extract(GAME& game)
 
     /* TODO: initialize the time control */
     /* TODO: Iniitalize game options */
+
+    if (val == 1)   /* OK button sets start pos, resume button leavs it */
+        game.InitFromFen(fenStartPos);
+
+    game.NotifyPlChanged();
 }
 
 CCP DLGNEWGAME::ExtractPlayer(GAME& game, VSELPLAYER& vsel)
@@ -375,6 +381,7 @@ void DLGNEWGAME::Layout(void)
     len.Position(vseltime);
 
     len.PositionOK(btnStart);
+    len.PositionOK(btnResume);
 }
 
 SZ DLGNEWGAME::SzRequestLayout(const RC& rcWithin) const

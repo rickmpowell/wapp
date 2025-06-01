@@ -147,8 +147,6 @@ public:
             return 0;
         gameUndo = wapp.game;
         dlg.Extract(wapp.game);
-        wapp.game.NotifyPlChanged();
-        wapp.game.InitFromFen(fenStartPos);
         wapp.game.cgaPlayed++;
         wapp.game.RequestMv(wapp);
         return 1;

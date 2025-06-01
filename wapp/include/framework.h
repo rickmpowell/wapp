@@ -54,6 +54,8 @@
 #include <chrono>
 #include <sstream>
 #include <iostream>
+#include <fstream>
+#include <filesystem>
 
 using namespace std;
 using namespace D2D1;

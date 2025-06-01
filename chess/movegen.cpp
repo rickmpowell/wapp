@@ -410,6 +410,11 @@ int8_t BD::IcpUnused(CCP ccp, TCP tcpHint) const noexcept
  *  String formatting of squares and moves. Return things formatted for UCI
  */
 
+string to_string(CCP ccp)
+{
+    return ccp == ccpWhite ? "White" : "Black";
+}
+
 string to_string(SQ sq)
 {
     char ach[4] = { 0 }, * pch = ach;
@@ -422,21 +427,16 @@ string to_string(SQ sq)
     return ach;
 }
 
-string to_string(MV mv)
+string to_string(const MV& mv)
 {
-    return (string)mv;
-}
-
-MV::operator string () const
-{
-    if (fIsNil())
+    if (mv.fIsNil())
         return "-";
     char ach[8] = { 0 }, * pch = ach;
-    *pch++ = 'a' + fi(sqFrom);
-    *pch++ = '1' + ra(sqFrom);
-    *pch++ = 'a' + fi(sqTo);
-    *pch++ = '1' + ra(sqTo);
-    if (tcpPromote != tcpNone)
-        *pch++ = " pnbrqk"[tcpPromote];
+    *pch++ = 'a' + fi(mv.sqFrom);
+    *pch++ = '1' + ra(mv.sqFrom);
+    *pch++ = 'a' + fi(mv.sqTo);
+    *pch++ = '1' + ra(mv.sqTo);
+    if (mv.tcpPromote != tcpNone)
+        *pch++ = " pnbrqk"[mv.tcpPromote];
     return ach;
 }

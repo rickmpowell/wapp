@@ -1,4 +1,16 @@
 
+/*
+ *  scroll.cpp
+ * 
+ *  Our little scrolling view object. This is not implemented as a WN
+ *  because we sometimes want to multi-inherit with other objects and
+ *  still get scrolling functionality.
+ * 
+ *  SCROLL is the base scroll interface.
+ *  SCROLLLN is a vertical scroller that displays lines of stuff
+ *  SCROLLLNFIXED is a special case of SCROLLLN with fixed height lines
+ */
+
 #include "wapp.h"
 
 /*
@@ -68,24 +80,30 @@ RC SCROLL::RcFromRcc(const RC& rcc) const
 /*
  *  SCROLL::FMakeVis
  *
- *  Makes the point relative to the content data visible within the view.
+ *  Makes the ectangle relative to the content data visible within the view.
  *  Returns true if any scrolling happened.
  */
 
-bool SCROLL::FMakeVis(const PT& ptcShow)
+bool SCROLL::FMakeVis(const RC& rccShow)
 {
-    /* TODO: this only handles vertical scrolling */
-
     RC rccView = RccFromRc(rcView);
-    if (ptcShow.y < rccView.top) {
-        Scroll(PT(0.0f, rccView.top - ptcShow.y));
-        return true;
-    }
-    else if (ptcShow.y > rccView.bottom) {
-        Scroll(PT(0.0f, ptcShow.y - rccView.bottom));
-        return true;
-    }
-    return false;
+
+    PT dpt(0);
+    if (rccShow.top < rccView.top)
+        dpt.y = rccShow.top - rccView.top;
+    else if (rccShow.bottom > rccView.bottom)
+        dpt.y = rccShow.bottom - rccView.bottom;
+
+    if (rccShow.left < rccView.left)
+        dpt.x = rccShow.left - rccView.left;
+    else if (rccShow.right > rccView.right)
+        dpt.x = rccShow.right - rccView.right;
+
+    if (dpt == PT(0))
+        return false;
+
+    Scroll(dpt);
+    return true;
 }
 
 void SCROLL::SetViewOffset(const PT& ptc)
@@ -117,6 +135,7 @@ void SCROLLLN::DrawView(const RC& rcUpdate)
 {
     RC rcLine(RcView());
     int liFirst = LiFromY(rcLine.top);
+    assert(liFirst >= 0);
     rcLine.top = RcContent().top + YcTopFromLi(liFirst);
 
     for (int li = liFirst; li < cli; li++) {
@@ -159,9 +178,9 @@ void SCROLLLNFIXED::SetContentCli(int cliNew)
     SCROLLLN::SetContentCli(cliNew);
     float dyLine = DyLine();
     SetContent(RC(PT(0), SZ(RcView().dxWidth(), cli * dyLine)));
-    float yc = RccView().bottom +
-        dyLine * ceilf((RccContent().bottom - RccView().bottom) / dyLine);
-    FMakeVis(PT(0.0f, yc));
+    float ycTop = RccView().bottom +
+        dyLine * floorf((RccContent().bottom - RccView().bottom) / dyLine);
+    FMakeVis(RC(0.0f, ycTop, 0.0f, ycTop+dyLine));
 }
 
 float SCROLLLNFIXED::YcTopFromLi(int li) const
