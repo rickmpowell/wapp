@@ -676,26 +676,16 @@ public:
         return Offset(right - left + dxMargin, 0);;
     }
 
-    RC& TileLeft(float dxMargin = 0)
-    {
-        return Offset(left - right - dxMargin, 0);
-    }
-
-    RC& TileDown(float dyMargin = 0)
-    {
-        return Offset(0, bottom - top + dyMargin);
-    }
-
-    RC& TileUp(float dyMargin = 0)
-    {
-        return Offset(0, top - bottom - dyMargin);
-    }
-
     RC RcTileRight(float dxMargin = 0) const
     {
         RC rc(*this);
         rc.TileRight(dxMargin);
         return rc;
+    }
+
+    RC& TileLeft(float dxMargin = 0)
+    {
+        return Offset(left - right - dxMargin, 0);
     }
 
     RC RcTileLeft(float dxMargin = 0) const
@@ -705,11 +695,21 @@ public:
         return rc;
     }
 
+    RC& TileDown(float dyMargin = 0)
+    {
+        return Offset(0, bottom - top + dyMargin);
+    }
+
     RC RcTileDown(float dyMargin = 0) const
     {
         RC rc(*this);
         rc.TileDown(dyMargin);
         return rc;
+    }
+
+    RC& TileUp(float dyMargin = 0)
+    {
+        return Offset(0, top - bottom - dyMargin);
     }
 
     RC RcTileUp(float dyMargin = 0) const
@@ -719,32 +719,26 @@ public:
         return rc;
     }
 
-    RC RcShiftRight(float dx) const
+    RC& ShiftLeft(float dx)
     {
-        RC rc(*this);
-        rc += PT(dx, 0);
-        return rc;
+        left += dx;
+        return *this;
     }
 
-    RC RcShiftLeft(float dx) const
+    RC& ShiftRight(float dx)
     {
-        RC rc(*this);
-        rc -= PT(dx, 0);
-        return rc;
+        right += dx;
+        return *this;
     }
 
-    RC RcShiftDown(float dy) const
+    RC& ShiftTop(float dy)
     {
-        RC rc(*this);
-        rc += PT(0, dy);
-        return rc;
+        top += dy;
     }
 
-    RC RcShiftUp(float dy) const
+    RC& ShiftBottom(float dy)
     {
-        RC rc(*this);
-        rc -= PT(0, dy);
-        return rc;
+        bottom += dy;
     }
 
     RC& SetSz(const SZ& sz) 

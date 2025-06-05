@@ -169,6 +169,7 @@
   <ItemGroup>
     <ClCompile Include="board.cpp" />
     <ClCompile Include="computer.cpp" />
+    <ClCompile Include="fep.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="human.cpp" />
     <ClCompile Include="main.cpp" />

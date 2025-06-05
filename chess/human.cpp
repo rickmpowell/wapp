@@ -17,7 +17,7 @@ void PLHUMAN::SetName(string_view sName)
     this->sName = sName;
 }
 
-string_view PLHUMAN::SName(void) const
+string PLHUMAN::SName(void) const
 {
     return sName;
 }

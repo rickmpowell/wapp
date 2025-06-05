@@ -20,6 +20,7 @@
 #define cmdTestPerft 19
 #define cmdTestPerftSuite 20
 #define cmdTestPolyglot 21
+#define cmdTestAI 22
 
 /*
  *  Accelerator tables

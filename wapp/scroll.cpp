@@ -178,8 +178,7 @@ void SCROLLLNFIXED::SetContentCli(int cliNew)
     SCROLLLN::SetContentCli(cliNew);
     float dyLine = DyLine();
     SetContent(RC(PT(0), SZ(RcView().dxWidth(), cli * dyLine)));
-    float ycTop = RccView().bottom +
-        dyLine * floorf((RccContent().bottom - RccView().bottom) / dyLine);
+    float ycTop = cliNew == 0 ? 0 : YcTopFromLi(cliNew - 1);;
     FMakeVis(RC(0.0f, ycTop, 0.0f, ycTop+dyLine));
 }
 

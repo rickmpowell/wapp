@@ -19,9 +19,9 @@ PLCOMPUTER::PLCOMPUTER(const SETAI& set) :
 {
 }
 
-string_view PLCOMPUTER::SName(void) const
+string PLCOMPUTER::SName(void) const
 {
-    return "AI";
+    return string("WAPP Level ") + to_string(set.level + 1);
 }
 
 bool PLCOMPUTER::FIsHuman(void) const
@@ -52,8 +52,8 @@ void PLCOMPUTER::RequestMv(WAPP& wapp, GAME& game)
 /*
  *  PLCOMPUTER::MvBest
  * 
- *  Search for the best move. This is the root node of the search and has
- *  a little different processing.
+ *  The root search for the best move. The root node of the search has a little
+ *  different processing.
  */
 
 MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
@@ -62,30 +62,36 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
     InitStats();
     InitWeightTables();
 
+    /* generate all possible legal moves */
     BD bd(bdGame);
     VMV vmv;
     bd.MoveGen(vmv);
     cmvMoveGen += vmv.size();
+
+    /* prepare to find best move */
     MV mvBest;
     AB ab(-evInfinity, evInfinity);
 
+    /* log some handy stuff */
     *pwnlog << to_string(bd.ccpToMove) << " to move" << endl;
-    *pwnlog << bd.FenRender() << endl;
+    *pwnlog << indent(1) << bd.FenRender() << endl;
     *pwnlog << indent(1) << "Eval: " << EvStatic(bd) << endl;
 
-    for (MV mv : vmv) {
-        *pwnlog << indent(1) << to_string(mv) << " ";
-        bd.MakeMv(mv);
-        EV ev = -EvSearch(bd, -ab, 0, set.level+1);
-        bd.UndoMv();
-        *pwnlog << ev << endl;
-        ab.FPrune(ev, mv, mvBest);
+    for (int dLim = 1; dLim <= set.level + 1; dLim++) {    // iterative deepening loop
+        *pwnlog << indent(1) << "Depth: " << dLim << endl;
+        for (VMV::siterator pmv = vmv.sbegin(*this); pmv != vmv.send(); ++pmv) {
+            *pwnlog << indent(2) << to_string(*pmv) << " ";
+            bd.MakeMv(*pmv);
+            pmv->ev = -EvSearch(bd, -ab, 0, dLim);
+            bd.UndoMv();
+            *pwnlog << pmv->ev << endl;
+            ab.FPrune(*pmv, mvBest);
+        }
     }
 
     chrono::time_point<chrono::high_resolution_clock> tpEnd = chrono::high_resolution_clock::now();
     *pwnlog << "Best move: " << to_string(mvBest) << endl;
     LogStats(tpEnd);
-    pwnlog->Save();
 
     return mvBest;
 }
@@ -106,22 +112,22 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
     if (d >= dLim)
         return EvQuiescent(bd, ab, d);
 
-    cmvSearch++;
     FInterrupt();
     if (bd.FGameDrawn())
         return evDraw;
+    cmvSearch++;
 
     VMV vmv;
     bd.MoveGenPseudo(vmv);
     cmvMoveGen += vmv.size();
     int cmvLegal = 0;
-    for (MV mv : vmv) {
-        if (!bd.FMakeMvLegal(mv))
+    for (VMV::siterator pmv = vmv.sbegin(*this); pmv != vmv.send(); ++pmv) {
+        if (!bd.FMakeMvLegal(*pmv))
             continue;
         cmvLegal++;
-        EV ev = -EvSearch(bd, -ab, d+1, dLim);
+        pmv->ev = -EvSearch(bd, -ab, d+1, dLim);
         bd.UndoMv();
-        if (ab.FPrune(ev))
+        if (ab.FPrune(*pmv))
             return ab.evBeta;
     }
 
@@ -134,38 +140,81 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
 /*
  *  EvQuiescent
  * 
- *  A common problem with chess search is trying to get a static
- *  evaluation of the board when there's a lot of shit going on.
- *  If there are a lot of exchanges pending, the static evaluation
- *  doesn't mean much. So quiescent search continues the search,
- *  checking all captures, until we reach a quiescent state, and
- *  then we evaluate the board.
+ *  A common problem with chess search is trying to get a static evaluation
+ *  of the board when there's a lot of shit going on. If there are a lot of 
+ *  exchanges pending, the static evaluation doesn't mean much. So quiescent 
+ *  search continues the search checking all captures, until we reach a 
+ *  quiescent state, and then we evaluate the board.
  * 
  *  Alpha-beta pruning applies to quiescent moves, too.
  */
 
 EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
 {
-    EV ev = EvStatic(bd);
-    if (ab.FPrune(ev))
+    MV mvPat;
+    mvPat.ev = EvStatic(bd);
+    if (ab.FPrune(mvPat))
         return ab.evBeta;
 
-    cmvSearch++; cmvQSearch++;
     FInterrupt();
+    cmvSearch++; cmvQSearch++;
 
     VMV vmv;
     bd.MoveGenNoisy(vmv);
     cmvMoveGen += vmv.size();
-    for (MV mv : vmv) {
+    for (MV& mv : vmv) {
         if (!bd.FMakeMvLegal(mv))
             continue;
-        EV ev = -EvQuiescent(bd, -ab, d+1);
+        mv.ev = -EvQuiescent(bd, -ab, d+1);
         bd.UndoMv();
-        if (ab.FPrune(ev))
+        if (ab.FPrune(mv))
             return ab.evBeta;
     }
 
     return ab.evAlpha;
+}
+
+/*
+ *  our fancy iterator through the move list which returns the moves in sorted order.
+ *  does lazy evaluation
+ */
+
+VMV::siterator VMV::sbegin(PLCOMPUTER& pl) noexcept
+{
+    return siterator(&pl, &reinterpret_cast<MV*>(amv)[0],
+                          &reinterpret_cast<MV*>(amv)[imvMac]);
+}
+
+VMV::siterator VMV::send(void) noexcept
+{
+    return siterator(nullptr, &reinterpret_cast<MV*>(amv)[imvMac], nullptr);
+}
+
+VMV::siterator::siterator(PLCOMPUTER* ppl, MV* pmv, MV* pmvMac) noexcept :
+    iterator(pmv),
+    pmvMac(pmvMac),
+    ppl(ppl)
+{
+    NextBestScore();
+}
+
+VMV::siterator& VMV::siterator::operator ++ () noexcept
+{
+    ++pmvCur;
+    NextBestScore();
+    return *this;
+}
+
+void VMV::siterator::NextBestScore(void) noexcept
+{
+    if (pmvCur >= pmvMac)
+        return;
+    MV* pmvBest = pmvCur;
+    for (MV* pmv = pmvCur + 1; pmv < pmvMac; pmv++)
+        if (pmv->ev > pmvBest->ev)
+            pmvBest = pmv;
+    if (pmvBest != pmvCur)
+        swap(*pmvBest, *pmvCur);
 }
 
 /*
@@ -270,16 +319,18 @@ void PLCOMPUTER::LogStats(chrono::time_point<chrono::high_resolution_clock>& tpE
 {
     chrono::duration dtp = tpEnd - tpStart;
     chrono::microseconds us = duration_cast<chrono::microseconds>(dtp);
-    *pwnlog << indent(1) << "Moves generated: " << cmvMoveGen << endl;
+    *pwnlog << indent(1) << "Moves generated: " 
+            << dec << cmvMoveGen << endl;
     *pwnlog << indent(1) << "Nodes visited: " << cmvSearch << " | "
-             << (int)roundf((float)(1000*cmvSearch) / us.count()) << " n/ms | "
+             << dec << (int)roundf((float)(1000*cmvSearch) / us.count()) << " kn/s | "
              << fixed << setprecision(1) << ((float)(100*cmvSearch) / cmvMoveGen) << "%"
              << endl;
     *pwnlog << indent(1) << "Quiescent nodes: "
-            << cmvQSearch << " | "
+            << dec << cmvQSearch << " | "
             << fixed << setprecision(1) << ((float)(100*cmvQSearch) / cmvSearch) << "%"
             << endl;
-    *pwnlog << indent(1) << "Eval: " << cmvEval << endl;
+    *pwnlog << indent(1) << "Eval nodes: " 
+            << dec << cmvEval << endl;
 }
 
 /*

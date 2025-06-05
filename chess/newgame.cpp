@@ -479,7 +479,7 @@ void VSELPLAYER::Layout(void)
     selComputer.SetPadding(PAD(dyPlayer * 0.17f));
     RC rc(PT(dxPlayerMargin, 48), SZ(dxPlayer, dyPlayer));
     selHuman.SetBounds(rc);
-    selComputer.SetBounds(rc.RcShiftRight(rc.dxWidth() + dxyPlayerGutter));
+    selComputer.SetBounds(rc.RcTileRight(dxyPlayerGutter));
     
     RC rcCont(RcContent());
     rc = RC(dxyPlayerPadding, 
@@ -606,17 +606,17 @@ VSELLEVEL::VSELLEVEL(WN& wnParent, ICMD* pcmd, int rssLabel) :
 void VSELLEVEL::Layout(void)
 {
     RC rc(RcContent());
-    rc.right = rc.left + rc.dxWidth() / vpsel.size();
+    rc.ShiftLeft(SzLabel().width + 4);
+    rc.SetWidth(rc.dxWidth() / vpsel.size());
     if (rc.dxWidth() > rc.dyHeight())
-        rc.right = rc.left + rc.dyHeight();
+        rc.SetWidth(rc.dyHeight());
     else
-        rc.bottom = rc.top + rc.dxWidth();  // should center this in the content area
+        rc.SetHeight(rc.dxWidth());
     SetFontHeight(rc.dyHeight() - 2*(dxyLevelBorder+dxyLevelPadding));
 
-    rc.Offset(SzLabel().width + 4, 0.0);
     for (SEL* psel : vpsel) {
         psel->SetBounds(rc);
-        rc += SZ(rc.dxWidth(), 0);
+        rc.TileRight();
     }
 }
 

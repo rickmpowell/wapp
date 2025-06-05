@@ -63,7 +63,6 @@ CO WNLOG::CoBack(void) const
 void WNLOG::clear(void)
 {
     vs.clear();
-    SetViewOffset(PT(0, 0));
 	SetContentCli(0);
 	Redraw();
 }
@@ -214,7 +213,7 @@ void WAPP::RunPerft(void)
 				  << cmv << endl;
 			wnlog << indent(1) << "Time: "
 				  << dec << (uint32_t)round(dtm.count() * 1000.0f) << " ms" << endl;
-			wnlog << indent(1) << "moves/ms: " 
+			wnlog << indent(1) << "kmv/s: " 
 				  << dec << (uint32_t)round((float)cmv / dtm.count() / 1000.0f) << endl;
 		}
 		break;
@@ -227,7 +226,7 @@ void WAPP::RunPerft(void)
 		int64_t cmv = 0;
 		wnlog << "Divide depth "
 			  << dec << wnlog.dPerft << endl;
-		for (MV& mv : vmv) {
+		for (const MV& mv : vmv) {
 			game.bd.MakeMv(mv);
 			int64_t cmvMove = game.bd.CmvPerft(wnlog.dPerft - 1);
 			wnlog << indent(1) << to_string(mv) << " " << cmvMove << endl;
@@ -259,7 +258,7 @@ bool WAPP::FRunHash(BD& bd, int d)
 
 	VMV vmv;
 	bd.MoveGen(vmv);
-	for (MV mv : vmv) {
+	for (const MV& mv : vmv) {
 		bd.MakeMv(mv);
 		HA ha = genha.HaFromBd(bd);
 		if (bd.ha != ha) {
@@ -605,6 +604,28 @@ void WAPP::RunPolyglotTest(void)
 }
 
 /*
+ *	WAPP::RUnAITest
+ */
+
+void WAPP::RunAITest(void)
+{
+	/* create an ai player and install it into the game */
+
+	/* the list of tests we want to run */
+
+	const char* aepd[] = {
+		"r1bqk2r/p1pp1ppp/2p2n2/8/1b2P3/2N5/PPP2PPP/R1BQKB1R w KQkq - bm Bd3; id \"Crafty Test Pos.28\"; c0 \"DB/GK Philadelphia 1996, Game 5, move 7W (Bd3)\";",
+		"8/3r4/pr1Pk1p1/8/7P/6P1/3R3K/5R2 w - - bm Re2+; id \"arasan21.16\"; c0 \"Aldiga (Brainfish 091016)-Knight-king (Komodo 10 64-bit), playchess.com 2016\";",
+		"3r1rk1/1p3pnp/p3pBp1/1qPpP3/1P1P2R1/P2Q3R/6PP/6K1 w - - bm Rxh7; c0 \"Mate in 7 moves\"; id \"BT2630-14\";"
+	};
+
+	for (int iepd = 0; iepd < size(aepd); iepd++) {
+		game.InitFromEpd(aepd[iepd]);
+		Redraw();
+	}
+}
+
+/*
  *	BD::CmvPerft
  * 
  *	Test code to computes the number of legal moves in the tree at depth d,
@@ -618,9 +639,9 @@ int64_t BD::CmvPerft(int d)
     VMV vmv;
     int64_t cmv = 0;
     MoveGenPseudo(vmv);
-    for (MV mv : vmv) {
+    for (const MV& mv : vmv) {
         MakeMv(mv);
-        if (FLastMoveWasLegal(mv))
+        if (FLastMoveWasLegal())
             cmv += CmvPerft(d - 1);
         UndoMv();
     }
@@ -634,7 +655,7 @@ int64_t BD::CmvBulk(int d)
 	if (d <= 1)
 		return vmv.size();
 	int64_t cmv = 0;
-	for (MV mv : vmv) {
+	for (const MV& mv : vmv) {
 		MakeMv(mv);
 		cmv += CmvBulk(d - 1);
 		UndoMv();
@@ -653,7 +674,7 @@ int64_t WNLOG::CmvDivide(BD& bd, int d)
 		return vmv.size();
 
 	int64_t cmvTotal = 0;
-	for (MV mv : vmv) {
+	for (const MV& mv : vmv) {
 		bd.MakeMv(mv);
 		int64_t cmv = bd.CmvPerft(d - 1);
 		*this << indent(2) << to_string(mv) << " " << cmv << endl;

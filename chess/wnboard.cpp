@@ -280,7 +280,7 @@ void WNBOARD::DrawMoveHilites(void)
     GEOM geomCross(*this, aptCross, size(aptCross));
 
     SQ sqFrom(sqNil);
-    for (MV mv : vmvLegal) {
+    for (const MV& mv : vmvLegal) {
         if (mv.sqFrom == sqHoverCur || mv.sqFrom == sqDragFrom)
             sqFrom = mv.sqFrom;
         else if (mv.sqFrom != sqFrom)
@@ -366,7 +366,7 @@ bool WNBOARD::FLegalSqFrom(SQ sqFrom) const
 
 bool WNBOARD::FLegalSqTo(SQ sqFrom, SQ sqTo, MV& mvHit) const
 {
-    for (MV mv : vmvLegal) {
+    for (const MV& mv : vmvLegal) {
         if (mv.sqFrom == sqFrom && mv.sqTo == sqTo) {
             mvHit = mv;
             return true;

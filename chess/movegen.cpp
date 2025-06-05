@@ -116,18 +116,20 @@ void BD::RemoveChecks(VMV& vmv) const noexcept
     BD bdT(*this);
     for (int imv = 0; imv < vmv.size(); imv++) {
         bdT.MakeMv(vmv[imv]);
-        if (bdT.FLastMoveWasLegal(vmv[imv]))
+        if (bdT.FLastMoveWasLegal())
             vmv[imvTo++] = vmv[imv];
         bdT.UndoMv();
     }
     vmv.resize(imvTo);
 }
 
-bool BD::FLastMoveWasLegal(MV mv) const noexcept
+bool BD::FLastMoveWasLegal(void) const noexcept
 {
-    if (mv.csMove) {
-        int icpbdKingFrom = IcpbdFromSq(mv.sqFrom);
-        int icpbdKingTo = IcpbdFromSq(mv.sqTo);
+    const MVU& mvu = vmvuGame.back();
+    if (mvu.csMove) {
+        /* check test for casltes */
+        int icpbdKingFrom = IcpbdFromSq(mvu.sqFrom);
+        int icpbdKingTo = IcpbdFromSq(mvu.sqTo);
         if (icpbdKingFrom > icpbdKingTo)
             swap(icpbdKingFrom, icpbdKingTo);
         for (int icpbd = icpbdKingFrom; icpbd <= icpbdKingTo; icpbd++)

@@ -218,6 +218,12 @@ CMDEXECUTE(CMDTESTPOLYGLOT)
     return 1;
 }
 
+CMDEXECUTE(CMDTESTAI)
+{
+    wapp.RunAITest();
+    return 1;
+}
+
 /*
  *  CMDMAKEMOVE 
  *
@@ -369,7 +375,7 @@ CMDEXECUTE(CMDCOPY)
 {
     try {
         oclipstream os(wapp, CF_TEXT);
-        wapp.game.bd.RenderFen(os);
+        wapp.game.RenderPgn(os);
     }
     catch (ERR err) {
         wapp.Error(ERRAPP(rssErrCopyFailed), err);
@@ -485,6 +491,8 @@ void WAPP::RegisterMenuCmds(void)
     REGMENUCMD(cmdTestPerft, CMDTESTPERFT);
     REGMENUCMD(cmdTestPerftSuite, CMDTESTPERFTSUITE);
     REGMENUCMD(cmdTestPolyglot, CMDTESTPOLYGLOT);
+    REGMENUCMD(cmdTestAI, CMDTESTAI);
+
     REGMENUCMD(cmdAbout, CMDABOUT);
     
     assert(FVerifyMenuCmdsRegistered());

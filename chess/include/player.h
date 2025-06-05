@@ -22,7 +22,7 @@ public:
     PL(void);
 
     virtual bool FIsHuman(void) const = 0;
-    virtual string_view SName(void) const = 0;
+    virtual string SName(void) const = 0;
 
     virtual void RequestMv(WAPP& wapp, GAME& game) = 0;
 
@@ -41,49 +41,13 @@ public:
     PLHUMAN(string_view sName);
 
     virtual bool FIsHuman(void) const override;
-    virtual string_view SName(void) const override;
+    virtual string SName(void) const override;
     void SetName(string_view sName);
     virtual void RequestMv(WAPP& wapp, GAME& game) override;
 
 private:
     string sName;
 };
-
-/*
- *  evaluation
- */
-
-typedef int16_t EV;
-
-constexpr int dMax = 127;							/* maximum search depth */
-constexpr EV evPawn = 100;							/* evals are in centi-pawns */
-constexpr EV evInfinity = 160 * evPawn + dMax;			/* largest possible evaluation */
-constexpr EV evSureWin = 40 * evPawn;				/* we have sure win when up this amount of material */
-constexpr EV evMate = evInfinity - 1;					/* checkmates are given evals of evalMate minus moves to mate */
-constexpr EV evMateMin = evMate - dMax;
-constexpr EV evTempo = evPawn / 3;					/* evaluation of a single move advantage */
-constexpr EV evDraw = 0;							/* evaluation of a draw */
-constexpr EV evTimedOut = evInfinity + 1;
-constexpr EV evCanceled = evTimedOut + 1;
-constexpr EV evStopped = evCanceled + 1;
-constexpr EV evMax = evCanceled + 1;
-constexpr EV evBias = evInfinity;						/* used to bias evaluations for saving as an unsigned */
-static_assert(evMax <= 16384);					/* there is code that asssumes EV stores in 15 bits */
-
-inline EV EvMate(int d) noexcept 
-{
-    return evMate - d; 
-}
-
-inline bool FEvIsMate(EV ev) noexcept 
-{
-    return ev >= evMateMin; 
-}
-
-inline int DFromEvMate(EV ev) noexcept 
-{
-    return evMate - ev; 
-}
 
 /*
  *  AB 
@@ -105,20 +69,20 @@ public:
         return AB(-evBeta, -evAlpha);
     }
 
-    bool FPrune(EV ev) noexcept
+    bool FPrune(const MV& mv) noexcept
     {
-        if (ev >= evBeta)
+        if (mv.ev >= evBeta)
             return true;
-        evAlpha = max(evAlpha, ev);
+        evAlpha = max(evAlpha, mv.ev);
         return false;
     }
 
-    bool FPrune(EV ev, MV mv, MV& mvBest) noexcept    
+    bool FPrune(const MV& mv, MV& mvBest) noexcept    
     {
-        if (ev >= evBeta)
+        if (mv.ev >= evBeta)
             return true;
-        if (ev > evAlpha) {
-            evAlpha = ev;
+        if (mv.ev > evAlpha) {
+            evAlpha = mv.ev;
             mvBest = mv;
         }
         return false;
@@ -145,7 +109,7 @@ public:
     PLCOMPUTER(const SETAI& setai);
 
     virtual bool FIsHuman(void) const override;
-    virtual string_view SName(void) const override;
+    virtual string SName(void) const override;
     int Level(void) const;
     void SetLevel(int level);
 

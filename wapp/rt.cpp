@@ -82,8 +82,11 @@ void RTCFLIP::RebuildDev()
     ThrowError(D3D11CreateDevice(nullptr,
                                  D3D_DRIVER_TYPE_HARDWARE,
                                  nullptr,
-                                 D3D11_CREATE_DEVICE_BGRA_SUPPORT | 
-                                    D3D11_CREATE_DEVICE_DEBUG,
+#ifndef NDEBUG
+                                 D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_DEBUG,
+#else
+                                 D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+#endif
                                  afld3, size(afld3),
                                  D3D11_SDK_VERSION,
                                  &pdev3T, &level3, &pdc3T));

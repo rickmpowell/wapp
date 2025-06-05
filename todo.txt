@@ -1,30 +1,47 @@
+  Implement WN based on an HWND
+  Track down smaller icons for log toolbar
+  Add layout engine option to evenly size/space items within their owner, and use in VSEL
+  Use transposition table to sort move list
+  Interrupt AI search
+  Add the ability to set a FEN in New Game
+  Pretty moves in move list.
+  Disable UI when AI is thinking
+  Display game over state 
+  Build transposition table
+  Save option for log
+  Export PGN files
+  Import PGN files
+  Import EPD files
+  Implement game properties
   Can we make dialog boxes Windows HWNDs?
   Convert New Game dialog to use resources
   Implement real edit controls
   Implement Game Options dialog
   Implement Custome Time Control dialog
   Implement AI settings dialog
-  Implement simple player that handles humans and AI
-  Make New Game dialog take inputs and change outputs
   Make modal dialog boxes disable parent windows more systematically
   In New Game dialog, clicking on custom time control, while dialog up, click on cutom time control again. cresh on dialog coming down.
   Redesign menus and CMDs to build on the fly and use CMD to populate text of MENUITEMs
   Redesign accelerator tables to build on the fly using CMDs
-  Implement test framework for MoveGen, MakeMv, UndoMv
-  Gather up a test suite of FENs 
   Add closebox to titlebars
-  Perft test driver
   Click-move-click move interface
   Implement global game state machine
   Write a simple resource manager for handling things like graphics
   Implement a scrollbar
-  Implement a movelist
-  Add a play AI option
-  Do simple alpha-beta search
-  Add quiescent search
   Add iterative deepening
   Add chess clock 
   Convert about box to dialog box
+  Convert error messages to dialog box
+  Add tooltip support
+* Gather up a test suite of FENs 
+* Implement test framework for MoveGen, MakeMv, UndoMv
+* Make New Game dialog take inputs and change outputs
+* Perft test driver
+* Add a play AI option
+* Implement a movelist
+* Do simple alpha-beta search
+* Add quiescent search
+* Implement simple player that handles humans and AI
 * Have New Game prompt for player and side
 * Implement simple dialog box class
 * Write a scrolling window class

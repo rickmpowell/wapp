@@ -14,6 +14,32 @@ class WAPP;
 class LGAME;
 
 /*
+ *  VALEPD
+ * 
+ *  The value of an EPD opcode. 
+ */
+
+struct VALEPD
+{
+    enum class TY {
+        None = 0,
+        Integer,
+        Unsigned,
+        Float,
+        String,
+        Move
+    } valty = TY::None;
+
+    VALEPD(TY valty, int64_t wVal) : valty(valty), w(wVal) {}
+    VALEPD(TY valty, double flVal) : valty(valty), fl(flVal) {}
+    VALEPD(TY valty, const string& sVal) : valty(valty), s(sVal) {}
+
+    int64_t w = 0;
+    double fl = 0.0;
+    string s;
+};
+
+/*
  *  MATY    MAtch TYpe
  * 
  *  If playing a series of games, how games are structured
@@ -52,6 +78,27 @@ public:
     void MakeMv(MV mv);
     void UndoMv(void);
 
+    /* EPD reading and writing */
+
+    void InitFromEpd(istream& is);
+    void InitFromEpd(const string& epd);
+    bool FReadEpdOp(istream& is);
+    bool FReadEpdOpValue(istream& is, const string& opcode);
+    void RenderEpd(ostream& os);
+    string EpdRender(void);
+    MV MvParseEpd(string_view s) const;
+   void AddEpdOp(const string& os, const VALEPD& val);
+
+    /* PGN reading and writing */
+
+    void InitFromPgn(istream& is);
+    void InitFromPgn(const string& pgn);
+    void RenderPgn(ostream& os) const;
+    string PgnRender(void) const;
+    void RenderPgnHeader(ostream& os) const;
+    void RenderPgnMoveList(ostream& os) const;
+    void RenderPgnTagPair(ostream& os, string_view tag, const string& sValue) const;
+
 public:
     BD bd;
     shared_ptr<PL> appl[2];
@@ -66,6 +113,7 @@ public:
 
 private:
     vector<LGAME*> vplgame;
+    map<string, vector<VALEPD>> mpopvalepd;
 };
 
 /*

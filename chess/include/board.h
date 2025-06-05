@@ -9,6 +9,7 @@
 
 #include "framework.h"
 class BD;
+class PLCOMPUTER;
 
 /*
  *  CCP
@@ -128,6 +129,12 @@ constexpr CP cpBlackKing = Cp(ccpBlack, tcpKing);
 constexpr CP cpEmpty = Cp(ccpEmpty, tcpNone);;
 constexpr CP cpInvalid = Cp(ccpInvalid, tcpMax);
 constexpr CP cpMax = 16;
+
+/*
+ *  CPBD structure
+ * 
+ *  THe computer piece as represented in the board.
+ */
 
 struct CPBD
 {
@@ -278,7 +285,6 @@ constexpr inline int RaPawns(CCP ccp) noexcept
 static_assert(RaPawns(ccpWhite) == raWhitePawns);
 static_assert(RaPawns(ccpBlack) == raBlackPawns);
 
-
 /*
  *  Castle state. These are or-ed together to make a 4-bit description of
  *  what castles are still legal. These values are carefully assigned to 
@@ -363,158 +369,12 @@ inline int IcpbdFromSq(int fi, int ra) noexcept
 }
 
 /*
- *  board hash - Zobrist hashing.
+ *  HA type
+ * 
+ *  board hash - 64-bit Zobrist hashing.
  */
 
 typedef uint64_t HA;
-
-/*
- *  MV class
- * 
- *  The chess move on the board. 
- */
-
-class MV
-{
-public:
-    /* move information */
-    SQ sqFrom = sqNil;
-    SQ sqTo = sqNil;
-    TCP tcpPromote = tcpNone;
-    CS csMove = csNone;     // set on castle moves
-
-    inline MV(void) noexcept
-    {
-    }
-    
-    inline MV(SQ sqFrom, SQ sqTo, TCP tcpPromote = tcpNone) noexcept :
-        sqFrom(sqFrom), 
-        sqTo(sqTo), 
-        tcpPromote(tcpPromote), 
-        csMove(csNone) 
-    {
-    }
-    
-    inline  MV(int8_t icpbdFrom, int8_t icpbdTo, TCP tcpPromote = tcpNone) noexcept :
-        sqFrom(SqFromIcpbd(icpbdFrom)), 
-        sqTo(SqFromIcpbd(icpbdTo)), 
-        tcpPromote(tcpPromote), 
-        csMove(csNone) 
-    {
-    }
-
-    inline MV(int8_t icpbdFrom, int8_t icpbdTo, CS csMove) noexcept :
-        sqFrom(SqFromIcpbd(icpbdFrom)), 
-        sqTo(SqFromIcpbd(icpbdTo)), 
-        tcpPromote(tcpNone), 
-        csMove(csMove) 
-    {
-    }
-    
-    inline bool fIsNil(void) const noexcept
-    {
-        return sqFrom == sqNil;
-    }
-};
-
-/*
- *  MVU
- * 
- *  Move with undo information to take back a MakeMv
- */
-
-class MVU : public MV
-{
-public:
-    inline MVU(MV mv, const BD& bd);
-
-    /* undo information saved on MakeMv */
-    CP cpTake;
-    CS csSav;
-    SQ sqEnPassantSav;
-    uint8_t cmvNoCaptureOrPawnSav;
-    HA haSav;
-};
-
-inline const MV mvNil;
-
-string to_string(const MV& mv);
-
-/*
- *  VMV - Move list type.
- * 
- *  This has the same interface as vector, but is highly-optimized for chess
- *  piece list. Assumes there are fewer than 256 moves per positin, which should
- *  be plenty.
- *
- *  Has limited functionality. Basically only Iteration, indexing, and emplace_back.
- */
-
-class VMV {
-
-public:
-    class iterator
-    {
-    public:
-        inline iterator(MV* pmv) noexcept : pmvCur(pmv) { }
-        inline MV& operator * () const noexcept { return *pmvCur; }
-        inline iterator& operator ++ () noexcept { ++pmvCur; return *this; }
-        inline iterator operator ++ (int) noexcept { iterator it = *this;  pmvCur++; return it; }
-        inline bool operator != (const iterator& it) const noexcept { return pmvCur != it.pmvCur; }
-        inline bool operator == (const iterator& it) const noexcept { return pmvCur == it.pmvCur; }
-    private:
-        MV* pmvCur;
-    };
-
-    class citerator
-    {
-    public:
-        inline citerator(const MV* pmv) noexcept : pmvCur(pmv) { }
-        inline const MV& operator * () const noexcept { return *pmvCur; }
-        inline citerator& operator ++ () noexcept { ++pmvCur; return *this; }
-        inline citerator operator ++ (int) noexcept { citerator it = *this;  pmvCur++; return it; }
-        inline bool operator != (const citerator& it) const noexcept { return pmvCur != it.pmvCur; }
-        inline bool operator == (const citerator& it) const noexcept { return pmvCur == it.pmvCur; }
-    private:
-        const MV* pmvCur;
-    };
-
-    inline int size(void) const noexcept { return imvMac; }
-    inline bool empty(void) const noexcept { return imvMac == 0; }
-    inline MV& operator [] (int imv) noexcept { return reinterpret_cast<MV*>(amv)[imv]; }
-    inline const MV& operator [] (int imv) const noexcept { return reinterpret_cast<const MV*>(amv)[imv]; }
-    inline iterator begin(void) noexcept { return iterator(&reinterpret_cast<MV*>(amv)[0]); }
-    inline iterator end(void) noexcept { return iterator(&reinterpret_cast<MV*>(amv)[imvMac]); }
-    inline citerator begin(void) const noexcept { return citerator(&reinterpret_cast<const MV*>(amv)[0]); }
-    inline citerator end(void) const noexcept { return citerator(&reinterpret_cast<const MV*>(amv)[imvMac]); }
-    inline void clear(void) noexcept { imvMac = 0; }
-    inline void resize(int cmv) noexcept { imvMac = cmv; }
-    inline void reserve(int cmv) noexcept { assert(cmv == 256); }   // we're fixed size 
-
-    template <typename... ARGS>
-    inline void emplace_back(ARGS&&... args) noexcept
-    {
-        new (&reinterpret_cast<MV*>(amv)[imvMac]) MV(forward<ARGS>(args)...);
-        ++imvMac;
-        assert(imvMac <= 256);
-    }
-
-    inline void pop_back(void) noexcept
-    {
-        assert(imvMac > 0);
-        --imvMac;
-    }
-
-    inline MV& back(void) noexcept
-    {
-        assert(imvMac > 0);
-        return reinterpret_cast<MV*>(amv)[imvMac - 1];
-    }
-
-private:
-    alignas(MV) uint8_t amv[256 * sizeof(MV)];
-    int16_t imvMac = 0;
-};
 
 /*
  *	GENHA class
@@ -600,6 +460,213 @@ private:
 extern GENHA genha;
 
 /*
+ *  EV type
+ * 
+ *  Evaluation
+ */
+
+typedef int16_t EV;
+
+constexpr int dMax = 127;							/* maximum search depth */
+constexpr EV evPawn = 100;							/* evals are in centi-pawns */
+constexpr EV evInfinity = 160 * evPawn + dMax;			/* largest possible evaluation */
+constexpr EV evSureWin = 40 * evPawn;				/* we have sure win when up this amount of material */
+constexpr EV evMate = evInfinity - 1;					/* checkmates are given evals of evalMate minus moves to mate */
+constexpr EV evMateMin = evMate - dMax;
+constexpr EV evTempo = evPawn / 3;					/* evaluation of a single move advantage */
+constexpr EV evDraw = 0;							/* evaluation of a draw */
+constexpr EV evTimedOut = evInfinity + 1;
+constexpr EV evCanceled = evTimedOut + 1;
+constexpr EV evStopped = evCanceled + 1;
+constexpr EV evMax = evCanceled + 1;
+constexpr EV evBias = evInfinity;						/* used to bias evaluations for saving as an unsigned */
+static_assert(evMax <= 16384);					/* there is code that asssumes EV stores in 15 bits */
+
+inline EV EvMate(int d) noexcept
+{
+    return evMate - d;
+}
+
+inline bool FEvIsMate(EV ev) noexcept
+{
+    return ev >= evMateMin;
+}
+
+inline int DFromEvMate(EV ev) noexcept
+{
+    return evMate - ev;
+}
+
+/*
+ *  MV class
+ * 
+ *  The chess move on the board. 
+ */
+
+class MV
+{
+public:
+    /* move information */
+    SQ sqFrom = sqNil;
+    SQ sqTo = sqNil;
+    TCP tcpPromote = tcpNone;
+    CS csMove = csNone;     // set on castle moves
+    EV ev = 0;
+
+    inline MV(void) noexcept
+    {
+    }
+    
+    inline MV(SQ sqFrom, SQ sqTo, TCP tcpPromote = tcpNone) noexcept :
+        sqFrom(sqFrom), 
+        sqTo(sqTo), 
+        tcpPromote(tcpPromote), 
+        csMove(csNone) 
+    {
+    }
+    
+    inline  MV(int8_t icpbdFrom, int8_t icpbdTo, TCP tcpPromote = tcpNone) noexcept :
+        sqFrom(SqFromIcpbd(icpbdFrom)), 
+        sqTo(SqFromIcpbd(icpbdTo)), 
+        tcpPromote(tcpPromote), 
+        csMove(csNone) 
+    {
+    }
+
+    inline MV(int8_t icpbdFrom, int8_t icpbdTo, CS csMove) noexcept :
+        sqFrom(SqFromIcpbd(icpbdFrom)), 
+        sqTo(SqFromIcpbd(icpbdTo)), 
+        tcpPromote(tcpNone), 
+        csMove(csMove) 
+    {
+    }
+    
+    inline bool fIsNil(void) const noexcept
+    {
+        return sqFrom == sqNil;
+    }
+};
+
+/*
+ *  MVU
+ * 
+ *  Move with undo information to take back a MakeMv
+ */
+
+class MVU : public MV
+{
+public:
+    inline MVU(MV mv, const BD& bd);
+
+    /* undo information saved on MakeMv */
+    CP cpTake;
+    CS csSav;
+    SQ sqEnPassantSav;
+    uint8_t cmvNoCaptureOrPawnSav;
+    HA haSav;
+};
+
+inline const MV mvNil;
+
+string to_string(const MV& mv);
+
+/*
+ *  VMV - Move list type.
+ * 
+ *  This has the same interface as vector, but is highly-optimized for chess
+ *  piece list. Assumes there are fewer than 256 moves per positin, which should
+ *  be plenty.
+ *
+ *  Has limited functionality. Basically only Iteration, indexing, and emplace_back.
+ */
+
+class VMV {
+
+public:
+    class iterator
+    {
+    public:
+        inline iterator(MV* pmv) noexcept : pmvCur(pmv) { }
+        inline MV& operator * () const noexcept { return *pmvCur; }
+        inline MV* operator -> () const noexcept { return pmvCur; }
+        inline iterator& operator ++ () noexcept { ++pmvCur; return *this; }
+        inline iterator operator ++ (int) noexcept { iterator it = *this;  pmvCur++; return it; }
+        inline bool operator != (const iterator& it) const noexcept { return pmvCur != it.pmvCur; }
+        inline bool operator == (const iterator& it) const noexcept { return pmvCur == it.pmvCur; }
+    protected:
+        MV* pmvCur;
+    };
+
+    class citerator
+    {
+    public:
+        inline citerator(const MV* pmv) noexcept : pmvCur(pmv) { }
+        inline const MV& operator * () const noexcept { return *pmvCur; }
+        inline const MV* operator -> () const noexcept { return pmvCur; }
+        inline citerator& operator ++ () noexcept { ++pmvCur; return *this; }
+        inline citerator operator ++ (int) noexcept { citerator it = *this;  pmvCur++; return it; }
+        inline bool operator != (const citerator& it) const noexcept { return pmvCur != it.pmvCur; }
+        inline bool operator == (const citerator& it) const noexcept { return pmvCur == it.pmvCur; }
+    protected:
+        const MV* pmvCur;
+    };
+
+    class siterator : public iterator
+    {
+    public:
+        inline siterator(PLCOMPUTER* ppl, MV* pmv, MV* pmvMac) noexcept;
+        inline siterator& operator ++ () noexcept;
+        inline siterator operator ++ (int) noexcept { siterator it = *this; ++(*this); return it; }
+    private:
+        void NextBestScore(void) noexcept;
+        PLCOMPUTER* ppl;
+        MV* pmvMac;
+    };
+
+    /* simple iterator */
+    inline int size(void) const noexcept { return imvMac; }
+    inline bool empty(void) const noexcept { return imvMac == 0; }
+    inline MV& operator [] (int imv) noexcept { return reinterpret_cast<MV*>(amv)[imv]; }
+    inline const MV& operator [] (int imv) const noexcept { return reinterpret_cast<const MV*>(amv)[imv]; }
+    inline iterator begin(void) noexcept { return iterator(&reinterpret_cast<MV*>(amv)[0]); }
+    inline iterator end(void) noexcept { return iterator(&reinterpret_cast<MV*>(amv)[imvMac]); }
+    inline citerator begin(void) const noexcept { return citerator(&reinterpret_cast<const MV*>(amv)[0]); }
+    inline citerator end(void) const noexcept { return citerator(&reinterpret_cast<const MV*>(amv)[imvMac]); }
+    inline void clear(void) noexcept { imvMac = 0; }
+    inline void resize(int cmv) noexcept { imvMac = cmv; }
+    inline void reserve(int cmv) noexcept { assert(cmv == 256); }   // we're fixed size 
+
+    /* smart sorted iterator used in alpha-beta pruning - can't be const because we
+       sort as we go */
+    siterator sbegin(PLCOMPUTER& pl) noexcept;
+    siterator send(void) noexcept;
+
+    template <typename... ARGS>
+    inline void emplace_back(ARGS&&... args) noexcept
+    {
+        new (&reinterpret_cast<MV*>(amv)[imvMac]) MV(forward<ARGS>(args)...);
+        ++imvMac;
+        assert(imvMac <= 256);
+    }
+
+    inline void pop_back(void) noexcept
+    {
+        assert(imvMac > 0);
+        --imvMac;
+    }
+
+    inline MV& back(void) noexcept
+    {
+        assert(imvMac > 0);
+        return reinterpret_cast<MV*>(amv)[imvMac - 1];
+    }
+
+private:
+    alignas(MV) uint8_t amv[256 * sizeof(MV)];
+    int16_t imvMac = 0;
+};
+
+/*
  *  BD class
  * 
  *  And the actual game board class. 
@@ -657,14 +724,14 @@ public:
 
     void MakeMv(MV mv) noexcept;
     void UndoMv(void) noexcept;
-    bool FMakeMvLegal(MV& mv) noexcept;
+    bool FMakeMvLegal(const MV& mv) noexcept;
 
     /* move generation */
 
     void MoveGen(VMV& vmv) const noexcept;
     void MoveGenPseudo(VMV& vmv) const noexcept;
     void MoveGenNoisy(VMV& vmv) const noexcept;
-    bool FLastMoveWasLegal(MV mv) const noexcept;
+    bool FLastMoveWasLegal(void) const noexcept;
 
     bool FInCheck(CCP ccp) const noexcept;
     bool FIsAttackedBy(int8_t icpAttacked, CCP ccpBy) const noexcept;
@@ -676,9 +743,15 @@ public:
     /* FEN reading and writing */
 
     void InitFromFen(istream& is);
+    void InitFromFenShared(istream& is);
     void InitFromFen(const string& fen);
     void RenderFen(ostream& os) const;
     string FenRender(void) const;
+    string FenRenderShared(void) const;
+    void SetHalfMoveClock(int cmv);
+    void SetFullMoveNumber(int cmv);
+
+    string SDecodeMvu(const MVU& mvu) const;
 
     /* test functions */
 

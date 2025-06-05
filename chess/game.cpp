@@ -36,18 +36,6 @@ void GAME::AddListener(LGAME* plgame)
     vplgame.push_back(plgame);
 }
 
-void GAME::InitFromFen(istream& is)
-{
-    bd.InitFromFen(is);
-    NotifyBdChanged();
-}
-
-void GAME::InitFromFen(const string& fen)
-{
-    bd.InitFromFen(fen);
-    NotifyBdChanged();
-}
-
 void GAME::MakeMv(MV mv)
 {
     bd.MakeMv(mv);
