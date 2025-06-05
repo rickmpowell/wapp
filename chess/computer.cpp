@@ -73,7 +73,7 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
     AB ab(-evInfinity, evInfinity);
 
     /* log some handy stuff */
-    *pwnlog << to_string(bd.ccpToMove) << " to move" << endl;
+    *pwnlog << to_string(bd.cpcToMove) << " to move" << endl;
     *pwnlog << indent(1) << bd.FenRender() << endl;
     *pwnlog << indent(1) << "Eval: " << EvStatic(bd) << endl;
 
@@ -106,7 +106,7 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
 
 EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
 {
-    bool fInCheck = bd.FInCheck(bd.ccpToMove);
+    bool fInCheck = bd.FInCheck(bd.cpcToMove);
     dLim += fInCheck;
 
     if (d >= dLim)
@@ -240,26 +240,26 @@ EV PLCOMPUTER::EvStatic(BD& bd) noexcept
 
 EV PLCOMPUTER::EvFromPst(const BD& bd) const noexcept
 {
-    EV mpccpevMid[2] = { 0, 0 };
-    EV mpccpevEnd[2] = { 0, 0 };
+    EV mpcpcevMid[2] = { 0, 0 };
+    EV mpcpcevEnd[2] = { 0, 0 };
     int phase = phaseMax;	
 
-    for (CCP ccp = ccpWhite; ccp <= ccpBlack; ++ccp) {
+    for (CPC cpc = cpcWhite; cpc <= cpcBlack; ++cpc) {
         for (int icp = 0; icp < 16; ++icp) {
-            int icpbd = bd.aicpbd[ccp][icp];
+            int icpbd = bd.aicpbd[cpc][icp];
             if (icpbd == -1)
                 continue;
             SQ sq = SqFromIcpbd(icpbd);
             CP cp = bd.acpbd[icpbd].cp();
-            mpccpevMid[ccp] += mpcpsqevMid[cp][sq];
-            mpccpevEnd[ccp] += mpcpsqevEnd[cp][sq];
-            phase -= mptcpphase[bd.acpbd[icpbd].tcp];
+            mpcpcevMid[cpc] += mpcpsqevMid[cp][sq];
+            mpcpcevEnd[cpc] += mpcpsqevEnd[cp][sq];
+            phase -= mpcptphase[bd.acpbd[icpbd].cpt];
         }
     }
 
     return EvInterpolate(clamp(phase, phaseMidFirst, phaseEndFirst),
-                         mpccpevMid[bd.ccpToMove] - mpccpevMid[~bd.ccpToMove], phaseMidFirst,
-                         mpccpevEnd[bd.ccpToMove] - mpccpevEnd[~bd.ccpToMove], phaseEndFirst);
+                         mpcpcevMid[bd.cpcToMove] - mpcpcevMid[~bd.cpcToMove], phaseMidFirst,
+                         mpcpcevEnd[bd.cpcToMove] - mpcpcevEnd[~bd.cpcToMove], phaseEndFirst);
 }
 
 #include "piecetables.h"
@@ -274,17 +274,17 @@ EV PLCOMPUTER::EvFromPst(const BD& bd) const noexcept
 
 void PLCOMPUTER::InitWeightTables(void) noexcept
 {
-    InitWeightTable(mptcpevMid, mptcpsqdevMid, mpcpsqevMid);
-    InitWeightTable(mptcpevEnd, mptcpsqdevEnd, mpcpsqevEnd);
+    InitWeightTable(mpcptevMid, mpcptsqdevMid, mpcpsqevMid);
+    InitWeightTable(mpcptevEnd, mpcptsqdevEnd, mpcpsqevEnd);
 }
 
-void PLCOMPUTER::InitWeightTable(EV mptcpev[tcpMax], EV mptcpsqdev[tcpMax][sqMax], EV mpcpsqev[cpMax][sqMax]) noexcept
+void PLCOMPUTER::InitWeightTable(EV mpcptev[cptMax], EV mpcptsqdev[cptMax][sqMax], EV mpcpsqev[cpMax][sqMax]) noexcept
 {
     memset(mpcpsqev, 0, sizeof(EV)*cpMax*sqMax);
-    for (TCP tcp = tcpPawn; tcp < tcpMax; ++tcp) {
+    for (CPT cpt = cptPawn; cpt < cptMax; ++cpt) {
         for (SQ sq = 0; sq < sqMax; ++sq) {
-            mpcpsqev[Cp(ccpWhite, tcp)][sq] = mptcpev[tcp] + mptcpsqdev[tcp][SqFlip(sq)];
-            mpcpsqev[Cp(ccpBlack, tcp)][sq] = mptcpev[tcp] + mptcpsqdev[tcp][sq];
+            mpcpsqev[Cp(cpcWhite, cpt)][sq] = mpcptev[cpt] + mpcptsqdev[cpt][SqFlip(sq)];
+            mpcpsqev[Cp(cpcBlack, cpt)][sq] = mpcptev[cpt] + mpcptsqdev[cpt][sq];
         }
     }
 }

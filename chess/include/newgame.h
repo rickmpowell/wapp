@@ -26,7 +26,7 @@ enum class NGCC
 struct DATAPLAYER
 {
     bool fModified = false;
-    CCP ccp = ccpInvalid;
+    CPC cpc = cpcInvalid;
     int ngcp = -1;
     int lvlComputer = 3;
     string sNameHuman;
@@ -77,7 +77,7 @@ public:
 class VSELPLAYER : public VSEL
 {
 public:
-    VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CCP ccp, NGCC ngcc);
+    VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CPC cpc, NGCC ngcc);
 
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
@@ -92,7 +92,7 @@ public:
     bool fModified;
 
 private:
-    CCP ccp;
+    CPC cpc;
     SELPLAYER selHuman;
     SELPLAYER selComputer;
     EDIT editName;
@@ -208,8 +208,8 @@ public:
     virtual void Validate(void) override;
 
 private:
-    void InitPlayer(VSELPLAYER& vsel, PL* ppl, CCP ccp);
-    CCP ExtractPlayer(GAME& game, VSELPLAYER& vsel);
+    void InitPlayer(VSELPLAYER& vsel, PL* ppl, CPC cpc);
+    CPC ExtractPlayer(GAME& game, VSELPLAYER& vsel);
 
 public:
     TITLEDLG title;

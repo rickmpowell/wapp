@@ -44,9 +44,9 @@ void BD::Empty(void)  noexcept
     }
 
     /* and none of the pieces are on the board */
-    for (int ccp = 0; ccp < ccpMax; ccp++)
+    for (int cpc = 0; cpc < cpcMax; cpc++)
         for (int icp = 0; icp < icpMax; icp++)
-            aicpbd[ccp][icp] = -1;
+            aicpbd[cpc][icp] = -1;
 
     vmvuGame.clear();
     cmvNoCaptureOrPawn = 0;
@@ -68,7 +68,7 @@ void BD::MakeMv(MV mv) noexcept
     CPBD cpbdMoveTo = cpbdMoveFrom;
     SQ sqTake = mv.sqTo;
 
-    if (cpbdMoveFrom.tcp == tcpPawn) {
+    if (cpbdMoveFrom.cpt == cptPawn) {
         cmvNoCaptureOrPawn = 0;
         /* keep track of en passant possibility */
         if (abs(mv.sqFrom - mv.sqTo) == 16) {
@@ -79,10 +79,10 @@ void BD::MakeMv(MV mv) noexcept
         else {
             /* handle en passant capture */
             if (mv.sqTo == sqEnPassant)
-                sqTake += ccpToMove == ccpWhite ? -8 : 8;
+                sqTake += cpcToMove == cpcWhite ? -8 : 8;
             /* handle promotions */
-            else if (mv.tcpPromote != tcpNone)
-                cpbdMoveTo.tcp = mv.tcpPromote;
+            else if (mv.cptPromote != cptNone)
+                cpbdMoveTo.cpt = mv.cptPromote;
             genha.ToggleEnPassant(ha, sqEnPassant);
             sqEnPassant = sqNil;
         }
@@ -91,21 +91,21 @@ void BD::MakeMv(MV mv) noexcept
         cmvNoCaptureOrPawn++;
         genha.ToggleEnPassant(ha, sqEnPassant);
         sqEnPassant = sqNil;
-        if (cpbdMoveFrom.tcp == tcpRook) {
+        if (cpbdMoveFrom.cpt == cptRook) {
             /* clear castle state if we move a rook */
-            int raBack = RaBack(ccpToMove);
+            int raBack = RaBack(cpcToMove);
             if (mv.sqFrom == Sq(fiQueenRook, raBack))
-                ClearCs(csQueen, ccpToMove);
+                ClearCs(csQueen, cpcToMove);
             else if (mv.sqFrom == Sq(fiKingRook, raBack))
-                ClearCs(csKing, ccpToMove);
+                ClearCs(csKing, cpcToMove);
         }
-        else if (cpbdMoveFrom.tcp == tcpKing) {
+        else if (cpbdMoveFrom.cpt == cptKing) {
             /* after the king moves, no castling is allowed */
-            ClearCs(csKing|csQueen, ccpToMove);
+            ClearCs(csKing|csQueen, cpcToMove);
             /* castle moves have the from/to of the king part of the move */
             /* Note Chess960 castle can potentially swap king and rook, so order of 
                emptying/placing is important */
-            int raBack = RaBack(ccpToMove);
+            int raBack = RaBack(cpcToMove);
             int fiRookFrom, fiRookTo;
             if (mv.csMove & csQueen) {
                 fiRookFrom = fiQueenRook;
@@ -122,7 +122,7 @@ Castle:
                 (*this)[mv.sqFrom] = CPBD(cpEmpty, 0);
                 /* place the rook */
                 (*this)(fiRookTo, raBack) = cpbdRook;
-                aicpbd[ccpToMove][cpbdRook.icp] = IcpbdFromSq(fiRookTo, raBack);
+                aicpbd[cpcToMove][cpbdRook.icp] = IcpbdFromSq(fiRookTo, raBack);
                 genha.TogglePiece(ha, Sq(fiRookTo, raBack), cpbdRook.cp());
                 genha.TogglePiece(ha, Sq(fiRookFrom, raBack), cpbdRook.cp());
                 /* go place the king */
@@ -137,15 +137,15 @@ Castle:
         cmvNoCaptureOrPawn = 0;
         CP cpTake = (*this)[sqTake].cp();
         vmvuGame.back().cpTake = cpTake;
-        aicpbd[~ccpToMove][(*this)[sqTake].icp] = -1;
+        aicpbd[~cpcToMove][(*this)[sqTake].icp] = -1;
         (*this)[sqTake] = CPBD(cpEmpty, 0);
         genha.TogglePiece(ha, sqTake, cpTake);
         /* when taking rooks, we may need to clear castle bits */
-        if (tcp(cpTake) == tcpRook && ra(sqTake) == RaBack(~ccpToMove)) {
+        if (cpt(cpTake) == cptRook && ra(sqTake) == RaBack(~cpcToMove)) {
             if (fi(sqTake) == fiQueenRook)
-                ClearCs(csQueen, ~ccpToMove);
+                ClearCs(csQueen, ~cpcToMove);
             else if (fi(sqTake) == fiKingRook)
-                ClearCs(csKing, ~ccpToMove);
+                ClearCs(csKing, ~cpcToMove);
         }
     }
 
@@ -154,12 +154,12 @@ Castle:
     (*this)[mv.sqFrom] = CPBD(cpEmpty, 0);
 PlaceMovePiece:
     (*this)[mv.sqTo] = cpbdMoveTo;
-    aicpbd[ccpToMove][cpbdMoveTo.icp] = IcpbdFromSq(mv.sqTo);
+    aicpbd[cpcToMove][cpbdMoveTo.icp] = IcpbdFromSq(mv.sqTo);
     genha.TogglePiece(ha, mv.sqFrom, cpbdMoveFrom.cp());
     genha.TogglePiece(ha, mv.sqTo, cpbdMoveTo.cp());
 
     genha.ToggleToMove(ha);
-    ccpToMove = ~ccpToMove;
+    cpcToMove = ~cpcToMove;
     Validate();
 }
 
@@ -175,61 +175,61 @@ void BD::UndoMv(void) noexcept
     MVU mvu(vmvuGame.back());
     vmvuGame.pop_back();
 
-    ccpToMove = ~ccpToMove;
+    cpcToMove = ~cpcToMove;
     csCur = mvu.csSav;
     sqEnPassant = mvu.sqEnPassantSav;
     cmvNoCaptureOrPawn = mvu.cmvNoCaptureOrPawnSav;
     ha = mvu.haSav;
 
     CPBD cpbdMove = (*this)[mvu.sqTo];
-    if (mvu.tcpPromote != tcpNone)
-        cpbdMove.tcp = tcpPawn;
+    if (mvu.cptPromote != cptNone)
+        cpbdMove.cpt = cptPawn;
 
     if (mvu.cpTake != cpEmpty) {
         if (mvu.sqTo == mvu.sqEnPassantSav) {
             SQ sqTake = mvu.sqTo;
-            int icpTake = IcpUnused(~ccpToMove, tcp(mvu.cpTake));
-            sqTake += ccpToMove == ccpWhite ? -8 : 8;
+            int icpTake = IcpUnused(~cpcToMove, cpt(mvu.cpTake));
+            sqTake += cpcToMove == cpcWhite ? -8 : 8;
             (*this)[sqTake] = CPBD(mvu.cpTake, icpTake);
             (*this)[mvu.sqTo] = CPBD(cpEmpty, 0);
             (*this)[mvu.sqFrom] = cpbdMove;
-            aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
-            aicpbd[~ccpToMove][icpTake] = IcpbdFromSq(sqTake);
+            aicpbd[cpcToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
+            aicpbd[~cpcToMove][icpTake] = IcpbdFromSq(sqTake);
         }
         else {
-            int icpTake = IcpUnused(~ccpToMove, tcp(mvu.cpTake));
+            int icpTake = IcpUnused(~cpcToMove, cpt(mvu.cpTake));
             (*this)[mvu.sqTo] = CPBD(mvu.cpTake, icpTake);
             (*this)[mvu.sqFrom] = cpbdMove;
-            aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
-            aicpbd[~ccpToMove][icpTake] = IcpbdFromSq(mvu.sqTo);
+            aicpbd[cpcToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
+            aicpbd[~cpcToMove][icpTake] = IcpbdFromSq(mvu.sqTo);
         }
     }
     else if (mvu.csMove & csKing) {
-        int raBack = RaBack(ccpToMove);
+        int raBack = RaBack(cpcToMove);
         int icpRook = (*this)(fiF, raBack).icp;
-        CPBD cpbdRook = acpbd[aicpbd[ccpToMove][icpRook]];
+        CPBD cpbdRook = acpbd[aicpbd[cpcToMove][icpRook]];
         (*this)[mvu.sqTo] = CPBD(cpEmpty, 0);
         (*this)(fiF, raBack) = CPBD(cpEmpty, 0);
         (*this)(fiKingRook, raBack) = cpbdRook;
         (*this)[mvu.sqFrom] = cpbdMove;
-        aicpbd[ccpToMove][icpRook] = IcpbdFromSq(fiKingRook, raBack);
-        aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
+        aicpbd[cpcToMove][icpRook] = IcpbdFromSq(fiKingRook, raBack);
+        aicpbd[cpcToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
     }
     else if (mvu.csMove & csQueen) {
-        int raBack = RaBack(ccpToMove);
+        int raBack = RaBack(cpcToMove);
         int icpRook = (*this)(fiD, raBack).icp;
-        CPBD cpbdRook = acpbd[aicpbd[ccpToMove][icpRook]];
+        CPBD cpbdRook = acpbd[aicpbd[cpcToMove][icpRook]];
         (*this)[mvu.sqTo] = CPBD(cpEmpty, 0);
         (*this)(fiD, raBack) = CPBD(cpEmpty, 0);
         (*this)(fiQueenRook, raBack) = cpbdRook;
         (*this)[mvu.sqFrom] = cpbdMove;
-        aicpbd[ccpToMove][icpRook] = IcpbdFromSq(fiQueenRook, raBack);
-        aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
+        aicpbd[cpcToMove][icpRook] = IcpbdFromSq(fiQueenRook, raBack);
+        aicpbd[cpcToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
     }
     else {
         (*this)[mvu.sqTo] = CPBD(cpEmpty, 0);
         (*this)[mvu.sqFrom] = cpbdMove;
-        aicpbd[ccpToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
+        aicpbd[cpcToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
     }
 
     Validate();
@@ -247,17 +247,17 @@ bool BD::FMakeMvLegal(const MV& mv) noexcept
 }
 
 /* also used by eval */
-const int mptcpphase[tcpMax] = { 0, 0, phaseMinor, phaseMinor, phaseRook, phaseQueen, 0 };
+const int mpcptphase[cptMax] = { 0, 0, phaseMinor, phaseMinor, phaseRook, phaseQueen, 0 };
 
 int BD::PhaseCur(void) const noexcept
 {
     int phase = phaseMax;
-    for (CCP ccp = ccpWhite; ccp <= ccpBlack; ++ccp) {
+    for (CPC cpc = cpcWhite; cpc <= cpcBlack; ++cpc) {
         for (int icp = 0; icp < icpMax; ++icp) {
-            int icpbd = aicpbd[ccp][icp];
+            int icpbd = aicpbd[cpc][icp];
             if (icpbd == -1)
                 continue;
-            phase -= mptcpphase[acpbd[icpbd].tcp];
+            phase -= mpcptphase[acpbd[icpbd].cpt];
         }
     }
     return max(phase, phaseMin);
@@ -306,20 +306,20 @@ void BD::Validate(void) const noexcept
     /* check empty squares */
     /* check occupied squares */
 
-    for (int ccp = 0; ccp < ccpMax; ccp++)
+    for (int cpc = 0; cpc < cpcMax; cpc++)
         for (int icp = 0; icp < icpMax; icp++) {
-            int icpbd = aicpbd[ccp][icp];
+            int icpbd = aicpbd[cpc][icp];
             if (icpbd == -1)
                 continue;
-            assert(acpbd[icpbd].ccp == ccp);
+            assert(acpbd[icpbd].cpc == cpc);
             assert(acpbd[icpbd].icp == icp);
         }
     for (SQ sq = 0; sq < sqMax; sq++) {
         if ((*this)[sq].cp() == cpEmpty)
             continue;
         int icp = (*this)[sq].icp;
-        int ccp = (*this)[sq].ccp;
-        assert(IcpbdFromSq(sq) == aicpbd[ccp][icp]);
+        int cpc = (*this)[sq].cpc;
+        assert(IcpbdFromSq(sq) == aicpbd[cpc][icp]);
     }
 
     // assert(ha == genha.HaFromBd(*this));
@@ -549,11 +549,11 @@ GENHA::GENHA(void) : ihaRandom(0)
        lookup work. These loops are carefully ordered. Don't change it! */
 
     ahaPiece[0][0] = 0;
-    for (TCP tcp = tcpPawn; tcp <= tcpKing; ++tcp)
-        for (CCP ccp = ccpWhite; ccp <= ccpBlack; ++ccp)
+    for (CPT cpt = cptPawn; cpt <= cptKing; ++cpt)
+        for (CPC cpc = cpcWhite; cpc <= cpcBlack; ++cpc)
             for (int ra = 0; ra < raMax; ra++)
                 for (int fi = 0; fi < fiMax; fi++)
-                    ahaPiece[Sq(fi,ra)][Cp(~ccp,tcp)] = HaRandom();
+                    ahaPiece[Sq(fi,ra)][Cp(~cpc,cpt)] = HaRandom();
 
     HA haWhiteKing = HaRandom();
     HA haWhiteQueen = HaRandom();
@@ -616,7 +616,7 @@ HA GENHA::HaFromBd(const BD& bd) const
 
     /* current side to move */
 
-    if (bd.ccpToMove == ccpWhite)
+    if (bd.cpcToMove == cpcWhite)
         ha ^= haToMove;
 
     return ha;
@@ -632,10 +632,10 @@ HA GENHA::HaPolyglotFromBd(const BD& bd) const
 
 bool GENHA::FEnPassantPolyglot(const BD& bd) const
 {
-    SQ sq = bd.sqEnPassant + (bd.ccpToMove == ccpWhite ? -8 : 8);
-    if (fi(sq) != fiH && bd[sq + 1].cp() == Cp(bd.ccpToMove, tcpPawn))
+    SQ sq = bd.sqEnPassant + (bd.cpcToMove == cpcWhite ? -8 : 8);
+    if (fi(sq) != fiH && bd[sq + 1].cp() == Cp(bd.cpcToMove, cptPawn))
         return true;
-    if (fi(sq) != fiA && bd[sq - 1].cp() == Cp(bd.ccpToMove, tcpPawn))
+    if (fi(sq) != fiA && bd[sq - 1].cp() == Cp(bd.cpcToMove, cptPawn))
         return true;
     return false;
 }

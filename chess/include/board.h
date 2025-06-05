@@ -12,52 +12,52 @@ class BD;
 class PLCOMPUTER;
 
 /*
- *  CCP
+ *  CPC
  *
  *  Color of Chess Piece
  */
 
-enum CCP : uint8_t
+enum CPC : uint8_t
 {
-    ccpWhite = 0,
-    ccpBlack = 1,
-    ccpMax = 2, // kind of weird, but will make more sense with a non-mailbox board representation
-    ccpEmpty = 2,
-    ccpInvalid = 3
+    cpcWhite = 0,
+    cpcBlack = 1,
+    cpcMax = 2, // kind of weird, but will make more sense with a non-mailbox board representation
+    cpcEmpty = 2,
+    cpcInvalid = 3
 };
 
-inline CCP operator ~ (CCP ccp) noexcept 
+inline CPC operator ~ (CPC cpc) noexcept 
 {
-    return static_cast<CCP>(static_cast<uint8_t>(ccp) ^ 1);
+    return static_cast<CPC>(static_cast<uint8_t>(cpc) ^ 1);
 }
 
-inline CCP& operator ++ (CCP& ccp) noexcept
+inline CPC& operator ++ (CPC& cpc) noexcept
 {
-    ccp = static_cast<CCP>(static_cast<uint8_t>(ccp) + 1);
-    return ccp;
+    cpc = static_cast<CPC>(static_cast<uint8_t>(cpc) + 1);
+    return cpc;
 }
 
-inline CCP operator ++ (CCP& ccp, int) noexcept
+inline CPC operator ++ (CPC& cpc, int) noexcept
 {
-    CCP ccpT = ccp;
-    ccp = static_cast<CCP>(static_cast<uint8_t>(ccp) + 1);
-    return ccpT;
+    CPC cpcT = cpc;
+    cpc = static_cast<CPC>(static_cast<uint8_t>(cpc) + 1);
+    return cpcT;
 }
 
-inline CCP& operator -- (CCP& ccp) noexcept
+inline CPC& operator -- (CPC& cpc) noexcept
 {
-    ccp = static_cast<CCP>(static_cast<uint8_t>(ccp) - 1);
-    return ccp;
+    cpc = static_cast<CPC>(static_cast<uint8_t>(cpc) - 1);
+    return cpc;
 }
 
-inline CCP operator -- (CCP& ccp, int) noexcept
+inline CPC operator -- (CPC& cpc, int) noexcept
 {
-    CCP ccpT = ccp;
-    ccp = static_cast<CCP>(static_cast<uint8_t>(ccp) - 1);
-    return ccpT;
+    CPC cpcT = cpc;
+    cpc = static_cast<CPC>(static_cast<uint8_t>(cpc) - 1);
+    return cpcT;
 }
 
-string to_string(CCP ccp);
+string to_string(CPC cpc);
 
 /*
  *  TCP
@@ -65,29 +65,29 @@ string to_string(CCP ccp);
  *  Type of a chess piece
  */
 
-enum TCP : uint8_t
+enum CPT : uint8_t
 {
-    tcpNone = 0,
-    tcpPawn = 1,
-    tcpKnight = 2,
-    tcpBishop = 3,
-    tcpRook = 4,
-    tcpQueen = 5,
-    tcpKing = 6,
-    tcpMax = 7
+    cptNone = 0,
+    cptPawn = 1,
+    cptKnight = 2,
+    cptBishop = 3,
+    cptRook = 4,
+    cptQueen = 5,
+    cptKing = 6,
+    cptMax = 7
 };
 
-inline TCP& operator ++ (TCP& tcp) noexcept
+inline CPT& operator ++ (CPT& cpt) noexcept
 {
-    tcp = static_cast<TCP>(static_cast<uint8_t>(tcp) + 1);
-    return tcp;
+    cpt = static_cast<CPT>(static_cast<uint8_t>(cpt) + 1);
+    return cpt;
 }
 
-inline TCP operator ++ (TCP& tcp, int) noexcept
+inline CPT operator ++ (CPT& cpt, int) noexcept
 {
-    TCP tcpT = tcp;
-    tcp = static_cast<TCP>(static_cast<uint8_t>(tcp) + 1);
-    return tcpT;
+    CPT cptT = cpt;
+    cpt = static_cast<CPT>(static_cast<uint8_t>(cpt) + 1);
+    return cptT;
 }
 
 /*
@@ -98,36 +98,36 @@ inline TCP operator ++ (TCP& tcp, int) noexcept
 
 typedef uint8_t CP;
 
-constexpr inline CP Cp(CCP ccp, TCP tcp) noexcept
+constexpr inline CP Cp(CPC cpc, CPT cpt) noexcept
 {
-    return (static_cast<uint8_t>(ccp) << 3) | static_cast<uint8_t>(tcp);
+    return (static_cast<uint8_t>(cpc) << 3) | static_cast<uint8_t>(cpt);
 }
 
-inline CCP ccp(CP cp) noexcept 
+inline CPC cpc(CP cp) noexcept 
 {
-    return static_cast<CCP>((cp >> 3) & 0x3);
+    return static_cast<CPC>((cp >> 3) & 0x3);
 }
 
-inline TCP tcp(CP cp) noexcept
+inline CPT cpt(CP cp) noexcept
 {
-    return static_cast<TCP>(cp & 7);
+    return static_cast<CPT>(cp & 7);
 }
 
-constexpr CP cpWhitePawn = Cp(ccpWhite, tcpPawn);
-constexpr CP cpBlackPawn = Cp(ccpBlack, tcpPawn);
-constexpr CP cpWhiteKnight = Cp(ccpWhite, tcpKnight);
-constexpr CP cpBlackKnight = Cp(ccpBlack, tcpKnight);
-constexpr CP cpWhiteBishop = Cp(ccpWhite, tcpBishop);
-constexpr CP cpBlackBishop = Cp(ccpBlack, tcpBishop);
-constexpr CP cpWhiteRook = Cp(ccpWhite, tcpRook);
-constexpr CP cpBlackRook = Cp(ccpBlack, tcpRook);
-constexpr CP cpWhiteQueen = Cp(ccpWhite, tcpQueen);
-constexpr CP cpBlackQueen = Cp(ccpBlack, tcpQueen);
-constexpr CP cpWhiteKing = Cp(ccpWhite, tcpKing);
-constexpr CP cpBlackKing = Cp(ccpBlack, tcpKing);
+constexpr CP cpWhitePawn = Cp(cpcWhite, cptPawn);
+constexpr CP cpBlackPawn = Cp(cpcBlack, cptPawn);
+constexpr CP cpWhiteKnight = Cp(cpcWhite, cptKnight);
+constexpr CP cpBlackKnight = Cp(cpcBlack, cptKnight);
+constexpr CP cpWhiteBishop = Cp(cpcWhite, cptBishop);
+constexpr CP cpBlackBishop = Cp(cpcBlack, cptBishop);
+constexpr CP cpWhiteRook = Cp(cpcWhite, cptRook);
+constexpr CP cpBlackRook = Cp(cpcBlack, cptRook);
+constexpr CP cpWhiteQueen = Cp(cpcWhite, cptQueen);
+constexpr CP cpBlackQueen = Cp(cpcBlack, cptQueen);
+constexpr CP cpWhiteKing = Cp(cpcWhite, cptKing);
+constexpr CP cpBlackKing = Cp(cpcBlack, cptKing);
 
-constexpr CP cpEmpty = Cp(ccpEmpty, tcpNone);;
-constexpr CP cpInvalid = Cp(ccpInvalid, tcpMax);
+constexpr CP cpEmpty = Cp(cpcEmpty, cptNone);;
+constexpr CP cpInvalid = Cp(cpcInvalid, cptMax);
 constexpr CP cpMax = 16;
 
 /*
@@ -138,45 +138,45 @@ constexpr CP cpMax = 16;
 
 struct CPBD
 {
-    uint16_t tcp : 3,
-        ccp : 2,
+    uint16_t cpt : 3,
+        cpc : 2,
         icp : 4;
 
     inline CPBD(void) noexcept : 
-        ccp(ccpInvalid), 
-        tcp(tcpMax), 
+        cpc(cpcInvalid), 
+        cpt(cptMax), 
         icp(0) 
     {
     }
-
-    inline CPBD(CCP ccp, TCP tcp, int icp) noexcept :
-        ccp(ccp), 
-        tcp(tcp), 
+    
+    inline CPBD(CPC cpc, CPT cpt, int icp) noexcept :
+        cpc(cpc), 
+        cpt(cpt), 
         icp(icp) 
     {
     }
 
     inline CPBD(CP cp, int icp) noexcept :
-        tcp(cp & 7), 
-        ccp(cp >> 3), 
+        cpt(cp & 7), 
+        cpc(cp >> 3), 
         icp(icp) 
     {
     }
 
     inline CP cp(void) const noexcept
     {
-        return tcp | (ccp << 3);
+        return cpt | (cpc << 3);
     }
 
     inline void cp(CP cpNew) noexcept
     {
-        tcp = cpNew & 7;
-        ccp = cpNew >> 3;
+        cpt = cpNew & 7;
+        cpc = cpNew >> 3;
     }
 
     inline bool operator == (const CPBD& cpbd) const noexcept
     {
-        return tcp == cpbd.tcp && ccp == cpbd.ccp;
+        return cpt == cpbd.cpt && cpc == cpbd.cpc;
     }
 
     inline bool operator != (const CPBD& cpbd) const noexcept
@@ -262,28 +262,26 @@ constexpr int raBlackBack = 7;
 
 /* some tricks to get the compiler ot produce branchless code */
 
-constexpr inline int RaBack(CCP ccp) noexcept
+constexpr inline int RaBack(CPC cpc) noexcept
 {
-//  return ccp == ccpWhite ? raWhiteBack : raBlackBack;
-    return ~(ccp-1) & 7;
+    return ~(cpc-1) & 7;
 }
-static_assert(RaBack(ccpWhite) == 0);
-static_assert(RaBack(ccpBlack) == 7);
+static_assert(RaBack(cpcWhite) == 0);
+static_assert(RaBack(cpcBlack) == 7);
 
-constexpr inline int RaPromote(CCP ccp) noexcept
+constexpr inline int RaPromote(CPC cpc) noexcept
 {
-//  return ccp == ccpWhite ? raBlackBack : raWhiteBack;
-    return (ccp-1) & 7;
+    return (cpc-1) & 7;
 }
-static_assert(RaPromote(ccpWhite) == 7);
-static_assert(RaPromote(ccpBlack) == 0);
+static_assert(RaPromote(cpcWhite) == 7);
+static_assert(RaPromote(cpcBlack) == 0);
 
-constexpr inline int RaPawns(CCP ccp) noexcept
+constexpr inline int RaPawns(CPC cpc) noexcept
 {
-    return ccp == ccpWhite ? raWhitePawns : raBlackPawns;
+    return cpc == cpcWhite ? raWhitePawns : raBlackPawns;
 }
-static_assert(RaPawns(ccpWhite) == raWhitePawns);
-static_assert(RaPawns(ccpBlack) == raBlackPawns);
+static_assert(RaPawns(cpcWhite) == raWhitePawns);
+static_assert(RaPawns(cpcBlack) == raBlackPawns);
 
 /*
  *  Castle state. These are or-ed together to make a 4-bit description of
@@ -301,10 +299,10 @@ enum CS : uint8_t
     csBlackQueen = 0x08
 };
 
-static_assert((static_cast<uint8_t>(csKing) << ccpWhite) == csWhiteKing);
-static_assert((static_cast<uint8_t>(csKing) << ccpBlack) == csBlackKing);
-static_assert((static_cast<uint8_t>(csQueen) << ccpWhite) == csWhiteQueen);
-static_assert((static_cast<uint8_t>(csQueen) << ccpBlack) == csBlackQueen);
+static_assert((static_cast<uint8_t>(csKing) << cpcWhite) == csWhiteKing);
+static_assert((static_cast<uint8_t>(csKing) << cpcBlack) == csBlackKing);
+static_assert((static_cast<uint8_t>(csQueen) << cpcWhite) == csWhiteQueen);
+static_assert((static_cast<uint8_t>(csQueen) << cpcBlack) == csBlackQueen);
 
 inline CS operator | (CS cs1, CS cs2) noexcept
 {
@@ -333,14 +331,14 @@ inline CS& operator &= (CS& cs1, CS cs2) noexcept
     return cs1;
 }
 
-inline CS operator << (CS cs, CCP ccp) noexcept
+inline CS operator << (CS cs, CPC cpc) noexcept
 {
-    return static_cast<CS>(static_cast<uint8_t>(cs) << ccp);
+    return static_cast<CS>(static_cast<uint8_t>(cs) << cpc);
 }
 
-inline CS Cs(CS cs, CCP ccp) noexcept
+inline CS Cs(CS cs, CPC cpc) noexcept
 {
-    return cs << ccp;
+    return cs << cpc;
 }
 
 /*
@@ -509,7 +507,7 @@ public:
     /* move information */
     SQ sqFrom = sqNil;
     SQ sqTo = sqNil;
-    TCP tcpPromote = tcpNone;
+    CPT cptPromote = cptNone;
     CS csMove = csNone;     // set on castle moves
     EV ev = 0;
 
@@ -517,18 +515,18 @@ public:
     {
     }
     
-    inline MV(SQ sqFrom, SQ sqTo, TCP tcpPromote = tcpNone) noexcept :
+    inline MV(SQ sqFrom, SQ sqTo, CPT cptPromote = cptNone) noexcept :
         sqFrom(sqFrom), 
         sqTo(sqTo), 
-        tcpPromote(tcpPromote), 
+        cptPromote(cptPromote), 
         csMove(csNone) 
     {
     }
     
-    inline  MV(int8_t icpbdFrom, int8_t icpbdTo, TCP tcpPromote = tcpNone) noexcept :
+    inline  MV(int8_t icpbdFrom, int8_t icpbdTo, CPT cptPromote = cptNone) noexcept :
         sqFrom(SqFromIcpbd(icpbdFrom)), 
         sqTo(SqFromIcpbd(icpbdTo)), 
-        tcpPromote(tcpPromote), 
+        cptPromote(cptPromote), 
         csMove(csNone) 
     {
     }
@@ -536,7 +534,7 @@ public:
     inline MV(int8_t icpbdFrom, int8_t icpbdTo, CS csMove) noexcept :
         sqFrom(SqFromIcpbd(icpbdFrom)), 
         sqTo(SqFromIcpbd(icpbdTo)), 
-        tcpPromote(tcpNone), 
+        cptPromote(cptNone), 
         csMove(csMove) 
     {
     }
@@ -733,8 +731,8 @@ public:
     void MoveGenNoisy(VMV& vmv) const noexcept;
     bool FLastMoveWasLegal(void) const noexcept;
 
-    bool FInCheck(CCP ccp) const noexcept;
-    bool FIsAttackedBy(int8_t icpAttacked, CCP ccpBy) const noexcept;
+    bool FInCheck(CPC cpc) const noexcept;
+    bool FIsAttackedBy(int8_t icpAttacked, CPC cpcBy) const noexcept;
 
     int PhaseCur(void) const noexcept;
     bool FGameDrawn(void) const noexcept;
@@ -774,12 +772,12 @@ private:
 
     bool FIsAttackedBySingle(int8_t icpAttacked, CP cp, const int8_t adicp[], int8_t cdicp) const noexcept;
     bool FIsAttackedBySlider(int8_t icpAttacked, uint16_t grfCp, const int8_t adicp[], int8_t cdicp) const noexcept;
-    int8_t IcpbdFindKing(CCP ccpKing) const noexcept;
-    int8_t IcpUnused(CCP ccp, TCP tcpHint) const noexcept;
+    int8_t IcpbdFindKing(CPC cpcKing) const noexcept;
+    int8_t IcpUnused(CPC cpc, CPT cptHint) const noexcept;
 
-    inline void ClearCs(CS cs, CCP ccp) noexcept
+    inline void ClearCs(CS cs, CPC cpc) noexcept
     {
-        cs = Cs(cs, ccp);
+        cs = Cs(cs, cpc);
         genha.ToggleCastle(ha, cs & csCur);
         csCur &= ~cs;
     }
@@ -787,8 +785,8 @@ private:
 public:
     CPBD acpbd[(raMax+4)*(fiMax+2)];  // 8x8 plus 4 guard ranks and 2 guard files
     static constexpr uint8_t icpMax = 16;
-    int8_t aicpbd[ccpMax][icpMax];  // ccp x piece index -> offset into acpbd array
-    CCP ccpToMove = ccpWhite;
+    int8_t aicpbd[cpcMax][icpMax];  // cpc x piece index -> offset into acpbd array
+    CPC cpcToMove = cpcWhite;
     CS csCur = csNone;
     SQ sqEnPassant = sqNil;
     uint8_t cmvNoCaptureOrPawn = 0; // number of moves since last capture or pawn move
@@ -796,10 +794,6 @@ public:
     vector<MVU> vmvuGame;
 
 private:
-    static const string_view sParseBoard;
-    static const string_view sParseColor;
-    static const string_view sParseCastle;
-
 #ifndef NDEBUG
     void Validate(void) const noexcept;
 #else
@@ -809,7 +803,7 @@ private:
 #endif
 };
 
-extern const int mptcpphase[tcpMax];
+extern const int mpcptphase[cptMax];
 
 /*
  *  Move undo constructor

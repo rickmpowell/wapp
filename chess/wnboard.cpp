@@ -178,10 +178,10 @@ void WNBD::DrawPiece(const RC& rc, CP cp, float opacity)
 
 RC WNBD::RcPiecesFromCp(CP cp) const
 {
-    static const int mptcpdx[tcpMax] = { -1, 5, 3, 2, 4, 1, 0 }; // funky order of pieces in the bitmap
+    static const int mpcptdx[cptMax] = { -1, 5, 3, 2, 4, 1, 0 }; // funky order of pieces in the bitmap
     SZ szPng = pngPieces.sz();
     SZ szPiece = SZ(szPng.width/6, szPng.height/2);
-    RC rc = RC(PT(0), szPiece) + PT(szPiece.width*(mptcpdx[tcp(cp)]), szPiece.height*static_cast<int>(ccp(cp)));
+    RC rc = RC(PT(0), szPiece) + PT(szPiece.width*(mpcptdx[cpt(cp)]), szPiece.height*static_cast<int>(cpc(cp)));
     return rc;
 }
 
@@ -198,7 +198,7 @@ RC WNBD::RcFromSq(int sq) const
 
 RC WNBD::RcFromSq(int fi, int ra) const
 {
-    PT pt = (ccpView == ccpWhite) ? PT(fi, raMax-1-ra) :
+    PT pt = (cpcView == cpcWhite) ? PT(fi, raMax-1-ra) :
                                     PT(fiMax-1-fi, ra);
     return RC(rcSquares.ptTopLeft() + pt*dxySquare, SZ(dxySquare));
 }
@@ -286,7 +286,7 @@ void WNBOARD::DrawMoveHilites(void)
         else if (mv.sqFrom != sqFrom)
             continue;
         PT ptCenter(RcFromSq(mv.sqTo).ptCenter());
-        if (bd[mv.sqTo].cp() != cpEmpty || (mv.sqTo == bd.sqEnPassant && bd[mv.sqFrom].tcp == tcpPawn))
+        if (bd[mv.sqTo].cp() != cpEmpty || (mv.sqTo == bd.sqEnPassant && bd[mv.sqFrom].cpt == cptPawn))
             FillGeom(geomCross, ptCenter, dxySquare / (2 * dxyFull), 45, CO(coBlack, 0.5f));
         else
             FillEll(ELL(ptCenter, dxySquare * 0.25f), CO(coBlack, 0.5f));
@@ -344,7 +344,7 @@ bool WNBOARD::FPtToSq(const PT& pt, SQ& sq) const
         return false;
     int ra = (int)floorf((pt.y - rcSquares.top) / dxySquare);
     int fi = (int)floorf((pt.x - rcSquares.left) / dxySquare);
-    sq = (ccpView == ccpWhite) ? Sq(fi, raMax-1-ra) :
+    sq = (cpcView == cpcWhite) ? Sq(fi, raMax-1-ra) :
                                  Sq(fiMax-1-fi, ra);
     return true;
 }
@@ -460,12 +460,12 @@ void WNBOARD::EndDrag(const PT& pt, unsigned mk)
 }
 
 /*
- *  WNBOARD::FlipCcp
+ *  WNBOARD::FlipCpc
  *
  *  Flips the board to the opposite point of view
  */
 
-void WNBOARD::FlipCcp(void)
+void WNBOARD::FlipCpc(void)
 {
     /* animate the turning over a 1/2 second time period */
 
@@ -481,6 +481,6 @@ void WNBOARD::FlipCcp(void)
     }
 
     angleDraw = 0;
-    ccpView = ~ccpView;
+    cpcView = ~cpcView;
     Redraw();
 }

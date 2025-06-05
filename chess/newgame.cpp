@@ -246,8 +246,8 @@ DLGNEWGAME::DLGNEWGAME(WN& wnParent, GAME& game) :
     DLG(wnParent),
     title(*this, rssNewGameTitle),
     instruct(*this, rssNewGameInstructions),
-    vselLeft(*this, new CMDPLAYER(*this, vselLeft), ccpWhite, NGCC::White),
-    vselRight(*this, new CMDPLAYER(*this, vselRight), ccpBlack, NGCC::Black),
+    vselLeft(*this, new CMDPLAYER(*this, vselLeft), cpcWhite, NGCC::White),
+    vselRight(*this, new CMDPLAYER(*this, vselRight), cpcBlack, NGCC::Black),
     btnSwap(*this, new CMDSWAP(*this), SFromU8(u8"\u21c4")),
     btnrandom(*this, new CMDRANDOM(*this)),
     btnSettings(*this, new CMDGAMESETTINGS(*this), SFromU8(sIconSettings), rssStandardGame),
@@ -280,30 +280,30 @@ void DLGNEWGAME::Init(GAME& game)
 {
     /* default which players get which colors */
 
-    CCP ccpLeft = ccpWhite;
-    CCP ccpRight = ccpBlack;
+    CPC cpcLeft = cpcWhite;
+    CPC cpcRight = cpcBlack;
     if (game.maty == MATY::Random)
         vselLeft.ngcc = vselRight.ngcc = NGCC::Random;
     else if (game.maty == MATY::Alt)
-        swap(ccpLeft, ccpRight);
+        swap(cpcLeft, cpcRight);
     else if (game.maty == MATY::Random1ThenAlt) {
         if (game.cgaPlayed == 0)
             vselLeft.ngcc = vselRight.ngcc = NGCC::Random;
         else
-            swap(ccpLeft, ccpRight);
+            swap(cpcLeft, cpcRight);
     }
 
-    InitPlayer(vselLeft, game.appl[ccpLeft].get(), ccpLeft);
-    InitPlayer(vselRight, game.appl[ccpRight].get(), ccpRight);
+    InitPlayer(vselLeft, game.appl[cpcLeft].get(), cpcLeft);
+    InitPlayer(vselRight, game.appl[cpcRight].get(), cpcRight);
 
     /* TODO: initialize the time control */
 }
 
-void DLGNEWGAME::InitPlayer(VSELPLAYER& vsel, PL* ppl, CCP ccp)
+void DLGNEWGAME::InitPlayer(VSELPLAYER& vsel, PL* ppl, CPC cpc)
 {
     DATAPLAYER dataplayer;
     dataplayer.fModified = false;
-    dataplayer.ccp = ccp;
+    dataplayer.cpc = cpc;
     dataplayer.ngcp = !ppl->FIsHuman();
     dataplayer.lvlComputer = ppl->FIsHuman() ? 3 : static_cast<PLCOMPUTER*>(ppl)->Level();
     dataplayer.sNameHuman = ppl->SName();
@@ -322,14 +322,14 @@ void DLGNEWGAME::Extract(GAME& game)
         ExtractPlayer(game, vselLeft);
         ExtractPlayer(game, vselRight);
         if (Wapp(iwapp).rand() & 1)
-            swap(game.appl[ccpWhite], game.appl[ccpBlack]);
+            swap(game.appl[cpcWhite], game.appl[cpcBlack]);
     }
     else {
         if (game.maty != MATY::Random1ThenAlt)
             game.maty = MATY::Alt;
         ExtractPlayer(game, vselLeft);
-        if (ExtractPlayer(game, vselRight) != ccpBlack)
-            swap(game.appl[ccpWhite], game.appl[ccpBlack]);
+        if (ExtractPlayer(game, vselRight) != cpcBlack)
+            swap(game.appl[cpcWhite], game.appl[cpcBlack]);
     }
 
     /* TODO: initialize the time control */
@@ -341,7 +341,7 @@ void DLGNEWGAME::Extract(GAME& game)
     game.NotifyPlChanged();
 }
 
-CCP DLGNEWGAME::ExtractPlayer(GAME& game, VSELPLAYER& vsel)
+CPC DLGNEWGAME::ExtractPlayer(GAME& game, VSELPLAYER& vsel)
 {
     DATAPLAYER dataplayer = vsel.DataGet();
  
@@ -349,14 +349,14 @@ CCP DLGNEWGAME::ExtractPlayer(GAME& game, VSELPLAYER& vsel)
 
     if (dataplayer.fModified) {
         if (dataplayer.ngcp == 0)
-            game.appl[dataplayer.ccp] = make_shared<PLHUMAN>(dataplayer.sNameHuman);
+            game.appl[dataplayer.cpc] = make_shared<PLHUMAN>(dataplayer.sNameHuman);
         else {
             SETAI set = { dataplayer.lvlComputer };
-            game.appl[dataplayer.ccp] = make_shared<PLCOMPUTER>(set);
+            game.appl[dataplayer.cpc] = make_shared<PLCOMPUTER>(set);
         }
     }
 
-    return dataplayer.ccp;
+    return dataplayer.cpc;
 }
 
 void DLGNEWGAME::Layout(void)
@@ -422,7 +422,7 @@ CO SELPLAYER::CoBack(void) const
     return co;
 }
 
-VSELPLAYER::VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CCP ccp, NGCC ngcc) :
+VSELPLAYER::VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CPC cpc, NGCC ngcc) :
     VSEL(dlg , pcmd),
     /* TODO: resources */
     selHuman(*this, SFromU8(u8"\U0001F464")),     // human profile emoji
@@ -430,7 +430,7 @@ VSELPLAYER::VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CCP ccp, NGCC ngcc) :
     editName(*this, "", rssLabelName),
     vsellevel(*this, new CMDLEVEL(dlg, *this), rssLabelLevel),
     btnAISettings(*this, new CMDAISETTINGS(dlg, *this), SFromU8(sIconSettings)),
-    ccp(ccp),
+    cpc(cpc),
     ngcc(ngcc),
     fModified(false)
 {
@@ -534,7 +534,7 @@ DATAPLAYER VSELPLAYER::DataGet(void) const
 {
     DATAPLAYER dataplayer;
     dataplayer.ngcp = GetSelectorCur();
-    dataplayer.ccp = ccp;
+    dataplayer.cpc = cpc;
     dataplayer.fModified = fModified;
     dataplayer.lvlComputer = vsellevel.GetSelectorCur();
     dataplayer.sNameHuman = editName.SText();
@@ -546,7 +546,7 @@ void VSELPLAYER::SetData(const DATAPLAYER& dataplayer)
     vsellevel.SetSelectorCur(dataplayer.lvlComputer);
     editName.SetText(dataplayer.sNameHuman);
     SetSelectorCur(dataplayer.ngcp);
-    ccp = dataplayer.ccp;
+    cpc = dataplayer.cpc;
     fModified = dataplayer.fModified;       /* do this last in case selection code changes it */
 }
 

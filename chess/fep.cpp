@@ -36,9 +36,9 @@ void GAME::InitFromFen(const string& fen)
 /* these constant parsing strings are all cleverly ordered to line up with
    the numerical definitions of various board, piece, and color values */
 
-constexpr string_view BD::sParseBoard("/PNBRQK /pnbrqk /12345678");
-constexpr string_view BD::sParseColor("wb");
-constexpr string_view BD::sParseCastle("KkQq");
+constexpr string_view sParseBoard("/PNBRQK /pnbrqk /12345678");
+constexpr string_view sParseColor("wb");
+constexpr string_view sParseCastle("KkQq");
 
 /*
  *  BD::InitFromFen
@@ -93,7 +93,7 @@ void BD::SetHalfMoveClock(int cmv)
 
 void BD::SetFullMoveNumber(int fmn)
 {
-    int cmv = (fmn - 1) * 2 + (ccpToMove == ccpBlack);
+    int cmv = (fmn - 1) * 2 + (cpcToMove == cpcBlack);
     if (cmv < 0 || cmv >= 256)
         throw ERRAPP(rssErrFenBadFullMoveNumber);
     while (vmvuGame.size() < cmv)
@@ -110,7 +110,7 @@ void BD::InitFromFenShared(istream& is)
 
     assert(sParseBoard.find('k') == cpBlackKing);
     assert(sParseBoard.find('8') == 16 + 8);
-    assert(sParseColor.find('b') == ccpBlack);
+    assert(sParseColor.find('b') == cpcBlack);
     assert((1 << sParseCastle.find('q')) == csBlackQueen);
     assert((1 << sParseCastle.find('K')) == csWhiteKing);
 
@@ -126,8 +126,8 @@ void BD::InitFromFenShared(istream& is)
         else if (ich >= 16) // numbers, mean skip squares
             sq += ich - 16;
         else if (sq < sqMax) {
-            int icp = IcpUnused(ccp(ich), tcp(ich));
-            aicpbd[ccp(ich)][icp] = IcpbdFromSq(sq);
+            int icp = IcpUnused(cpc(ich), cpt(ich));
+            aicpbd[cpc(ich)][icp] = IcpbdFromSq(sq);
             (*this)[sq++] = CPBD(ich, icp);   // otherwise the offset matches the value of the chess piece
         }
         else
@@ -138,7 +138,7 @@ void BD::InitFromFenShared(istream& is)
 
     if (sColor.length() != 1)
         throw ERRAPP(rssErrFenParse, sColor);
-    ccpToMove = static_cast<CCP>(IchFind(sParseColor, sColor[0]));
+    cpcToMove = static_cast<CPC>(IchFind(sParseColor, sColor[0]));
 
     /* parse the castle state */
 
@@ -222,7 +222,7 @@ string BD::FenRenderShared(void) const
 
     /* side to move */
 
-    fen += sParseColor[ccpToMove];
+    fen += sParseColor[cpcToMove];
 
     /* castle state */
 
@@ -372,7 +372,7 @@ ParseNum:
         }
     }
     else {
-        /* otherwise it can only be a move which is delimited by spaces */
+        /* otherwise it can only be a move, which is delimited by spaces */
         string sMove(1, ch);
         while (FNextCh(is, ch))
             sMove += ch;
@@ -446,33 +446,33 @@ string GAME::EpdRender(void)
 
 MV GAME::MvParseEpd(string_view s) const
 {
-    TCP tcp = tcpPawn;
+    CPT cpt = cptPawn;
     int raDisambig = -1;
     int fiDisambig = -1;
-    TCP tcpPromote = tcpNone;
+    CPT cptPromote = cptNone;
     SQ sqTo;
     int ich = 0;
 
     /* test for castles */
 
     if (s == "O-O") {
-        tcp = tcpKing;
-        sqTo = Sq(RaBack(bd.ccpToMove), fiG);
+        cpt = cptKing;
+        sqTo = Sq(RaBack(bd.cpcToMove), fiG);
         goto Lookup;
     }
     if (s == "O-O-O") {
-        tcp = tcpKing;
-        sqTo = Sq(RaBack(bd.ccpToMove), fiC);
+        cpt = cptKing;
+        sqTo = Sq(RaBack(bd.cpcToMove), fiC);
         goto Lookup;
     }
 
     /* get the piece that moves */
-    if (ich >= s.size())
-        throw;
     {
-        size_t ichTcp = string_view("PNBRQK").find(s[ich]);
-        if (ichTcp != string::npos) {
-            tcp = (TCP)(tcpPawn + ichTcp);
+        if (ich >= s.size())
+            throw;
+        size_t cptT = sParseBoard.find(s[ich]);
+        if (cptT != string::npos && inrange((CPT)cptT, cptPawn, cptKing)) {
+            cpt = (CPT)cptT;
             ich++;
         }
     }
@@ -502,10 +502,10 @@ MV GAME::MvParseEpd(string_view s) const
     if (ich < s.size() && s[ich] == '=') {
         if (++ich >= s.size())
             throw;
-        size_t ichPromote = string_view("NBRQ").find(s[ich]);
-        if (ichPromote == string::npos)
+        size_t cptT = sParseBoard.find(s[ich]);
+        if (cptT == string::npos || !inrange((CPT)cptT, cptKnight, cptQueen))
             throw;
-        tcpPromote = (TCP)(tcpPawn + 1 + ichPromote);
+        cptPromote = (CPT)cptT;
     }
 
     /* check and mate marks */
@@ -523,10 +523,10 @@ Lookup:
     VMV vmv;
     bd.MoveGen(vmv);
     for (MV& mv : vmv) {
-        if ((sqTo == mv.sqTo && bd[mv.sqFrom].tcp == tcp) &&
+        if ((sqTo == mv.sqTo && bd[mv.sqFrom].cpt == cpt) &&
             (fiDisambig == -1 || fi(mv.sqFrom) == fiDisambig) &&
             (raDisambig == -1 || ra(mv.sqFrom) == raDisambig) &&
-            (tcpPromote == tcpNone || mv.tcpPromote == tcpPromote))
+            (cptPromote == cptNone || mv.cptPromote == cptPromote))
             return mv;
     }
 
@@ -579,8 +579,8 @@ void GAME::RenderPgnHeader(ostream& os) const
     RenderPgnTagPair(os, "Site", "");
     RenderPgnTagPair(os, "Date", "");
     RenderPgnTagPair(os, "Round", "");
-    RenderPgnTagPair(os, "White", string(appl[ccpWhite]->SName()));
-    RenderPgnTagPair(os, "Black", string(appl[ccpBlack]->SName()));
+    RenderPgnTagPair(os, "White", string(appl[cpcWhite]->SName()));
+    RenderPgnTagPair(os, "Black", string(appl[cpcBlack]->SName()));
     RenderPgnTagPair(os, "Result", "");
 }
 
@@ -666,7 +666,7 @@ string BD::SDecodeMvu(const MVU& mvu) const
     VMV vmv;
     MoveGen(vmv);
     string s;
-    TCP tcpMove;
+    CPT cptMove;
 
     /* castles */
 
@@ -681,9 +681,9 @@ string BD::SDecodeMvu(const MVU& mvu) const
 
     /* the piece moving */
 
-    tcpMove = (TCP)(*this)[mvu.sqFrom].tcp;
-    if (tcpMove != tcpPawn)
-        s += " PNBRQK"[tcpMove];
+    cptMove = (CPT)(*this)[mvu.sqFrom].cpt;
+    if (cptMove != cptPawn)
+        s += sParseBoard[cptMove];
 
     /* do we need to disambiguate? */
 
@@ -691,7 +691,7 @@ string BD::SDecodeMvu(const MVU& mvu) const
        that can all move to the same square; in that case, we need full move disambiguation */
 
     for (MV mv : vmv) {
-        if (mv.sqTo != mvu.sqTo || mv.sqFrom == mvu.sqFrom || (*this)[mv.sqFrom].tcp != tcpMove)
+        if (mv.sqTo != mvu.sqTo || mv.sqFrom == mvu.sqFrom || (*this)[mv.sqFrom].cpt != cptMove)
             continue;
         if (fi(mvu.sqFrom) != fi(mv.sqFrom)) {
             s += 'a' + fi(mvu.sqFrom);
@@ -705,7 +705,7 @@ string BD::SDecodeMvu(const MVU& mvu) const
 
     /* capture */
 
-    if (tcp(mvu.cpTake) != tcpNone)
+    if (cpt(mvu.cpTake) != cptNone)
         s += 'x';
 
     /* destination square */
@@ -714,16 +714,16 @@ string BD::SDecodeMvu(const MVU& mvu) const
 
     /* promotion */
 
-    if (mvu.tcpPromote != tcpNone) {
+    if (mvu.cptPromote != cptNone) {
         s += '=';
-        s += " PNBRQK"[mvu.tcpPromote];
+        s += sParseBoard[mvu.cptPromote];
     }
 
     /* TODO: mates */
 Checks:
     BD bdT = *this;
     bdT.MakeMv(mvu);
-    if (bdT.FInCheck(bdT.ccpToMove))
+    if (bdT.FInCheck(bdT.cpcToMove))
         s += '+';
 
     return s;

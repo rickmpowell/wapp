@@ -449,7 +449,7 @@ private:
 
 int CMDFLIPBOARD::Execute(void) 
 {
-    wapp.wnboard.FlipCcp();
+    wapp.wnboard.FlipCpc();
     return 1;
 }
 

@@ -18,8 +18,8 @@ GAME::GAME(void) :
     maty(MATY::Random1ThenAlt),
     cgaPlayed(0)
 {
-    appl[ccpWhite] = nullptr;
-    appl[ccpBlack] = nullptr;
+    appl[cpcWhite] = nullptr;
+    appl[cpcBlack] = nullptr;
 }
 
 GAME::GAME(const string& fenStart, shared_ptr<PL> pplWhite, shared_ptr<PL> pplBlack) :
@@ -27,8 +27,8 @@ GAME::GAME(const string& fenStart, shared_ptr<PL> pplWhite, shared_ptr<PL> pplBl
     maty(MATY::Random1ThenAlt),
     cgaPlayed(0)
 {
-    appl[ccpWhite] = pplWhite;
-    appl[ccpBlack] = pplBlack;
+    appl[cpcWhite] = pplWhite;
+    appl[cpcBlack] = pplBlack;
 }
 
 void GAME::AddListener(LGAME* plgame)
@@ -88,5 +88,5 @@ void GAME::RequestMv(WAPP& wapp)
 {
     if (FGameOver())
         return;
-    appl[bd.ccpToMove]->RequestMv(wapp, *this);
+    appl[bd.cpcToMove]->RequestMv(wapp, *this);
 }

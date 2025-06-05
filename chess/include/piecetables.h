@@ -11,8 +11,8 @@
  *  middle game
  */
 
-EV mptcpevMid[tcpMax] = { 0, 82, 337, 365, 477, 1025,  0 };
-EV mptcpsqdevMid[tcpMax][sqMax] = {
+EV mpcptevMid[cptMax] = { 0, 82, 337, 365, 477, 1025,  0 };
+EV mpcptsqdevMid[cptMax][sqMax] = {
     { 0 },
     {   // pawns
       0,   0,   0,   0,   0,   0,  0,   0,
@@ -80,8 +80,8 @@ EV mptcpsqdevMid[tcpMax][sqMax] = {
  *  end game
  */
 
-EV mptcpevEnd[tcpMax] = { 0, 94, 281, 297, 512,  936,  0 };
-EV mptcpsqdevEnd[tcpMax][sqMax] = {
+EV mpcptevEnd[cptMax] = { 0, 94, 281, 297, 512,  936,  0 };
+EV mpcptsqdevEnd[cptMax][sqMax] = {
     { 0 },
     {   // pawns
       0,   0,   0,   0,   0,   0,   0,   0,

@@ -135,8 +135,8 @@ private:
 
     EV EvFromPst(const BD& bd) const noexcept;
     void InitWeightTables(void) noexcept;
-    void InitWeightTable(EV mptpcev[tcpMax], 
-                         EV mptcpsqdev[tcpMax][sqMax], 
+    void InitWeightTable(EV mptpcev[cptMax], 
+                         EV mpcptsqdev[cptMax][sqMax], 
                          EV mpcpsqev[cpMax][sqMax]) noexcept;
     EV EvInterpolate(int phase, 
                      EV evFirst, int phaseFirst, 

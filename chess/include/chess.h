@@ -49,7 +49,7 @@ public:
 protected:
 
     BD& bd;
-    CCP ccpView = ccpWhite;  // orientation of the board, black or white
+    CPC cpcView = cpcWhite;  // orientation of the board, black or white
  
     /* metrics for drawing */
 
@@ -97,7 +97,7 @@ public:
     virtual void Drag(const PT& pt, unsigned mk) override;
     virtual void EndDrag(const PT& pt, unsigned mk) override;
 
-    void FlipCcp(void);
+    void FlipCpc(void);
 
 private:
     virtual void DrawPieces(void) override;

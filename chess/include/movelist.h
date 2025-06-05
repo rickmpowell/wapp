@@ -18,7 +18,7 @@ class WNML;
 class WNPLAYER : public CTL
 {
 public:
-    WNPLAYER(WNML& wnml, GAME& game, CCP ccp);
+    WNPLAYER(WNML& wnml, GAME& game, CPC cpc);
 
     virtual CO CoBack(void) const override;
     virtual CO CoText(void) const override;
@@ -28,7 +28,7 @@ public:
 
 private:
     GAME& game;
-    CCP ccp;
+    CPC cpc;
 };
 
 /*
@@ -40,7 +40,7 @@ private:
 class WNCLOCK : public CTL
 {
 public:
-    WNCLOCK(WNML& wnParent, GAME& game, CCP ccp);
+    WNCLOCK(WNML& wnParent, GAME& game, CPC cpc);
 
     virtual CO CoBack(void) const override;
     virtual CO CoText(void) const override;
@@ -50,7 +50,7 @@ public:
 
 private:
     GAME& game;
-    CCP ccp;
+    CPC cpc;
 };
 
 /*

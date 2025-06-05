@@ -5,8 +5,8 @@ WNML::WNML(WN& wnParent, GAME& game) :
     WN(wnParent),
     SCROLLLNFIXED((WN&)*this),
     game(game),
-    awnclock{ WNCLOCK(*this, game, ccpBlack), WNCLOCK(*this, game, ccpWhite) },
-    awnplayer{ WNPLAYER(*this, game, ccpBlack), WNPLAYER(*this, game, ccpWhite) },
+    awnclock{ WNCLOCK(*this, game, cpcBlack), WNCLOCK(*this, game, cpcWhite) },
+    awnplayer{ WNPLAYER(*this, game, cpcBlack), WNPLAYER(*this, game, cpcWhite) },
     tf(*this, "Segoe UI", 12)
 {  
 }
@@ -92,10 +92,10 @@ void WNML::BdChanged(void)
  *  WNPLAYER
  */
 
-WNPLAYER::WNPLAYER(WNML& wnml, GAME& game, CCP ccp) :
+WNPLAYER::WNPLAYER(WNML& wnml, GAME& game, CPC cpc) :
     CTL(wnml, nullptr),
     game(game),
-    ccp(ccp)
+    cpc(cpc)
 {
 }
 
@@ -113,11 +113,11 @@ void WNPLAYER::Draw(const RC& rcUpdate)
 {
     RC rc(RcContent().RcInflate(-8, -6));
     rc.SetWidth(rc.dyHeight());
-    FillEll(rc, ccp == ccpWhite ? coWhite : coBlack);
+    FillEll(rc, cpc == cpcWhite ? coWhite : coBlack);
     DrawEll(rc);
     
     rc = RcContent().RcSetLeft(rc.right + 12);
-    DrawSCenterY(string(game.appl[ccp]->SName()), tf, rc);
+    DrawSCenterY(string(game.appl[cpc]->SName()), tf, rc);
 }
 
 void WNPLAYER::Layout(void)
@@ -132,10 +132,10 @@ SZ WNPLAYER::SzRequestLayout(const RC& rcWithin) const
 /*
  *  WNCLOCK
  */
-WNCLOCK::WNCLOCK(WNML& wnml, GAME& game, CCP ccp) :
+WNCLOCK::WNCLOCK(WNML& wnml, GAME& game, CPC cpc) :
     CTL(wnml, nullptr),
     game(game),
-    ccp(ccp)
+    cpc(cpc)
 {
 }
 
