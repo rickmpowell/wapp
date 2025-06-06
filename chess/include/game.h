@@ -54,6 +54,20 @@ enum class MATY
 };
 
 /*
+ *  GS
+ * 
+ *  Game state
+ */
+
+enum class GS
+{
+    NotStarted,
+    Playing,
+    Paused,
+    GameOver
+};
+
+/*
  *  GAME class
  */
 
@@ -72,6 +86,11 @@ public:
     void NotifyEnableUI(bool fEnable);
     void NotifyPlChanged(void);
 
+    void Start(void);
+    void End(void);
+    void Pause(void);
+    void Resume(void);
+    bool FIsPlaying(void) const;
     bool FGameOver(void) const;
     void RequestMv(WAPP& wapp);
 
@@ -98,8 +117,10 @@ public:
     void RenderPgnHeader(ostream& os) const;
     void RenderPgnMoveList(ostream& os) const;
     void RenderPgnTagPair(ostream& os, string_view tag, const string& sValue) const;
+    string SPgnDate(chrono::time_point<chrono::system_clock> tm) const;
 
 public:
+    GS gs = GS::NotStarted;
     BD bd;
     shared_ptr<PL> appl[2];
 
@@ -108,12 +129,15 @@ public:
        is just the minimum amount of stuff needed make the New Game dialog do 
        something helpful */
 
-    MATY maty;
-    int cgaPlayed;  // number of games played between the players
+    string sEvent = "Unrated Casual Game";
+    string sSite = "WAPP Chess Program";
+    MATY maty = MATY::Random1ThenAlt;
+    int cgaPlayed = 0;  // number of games played between the players
 
 private:
-    vector<LGAME*> vplgame;
-    map<string, vector<VALEPD>> mpopvalepd;
+    vector<LGAME*> vplgame; // listeners who get notified on changes
+    map<string, vector<VALEPD>> mpopvalepd; // EPD file properties
+    chrono::time_point<chrono::system_clock> tmStart;   // start time of the game
 };
 
 /*

@@ -19,16 +19,16 @@
  *  almost certainly improve it.
  */
 
-enum class CLEN
-{
-    None = 0,
-    Horizontal,
-    Vertical
-};
-
 class LEN
 {
 public:
+    enum class CEN
+    {
+        None = 0,
+        Horizontal,
+        Vertical
+    };
+
     LEN(WN& wn, const PAD& pad, const PAD& margin);
     LEN(const RC& rc, const PAD& pad, const PAD& margin);
 
@@ -42,7 +42,7 @@ public:
     void PositionRight(WN& wn);
     void PositionOK(CTL& ctl);
 
-    void StartCenter(CLEN clen);
+    void StartCenter(CEN cen);
     void EndCenter(void);
 
     void AdjustMarginDy(float dy);
@@ -61,7 +61,7 @@ private:
     vector<WN*> vpwn;
     PT ptCenterStart;
     SZ szCenterTotal;
-    CLEN clen;
+    CEN cen;
 };
 
 class LENDLG : public LEN

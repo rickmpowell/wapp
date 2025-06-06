@@ -102,7 +102,7 @@ class SELPERFT : public SELS
 public:
     SELPERFT(VSEL& vsel, int rss) : SELS(vsel, vsel.iwapp.SLoad(rss))
     {
-        SetLayout(LCTL::SizeToFit);
+        SetLayout(CTLL::SizeToFit);
         SetBorder(4);
         SetPadding(8);
     }

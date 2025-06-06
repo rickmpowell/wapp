@@ -10,7 +10,7 @@
 LEN::LEN(WN& wn, const PAD& pad, const PAD& margin) :
     pad(pad), marginDef(margin),
     rcWithin(wn.RcInterior()),
-    clen(CLEN::None)
+    cen(CEN::None)
 {
     rcWithin.Unpad(pad);
     rcFlow = rcWithin;
@@ -19,7 +19,7 @@ LEN::LEN(WN& wn, const PAD& pad, const PAD& margin) :
 LEN::LEN(const RC& rc, const PAD& pad, const PAD& margin) :
     pad(pad), marginDef(margin),
     rcWithin(rc),
-    clen(CLEN::None)
+    cen(CEN::None)
 {
 }
 
@@ -40,15 +40,15 @@ void LEN::Position(WN& wn)
     RC rc(rcWithin);
     rc.SetSz(wn.SzRequestLayout(rcWithin));
     wn.SetBounds(rc);
-    switch (clen) {
-    case CLEN::None:
+    switch (cen) {
+    case CEN::None:
         rcWithin.top = rc.bottom + marginDef.bottom;
         break;
-    case CLEN::Vertical:
+    case CEN::Vertical:
         rcWithin.top = rc.bottom + marginDef.bottom;
         vpwn.push_back(&wn);
         break;
-    case CLEN::Horizontal:
+    case CEN::Horizontal:
         rcWithin.left = rc.right + marginDef.right;
         vpwn.push_back(&wn);
         break;
@@ -169,15 +169,15 @@ void LEN::PositionRight(WN& wn)
     rcFlow.bottom = max(rc.bottom, rcFlow.bottom);
 }
 
-void LEN::StartCenter(CLEN clen)
+void LEN::StartCenter(CEN cen)
 {
-    this->clen = clen;
+    this->cen = cen;
     ptCenterStart = rcWithin.ptTopLeft();
-    switch (clen) {
-    case CLEN::Vertical:
+    switch (cen) {
+    case CEN::Vertical:
         szCenterTotal.height = rcWithin.dyHeight();
         break;
-    case CLEN::Horizontal:
+    case CEN::Horizontal:
         szCenterTotal.width = rcWithin.dxWidth();
         break;
     default:
@@ -191,14 +191,14 @@ void LEN::EndCenter(void)
     PT ptCenterEnd(rcWithin.ptTopLeft());
     SZ sz;
 
-    switch (clen) {
-    case CLEN::Vertical:
+    switch (cen) {
+    case CEN::Vertical:
         ptCenterEnd.y -= marginDef.bottom;
         sz = SZ(0, (szCenterTotal.height - (ptCenterEnd.y - ptCenterStart.y))/2);
         for (WN* pwn : vpwn)
             pwn->SetBounds(pwn->RcBounds() + sz);
         break;
-    case CLEN::Horizontal:
+    case CEN::Horizontal:
         ptCenterEnd.x -= marginDef.right;
         sz = SZ((szCenterTotal.width - (ptCenterEnd.x - ptCenterStart.x)) / 2, 0);
         for (WN* pwn : vpwn)

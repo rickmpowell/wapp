@@ -216,7 +216,7 @@ WNBOARD::WNBOARD(WN& wnParent, GAME& game) :
     fEnableMoveUI(true),
     pcmdMakeMove(make_unique<CMDMAKEMOVE>(Wapp(iwapp)))
 {
-    btnFlip.SetLayout(LCTL::SizeToFit);
+    btnFlip.SetLayout(CTLL::SizeToFit);
     bd.MoveGen(vmvLegal);
 }
 

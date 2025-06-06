@@ -276,6 +276,9 @@ void GAME::InitFromEpd(istream& is)
     if (mpopvalepd.find("fmvn") != mpopvalepd.end())
         bd.SetHalfMoveClock((int)mpopvalepd["fmvn"][0].w);
 
+    tmStart = chrono::system_clock::now();
+    gs = GS::Paused;
+
     NotifyBdChanged();
 }
 
@@ -545,6 +548,9 @@ Lookup:
 
 void GAME::InitFromPgn(istream& is)
 {
+    tmStart = chrono::system_clock::now();  // default date
+    gs = GS::GameOver;  // PGN files are generally completed games
+
     /* TODO: read the header */
     /* TODO: read the move list */
     
@@ -562,6 +568,7 @@ void GAME::RenderPgn(ostream& os) const
     RenderPgnHeader(os);
     os << endl;
     RenderPgnMoveList(os);
+    os << endl;
 }
 
 string GAME::PgnRender(void) const
@@ -575,13 +582,28 @@ void GAME::RenderPgnHeader(ostream& os) const
 {
     /* render the standard 7 header items */
 
-    RenderPgnTagPair(os, "Event", "");
-    RenderPgnTagPair(os, "Site", "");
-    RenderPgnTagPair(os, "Date", "");
+    RenderPgnTagPair(os, "Event", sEvent);
+    RenderPgnTagPair(os, "Site", sSite);
+    RenderPgnTagPair(os, "Date", SPgnDate(tmStart));
     RenderPgnTagPair(os, "Round", "");
-    RenderPgnTagPair(os, "White", string(appl[cpcWhite]->SName()));
-    RenderPgnTagPair(os, "Black", string(appl[cpcBlack]->SName()));
+    RenderPgnTagPair(os, "White", appl[cpcWhite]->SName());
+    RenderPgnTagPair(os, "Black", appl[cpcBlack]->SName());
     RenderPgnTagPair(os, "Result", "");
+}
+
+/*
+ *  GAME::SPgnDate
+ * 
+ *  converts a C++ time_point into a PGN file format date, which is
+ *  <year>.<month>.<day>
+ */
+
+string GAME::SPgnDate(chrono::time_point<chrono::system_clock> tm) const
+{
+    time_t time = std::chrono::system_clock::to_time_t(tm);
+    struct tm stm;
+    localtime_s(&stm, &time);
+    return to_string(stm.tm_year+1900) + "." + to_string(stm.tm_mon+1) + "." + to_string(stm.tm_mday+1);
 }
 
 void GAME::RenderPgnTagPair(ostream& os, string_view tag, const string& sValue) const

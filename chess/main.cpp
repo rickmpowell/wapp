@@ -142,12 +142,15 @@ public:
     CMDNEWGAME(WAPP& wapp) : CMD(wapp) {}
 
     virtual int Execute(void) override {
+        wapp.game.Pause();
         DLGNEWGAME dlg(wapp, wapp.game);
         if (!FRunDlg(dlg))
             return 0;
         gameUndo = wapp.game;
         dlg.Extract(wapp.game);
+        wapp.game.End();
         wapp.game.cgaPlayed++;
+        wapp.game.Start();
         wapp.game.RequestMv(wapp);
         return 1;
     }
@@ -234,6 +237,8 @@ CMDEXECUTE(CMDTESTAI)
 
 int CMDMAKEMOVE::Execute(void) 
 {
+    if (!wapp.game.FIsPlaying())
+        wapp.game.Start();
     wapp.game.NotifyEnableUI(false);
     wapp.game.NotifyShowMv(mv, fAnimate);
     wapp.game.MakeMv(mv);

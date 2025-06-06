@@ -14,18 +14,14 @@
   */
 
 GAME::GAME(void) :
-    bd(fenEmpty),
-    maty(MATY::Random1ThenAlt),
-    cgaPlayed(0)
+    bd(fenEmpty)
 {
     appl[cpcWhite] = nullptr;
     appl[cpcBlack] = nullptr;
 }
 
 GAME::GAME(const string& fenStart, shared_ptr<PL> pplWhite, shared_ptr<PL> pplBlack) :
-    bd(fenStart),
-    maty(MATY::Random1ThenAlt),
-    cgaPlayed(0)
+    bd(fenStart)
 {
     appl[cpcWhite] = pplWhite;
     appl[cpcBlack] = pplBlack;
@@ -73,6 +69,44 @@ void GAME::NotifyPlChanged(void)
         plgame->PlChanged();
 }
 
+void GAME::Start(void)
+{
+    if (gs == GS::Paused)
+        Resume();
+    else {
+        tmStart = chrono::system_clock::now();
+        gs = GS::Playing;
+    }
+}
+
+void GAME::End(void)
+{
+    gs = GS::GameOver;
+}
+
+void GAME::Pause(void)
+{
+    gs = GS::Paused;
+}
+
+void GAME::Resume(void)
+{
+    assert(gs == GS::Paused);
+    gs = GS::Playing;
+}
+
+bool GAME::FIsPlaying(void) const
+{
+    return gs == GS::Playing;
+}
+
+/*
+ *  GAME::FGameOver
+ * 
+ *  Detects if the game is over, either due to checkmate, stalemate, or
+ *  various draw conditions.
+ */
+
 bool GAME::FGameOver(void) const
 {
     VMV vmv;
@@ -86,7 +120,9 @@ bool GAME::FGameOver(void) const
 
 void GAME::RequestMv(WAPP& wapp)
 {
-    if (FGameOver())
+    if (FGameOver()) {
+        End();
         return;
+    }
     appl[bd.cpcToMove]->RequestMv(wapp, *this);
 }

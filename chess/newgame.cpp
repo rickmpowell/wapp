@@ -28,7 +28,7 @@ public:
     virtual int Execute(void) override {
         /* force entire thing to relayout and redraw so we get human/ai options redisplayed */
         if (vsel.FVisible())
-            vsel.Layout();
+            vsel.Relayout();
         vsel.fModified = true;
         return 1;
     }
@@ -161,7 +161,7 @@ class CMDTIMEPREV : public CMDTIMENEXT
 public:
     CMDTIMEPREV(WAPP& wapp, SELTIMECYCLE& sel) : CMDTIMENEXT(wapp, sel) { }
 
-    /* TODO: canw we create another CMD template to do this clone for us? */
+    /* TODO: can we create another CMD template to do this clone for us? */
     virtual ICMD* clone(void) const override {
         return new CMDTIMEPREV(*this);
     }
@@ -258,12 +258,12 @@ DLGNEWGAME::DLGNEWGAME(WN& wnParent, GAME& game) :
 {
     btnSettings.SetFont(sFontSymbol, 24);
 
-    btnSwap.SetLayout(LCTL::SizeToFit);
+    btnSwap.SetLayout(CTLL::SizeToFit);
     btnSwap.SetPadding(PAD(2));
     btnSwap.SetFont(sFontUI, 12, TF::WEIGHT::Bold);
     btnSwap.SetBounds(RC(PT(0), SZ(dxyBtnSwap)));
  
-    btnrandom.SetLayout(LCTL::SizeToFit);
+    btnrandom.SetLayout(CTLL::SizeToFit);
     btnrandom.SetPadding(PAD(2));
     btnrandom.SetBounds(RC(PT(0), SZ(dxyBtnSwap)));
 
@@ -371,7 +371,7 @@ void DLGNEWGAME::Layout(void)
         len.PositionLeft(vselLeft);
         len.PositionRight(vselRight);
         LEN lenv(len.RcFlow(), PAD(0), PAD(dxyDlgGutter));
-        lenv.StartCenter(CLEN::Vertical);
+        lenv.StartCenter(LEN::CEN::Vertical);
             lenv.Position(btnSwap);
             lenv.Position(btnrandom);
         lenv.EndCenter();
@@ -434,11 +434,11 @@ VSELPLAYER::VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CPC cpc, NGCC ngcc) :
     ngcc(ngcc),
     fModified(false)
 {
-    selHuman.SetLayout(LCTL::SizeToFit);
-    selComputer.SetLayout(LCTL::SizeToFit);
-    btnAISettings.SetLayout(LCTL::SizeToFit);
-    editName.SetLayout(LCTL::SizeToFit);
-    vsellevel.SetLayout(LCTL::SizeToFit);
+    selHuman.SetLayout(CTLL::SizeToFit);
+    selComputer.SetLayout(CTLL::SizeToFit);
+    btnAISettings.SetLayout(CTLL::SizeToFit);
+    editName.SetLayout(CTLL::SizeToFit);
+    vsellevel.SetLayout(CTLL::SizeToFit);
     btnAISettings.SetFont(sFontSymbol);
     selHuman.SetBorder(PAD(4));
     selComputer.SetBorder(PAD(4));
@@ -599,7 +599,7 @@ VSELLEVEL::VSELLEVEL(WN& wnParent, ICMD* pcmd, int rssLabel) :
 {
     for (int isel = 1; isel <= 10; isel++) {
         SEL* psel = new SELLEVEL(*this, isel);
-        psel->SetLayout(LCTL::SizeToFit);
+        psel->SetLayout(CTLL::SizeToFit);
     }
 }
 

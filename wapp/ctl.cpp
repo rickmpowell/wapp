@@ -139,9 +139,9 @@ void CTL::Validate(void)
 {
 }
 
-void CTL::SetLayout(LCTL lctl)
+void CTL::SetLayout(CTLL ctll)
 {
-    this->lctl = lctl;
+    this->ctll = ctll;
 }
 
 void CTL::SetPadding(const PAD& pad)
@@ -358,7 +358,7 @@ void BTNS::Draw(const RC& rcUpdate)
 
 void BTNS::Layout(void)
 {
-    if (lctl == LCTL::SizeToFit)
+    if (ctll == CTLL::SizeToFit)
         SetFontHeight(RcContent().dyHeight());
 }
 
@@ -381,7 +381,7 @@ SZ BTNS::SzRequestLayout(const RC& rcWithin) const
 BTNCLOSE::BTNCLOSE(WN& wnParent, ICMD* pcmd, bool fVisible) :
     BTN(wnParent, pcmd, "", fVisible)
 {
-    SetLayout(LCTL::SizeToFit);
+    SetLayout(CTLL::SizeToFit);
     SetFont("Segoe UI Symbol", 12, TF::WEIGHT::Bold);
 }
 
@@ -401,7 +401,7 @@ void BTNCLOSE::Draw(const RC& rcUpdate)
 
 void BTNCLOSE::Layout(void)
 {
-    if (lctl == LCTL::SizeToFit)
+    if (ctll == CTLL::SizeToFit)
         SetFontHeight(RcContent().dyHeight() * 0.55f);
 }
 
@@ -419,7 +419,7 @@ SZ BTNCLOSE::SzRequestLayout(const RC& rc) const
 BTNNEXT::BTNNEXT(WN& wnParent, ICMD* pcmd, bool fVisible) :
     BTN(wnParent, pcmd, "", fVisible)
 {
-    SetLayout(LCTL::SizeToFit);
+    SetLayout(CTLL::SizeToFit);
     SetFont("Segoe UI Symbol");
 }
 
@@ -442,7 +442,7 @@ void BTNNEXT::Erase(const RC& rcUpdate, DRO dro)
 
 void BTNNEXT::Layout(void)
 {
-    if (lctl == LCTL::SizeToFit)
+    if (ctll == CTLL::SizeToFit)
         SetFontHeight(RcContent().dxWidth() * 1.25f);
 }
 
@@ -561,7 +561,7 @@ CO SEL::CoBorder(void) const
 
 void SEL::Layout(void)
 {
-    if (lctl == LCTL::SizeToFit)
+    if (ctll == CTLL::SizeToFit)
         SetFontHeight(RcContent().dyHeight());
 }
 
@@ -590,7 +590,7 @@ SZ SELS::SzRequestLayout(const RC& rcWithin) const
 
 void SELS::Layout(void)
 {
-    if (lctl == LCTL::SizeToFit)
+    if (ctll == CTLL::SizeToFit)
         SetFontHeight(RcContent().dyHeight());
 }
 
@@ -797,7 +797,7 @@ void EDIT::Draw(const RC& rcUpdate)
 
 void EDIT::Layout(void)
 {
-    if (lctl == LCTL::SizeToFit)
+    if (ctll == CTLL::SizeToFit)
         SetFontHeight(RcContent().dyHeight() * 0.67f);
 }
 

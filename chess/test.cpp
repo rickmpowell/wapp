@@ -165,11 +165,11 @@ TOOLBARLOG::TOOLBARLOG(WNLOG& wnlog) :
 	btnCopy(*this, new CMDCOPYTEST(wnlog), SFromU8(u8"\u2398")),
 	btnClear(*this, new CMDCLEARTEST(wnlog), SFromU8(u8"\u239a"))
 {
-	btnSave.SetLayout(LCTL::SizeToFit);
+	btnSave.SetLayout(CTLL::SizeToFit);
 	btnSave.SetPadding(7);
-	btnCopy.SetLayout(LCTL::SizeToFit);
+	btnCopy.SetLayout(CTLL::SizeToFit);
 	btnCopy.SetPadding(0);
-	btnClear.SetLayout(LCTL::SizeToFit);
+	btnClear.SetLayout(CTLL::SizeToFit);
 	btnClear.SetPadding(0, 0, 0, 3);
 }
 
@@ -738,7 +738,7 @@ void DLGPERFT::Layout(void)
 	len.AdjustMarginDy(-dxyDlgGutter / 2);
 	len.Position(instruct);
 	len.Position(vselperft);
-	len.StartCenter(CLEN::Horizontal);
+	len.StartCenter(LEN::CEN::Horizontal);
 		len.Position(staticDepth);
 		len.Position(cycleDepth);
 	len.EndCenter();
@@ -763,7 +763,7 @@ void VSELPERFT::Layout(void)
 {
 	RC rc(RcContent());
 	LEN len(*this, PAD(0), PAD(12, 0));
-	len.StartCenter(CLEN::Horizontal);
+	len.StartCenter(LEN::CEN::Horizontal);
 	for (SEL* psel : vpsel)
 		len.Position(*psel);
 	len.EndCenter();

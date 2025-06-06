@@ -21,7 +21,7 @@ class CYCLE;
  *  TODO: need to formalize how labels work and layout 
  */
 
-enum class LCTL
+enum class CTLL
 {
     None = 0,
     SizeToContent,
@@ -39,7 +39,7 @@ public:
     virtual void SetFontHeight(float dyHeight);
     virtual TF& TfGet(void);
 
-    virtual void SetLayout(LCTL lctl);
+    virtual void SetLayout(CTLL ctll);
     virtual RC RcContent(void) const;
     
     virtual void SetPadding(const PAD& pad);
@@ -82,7 +82,7 @@ protected:
     PAD pad;
     PAD border;
     PAD margin;
-    LCTL lctl = LCTL::None;
+    CTLL ctll = CTLL::None;
     CDS cdsCur = CDS::None;
 };
 
