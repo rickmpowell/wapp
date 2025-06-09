@@ -39,10 +39,10 @@ void WNBD::ShowMv(MV mv, bool fAnimate)
     PT dpt = rcTo.ptTopLeft() - rcFrom.ptTopLeft();
 
     constexpr chrono::milliseconds dtmTotal(200);
-    auto tmStart = chrono::high_resolution_clock::now();
+    auto tpStart = chrono::high_resolution_clock::now();
 
     while (1) {
-        chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tmStart;
+        chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tpStart;
         if (dtm >= dtmTotal)
             break;
         RC rc = rcFrom + dpt * (float)(dtm / dtmTotal);
@@ -62,7 +62,7 @@ void WNBD::ShowMv(MV mv, bool fAnimate)
 
 CO WNBD::CoBack(void) const
 {
-    CO co(coIvory);
+    CO co(CO(0.97f,0.96f,0.90f));
     if (!FEnabled())
         co.MakeGrayscale();
     return co;
@@ -70,7 +70,7 @@ CO WNBD::CoBack(void) const
 
 CO WNBD::CoText(void) const
 {
-    CO co(coDarkGreen.CoSetValue(0.5f));
+    CO co(CO(0.45f,0.60f,0.35f));
     if (!FEnabled())
         co.MakeGrayscale();
     return co;
@@ -395,6 +395,8 @@ void WNBOARD::EnableUI(bool fEnableNew)
 
 void WNBOARD::Hover(const PT& pt)
 {
+    if (!fEnableMoveUI)
+        return;
     SQ sqHit;
     if (FPtToSq(pt, sqHit) && FLegalSqFrom(sqHit))
         SetCurs(Wapp(iwapp).cursHand);
@@ -421,6 +423,9 @@ void WNBOARD::SetDefCurs(void)
 
 void WNBOARD::BeginDrag(const PT& pt, unsigned mk)
 {
+    if (!fEnableMoveUI)
+        return;
+
     SQ sqHit;
     if (!FPtToSq(pt, sqHit) || !FLegalSqFrom(sqHit))
         return;
@@ -434,6 +439,9 @@ void WNBOARD::BeginDrag(const PT& pt, unsigned mk)
 
 void WNBOARD::Drag(const PT& pt, unsigned mk)
 {
+    if (!fEnableMoveUI)
+        return;
+
     SQ sqHit = sqNil;
     MV mvHit;
     if (!FPtToSq(pt, sqHit) || !FLegalSqTo(sqDragFrom, sqHit, mvHit))
@@ -447,6 +455,9 @@ void WNBOARD::Drag(const PT& pt, unsigned mk)
 
 void WNBOARD::EndDrag(const PT& pt, unsigned mk)
 {
+    if (!fEnableMoveUI)
+        return;
+
     SQ sqHit;
     MV mvHit;
     if (FPtToSq(pt, sqHit) && FLegalSqTo(sqDragFrom, sqHit, mvHit)) {
@@ -471,11 +482,11 @@ void WNBOARD::FlipCpc(void)
 
     float angleEnd = -180;
     constexpr chrono::milliseconds dtmTotal(900);
-    auto tmStart = chrono::high_resolution_clock::now();
+    auto tpStart = chrono::high_resolution_clock::now();
 
     while (angleDraw > angleEnd) {
         Redraw();
-        chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tmStart;
+        chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tpStart;
         angleDraw = angleEnd * dtm / dtmTotal;
         // this_thread::sleep_for(chrono::milliseconds(8));
     }

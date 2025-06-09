@@ -21,6 +21,7 @@
 #define cmdTestPerftSuite 20
 #define cmdTestPolyglot 21
 #define cmdTestAI 22
+#define cmdOpenFile 23
 
 /*
  *  Accelerator tables
@@ -42,13 +43,16 @@
 #define rssErrPasteFailed 128
 #define rssErrCopyFailed 129
 #define rssErrFenParse 130
-#define rssErrFenParseUnexpectedChar 131
-#define rssErrFenParseMissingPart 132
-#define rssErrChoosePlayerType 133
-#define rssErrChooseAILevel 134
-#define rssErrProvideHumanName 135
-#define rssErrFenBadHalfMoveClock 136
-#define rssErrFenBadFullMoveNumber 137
+#define rssErrEpdParse 131
+#define rssErrPgnParse 132
+#define rssErrFenParseUnexpectedChar 133
+#define rssErrFenParseMissingPart 134
+#define rssErrChoosePlayerType 135
+#define rssErrChooseAILevel 136
+#define rssErrProvideHumanName 137
+#define rssErrFenBadHalfMoveClock 138
+#define rssErrFenBadFullMoveNumber 139
+#define rssErrEpdNoEndQuote 140
 
 #define rssColor 256
 #define rssWhite 256

@@ -15,6 +15,7 @@
 
 static const int8_t adicpbdBishop[] = { -11, -9, 9, 11 };
 static const int8_t adicpbdRook[] = { -10, -1, 1, 10 };
+static const int8_t adicpbdQueen[] = { -11, -10, -9, -1, 1, 9, 10, 11 };
 static const int8_t adicpbdKnight[] = { -21, -19, -12, -8, 8, 12, 19, 21 };
 static const int8_t adicpbdKing[] = { -11, -10, -9, -1, 1, 9, 10, 11 };
 static const int8_t adicpbdPawn[] = { 9, 11, -11, -9 };  /* first 2 are white, second 2 are black */
@@ -140,6 +141,12 @@ bool BD::FLastMoveWasLegal(void) const noexcept
 
     int icpbdKing = IcpbdFindKing(~cpcToMove);
     return !FIsAttackedBy(icpbdKing, cpcToMove);
+}
+
+bool BD::FMvIsCapture(const MV& mv) const noexcept
+{
+    return (*this)[mv.sqTo].cpc == ~cpcToMove || 
+           ((*this)[mv.sqFrom].cpt == cptPawn && mv.sqTo == sqEnPassant);
 }
 
 void BD::MoveGenPawn(int8_t icpbdFrom, VMV& vmv) const noexcept
@@ -349,6 +356,30 @@ bool BD::FIsAttackedBy(int8_t icpbdAttacked, CPC cpcBy) const noexcept
     if (FIsAttackedBySingle(icpbdAttacked, Cp(cpcBy, cptKing), adicpbdKing, size(adicpbdKing)))
         return true;
     return false;
+}
+
+/*
+ *  BD::CptSqAttackedBy
+ * 
+ *  Returns the type of the weakest piece that is attacking the square
+ */
+
+CPT BD::CptSqAttackedBy(SQ sq, CPC cpcBy) const noexcept
+{
+    int8_t icpbdAttacked = IcpbdFromSq(sq);
+    if (FIsAttackedBySingle(icpbdAttacked, Cp(cpcBy, cptPawn), &adicpbdPawn[(~cpcBy) * 2], 2))
+        return cptPawn;
+    if (FIsAttackedBySingle(icpbdAttacked, Cp(cpcBy, cptKnight), adicpbdKnight, size(adicpbdKnight)))
+        return cptKnight;
+    if (FIsAttackedBySlider(icpbdAttacked, (1 << cptBishop) << (cpcBy << 3), adicpbdBishop, size(adicpbdBishop)))
+        return cptBishop;
+    if (FIsAttackedBySlider(icpbdAttacked, (1 << cptRook) << (cpcBy << 3), adicpbdRook, size(adicpbdRook)))
+        return cptRook;
+    if (FIsAttackedBySlider(icpbdAttacked, (1 << cptQueen) << (cpcBy << 3), adicpbdQueen, size(adicpbdQueen)))
+        return cptQueen;
+    if (FIsAttackedBySingle(icpbdAttacked, Cp(cpcBy, cptKing), adicpbdKing, size(adicpbdKing)))
+        return cptKing;
+    return cptNone;
 }
 
 bool BD::FIsAttackedBySingle(int8_t icpbdAttacked, CP cp, const int8_t adicpbd[], int8_t cdicpbd) const noexcept

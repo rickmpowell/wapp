@@ -38,6 +38,7 @@ public:
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
 
+    virtual bool FRun(void);
     virtual void EnterPump(void) override;
     virtual int QuitPump(MSG& msg) override;
     virtual bool FQuitPump(MSG& msg) const override;
@@ -50,6 +51,42 @@ public:
 protected:
     bool fEnd;
     int val;
+};
+
+/*
+ *  DLGFILEOPEN
+ * 
+ *  Weird little wrapper that brings up the standard Windows open dialog. 
+ *
+ *  TODO: we can probably make this a lot more compatible with the DLG
+ */
+
+class DLGFILE : public DLG
+{
+public:
+    DLGFILE(IWAPP& wapp);
+
+protected:
+    void BuildFilter(wchar_t* wsFilter, int cchFilter);
+
+public:
+    map<string, string> mpextsLabel;
+    string extDefault;
+    string path;
+};
+
+class DLGFILEOPEN : public DLGFILE
+{
+public:
+    DLGFILEOPEN(IWAPP& wapp);
+    virtual bool FRun(void) override;
+};
+
+class DLGFILESAVE : public DLGFILE
+{
+public:
+    DLGFILESAVE(IWAPP& wapp);
+    virtual bool FRun(void) override;
 };
 
 /*

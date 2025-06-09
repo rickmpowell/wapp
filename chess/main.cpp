@@ -81,12 +81,12 @@ int WAPP::MsgPump(void)
             FExecuteCmd(*qpcmd.front());
             qpcmd.pop();
         }
+        else if (FGetMsg(msg)) {
+            ProcessMsg(msg);
+            if (FQuitPump(msg))
+                break;
+        }
         else {
-            if (FGetMsg(msg)) {
-                ProcessMsg(msg);
-                if (FQuitPump(msg))
-                    break;
-            }
             while (!FPeekMsg(msg) && FIdle())
                 ;
         }
@@ -147,8 +147,8 @@ public:
         if (!FRunDlg(dlg))
             return 0;
         gameUndo = wapp.game;
-        dlg.Extract(wapp.game);
         wapp.game.End();
+        dlg.Extract(wapp.game);
         wapp.game.cgaPlayed++;
         wapp.game.Start();
         wapp.game.RequestMv(wapp);
@@ -174,6 +174,57 @@ public:
 
     virtual bool FMenuS(string& s, CMS cms) const override {
         s = wapp.SLoad(rssNewGame);
+        return true;
+    }
+
+private:
+    GAME gameUndo;
+};
+
+/*
+ *  CMDOPENFILE
+ * 
+ *  Opens a PGN file
+ */
+
+CMD_DECLARE(CMDOPENFILE)
+{
+public:
+    CMDOPENFILE(WAPP & wapp) : CMD(wapp) {}
+
+    virtual int Execute(void) override
+    {
+        wapp.game.Pause();
+        DLGFILEOPEN dlg(wapp);
+        dlg.mpextsLabel["pgn"] = "PGN Files (*.pgn)";
+        dlg.mpextsLabel["epd"] = "EPD files (*.epd)";
+        dlg.mpextsLabel["fen"] = "FEN files (*.fen)";
+        dlg.mpextsLabel["txt"] = "Text files (*.txt)";
+        dlg.mpextsLabel["*"] = "All files (*.*)";
+        dlg.extDefault = "pgn";
+        if (!dlg.FRun())
+            return 0;
+        gameUndo = wapp.game;
+        wapp.game.End();
+        ifstream is(dlg.path);
+        try {
+            wapp.game.InitFromPgn(is);
+        }
+        catch (ERR err) {
+            wapp.Error(ERRAPP(rssErrPgnParse), err);
+        }
+        return 1;
+    }
+
+    virtual int Undo(void) override
+    {
+        wapp.game = gameUndo;
+        wapp.game.NotifyBdChanged();
+        return 1;
+    }
+
+    virtual bool FUndoable(void) const override
+    {
         return true;
     }
 
@@ -484,6 +535,7 @@ bool CMDFLIPBOARD::FMenuS(string& s, ICMD::CMS cms) const {
 void WAPP::RegisterMenuCmds(void)
 {
     REGMENUCMD(cmdNewGame, CMDNEWGAME);
+    REGMENUCMD(cmdOpenFile, CMDOPENFILE);
     REGMENUCMD(cmdFlipBoard, CMDFLIPBOARD);
     REGMENUCMD(cmdExit, CMDEXIT);
  

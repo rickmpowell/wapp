@@ -276,7 +276,7 @@ void GAME::InitFromEpd(istream& is)
     if (mpopvalepd.find("fmvn") != mpopvalepd.end())
         bd.SetHalfMoveClock((int)mpopvalepd["fmvn"][0].w);
 
-    tmStart = chrono::system_clock::now();
+    tpStart = chrono::system_clock::now();
     gs = GS::Paused;
 
     NotifyBdChanged();
@@ -330,7 +330,7 @@ bool GAME::FReadEpdOpValue(istream& is, const string& op)
         string sVal;
         while (1) {
             if (is.get(ch).eof())
-                throw;  // TODO: error - no end quote
+                throw ERRAPP(rssErrEpdNoEndQuote);  // TODO: error - no end quote
             if (ch == '"')
                 break;
             sVal += ch;
@@ -441,31 +441,31 @@ string GAME::EpdRender(void)
 }
 
 /*
- *  GAME::MvParseEpd
+ *  GAME::MvParseSan
  *
- *  Parses an EPD move string. Because the EPD spec uses disambiguation, we
- *  need a current board state in order to parse these strings.
+ *  Parses a Standard Algebraic Notation move string. Because the EPD spec 
+ *  uses disambiguation, we need a current board state in order to parse 
+ *  these strings.
  */
 
-MV GAME::MvParseEpd(string_view s) const
+MV GAME::MvParseSan(string_view s) const
 {
     CPT cpt = cptPawn;
     int raDisambig = -1;
     int fiDisambig = -1;
     CPT cptPromote = cptNone;
+    CS csMove = csNone;
     SQ sqTo;
     int ich = 0;
 
     /* test for castles */
 
     if (s == "O-O") {
-        cpt = cptKing;
-        sqTo = Sq(RaBack(bd.cpcToMove), fiG);
+        csMove = csKing;
         goto Lookup;
     }
     if (s == "O-O-O") {
-        cpt = cptKing;
-        sqTo = Sq(RaBack(bd.cpcToMove), fiC);
+        csMove = csQueen;
         goto Lookup;
     }
 
@@ -484,9 +484,9 @@ MV GAME::MvParseEpd(string_view s) const
     if (ich + 1 >= s.size())
         throw;
     if (inrange(s[ich], '1', '8'))
-        fiDisambig = s[ich++] - '1';
+        raDisambig = s[ich++] - '1';
     else if (inrange(s[ich], 'a', 'h') && (s[ich + 1] == 'x' || inrange(s[ich + 1], 'a', 'h')))
-        raDisambig = s[ich++] - 'a';
+        fiDisambig = s[ich++] - 'a';
 
     /* skip over capture */
     if (ich >= s.size())
@@ -526,7 +526,11 @@ Lookup:
     VMV vmv;
     bd.MoveGen(vmv);
     for (MV& mv : vmv) {
-        if ((sqTo == mv.sqTo && bd[mv.sqFrom].cpt == cpt) &&
+        if (csMove) {
+            if (csMove == mv.csMove)
+                return mv;
+        }
+        else if ((sqTo == mv.sqTo && bd[mv.sqFrom].cpt == cpt) &&
             (fiDisambig == -1 || fi(mv.sqFrom) == fiDisambig) &&
             (raDisambig == -1 || ra(mv.sqFrom) == raDisambig) &&
             (cptPromote == cptNone || mv.cptPromote == cptPromote))
@@ -548,11 +552,13 @@ Lookup:
 
 void GAME::InitFromPgn(istream& is)
 {
-    tmStart = chrono::system_clock::now();  // default date
+    tpStart = chrono::system_clock::now();  // default date
     gs = GS::GameOver;  // PGN files are generally completed games
 
-    /* TODO: read the header */
-    /* TODO: read the move list */
+    string key, sVal;
+    while (FReadPgnTagPair(is, key, sVal))
+        SaveTagPair(key, sVal);
+    ReadPgnMoveList(is);
     
     NotifyBdChanged();
 }
@@ -562,6 +568,109 @@ void GAME::InitFromPgn(const string& pgn)
     istringstream is(pgn);
     InitFromPgn(is);
 }
+
+bool GAME::FReadPgnTagPair(istream& is, string& tag, string& sVal)
+{
+    string sLine;
+    if (!getline(is, sLine) || sLine.size() == 0)
+        return false;
+
+    /* must have opening bracket */
+    auto pch = sLine.begin();
+    if (*pch++ != '[')
+        throw;
+    
+    /* read tag */
+    for (tag = ""; pch < sLine.end(); tag += *pch++)
+        if (*pch == ' ')
+            break;
+    if (pch == sLine.end())
+        throw;
+    pch++;
+    if (pch == sLine.end())
+        throw;
+
+    /* value is either a quoted string or an unquoted run of text terminated by the ] */
+    if (*pch == '"') {
+        pch++;
+        for (sVal = ""; pch < sLine.end(); sVal += *pch++) {
+            if (*pch == '"') {
+                pch++;
+                break; 
+            }
+        }
+    }
+    else {
+        for (sVal = string(1, *pch++); pch < sLine.end(); sVal += *pch++)
+            if (*pch == ']')
+                break;
+    }
+
+    /* must have closing bracket */
+    if (pch == sLine.end() || *pch != ']')
+        throw;
+    pch++;
+    if (pch != sLine.end())
+        throw;
+
+    return true;
+}
+
+void GAME::SaveTagPair(const string& tag, const string& sVal)
+{
+    /* should do special cases of the tags we know about, and then save
+       all other tags as generic strings */
+}
+
+void GAME::ReadPgnMoveList(istream& is)
+{
+    InitFromFen(fenStartPos);
+
+    string s;
+    while (is >> s) {
+        if (s.empty())
+            break;
+        if (isdigit(*s.begin()))
+            ParsePgnMoveNumber(s);
+        else
+            ParseAndMakePgnMove(s);
+    }
+}
+
+void GAME::ParsePgnMoveNumber(const string& s)
+{
+    assert(s.size() > 0);
+    int fmn = 0;
+    auto pch = s.begin();
+    for ( ; pch != s.end(); ++pch) {
+        if (!isdigit(*pch)) {
+            if (*pch == '.')
+                break;
+            throw;
+        }
+        fmn = 10 * fmn + *pch - '0';
+    }
+
+    int cchDot = 0;
+    for (; pch != s.end(); ++pch) {
+        if (*pch != '.')
+            throw;
+        cchDot++;
+    }
+
+    /* TODO: pad the game moves with nil moves if number is not 1 */
+    /* TODO: don't forget ... for the dots after the number */
+}
+
+void GAME::ParseAndMakePgnMove(const string& s)
+{
+    MV mv = MvParseSan(s);
+    bd.MakeMv(mv);
+}
+
+/*
+ *  write pgn files
+ */
 
 void GAME::RenderPgn(ostream& os) const
 {
@@ -581,10 +690,9 @@ string GAME::PgnRender(void) const
 void GAME::RenderPgnHeader(ostream& os) const
 {
     /* render the standard 7 header items */
-
     RenderPgnTagPair(os, "Event", sEvent);
     RenderPgnTagPair(os, "Site", sSite);
-    RenderPgnTagPair(os, "Date", SPgnDate(tmStart));
+    RenderPgnTagPair(os, "Date", SPgnDate(tpStart));
     RenderPgnTagPair(os, "Round", "");
     RenderPgnTagPair(os, "White", appl[cpcWhite]->SName());
     RenderPgnTagPair(os, "Black", appl[cpcBlack]->SName());
@@ -745,8 +853,11 @@ string BD::SDecodeMvu(const MVU& mvu) const
 Checks:
     BD bdT = *this;
     bdT.MakeMv(mvu);
-    if (bdT.FInCheck(bdT.cpcToMove))
-        s += '+';
+    if (bdT.FInCheck(bdT.cpcToMove)) {
+        VMV vmv;
+        bdT.MoveGen(vmv);
+        s += vmv.size() == 0 ? '#' : '+';
+    }
 
     return s;
 }

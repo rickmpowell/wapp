@@ -1,4 +1,11 @@
 
+/*
+ *  movelist.cpp
+ * 
+ *  The Move List window, which includes clocks, player names, and game
+ *  state information.
+ */
+
 #include "chess.h"
 
 WNML::WNML(WN& wnParent, GAME& game) :
@@ -55,19 +62,30 @@ void WNML::Wheel(const PT& pt, int dwheel)
 
 void WNML::DrawLine(const RC& rcLine, int li)
 {
+    /* draw the move number */
     RC rc = rcLine.RcInflate(0, -2);
     DrawSCenter(to_string(li+1), tf, rc.RcSetWidth(dxMoveNum));
-
-    int imv = li * 2;
-    if (imv >= game.bd.vmvuGame.size())
+    int imvDraw = li * 2;
+    if (imvDraw >= game.bd.vmvuGame.size())
         return;
+
+    /* compute the area the moves are drawn in */
     rc.Inflate(-dxMoveNum, 0);
     rc.right = rc.ptCenter().x;
-    DrawSCenter(to_string(game.bd.vmvuGame[imv]), tf, rc);
 
-    if (++imv >= game.bd.vmvuGame.size())
+    /* need the complete board state to decode move strings */
+    BD bdT(fenStartPos);
+    for (int imv = 0; imv < imvDraw; imv++)
+        bdT.MakeMv(game.bd.vmvuGame[imv]);
+
+    /* draw the white player's move */
+    DrawSCenter(bdT.SDecodeMvu(game.bd.vmvuGame[imvDraw]), tf, rc);
+
+    /* draw the black palyer's move */
+    if (imvDraw+1 >= game.bd.vmvuGame.size())
         return;
-    DrawSCenter(to_string(game.bd.vmvuGame[imv]), tf, rc.RcTileRight());
+    bdT.MakeMv(game.bd.vmvuGame[imvDraw]);
+    DrawSCenter(bdT.SDecodeMvu(game.bd.vmvuGame[imvDraw+1]), tf, rc.RcTileRight());
 }
 
 float WNML::DyLine(void) const
@@ -153,7 +171,7 @@ CO WNCLOCK::CoText(void) const
 void WNCLOCK::Draw(const RC& rcUpdate)
 {
     // Draw the clock for the player
-    DrawSCenter("00:00.0", tf, RcInterior());
+    DrawSCenter("0:00.0", tf, RcInterior());
 
     TF tfControls(*this, "Segoe UI", 12, TF::WEIGHT::Bold, TF::STYLE::Italic);
     RC rc(RcInterior());

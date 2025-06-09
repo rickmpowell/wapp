@@ -490,9 +490,27 @@ inline bool FEvIsMate(EV ev) noexcept
     return ev >= evMateMin;
 }
 
-inline int DFromEvMate(EV ev) noexcept
+/*
+ *  EVENUM
+ * 
+ *  This is a enumeration state, in order from most likely to cause
+ *  an alpha-beta cut.
+ */
+
+enum class EVENUM
 {
-    return evMate - ev;
+    None = 0,
+    PV = 1,
+    GoodCapt = 2,
+    Other = 3,
+    BadCapt = 4,
+    Max = 5
+};
+
+inline EVENUM& operator ++ (EVENUM& evenum) noexcept
+{
+    evenum = static_cast<EVENUM>(static_cast<int>(evenum) + 1);
+    return evenum;
 }
 
 /*
@@ -509,17 +527,19 @@ public:
     SQ sqTo = sqNil;
     CPT cptPromote = cptNone;
     CS csMove = csNone;     // set on castle moves
+
+    EVENUM evenum = EVENUM::None;
     EV ev = 0;
 
     inline MV(void) noexcept
     {
     }
     
-    inline MV(SQ sqFrom, SQ sqTo, CPT cptPromote = cptNone) noexcept :
+    inline MV(SQ sqFrom, SQ sqTo, CPT cptPromote = cptNone, CS csMove = csNone) noexcept :
         sqFrom(sqFrom), 
         sqTo(sqTo), 
         cptPromote(cptPromote), 
-        csMove(csNone) 
+        csMove(csMove) 
     {
     }
     
@@ -538,10 +558,28 @@ public:
         csMove(csMove) 
     {
     }
+
+    inline MV(EV ev) noexcept :
+        ev(ev)
+    {
+    }
     
     inline bool fIsNil(void) const noexcept
     {
         return sqFrom == sqNil;
+    }
+
+    bool operator == (const MV & mv) const noexcept
+    {
+        return sqFrom == mv.sqFrom &&
+               sqTo == mv.sqTo &&
+               csMove == mv.csMove &&
+               cptPromote == mv.cptPromote;
+    }
+
+    bool operator != (const MV& mv) const noexcept
+    {
+        return !(*this == mv);
     }
 };
 
@@ -612,12 +650,18 @@ public:
     class siterator : public iterator
     {
     public:
-        inline siterator(PLCOMPUTER* ppl, MV* pmv, MV* pmvMac) noexcept;
+        inline siterator(PLCOMPUTER* pl, BD* pbd, MV* pmv, MV* pmvMac) noexcept;
         inline siterator& operator ++ () noexcept;
         inline siterator operator ++ (int) noexcept { siterator it = *this; ++(*this); return it; }
     private:
         void NextBestScore(void) noexcept;
+        void InitEvEnum(void) noexcept;
+        EV ScoreCapture(const MV& mv) noexcept;
+        EV ScoreOther(const MV& mv) noexcept;
+
         PLCOMPUTER* ppl;
+        BD* pbd;
+        EVENUM evenum = EVENUM::None;
         MV* pmvMac;
     };
 
@@ -636,7 +680,7 @@ public:
 
     /* smart sorted iterator used in alpha-beta pruning - can't be const because we
        sort as we go */
-    siterator sbegin(PLCOMPUTER& pl) noexcept;
+    siterator sbegin(PLCOMPUTER& pl, BD& bd) noexcept;
     siterator send(void) noexcept;
 
     template <typename... ARGS>
@@ -720,7 +764,7 @@ public:
 
     /* make and undo move */
 
-    void MakeMv(MV mv) noexcept;
+    void MakeMv(const MV& mv) noexcept;
     void UndoMv(void) noexcept;
     bool FMakeMvLegal(const MV& mv) noexcept;
 
@@ -733,9 +777,11 @@ public:
 
     bool FInCheck(CPC cpc) const noexcept;
     bool FIsAttackedBy(int8_t icpAttacked, CPC cpcBy) const noexcept;
+    CPT CptSqAttackedBy(SQ sq, CPC cpcBy) const noexcept;
+    bool FMvIsCapture(const MV& mv) const noexcept;
 
     int PhaseCur(void) const noexcept;
-    bool FGameDrawn(void) const noexcept;
+    bool FGameDrawn(int cbd) const noexcept;
     bool FDrawRepeat(int cbdDraw) const noexcept;
 
     /* FEN reading and writing */

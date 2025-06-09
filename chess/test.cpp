@@ -145,6 +145,12 @@ protected:
 	WNLOG& wnlog;
 };
 
+/*
+ *	CMDSAVETEST
+ *
+ *	The save button on the test window, which just saves the log 
+ */
+
 class CMDSAVETEST : public CMD<CMDSAVETEST, WAPP>
 {
 public:
@@ -152,6 +158,16 @@ public:
 
 	virtual int Execute(void) override
 	{
+		DLGFILESAVE dlg(wapp);
+		dlg.mpextsLabel["log"] = "Log File (*.log)";
+		dlg.mpextsLabel["txt"] = "Text File (*.txt)";
+		dlg.mpextsLabel["*"] = "All Files (*.*)";
+		dlg.path = "chess.log";
+		dlg.extDefault = "log";
+		if (!dlg.FRun())
+			return 0;
+		ofstream os(dlg.path);
+		wnlog.RenderLog(os);
 		return 1;
 	}
 
@@ -205,9 +221,9 @@ void WAPP::RunPerft(void)
 	case TPERFT::Bulk:
 	{
 		for (int d = 1; d <= wnlog.dPerft; d++) {
-			auto tmStart = chrono::high_resolution_clock::now();
+			auto tpStart = chrono::high_resolution_clock::now();
 			int64_t cmv = wnlog.tperft == TPERFT::Perft ? game.bd.CmvPerft(d) : game.bd.CmvBulk(d);
-			chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tmStart;
+			chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tpStart;
 			wnlog << (wnlog.tperft == TPERFT::Perft ? "Perft" : "Bulk") << " " 
 				  << dec << d << ": " 
 				  << cmv << endl;

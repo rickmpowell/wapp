@@ -17,6 +17,7 @@ PL::PL(void)
 PLCOMPUTER::PLCOMPUTER(const SETAI& set) :
     set(set)
 {
+    xt.SetSize(64 * 0x100000UL);
 }
 
 string PLCOMPUTER::SName(void) const
@@ -60,7 +61,8 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
 {
     /* prepare for search */
     InitStats();
-    InitWeightTables();
+    InitPsts();
+    xt.Init();
 
     /* generate all possible legal moves */
     BD bd(bdGame);
@@ -68,25 +70,27 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
     bd.MoveGen(vmv);
     cmvMoveGen += vmv.size();
 
-    /* prepare to find best move */
-    MV mvBest;
-    AB ab(-evInfinity, evInfinity);
-
     /* log some handy stuff */
     *pwnlog << to_string(bd.cpcToMove) << " to move" << endl;
     *pwnlog << indent(1) << bd.FenRender() << endl;
     *pwnlog << indent(1) << "Eval: " << EvStatic(bd) << endl;
 
-    for (int dLim = 1; dLim <= set.level + 1; dLim++) {    // iterative deepening loop
+    MV mvBest;
+
+    int dLevel = set.level + 1;
+    for (int dLim = 1; dLim <= dLevel; dLim++) {    // iterative deepening loop
+        AB ab(-evInfinity, evInfinity);
+        mvBest.ev = -evInfinity;
         *pwnlog << indent(1) << "Depth: " << dLim << endl;
-        for (VMV::siterator pmv = vmv.sbegin(*this); pmv != vmv.send(); ++pmv) {
+        for (VMV::siterator pmv = vmv.sbegin(*this, bd); pmv != vmv.send(); ++pmv) {
             *pwnlog << indent(2) << to_string(*pmv) << " ";
             bd.MakeMv(*pmv);
-            pmv->ev = -EvSearch(bd, -ab, 0, dLim);
+            pmv->ev = -EvSearch(bd, -ab, 1, dLim);
             bd.UndoMv();
             *pwnlog << pmv->ev << endl;
             ab.FPrune(*pmv, mvBest);
         }
+        SaveXt(bd, mvBest, AB(-evInfinity, evInfinity), 0, dLim);
     }
 
     chrono::time_point<chrono::high_resolution_clock> tpEnd = chrono::high_resolution_clock::now();
@@ -106,34 +110,45 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
 
 EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
 {
+    FInterrupt();
+
     bool fInCheck = bd.FInCheck(bd.cpcToMove);
     dLim += fInCheck;
 
     if (d >= dLim)
         return EvQuiescent(bd, ab, d);
 
-    FInterrupt();
-    if (bd.FGameDrawn())
-        return evDraw;
     cmvSearch++;
 
+    if (bd.FGameDrawn(2))
+        return evDraw;
+
+    MV mvBest;
+    if (FLookupXt(bd, mvBest, ab, d, dLim))
+        return mvBest.ev;
+
+    AB abInit(ab);
     VMV vmv;
     bd.MoveGenPseudo(vmv);
     cmvMoveGen += vmv.size();
     int cmvLegal = 0;
-    for (VMV::siterator pmv = vmv.sbegin(*this); pmv != vmv.send(); ++pmv) {
+
+    for (VMV::siterator pmv = vmv.sbegin(*this, bd); pmv != vmv.send(); ++pmv) {
         if (!bd.FMakeMvLegal(*pmv))
             continue;
         cmvLegal++;
         pmv->ev = -EvSearch(bd, -ab, d+1, dLim);
         bd.UndoMv();
-        if (ab.FPrune(*pmv))
+        if (ab.FPrune(*pmv, mvBest)) {
+            SaveXt(bd, *pmv, ab, d, dLim);
             return ab.evBeta;
+        }
     }
 
     if (cmvLegal == 0)
         return fInCheck ? -EvMate(d) : evDraw;
 
+    SaveXt(bd, mvBest, abInit, d, dLim);
     return ab.evAlpha;
 }
 
@@ -179,22 +194,25 @@ EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
  *  does lazy evaluation
  */
 
-VMV::siterator VMV::sbegin(PLCOMPUTER& pl) noexcept
+VMV::siterator VMV::sbegin(PLCOMPUTER& pl, BD& bd) noexcept
 {
-    return siterator(&pl, &reinterpret_cast<MV*>(amv)[0],
-                          &reinterpret_cast<MV*>(amv)[imvMac]);
+    return siterator(&pl, &bd, 
+                     &reinterpret_cast<MV*>(amv)[0],
+                     &reinterpret_cast<MV*>(amv)[imvMac]);
 }
 
 VMV::siterator VMV::send(void) noexcept
 {
-    return siterator(nullptr, &reinterpret_cast<MV*>(amv)[imvMac], nullptr);
+    return siterator(nullptr, nullptr, &reinterpret_cast<MV*>(amv)[imvMac], nullptr);
 }
 
-VMV::siterator::siterator(PLCOMPUTER* ppl, MV* pmv, MV* pmvMac) noexcept :
+VMV::siterator::siterator(PLCOMPUTER* ppl, BD* pbd, MV* pmv, MV* pmvMac) noexcept :
     iterator(pmv),
     pmvMac(pmvMac),
-    ppl(ppl)
+    ppl(ppl),
+    pbd(pbd)
 {
+    InitEvEnum();
     NextBestScore();
 }
 
@@ -209,12 +227,236 @@ void VMV::siterator::NextBestScore(void) noexcept
 {
     if (pmvCur >= pmvMac)
         return;
-    MV* pmvBest = pmvCur;
-    for (MV* pmv = pmvCur + 1; pmv < pmvMac; pmv++)
-        if (pmv->ev > pmvBest->ev)
-            pmvBest = pmv;
+
+    MV* pmvBest;
+    while (1) {
+        switch (evenum) {
+        case EVENUM::None:
+            break;
+        case EVENUM::PV:
+        {
+            pmvBest = pmvCur;
+            XTEV* pxtev = ppl->xt.Find(*pbd, 1, 1);
+            if (pxtev != nullptr && (EVT)pxtev->evt == EVT::Equal) {
+                for (pmvBest = pmvCur; pmvBest < pmvMac; pmvBest++)
+                    if (*pmvBest == pxtev->Mv())
+                        goto GotIt;
+            }
+            break;
+        }
+        case EVENUM::GoodCapt:
+        case EVENUM::Other:
+        case EVENUM::BadCapt:
+            pmvBest = nullptr;
+            for (MV* pmv = pmvCur; pmv < pmvMac; pmv++)
+                if (pmv->evenum == evenum && (!pmvBest || pmv->ev > pmvBest->ev))
+                    pmvBest = pmv;
+            if (pmvBest)
+                goto GotIt;
+            break;
+        case EVENUM::Max:
+            /* should go through all the moves before we get here */
+            assert(false);
+            break;
+        }
+        /* move to next enum type */
+        ++evenum;
+        InitEvEnum();
+    }
+
+GotIt:
     if (pmvBest != pmvCur)
         swap(*pmvBest, *pmvCur);
+}
+
+void VMV::siterator::InitEvEnum(void) noexcept
+{
+    switch (evenum) {
+    case EVENUM::None:
+        for (MV* pmv = pmvCur; pmv < pmvMac; pmv++)
+            pmv->evenum = EVENUM::None;
+        break;
+
+    case EVENUM::PV:
+        break;
+
+    case EVENUM::GoodCapt:
+        for (MV* pmv = pmvCur; pmv < pmvMac; pmv++) {
+            if (pbd->FMvIsCapture(*pmv)) {
+                pmv->ev = ScoreCapture(*pmv);
+                pmv->evenum = pmv->ev > -200 ? EVENUM::GoodCapt : EVENUM::BadCapt;
+            }
+        }
+        break;
+
+    case EVENUM::Other:
+        for (MV* pmv = pmvCur; pmv < pmvMac; pmv++) {
+            if (pmv->evenum != EVENUM::None)
+                continue;
+            pmv->ev = ScoreOther(*pmv);
+            pmv->evenum = EVENUM::Other;
+        }
+        break;
+
+    case EVENUM::BadCapt:
+        /* these are scored in the GoodCapt */
+        break;
+    }
+}
+
+EV VMV::siterator::ScoreCapture(const MV& mv) noexcept
+{
+    EV ev = ppl->ScoreCapture(*pbd, mv);
+    return ev;
+}
+
+EV VMV::siterator::ScoreOther(const MV& mv) noexcept
+{
+    EV ev = -ppl->ScoreMove(*pbd, mv);
+    return ev;
+}
+
+/*
+ *  PLCOMPUTER::FLookupXt
+ *
+ *  Checks the transposition table for a board entry at the given search depth.
+ *  Returns true if we should stop the search at this point, either because we
+ *  found an exact match of the board / depth, or the inexact match is outside
+ *  the alpha / beta interval.
+ *
+ *  mveBest will contain the evaluation we should use if we stop the search.
+ */
+ 
+bool PLCOMPUTER::FLookupXt(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
+{
+    /* look for the entry in the transposition table */
+
+    XTEV* pxtev = xt.Find(bd, d, dLim);
+    if (pxtev == nullptr)
+        return false;
+
+    /* adjust the value based on alpha-beta interval */
+    switch ((EVT)pxtev->evt) {
+    case EVT::Equal:
+        mvBest.ev = pxtev->Ev(d);
+        break;
+    case EVT::Higher:
+        if (pxtev->Ev(d) < ab.evBeta)
+            return false;
+        mvBest.ev = ab.evBeta;
+        break;
+    case EVT::Lower:
+        if (pxtev->Ev(d) > ab.evAlpha)
+            return false;
+        mvBest.ev = ab.evAlpha;
+        break;
+    default:
+        return false;
+    }
+
+    pxtev->GetMv(mvBest);
+
+    return true;
+}
+
+/*	
+ *  PLCOMPUTER::SaveXt
+ *
+ *	Saves the evaluated board in the transposition table, including the depth,
+ *	best move, and making sure we keep track of whether the eval was outside
+ *	the a-b window.
+ */
+
+XTEV* PLCOMPUTER::SaveXt(BD &bd, const MV& mvBest, AB ab, int d, int dLim) noexcept
+{
+    /*
+    if (FEvIsInterrupt(mveBest.ev))
+        return nullptr;
+    */
+
+    EV evBest = mvBest.ev;
+
+    if (evBest <= ab.evAlpha)
+        return xt.Save(bd, EVT::Lower, evBest, mvBest, d, dLim);
+    if (evBest >= ab.evBeta)
+        return xt.Save(bd, EVT::Higher, evBest, mvBest, d, dLim);
+    return xt.Save(bd, EVT::Equal, evBest, mvBest, d, dLim);
+}
+
+/*
+ *  XTEV 
+ * 
+ *  Transpositiont table entries
+ */
+
+void XTEV::Save(HA ha, EVT evt, EV ev, const MV& mvBest, int d, int dLim) noexcept
+{
+    if (FEvIsMate(ev))
+        ev -= d;
+    else if (FEvIsMate(-ev))
+        ev += d;
+
+    this->ha = ha;
+    this->evt = static_cast<int8_t>(evt);
+    this->evBiased = ev;
+    this->dd = dLim - d;
+    this->mvBest.sqFrom = mvBest.sqFrom;
+    this->mvBest.sqTo = mvBest.sqTo;
+    this->mvBest.csMove = mvBest.csMove;
+    this->mvBest.cptPromote = mvBest.cptPromote;
+}
+
+void XTEV::GetMv(MV& mv) const noexcept
+{
+    mv.sqFrom = mvBest.sqFrom;
+    mv.sqTo = mvBest.sqTo;
+    mv.csMove = mvBest.csMove;
+    mv.cptPromote = mvBest.cptPromote;
+}
+
+/*
+ *  XT
+ * 
+ *  The transposition table
+ */
+
+XTEV* XT::Find(const BD& bd, int d, int dLim) noexcept
+{
+    XTEV& xtev = (*this)[bd];
+    if (xtev.ha == bd.ha && dLim - d <= xtev.dd)
+        return &xtev;
+
+    return nullptr;
+}
+
+XTEV* XT::Save(const BD& bd, EVT evt, EV ev, const MV& mvBest, int d, int dLim) noexcept
+{
+    XTEV& xtev = (*this)[bd];
+
+    /* very primitive replacement strategy */
+    if ((int8_t)evt >= xtev.evt && dLim - d >= xtev.dd) {
+        xtev.Save(bd.ha, evt, ev, mvBest, d, dLim);
+        return &xtev;
+    }
+
+    return nullptr;
+}
+
+void XT::SetSize(uint32_t cb)
+{
+    if (axtev)
+        delete[] axtev;
+
+    cxtev = cb / sizeof(XTEV);
+    while (cxtev & (cxtev - 1))
+        cxtev &= cxtev - 1;
+    axtev = new XTEV[cxtev];
+    Init();
+}
+
+void XT::Init(void)
+{
+    memset(axtev, 0, sizeof(XTEV) * cxtev);
 }
 
 /*
@@ -265,20 +507,20 @@ EV PLCOMPUTER::EvFromPst(const BD& bd) const noexcept
 #include "piecetables.h"
 
 /*	
- *  PLCOMPUTER::InitWeightTables
+ *  PLCOMPUTER::InitPsts
  *
  *	Initializes the piece value weight tables for the different phases of the
  *	game. We may build these tables on the fly in the future, but for now
  *  we waste a little time at beginning of search, but it's not a big deal.
  */
 
-void PLCOMPUTER::InitWeightTables(void) noexcept
+void PLCOMPUTER::InitPsts(void) noexcept
 {
-    InitWeightTable(mpcptevMid, mpcptsqdevMid, mpcpsqevMid);
-    InitWeightTable(mpcptevEnd, mpcptsqdevEnd, mpcpsqevEnd);
+    InitPst(mpcptevMid, mpcptsqdevMid, mpcpsqevMid);
+    InitPst(mpcptevEnd, mpcptsqdevEnd, mpcpsqevEnd);
 }
 
-void PLCOMPUTER::InitWeightTable(EV mpcptev[cptMax], EV mpcptsqdev[cptMax][sqMax], EV mpcpsqev[cpMax][sqMax]) noexcept
+void PLCOMPUTER::InitPst(EV mpcptev[cptMax], EV mpcptsqdev[cptMax][sqMax], EV mpcpsqev[cpMax][sqMax]) noexcept
 {
     memset(mpcpsqev, 0, sizeof(EV)*cpMax*sqMax);
     for (CPT cpt = cptPawn; cpt < cptMax; ++cpt) {
@@ -300,6 +542,61 @@ EV PLCOMPUTER::EvInterpolate(int phaseCur, EV evFirst, int phaseFirst, EV evLim,
     assert(phaseCur >= phaseFirst && phaseCur <= phaseLim);
     return (evFirst * (phaseLim-phaseFirst) + 
            (evLim-evFirst) * (phaseCur-phaseFirst)) / (phaseLim-phaseFirst);
+}
+
+/*
+ *  Move/board scoring.
+ * 
+ *  Scoring is different than static evaluation. It is used for move ordering.
+ */
+
+static const EV mpcptev[cptMax] = { 0, 100, 275, 300, 500, 900, 1000 };
+
+EV PLCOMPUTER::ScoreCapture(BD& bd, const MV& mv) noexcept
+{
+
+    if (mv.cptPromote != cptNone)
+        return mpcptev[mv.cptPromote] - mpcptev[cptPawn];
+
+    CPT cptFrom = (CPT)bd[mv.sqFrom].cpt;
+    EV ev = mpcptev[bd[mv.sqTo].cpt];
+    CPT cptDefender = bd.CptSqAttackedBy(mv.sqTo, ~bd.cpcToMove);
+    if (cptDefender && cptDefender < cptFrom)
+        ev -= mpcptev[cptFrom];
+    return ev;
+}
+
+EV PLCOMPUTER::ScoreMove(BD& bd, const MV& mv) noexcept
+{
+    bd.MakeMv(mv);
+    EV ev = EvFromPst(bd) + EvAttackDefend(bd, mv);
+    bd.UndoMv();
+    return ev;
+}
+
+/*	
+ *  PLCOMPUTER::EvAttackDefend
+ *
+ *	Little heuristic for board evaluation that tries to detect bad moves,
+ *	which are if we have moved to an attacked square that isn't defended. This
+ *	is only useful for pre-sorting, because it's somewhat more accurate than
+ *	not doing it at all, but it's not nearly as good as full quiescent search.
+ *
+ *	Destination square of the previous move is in sqTo. Returns the amount to
+ *	adjust the evaluation by.
+ */
+EV PLCOMPUTER::EvAttackDefend(BD& bd, const MV& mvPrev) const noexcept
+{
+    CPT cptMove = (CPT)bd[mvPrev.sqTo].cpt;
+    CPT cptAttacker = bd.CptSqAttackedBy(mvPrev.sqTo, bd.cpcToMove);
+    if (cptAttacker != cptNone) {
+        if (cptAttacker < cptMove)
+            return mpcptev[cptMove];
+        CPT cptDefended = bd.CptSqAttackedBy(mvPrev.sqTo, ~bd.cpcToMove);
+        if (cptDefended == cptNone)
+            return mpcptev[cptMove];
+    }
+    return 0;
 }
 
 /*

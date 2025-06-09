@@ -118,6 +118,11 @@ void DLG::Draw(const RC& rcUpate)
     DrawRc(RcInterior().RcInflate(-6), CoBlend(CoText(), CoBack()), 2);
 }
 
+bool DLG::FRun(void)
+{
+    return false;
+}
+
 void DLG::End(int val)
 {
     Show(false);
@@ -168,6 +173,97 @@ bool DLG::FKeyDown(int vk)
         break;
     }
     return false;
+}
+
+/*
+ *  Open dialog
+ */
+
+DLGFILE::DLGFILE(IWAPP& wapp) :
+    DLG(wapp)
+{
+}
+
+void DLGFILE::BuildFilter(wchar_t* wsFilter, int cchFilter)
+{
+    wchar_t* pchFilter = wsFilter;
+    for (auto it : mpextsLabel) {
+        wcsncpy_s(pchFilter, cchFilter - (pchFilter - wsFilter) - 3, WsFromS(it.second).c_str(), _TRUNCATE);   // second has label
+        pchFilter += wcslen(pchFilter);
+        *pchFilter++ = 0;
+        *pchFilter++ = L'*';
+        *pchFilter++ = L'.';
+        wcsncpy_s(pchFilter, cchFilter - (pchFilter - wsFilter) - 3, WsFromS(it.first).c_str(), _TRUNCATE);
+        pchFilter += wcslen(pchFilter);
+        *pchFilter++ = 0;
+    }
+    *pchFilter++ = 0;   // double null-terminate the final filter item
+}
+
+DLGFILEOPEN::DLGFILEOPEN(IWAPP& wapp) :
+    DLGFILE(wapp)
+{
+}
+
+bool DLGFILEOPEN::FRun(void)
+{
+    wchar_t wsFile[1024] = { 0 };
+
+    OPENFILENAMEW ofn = { 0 };
+    ofn.lStructSize = sizeof(OPENFILENAMEW);
+    ofn.hwndOwner = iwapp.hwnd;
+    ofn.hInstance = iwapp.hinst;
+    wchar_t wsFilter[1024] = { 0 };
+    BuildFilter(wsFilter, 1024);
+    ofn.lpstrFilter = wsFilter;
+    auto it = mpextsLabel.find(extDefault);
+    ofn.nFilterIndex = (int)distance(mpextsLabel.begin(), it) + 1;
+
+    ofn.lpstrFile = wsFile;
+    ofn.nMaxFile = size(wsFile);
+    ofn.lpstrTitle = L"Open";
+    ofn.Flags = OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER;
+    ofn.lpstrDefExt = WsFromS(extDefault).c_str();
+
+    if (!::GetOpenFileNameW(&ofn))
+        return false;
+
+    path = SFromWs(wstring_view(wsFile));
+    return true;
+}
+
+DLGFILESAVE::DLGFILESAVE(IWAPP& wapp) :
+    DLGFILE(wapp)
+{
+
+}
+
+bool DLGFILESAVE::FRun(void)
+{
+    wchar_t wsFile[1024] = { 0 };
+
+    OPENFILENAMEW ofn = { 0 };
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = iwapp.hwnd;
+    ofn.hInstance = iwapp.hinst;
+    wchar_t wsFilter[1024] = { 0 };
+    BuildFilter(wsFilter, 1024);
+    ofn.lpstrFilter = wsFilter;
+    auto it = mpextsLabel.find(extDefault);
+    ofn.nFilterIndex = (int)distance(mpextsLabel.begin(), it) + 1;
+    
+    wcscpy_s(wsFile, 1024, WsFromS(path).c_str());
+    ofn.lpstrFile = wsFile;
+    ofn.nMaxFile = size(wsFile);
+    ofn.lpstrTitle = L"Save";
+    ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_EXPLORER;
+    ofn.lpstrDefExt = WsFromS(extDefault).c_str();
+
+    if (!::GetSaveFileNameW(&ofn))
+        return false;
+
+    path = SFromWs(wstring_view(wsFile));
+    return true;
 }
 
 /*

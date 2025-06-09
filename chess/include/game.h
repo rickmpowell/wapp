@@ -17,6 +17,9 @@ class LGAME;
  *  VALEPD
  * 
  *  The value of an EPD opcode. 
+ * 
+ *  The spec for EPD opcodes is kind of annoying and doesn't lend itself to 
+ *  a weakly typed language like C++.
  */
 
 struct VALEPD
@@ -78,13 +81,13 @@ public:
     GAME(const string& fenStart, 
          shared_ptr<PL> pplWhite, shared_ptr<PL> pplBlack);
 
-    void InitFromFen(istream& is);
-    void InitFromFen(const string& fenStart);
     void AddListener(LGAME* plgame);
     void NotifyBdChanged(void);
     void NotifyShowMv(MV vm, bool fAnimate);
     void NotifyEnableUI(bool fEnable);
     void NotifyPlChanged(void);
+
+    /* game control */
 
     void Start(void);
     void End(void);
@@ -97,27 +100,40 @@ public:
     void MakeMv(MV mv);
     void UndoMv(void);
 
+    /* FEN reading */
+
+    void InitFromFen(istream& is);
+    void InitFromFen(const string& fenStart);
+
     /* EPD reading and writing */
 
     void InitFromEpd(istream& is);
     void InitFromEpd(const string& epd);
     bool FReadEpdOp(istream& is);
     bool FReadEpdOpValue(istream& is, const string& opcode);
+
     void RenderEpd(ostream& os);
     string EpdRender(void);
-    MV MvParseEpd(string_view s) const;
-   void AddEpdOp(const string& os, const VALEPD& val);
+    void AddEpdOp(const string& os, const VALEPD& val);
 
     /* PGN reading and writing */
 
     void InitFromPgn(istream& is);
     void InitFromPgn(const string& pgn);
+    void ReadPgnMoveList(istream& is);
+    bool FReadPgnTagPair(istream& is, string& tag, string& sVal);
+    void SaveTagPair(const string& tag, const string& sVal);
+    void ParsePgnMoveNumber(const string& s);
+    void ParseAndMakePgnMove(const string& s);
+
     void RenderPgn(ostream& os) const;
     string PgnRender(void) const;
     void RenderPgnHeader(ostream& os) const;
     void RenderPgnMoveList(ostream& os) const;
     void RenderPgnTagPair(ostream& os, string_view tag, const string& sValue) const;
     string SPgnDate(chrono::time_point<chrono::system_clock> tm) const;
+
+    MV MvParseSan(string_view s) const;
 
 public:
     GS gs = GS::NotStarted;
@@ -137,7 +153,7 @@ public:
 private:
     vector<LGAME*> vplgame; // listeners who get notified on changes
     map<string, vector<VALEPD>> mpopvalepd; // EPD file properties
-    chrono::time_point<chrono::system_clock> tmStart;   // start time of the game
+    chrono::time_point<chrono::system_clock> tpStart;   // start time of the game
 };
 
 /*

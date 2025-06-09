@@ -74,7 +74,7 @@ void GAME::Start(void)
     if (gs == GS::Paused)
         Resume();
     else {
-        tmStart = chrono::system_clock::now();
+        tpStart = chrono::system_clock::now();
         gs = GS::Playing;
     }
 }
@@ -86,6 +86,8 @@ void GAME::End(void)
 
 void GAME::Pause(void)
 {
+    if (gs != GS::Playing)
+        return;
     gs = GS::Paused;
 }
 
@@ -113,7 +115,7 @@ bool GAME::FGameOver(void) const
     bd.MoveGen(vmv);
     if (vmv.size() == 0)
         return true;
-    if (bd.FGameDrawn())
+    if (bd.FGameDrawn(3))
         return true;
     return false;
 }

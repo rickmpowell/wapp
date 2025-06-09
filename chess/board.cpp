@@ -58,7 +58,7 @@ void BD::Empty(void)  noexcept
  *  Makes a move on the board. 
  */
 
-void BD::MakeMv(MV mv) noexcept
+void BD::MakeMv(const MV& mv) noexcept
 {
     assert(mv.sqFrom != sqNil && mv.sqTo != sqNil);
 
@@ -263,13 +263,13 @@ int BD::PhaseCur(void) const noexcept
     return max(phase, phaseMin);
 }
 
-bool BD::FGameDrawn(void) const noexcept
+bool BD::FGameDrawn(int cbd) const noexcept
 {
     if (vmvuGame.size() >= 256)  // our app can't handle games more than 256 moves
         return  true;
     if (cmvNoCaptureOrPawn >= 2*50)   // 50 move rule
         return true;
-    if (FDrawRepeat(3)) // 3-fold repetition rule
+    if (FDrawRepeat(cbd)) // 3-fold repetition rule
         return true;
     return false;
 }

@@ -93,6 +93,79 @@ public:
 };
 
 /*
+ *  XT
+ *
+ *  Transposition table
+ */
+
+enum class EVT {
+	Null = 0,
+	Lower = 1,
+	Higher = 2,
+	Equal = 3
+};
+
+/*
+ *	XTEV class
+ *
+ *  THe individual transposition table entry
+ */
+
+#pragma pack(push, 1)
+class XTEV
+{
+    friend class XT;
+    friend class PLCOMPUTER;
+
+public:
+    XTEV(void) noexcept { }
+    void Save(HA ha, EVT evt, EV ev, const MV& mv, int d, int dLim) noexcept;
+    void GetMv(MV& mv) const noexcept;
+    
+    EV Ev(int d) const noexcept
+    {
+        EV ev = evBiased;
+        if (FEvIsMate(ev))
+            ev += d;
+        else if (FEvIsMate(-ev))
+            ev -= d;
+        return ev;
+    }
+
+    MV Mv(void) const noexcept
+    {
+        return MV(mvBest.sqFrom, mvBest.sqTo, mvBest.cptPromote, mvBest.csMove);
+    }
+
+public:
+    HA ha;          // full hash
+    uint8_t dd;     // depth
+    uint8_t evt;    // evaluation type (high, low, exact)
+    EV evBiased;          // evaluation
+    struct {
+        SQ sqFrom, sqTo;
+        CS csMove;
+        CPT cptPromote;
+    } mvBest; // the best move
+};
+#pragma pack(pop)
+
+class XT
+{
+public:
+    XT(void) {}
+    void SetSize(uint32_t cb);
+    void Init(void);
+    XTEV* Save(const BD& bd, EVT evt, EV ev, const MV& mv, int d, int dLim) noexcept;
+    XTEV* Find(const BD& bd, int d, int dLim) noexcept;
+    XTEV& operator [] (const BD& bd) noexcept { return axtev[bd.ha & (cxtev - 1)]; }
+
+private:
+    int cxtev = 0;
+    XTEV* axtev = nullptr;
+};
+
+/*
  *  PLCOMPUTER
  *
  *  A computer player
@@ -108,6 +181,8 @@ class PLCOMPUTER : public PL
 public:
     PLCOMPUTER(const SETAI& setai);
 
+    /* communicate with the outside world */
+
     virtual bool FIsHuman(void) const override;
     virtual string SName(void) const override;
     int Level(void) const;
@@ -115,34 +190,48 @@ public:
 
     virtual void RequestMv(WAPP& wapp, GAME& game) override;
 
+    /* basic alpha-beta search */
+
     MV MvBest(BD& bd) noexcept;
     EV EvSearch(BD& bd, AB ab, int d, int dLim) noexcept;
     EV EvQuiescent(BD& bd, AB ab, int d) noexcept;
-    EV EvStatic(BD& bd) noexcept;
 
-    void DoYield(void) noexcept;
     inline bool FInterrupt(void) noexcept
     {
-        static uint32_t cYield = 0;
-        if (++cYield % 4096 == 0)
+        static const uint16_t cYieldFreq = 16384U;
+        static uint32_t cYieldEllapsed = 0;
+        if (++cYieldEllapsed % cYieldFreq == 0)
             DoYield();
         return false;
     }
+    void DoYield(void) noexcept;
 
-
-private:
-    /* piece tables */
-
+    /* static board evaluation */
+    
+    EV EvStatic(BD& bd) noexcept;
+    /* piece square tables */
     EV EvFromPst(const BD& bd) const noexcept;
-    void InitWeightTables(void) noexcept;
-    void InitWeightTable(EV mptpcev[cptMax], 
-                         EV mpcptsqdev[cptMax][sqMax], 
-                         EV mpcpsqev[cpMax][sqMax]) noexcept;
+    void InitPsts(void) noexcept;
+    void InitPst(EV mpcptev[cptMax], 
+                 EV mpcptsqdev[cptMax][sqMax], 
+                 EV mpcpsqev[cpMax][sqMax]) noexcept;
     EV EvInterpolate(int phase, 
                      EV evFirst, int phaseFirst, 
                      EV evLim, int phaseLim) const noexcept;
     EV mpcpsqevMid[cpMax][sqMax];
     EV mpcpsqevEnd[cpMax][sqMax];
+
+    /* transposition table */
+
+    bool FLookupXt(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept;
+    XTEV* SaveXt(BD& bd, const MV& mvBest, AB ab, int d, int dLim) noexcept;
+    XT xt;
+
+    /* move scoring */
+
+    EV ScoreCapture(BD& bd, const MV& mv) noexcept;
+    EV ScoreMove(BD& bd, const MV& mv) noexcept;
+    EV EvAttackDefend(BD& bd, const MV& mvPrev) const noexcept;
 
     /* stats */
 

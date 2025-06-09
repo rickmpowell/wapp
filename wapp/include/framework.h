@@ -12,6 +12,7 @@
 #pragma warning(push, 0)
 #include <windows.h>
 #include <windowsx.h>
+#include <commdlg.h>
 #include <wrl.h>
 #pragma warning(pop)
 
