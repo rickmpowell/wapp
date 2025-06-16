@@ -460,7 +460,7 @@ string to_string(SQ sq)
     return ach;
 }
 
-string to_string(const MV& mv)
+string to_string(const MV& mv) noexcept
 {
     if (mv.fIsNil())
         return "-";
@@ -472,4 +472,18 @@ string to_string(const MV& mv)
     if (mv.cptPromote != cptNone)
         *pch++ = " pnbrqk"[mv.cptPromote];
     return ach;
+}
+
+string to_string(EV ev)
+{
+    if (ev == 0)
+        return "0";
+    string s(ev < 0 ? "-" : "+");
+    ev = abs(ev);
+    if (ev == evInfinity)
+        return s + "Inf";
+    if (FEvIsMate(ev))
+        return s + "#" + to_string(DFromEvMate(ev) / 2 + 1);
+
+    return s + to_string(ev / 100) + "." + to_string(ev / 10 % 10) + to_string(ev % 10);
 }

@@ -51,6 +51,65 @@ void PLCOMPUTER::RequestMv(WAPP& wapp, GAME& game)
 }
 
 /*
+ *  PLCOMPUTER::MvBestTest
+ * 
+ *  Little stub for testing the AI, which just sets up the logging system before
+ *  finding the best move.
+ */
+
+MV PLCOMPUTER::MvBestTest(WAPP& wapp, GAME& game)
+{
+    pwnlog = &wapp.wnlog;
+    return MvBest(game.bd);
+}
+
+/*
+ *  BRK class
+ * 
+ *  Little breakpoint helper that you can use to set up breakpoints somewhere 
+ *  along the search process. Just set up the move sequence you want in the 
+ *  global array mpdmvBrk here, and we'll force a breakpoing when the last 
+ *  move of sequence is searched.
+ * 
+ *  We also keep a global array of the moves we've taken to get to this point 
+ *  in the search.
+ */
+
+static MV mpdmvBrk[] = { MV()
+    /*MV(sqD6, sqD1), MV(sqC1, sqD1), MV(sqD7, sqG4), MV(sqD1, sqC1), MV(sqD8, sqD1) */ };
+static MV mpdmvCur[256];
+
+class BRK
+{
+public:
+    void Init(void)
+    {
+        dMatch = -1;
+    }
+
+    void Check(int d, const MV& mv)
+    {
+        mpdmvCur[d] = mv;
+        if (d >= size(mpdmvBrk))
+            return;
+
+        if (d < dMatch + 1)
+            dMatch = d - 1;
+        if (d == dMatch + 1) {
+            if (mpdmvBrk[d] == mv) {
+                dMatch = d;
+                if (dMatch + 1 == size(mpdmvBrk))
+                    DebugBreak();
+            }
+        }
+    }
+private:
+    int dMatch = -1;
+};
+
+BRK brk;
+
+/*
  *  PLCOMPUTER::MvBest
  * 
  *  The root search for the best move. The root node of the search has a little
@@ -63,6 +122,7 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
     InitStats();
     InitPsts();
     xt.Init();
+    brk.Init();
 
     /* generate all possible legal moves */
     BD bd(bdGame);
@@ -70,31 +130,30 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
     bd.MoveGen(vmv);
     cmvMoveGen += vmv.size();
 
-    /* log some handy stuff */
-    *pwnlog << to_string(bd.cpcToMove) << " to move" << endl;
-    *pwnlog << indent(1) << bd.FenRender() << endl;
-    *pwnlog << indent(1) << "Eval: " << EvStatic(bd) << endl;
-
+    *pwnlog << bd.FenRender() << endl << indent;
     MV mvBest;
+    int dMax = set.level + 1, dLim = 2;
+    AB abAspiration(-evInfinity, evInfinity);
 
-    int dLevel = set.level + 1;
-    for (int dLim = 1; dLim <= dLevel; dLim++) {    // iterative deepening loop
-        AB ab(-evInfinity, evInfinity);
+    do {    /* iterative deepening/aspiration window loop */
         mvBest.ev = -evInfinity;
-        *pwnlog << indent(1) << "Depth: " << dLim << endl;
+        AB ab(abAspiration);
+        *pwnlog << "Depth: " << dLim << " " << to_string(abAspiration) << endl << indent;
         for (VMV::siterator pmv = vmv.sbegin(*this, bd); pmv != vmv.send(); ++pmv) {
-            *pwnlog << indent(2) << to_string(*pmv) << " ";
+            brk.Check(0, *pmv);
+            *pwnlog << to_string(*pmv) << " ";
             bd.MakeMv(*pmv);
             pmv->ev = -EvSearch(bd, -ab, 1, dLim);
             bd.UndoMv();
-            *pwnlog << pmv->ev << endl;
-            ab.FPrune(*pmv, mvBest);
+            *pwnlog << to_string(pmv->ev) << endl;
+            if (ab.FPrune(*pmv, mvBest))
+                break;
         }
-        SaveXt(bd, mvBest, AB(-evInfinity, evInfinity), 0, dLim);
-    }
+        *pwnlog << outdent << "Best move: " << to_string(mvBest) << " " << to_string(mvBest.ev) << endl;
+    } while (FDeepen(bd, mvBest, abAspiration, dLim, dMax));
 
     chrono::time_point<chrono::high_resolution_clock> tpEnd = chrono::high_resolution_clock::now();
-    *pwnlog << "Best move: " << to_string(mvBest) << endl;
+    *pwnlog << outdent << "Best move: " << to_string(mvBest) << endl;
     LogStats(tpEnd);
 
     return mvBest;
@@ -110,20 +169,18 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
 
 EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
 {
-    FInterrupt();
-
     bool fInCheck = bd.FInCheck(bd.cpcToMove);
     dLim += fInCheck;
-
     if (d >= dLim)
         return EvQuiescent(bd, ab, d);
 
+    FInterrupt();
     cmvSearch++;
 
     if (bd.FGameDrawn(2))
         return evDraw;
 
-    MV mvBest;
+    MV mvBest(-evInfinity);
     if (FLookupXt(bd, mvBest, ab, d, dLim))
         return mvBest.ev;
 
@@ -134,6 +191,7 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
     int cmvLegal = 0;
 
     for (VMV::siterator pmv = vmv.sbegin(*this, bd); pmv != vmv.send(); ++pmv) {
+        brk.Check(d, *pmv);
         if (!bd.FMakeMvLegal(*pmv))
             continue;
         cmvLegal++;
@@ -145,8 +203,11 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
         }
     }
 
-    if (cmvLegal == 0)
-        return fInCheck ? -EvMate(d) : evDraw;
+    if (cmvLegal == 0) {
+        mvBest = MV(fInCheck ? -EvMate(d) : evDraw);
+        SaveXt(bd, mvBest, AB(-evInfinity, evInfinity), d, dLim);
+        return mvBest.ev;
+    }
 
     SaveXt(bd, mvBest, abInit, d, dLim);
     return ab.evAlpha;
@@ -166,10 +227,11 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
 
 EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
 {
-    MV mvPat;
-    mvPat.ev = EvStatic(bd);
-    if (ab.FPrune(mvPat))
+    MV mvPat(EvStatic(bd));
+    if (ab.FPrune(mvPat)) {
+        assert(ab.evBeta != evInfinity);
         return ab.evBeta;
+    }
 
     FInterrupt();
     cmvSearch++; cmvQSearch++;
@@ -178,14 +240,18 @@ EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
     bd.MoveGenNoisy(vmv);
     cmvMoveGen += vmv.size();
     for (MV& mv : vmv) {
+        brk.Check(d, mv);
         if (!bd.FMakeMvLegal(mv))
             continue;
         mv.ev = -EvQuiescent(bd, -ab, d+1);
         bd.UndoMv();
-        if (ab.FPrune(mv))
+        if (ab.FPrune(mv)) {
+            assert(ab.evBeta != evInfinity);
             return ab.evBeta;
+        }
     }
 
+    assert(ab.evAlpha != -evInfinity);
     return ab.evAlpha;
 }
 
@@ -317,6 +383,34 @@ EV VMV::siterator::ScoreOther(const MV& mv) noexcept
 }
 
 /*
+ *  PLCOMPUTER::FDeepen
+ * 
+ *  Iterative deepening and aspiration window, used at root search.
+ */
+
+bool PLCOMPUTER::FDeepen(BD& bd, MV mvBest, AB& ab, int& d, int dMax) noexcept
+{
+    /* If the search failed with a narrow a-b window, widen the window up some
+       and try again */
+
+    if (mvBest.ev <= ab.evAlpha)
+        ab.AdjustMissLow();
+    else if (mvBest.ev >= ab.evBeta)
+        ab.AdjustMissHigh();
+    else {
+        /* we found a move - go deeper in the next pass, but use a tight
+           a-b window (the aspiration window optimization) at first in hopes
+           we'll get lots of pruning */
+        if (FEvIsMate(mvBest.ev))
+            return false;
+        ab = AbAspiration(mvBest.ev, 10);
+        d += 1;
+    }
+    return d < dMax;
+}
+
+
+/*
  *  PLCOMPUTER::FLookupXt
  *
  *  Checks the transposition table for a board entry at the given search depth.
@@ -375,11 +469,12 @@ XTEV* PLCOMPUTER::SaveXt(BD &bd, const MV& mvBest, AB ab, int d, int dLim) noexc
     */
 
     EV evBest = mvBest.ev;
+    assert(evBest != -evInfinity && evBest != evInfinity);
 
     if (evBest <= ab.evAlpha)
-        return xt.Save(bd, EVT::Lower, evBest, mvBest, d, dLim);
+        return xt.Save(bd, EVT::Lower, ab.evAlpha, mvBest, d, dLim);
     if (evBest >= ab.evBeta)
-        return xt.Save(bd, EVT::Higher, evBest, mvBest, d, dLim);
+        return xt.Save(bd, EVT::Higher, ab.evBeta, mvBest, d, dLim);
     return xt.Save(bd, EVT::Equal, evBest, mvBest, d, dLim);
 }
 
@@ -392,9 +487,9 @@ XTEV* PLCOMPUTER::SaveXt(BD &bd, const MV& mvBest, AB ab, int d, int dLim) noexc
 void XTEV::Save(HA ha, EVT evt, EV ev, const MV& mvBest, int d, int dLim) noexcept
 {
     if (FEvIsMate(ev))
-        ev -= d;
-    else if (FEvIsMate(-ev))
         ev += d;
+    else if (FEvIsMate(-ev))
+        ev -= d;
 
     this->ha = ha;
     this->evt = static_cast<int8_t>(evt);
@@ -616,17 +711,17 @@ void PLCOMPUTER::LogStats(chrono::time_point<chrono::high_resolution_clock>& tpE
 {
     chrono::duration dtp = tpEnd - tpStart;
     chrono::microseconds us = duration_cast<chrono::microseconds>(dtp);
-    *pwnlog << indent(1) << "Moves generated: " 
+    *pwnlog << "Moves generated: " 
             << dec << cmvMoveGen << endl;
-    *pwnlog << indent(1) << "Nodes visited: " << cmvSearch << " | "
+    *pwnlog << "Nodes visited: " << cmvSearch << " | "
              << dec << (int)roundf((float)(1000*cmvSearch) / us.count()) << " kn/s | "
              << fixed << setprecision(1) << ((float)(100*cmvSearch) / cmvMoveGen) << "%"
              << endl;
-    *pwnlog << indent(1) << "Quiescent nodes: "
+    *pwnlog << "Quiescent nodes: "
             << dec << cmvQSearch << " | "
             << fixed << setprecision(1) << ((float)(100*cmvQSearch) / cmvSearch) << "%"
             << endl;
-    *pwnlog << indent(1) << "Eval nodes: " 
+    *pwnlog << "Eval nodes: " 
             << dec << cmvEval << endl;
 }
 
@@ -647,4 +742,9 @@ void PLCOMPUTER::DoYield(void) noexcept
         ::TranslateMessage(&msg);
         ::DispatchMessageW(&msg);
     }
+}
+
+string to_string(AB ab)
+{
+    return "[" + to_string(ab.evAlpha) + "," + to_string(ab.evBeta) + "]";
 }

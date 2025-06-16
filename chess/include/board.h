@@ -199,17 +199,17 @@ typedef uint8_t SQ;
 constexpr int raMax = 8;
 constexpr int fiMax = 8;
 
-inline int ra(SQ sq) noexcept
+constexpr inline int ra(SQ sq) noexcept
 {
     return (sq >> 3) & (raMax-1);
 }
 
-inline int fi(SQ sq) noexcept
+constexpr inline int fi(SQ sq) noexcept
 {
     return sq & (fiMax-1);
 }
 
-inline SQ Sq(int fi, int ra) noexcept
+constexpr inline SQ Sq(int fi, int ra) noexcept
 {
     return (ra << 3) | fi;
 }
@@ -259,6 +259,71 @@ constexpr int raBlackPawn2 = 4;
 constexpr int raBlackPawn1 = 5;
 constexpr int raBlackPawns = 6;
 constexpr int raBlackBack = 7;
+
+constexpr SQ sqA1 = Sq(fiA, ra1);
+constexpr SQ sqA2 = Sq(fiA, ra2);
+constexpr SQ sqA3 = Sq(fiA, ra3);
+constexpr SQ sqA4 = Sq(fiA, ra4);
+constexpr SQ sqA5 = Sq(fiA, ra5);
+constexpr SQ sqA6 = Sq(fiA, ra6);
+constexpr SQ sqA7 = Sq(fiA, ra7);
+constexpr SQ sqA8 = Sq(fiA, ra8);
+constexpr SQ sqB1 = Sq(fiB, ra1);
+constexpr SQ sqB2 = Sq(fiB, ra2);
+constexpr SQ sqB3 = Sq(fiB, ra3);
+constexpr SQ sqB4 = Sq(fiB, ra4);
+constexpr SQ sqB5 = Sq(fiB, ra5);
+constexpr SQ sqB6 = Sq(fiB, ra6);
+constexpr SQ sqB7 = Sq(fiB, ra7);
+constexpr SQ sqB8 = Sq(fiB, ra8);
+constexpr SQ sqC1 = Sq(fiC, ra1);
+constexpr SQ sqC2 = Sq(fiC, ra2);
+constexpr SQ sqC3 = Sq(fiC, ra3);
+constexpr SQ sqC4 = Sq(fiC, ra4);
+constexpr SQ sqC5 = Sq(fiC, ra5);
+constexpr SQ sqC6 = Sq(fiC, ra6);
+constexpr SQ sqC7 = Sq(fiC, ra7);
+constexpr SQ sqC8 = Sq(fiC, ra8);
+constexpr SQ sqD1 = Sq(fiD, ra1);
+constexpr SQ sqD2 = Sq(fiD, ra2);
+constexpr SQ sqD3 = Sq(fiD, ra3);
+constexpr SQ sqD4 = Sq(fiD, ra4);
+constexpr SQ sqD5 = Sq(fiD, ra5);
+constexpr SQ sqD6 = Sq(fiD, ra6);
+constexpr SQ sqD7 = Sq(fiD, ra7);
+constexpr SQ sqD8 = Sq(fiD, ra8);
+constexpr SQ sqE1 = Sq(fiE, ra1);
+constexpr SQ sqE2 = Sq(fiE, ra2);
+constexpr SQ sqE3 = Sq(fiE, ra3);
+constexpr SQ sqE4 = Sq(fiE, ra4);
+constexpr SQ sqE5 = Sq(fiE, ra5);
+constexpr SQ sqE6 = Sq(fiE, ra6);
+constexpr SQ sqE7 = Sq(fiE, ra7);
+constexpr SQ sqE8 = Sq(fiE, ra8);
+constexpr SQ sqF1 = Sq(fiF, ra1);
+constexpr SQ sqF2 = Sq(fiF, ra2);
+constexpr SQ sqF3 = Sq(fiF, ra3);
+constexpr SQ sqF4 = Sq(fiF, ra4);
+constexpr SQ sqF5 = Sq(fiF, ra5);
+constexpr SQ sqF6 = Sq(fiF, ra6);
+constexpr SQ sqF7 = Sq(fiF, ra7);
+constexpr SQ sqF8 = Sq(fiF, ra8);
+constexpr SQ sqG1 = Sq(fiG, ra1);
+constexpr SQ sqG2 = Sq(fiG, ra2);
+constexpr SQ sqG3 = Sq(fiG, ra3);
+constexpr SQ sqG4 = Sq(fiG, ra4);
+constexpr SQ sqG5 = Sq(fiG, ra5);
+constexpr SQ sqG6 = Sq(fiG, ra6);
+constexpr SQ sqG7 = Sq(fiG, ra7);
+constexpr SQ sqG8 = Sq(fiG, ra8);
+constexpr SQ sqH1 = Sq(fiH, ra1);
+constexpr SQ sqH2 = Sq(fiH, ra2);
+constexpr SQ sqH3 = Sq(fiH, ra3);
+constexpr SQ sqH4 = Sq(fiH, ra4);
+constexpr SQ sqH5 = Sq(fiH, ra5);
+constexpr SQ sqH6 = Sq(fiH, ra6);
+constexpr SQ sqH7 = Sq(fiH, ra7);
+constexpr SQ sqH8 = Sq(fiH, ra8);
 
 /* some tricks to get the compiler ot produce branchless code */
 
@@ -490,6 +555,13 @@ inline bool FEvIsMate(EV ev) noexcept
     return ev >= evMateMin;
 }
 
+inline int DFromEvMate(EV ev) noexcept
+{
+    return evMate - ev;
+}
+
+string to_string(EV ev);
+
 /*
  *  EVENUM
  * 
@@ -522,6 +594,58 @@ inline EVENUM& operator ++ (EVENUM& evenum) noexcept
 class MV
 {
 public:
+    inline MV(void) noexcept
+    {
+    }
+
+    inline MV(SQ sqFrom, SQ sqTo, CPT cptPromote = cptNone, CS csMove = csNone) noexcept :
+        sqFrom(sqFrom),
+        sqTo(sqTo),
+        cptPromote(cptPromote),
+        csMove(csMove)
+    {
+    }
+
+    inline  MV(int8_t icpbdFrom, int8_t icpbdTo, CPT cptPromote = cptNone) noexcept :
+        sqFrom(SqFromIcpbd(icpbdFrom)),
+        sqTo(SqFromIcpbd(icpbdTo)),
+        cptPromote(cptPromote),
+        csMove(csNone)
+    {
+    }
+
+    inline MV(int8_t icpbdFrom, int8_t icpbdTo, CS csMove) noexcept :
+        sqFrom(SqFromIcpbd(icpbdFrom)),
+        sqTo(SqFromIcpbd(icpbdTo)),
+        cptPromote(cptNone),
+        csMove(csMove)
+    {
+    }
+
+    inline MV(EV ev) noexcept :
+        ev(ev)
+    {
+    }
+
+    inline bool fIsNil(void) const noexcept
+    {
+        return sqFrom == sqNil;
+    }
+
+    bool operator == (const MV& mv) const noexcept
+    {
+        return sqFrom == mv.sqFrom &&
+            sqTo == mv.sqTo &&
+            csMove == mv.csMove &&
+            cptPromote == mv.cptPromote;
+    }
+
+    bool operator != (const MV& mv) const noexcept
+    {
+        return !(*this == mv);
+    }
+
+public:
     /* move information */
     SQ sqFrom = sqNil;
     SQ sqTo = sqNil;
@@ -530,58 +654,9 @@ public:
 
     EVENUM evenum = EVENUM::None;
     EV ev = 0;
-
-    inline MV(void) noexcept
-    {
-    }
-    
-    inline MV(SQ sqFrom, SQ sqTo, CPT cptPromote = cptNone, CS csMove = csNone) noexcept :
-        sqFrom(sqFrom), 
-        sqTo(sqTo), 
-        cptPromote(cptPromote), 
-        csMove(csMove) 
-    {
-    }
-    
-    inline  MV(int8_t icpbdFrom, int8_t icpbdTo, CPT cptPromote = cptNone) noexcept :
-        sqFrom(SqFromIcpbd(icpbdFrom)), 
-        sqTo(SqFromIcpbd(icpbdTo)), 
-        cptPromote(cptPromote), 
-        csMove(csNone) 
-    {
-    }
-
-    inline MV(int8_t icpbdFrom, int8_t icpbdTo, CS csMove) noexcept :
-        sqFrom(SqFromIcpbd(icpbdFrom)), 
-        sqTo(SqFromIcpbd(icpbdTo)), 
-        cptPromote(cptNone), 
-        csMove(csMove) 
-    {
-    }
-
-    inline MV(EV ev) noexcept :
-        ev(ev)
-    {
-    }
-    
-    inline bool fIsNil(void) const noexcept
-    {
-        return sqFrom == sqNil;
-    }
-
-    bool operator == (const MV & mv) const noexcept
-    {
-        return sqFrom == mv.sqFrom &&
-               sqTo == mv.sqTo &&
-               csMove == mv.csMove &&
-               cptPromote == mv.cptPromote;
-    }
-
-    bool operator != (const MV& mv) const noexcept
-    {
-        return !(*this == mv);
-    }
 };
+
+string to_string(const MV& mv) noexcept;
 
 /*
  *  MVU
@@ -603,8 +678,6 @@ public:
 };
 
 inline const MV mvNil;
-
-string to_string(const MV& mv);
 
 /*
  *  VMV - Move list type.
@@ -796,6 +869,7 @@ public:
     void SetFullMoveNumber(int cmv);
 
     string SDecodeMvu(const MVU& mvu) const;
+    MV MvParseSan(string_view s) const;
 
     /* test functions */
 

@@ -207,6 +207,9 @@
     <ClInclude Include="include\resource.h" />
     <ClInclude Include="include\test.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="chess.natvis" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -25,6 +25,7 @@ GAME::GAME(const string& fenStart, shared_ptr<PL> pplWhite, shared_ptr<PL> pplBl
 {
     appl[cpcWhite] = pplWhite;
     appl[cpcBlack] = pplBlack;
+    First(GS::NotStarted);
 }
 
 void GAME::AddListener(LGAME* plgame)
@@ -67,6 +68,14 @@ void GAME::NotifyPlChanged(void)
 {
     for (LGAME* plgame : vplgame)
         plgame->PlChanged();
+}
+
+void GAME::First(GS gs)
+{
+    this->gs = gs;
+    tpStart = chrono::system_clock::now();
+    fenFirst = bd.FenRender();
+    imvFirst = (int)bd.vmvuGame.size();
 }
 
 void GAME::Start(void)

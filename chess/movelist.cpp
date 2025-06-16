@@ -65,7 +65,7 @@ void WNML::DrawLine(const RC& rcLine, int li)
     /* draw the move number */
     RC rc = rcLine.RcInflate(0, -2);
     DrawSCenter(to_string(li+1), tf, rc.RcSetWidth(dxMoveNum));
-    int imvDraw = li * 2;
+    int imvDraw = (game.imvFirst + 2*li) / 2 * 2;
     if (imvDraw >= game.bd.vmvuGame.size())
         return;
 
@@ -74,8 +74,8 @@ void WNML::DrawLine(const RC& rcLine, int li)
     rc.right = rc.ptCenter().x;
 
     /* need the complete board state to decode move strings */
-    BD bdT(fenStartPos);
-    for (int imv = 0; imv < imvDraw; imv++)
+    BD bdT(game.fenFirst);
+    for (int imv = game.imvFirst; imv < imvDraw; imv++)
         bdT.MakeMv(game.bd.vmvuGame[imv]);
 
     /* draw the white player's move */
@@ -84,7 +84,8 @@ void WNML::DrawLine(const RC& rcLine, int li)
     /* draw the black palyer's move */
     if (imvDraw+1 >= game.bd.vmvuGame.size())
         return;
-    bdT.MakeMv(game.bd.vmvuGame[imvDraw]);
+    if (!game.bd.vmvuGame[imvDraw].fIsNil())
+        bdT.MakeMv(game.bd.vmvuGame[imvDraw]);
     DrawSCenter(bdT.SDecodeMvu(game.bd.vmvuGame[imvDraw+1]), tf, rc.RcTileRight());
 }
 
@@ -101,7 +102,7 @@ void WNML::PlChanged(void)
 
 void WNML::BdChanged(void)
 {
-    int fnm = (int)game.bd.vmvuGame.size() / 2 + 1;
+    int fnm = ((int)game.bd.vmvuGame.size() - game.imvFirst) / 2 + 1;
     SetContentCli(fnm);
     Redraw();
 }

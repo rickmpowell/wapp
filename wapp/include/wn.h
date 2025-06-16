@@ -201,6 +201,9 @@ public:
  *  A window that accepts an output stream. Yeah, kind of weird, but
  *  generally useful in a couple cases, and allows us to send formatted
  *  text directly to a window.
+ * 
+ *  This stream buffer supports indentation levels with the indent and
+ *  outdent modifiers.
  */
 
 class WNSTREAM;
@@ -217,11 +220,48 @@ private:
     string buffer;
 };
 
+class indentation
+{
+public:
+    static int index(void)
+    {
+        static int idx = ios_base::xalloc();
+        return idx;
+    }
+
+    static void increase(ostream& os)
+    {
+        os.iword(index()) += 1;
+    }
+
+    static void decrease(ostream& os)
+    {
+        assert(os.iword(index()) > 0);
+        os.iword(index()) -= 1;
+    }
+
+    static int get_level(ostream& os)
+    {
+        return os.iword(index());
+    }
+};
+
+inline ostream& indent(ostream& os)
+{
+    indentation::increase(os);
+    return os;
+}
+
+inline ostream& outdent(ostream& os)
+{
+    indentation::decrease(os);
+    return os;
+}
 class WNSTREAM : public WN, public ostream
 {
 public:
     WNSTREAM(WN& wnParent);
-    virtual void ReceiveStream(const string& s) = 0;
+    virtual void ReceiveStream(int level, const string& s) = 0;
 
 private:
     wnstreambuf sb;

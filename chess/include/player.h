@@ -62,35 +62,71 @@ public:
         evAlpha(evAlpha), 
         evBeta(evBeta) 
     {
+        assert(evAlpha <= evBeta);
     }
 
     AB operator - () const noexcept
     {
+        assert(evAlpha <= evBeta);
         return AB(-evBeta, -evAlpha);
     }
 
     bool FPrune(const MV& mv) noexcept
     {
-        if (mv.ev >= evBeta)
-            return true;
-        evAlpha = max(evAlpha, mv.ev);
+        assert(evAlpha <= evBeta);
+        if (mv.ev > evAlpha) {
+            evAlpha = mv.ev;
+            if (mv.ev >= evBeta) {
+                evAlpha = evBeta;
+                return true;
+            }
+        }
         return false;
     }
 
     bool FPrune(const MV& mv, MV& mvBest) noexcept    
     {
-        if (mv.ev >= evBeta)
-            return true;
+        assert(evAlpha <= evBeta);
+        if (mv.ev > mvBest.ev)
+            mvBest = mv;
         if (mv.ev > evAlpha) {
             evAlpha = mv.ev;
-            mvBest = mv;
+            if (mv.ev >= evBeta) {
+                evAlpha = evBeta;
+                return true;
+            }
         }
         return false;
+    }
+
+    void AdjustMissLow(void) noexcept 
+    {
+    	int dev = evBeta - evAlpha;
+		if (evBeta < evMateMin)	
+			evBeta -= dev / 2;
+		evAlpha = dev > 200 ? -evInfinity : max(evAlpha - dev, -evInfinity);
+        assert(evAlpha <= evBeta);
+    }
+
+	void AdjustMissHigh(void) noexcept 
+    {
+		int dev = evBeta - evAlpha;
+		if (evAlpha > -evMateMin)
+			evAlpha += dev / 2;
+		evBeta = dev > 200 ? evInfinity : min(evBeta + dev, evInfinity);
+        assert(evAlpha <= evBeta);
     }
 
     EV evAlpha;
     EV evBeta;
 };
+
+inline AB AbAspiration(EV ev, EV dev) noexcept
+{
+    return AB(max(ev - dev, -evInfinity), min(ev + dev, evInfinity));
+}
+
+string to_string(AB ab);
 
 /*
  *  XT
@@ -126,9 +162,9 @@ public:
     {
         EV ev = evBiased;
         if (FEvIsMate(ev))
-            ev += d;
-        else if (FEvIsMate(-ev))
             ev -= d;
+        else if (FEvIsMate(-ev))
+            ev += d;
         return ev;
     }
 
@@ -189,12 +225,14 @@ public:
     void SetLevel(int level);
 
     virtual void RequestMv(WAPP& wapp, GAME& game) override;
+    MV MvBestTest(WAPP& wapp, GAME& game);
 
     /* basic alpha-beta search */
 
     MV MvBest(BD& bd) noexcept;
     EV EvSearch(BD& bd, AB ab, int d, int dLim) noexcept;
     EV EvQuiescent(BD& bd, AB ab, int d) noexcept;
+    bool FDeepen(BD& bd, MV mvBest, AB& ab, int& d, int dMax) noexcept;
 
     inline bool FInterrupt(void) noexcept
     {

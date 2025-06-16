@@ -24,12 +24,14 @@ static string SEscapeQuoted(const string& s);
 void GAME::InitFromFen(istream& is)
 {
     bd.InitFromFen(is);
+    First(GS::NotStarted);
     NotifyBdChanged();
 }
 
 void GAME::InitFromFen(const string& fen)
 {
     bd.InitFromFen(fen);
+    First(GS::NotStarted);
     NotifyBdChanged();
 }
 
@@ -264,22 +266,51 @@ void GAME::InitFromEpd(const string& epd)
 
 void GAME::InitFromEpd(istream& is)
 {
-    mpopvalepd.clear();
+    mpkeyval.clear();
     bd.InitFromFenShared(is);
-    while (FReadEpdOp(is))
-        ;
+
+    /* check if this EPD line has half-move clock and full-move number in it */
+    string sHalfMove;
+    if (!(is >> sHalfMove))
+        return;
+    int cmv;
+    from_chars_result res = from_chars(sHalfMove.data(), sHalfMove.data() + sHalfMove.size(), cmv);
+    if (res.ec == errc{}) {
+        bd.SetHalfMoveClock(cmv);
+        string sFullMove;
+        if (!(is >> sFullMove))
+            throw ERR(rssErrEpdFullMoveNumber);
+        from_chars_result res = from_chars(sFullMove.data(), sFullMove.data() + sFullMove.size(), cmv);
+        if (res.ec != errc{})
+            throw ERR(rssErrEpdFullMoveNumber);
+        bd.SetFullMoveNumber(cmv);
+        ReadEpdOpCodes(is, "");
+        }
+    else {
+        ReadEpdOpCodes(is, sHalfMove);
+    }
 
     /* handle half move clock (hmvc) and full move number (fmvn) opcodes */
-    if (mpopvalepd.find("hmvc") != mpopvalepd.end())
-        bd.SetHalfMoveClock((int)mpopvalepd["hmvc"][0].w);
+    if (mpkeyval.find("hmvc") != mpkeyval.end())
+        bd.SetHalfMoveClock((int)mpkeyval["hmvc"][0].w);
 
-    if (mpopvalepd.find("fmvn") != mpopvalepd.end())
-        bd.SetHalfMoveClock((int)mpopvalepd["fmvn"][0].w);
+    if (mpkeyval.find("fmvn") != mpkeyval.end())
+        bd.SetHalfMoveClock((int)mpkeyval["fmvn"][0].w);
 
-    tpStart = chrono::system_clock::now();
-    gs = GS::Paused;
+    First(GS::Paused);
 
     NotifyBdChanged();
+}
+
+void GAME::ReadEpdOpCodes(istream& is, const string& op)
+{
+    if (!op.empty()) {
+        while (FReadEpdOpValue(is, op))
+            ;
+    }
+
+    while (FReadEpdOp(is))
+        ;
 }
 
 bool GAME::FReadEpdOp(istream& is)
@@ -335,7 +366,7 @@ bool GAME::FReadEpdOpValue(istream& is, const string& op)
                 break;
             sVal += ch;
         }
-        AddEpdOp(op, VALEPD(VALEPD::TY::String, sVal));
+        AddKey(op, VALEPD(VALEPD::TY::String, sVal));
     }
     else if (inrange(ch, '1', '9')) {
         iVal = ch = '0';
@@ -354,24 +385,24 @@ ParseNum:
             }
             else if (ch == '.') {
                 if (!fInteger)
-                    throw;  // TODO: illegal number
+                    throw ERR(rssErrEpdIllegalNumber); 
                 cchFrac = 0;
                 fInteger = false;
                 flVal = (double)iVal;
                 iVal = 0;
             }
             else {
-                throw;  // TODO: illegal character in number
+                throw ERR(rssErrEpdIllegalNumber);  // TODO: illegal character in number
             }
         }
         if (!fInteger) {
             flVal = flVal + iVal / pow(10, cchFrac);
             flVal *= -fNegative;
-            AddEpdOp(op, VALEPD(VALEPD::TY::Float, flVal));
+            AddKey(op, VALEPD(VALEPD::TY::Float, flVal));
         }
         else {
             iVal *= -fNegative;
-            AddEpdOp(op, VALEPD(VALEPD::TY::Integer, iVal));
+            AddKey(op, VALEPD(VALEPD::TY::Integer, iVal));
         }
     }
     else {
@@ -379,17 +410,17 @@ ParseNum:
         string sMove(1, ch);
         while (FNextCh(is, ch))
             sMove += ch;
-        AddEpdOp(op, VALEPD(VALEPD::TY::Move, sMove));
+        AddKey(op, VALEPD(VALEPD::TY::Move, sMove));
     }
 
     return true;
 }
 
-void GAME::AddEpdOp(const string& op, const VALEPD& val)
+void GAME::AddKey(const string& key, const VALEPD& val)
 {
-    auto itepd = mpopvalepd.find(op);
-    if (itepd == mpopvalepd.end())
-        mpopvalepd.emplace(op, vector<VALEPD>{val});
+    auto itepd = mpkeyval.find(key);
+    if (itepd == mpkeyval.end())
+        mpkeyval.emplace(key, vector<VALEPD>{val});
     else 
         itepd->second.emplace_back(val);
 }
@@ -406,13 +437,13 @@ string GAME::EpdRender(void)
     /* overwrite any old half move clock and full move number */
 
     VALEPD val(VALEPD::TY::Integer, (int64_t)bd.cmvNoCaptureOrPawn);
-    mpopvalepd["hmvc"] = vector<VALEPD>({ val });
+    mpkeyval["hmvc"] = vector<VALEPD>({ val });
     val.w = bd.vmvuGame.size() / 2 + 1;
-    mpopvalepd["fmvn"] = vector<VALEPD>({ val });
+    mpkeyval["fmvn"] = vector<VALEPD>({ val });
 
     /* opcodes */
 
-    for (auto it = mpopvalepd.begin(); it != mpopvalepd.end(); ++it) {
+    for (auto it = mpkeyval.begin(); it != mpkeyval.end(); ++it) {
         s += " ";
         s += it->first;
         for (const VALEPD& valepd : it->second) {
@@ -441,14 +472,14 @@ string GAME::EpdRender(void)
 }
 
 /*
- *  GAME::MvParseSan
+ *  BD::MvParseSan
  *
  *  Parses a Standard Algebraic Notation move string. Because the EPD spec 
  *  uses disambiguation, we need a current board state in order to parse 
  *  these strings.
  */
 
-MV GAME::MvParseSan(string_view s) const
+MV BD::MvParseSan(string_view s) const
 {
     CPT cpt = cptPawn;
     int raDisambig = -1;
@@ -472,7 +503,7 @@ MV GAME::MvParseSan(string_view s) const
     /* get the piece that moves */
     {
         if (ich >= s.size())
-            throw;
+            throw ERR(rssErrParseMoveGeneric);
         size_t cptT = sParseBoard.find(s[ich]);
         if (cptT != string::npos && inrange((CPT)cptT, cptPawn, cptKing)) {
             cpt = (CPT)cptT;
@@ -482,7 +513,7 @@ MV GAME::MvParseSan(string_view s) const
 
     /* handle disambiguation rank and file */
     if (ich + 1 >= s.size())
-        throw;
+        throw ERR(rssErrParseMoveGeneric);
     if (inrange(s[ich], '1', '8'))
         raDisambig = s[ich++] - '1';
     else if (inrange(s[ich], 'a', 'h') && (s[ich + 1] == 'x' || inrange(s[ich + 1], 'a', 'h')))
@@ -490,47 +521,48 @@ MV GAME::MvParseSan(string_view s) const
 
     /* skip over capture */
     if (ich >= s.size())
-        throw;
+        throw ERR(rssErrParseMoveGeneric);
     if (s[ich] == 'x')
         ich++;
     /* destination square */
     if (ich + 1 >= s.size())
-        throw;
+        throw ERR(rssErrParseMoveDestination);
     if (!inrange(s[ich], 'a', 'h') || !inrange(s[ich + 1], '1', '8'))
-        throw;
+        throw ERR(rssErrParseMoveDestination);;
     sqTo = Sq(s[ich] - 'a', s[ich + 1] - '1');
     ich += 2;
 
     /* promotion */
     if (ich < s.size() && s[ich] == '=') {
         if (++ich >= s.size())
-            throw;
+            throw ERR(rssErrParseMovePromote);;
         size_t cptT = sParseBoard.find(s[ich]);
         if (cptT == string::npos || !inrange((CPT)cptT, cptKnight, cptQueen))
-            throw;
+            throw ERR(rssErrParseMovePromote);
         cptPromote = (CPT)cptT;
+        ich++;
     }
 
     /* check and mate marks */
     if (ich < s.size()) {
         if (s[ich] != '+' && s[ich] != '#')
-            throw;
+            throw ERR(rssErrParseMoveSuffix);
         ich++;
     }
 
     if (ich != s.size())
-        throw;
+        throw ERR(rssErrParseMoveSuffix);
 
 Lookup:
     /* look up the move in the currrent legal move list */
     VMV vmv;
-    bd.MoveGen(vmv);
+    MoveGen(vmv);
     for (MV& mv : vmv) {
         if (csMove) {
             if (csMove == mv.csMove)
                 return mv;
         }
-        else if ((sqTo == mv.sqTo && bd[mv.sqFrom].cpt == cpt) &&
+        else if ((sqTo == mv.sqTo && (*this)[mv.sqFrom].cpt == cpt) &&
             (fiDisambig == -1 || fi(mv.sqFrom) == fiDisambig) &&
             (raDisambig == -1 || ra(mv.sqFrom) == raDisambig) &&
             (cptPromote == cptNone || mv.cptPromote == cptPromote))
@@ -538,7 +570,7 @@ Lookup:
     }
 
     /* no move matched */
-    throw;
+    throw ERR(rssErrParseMoveNotAMove);
 }
 
 /*
@@ -552,14 +584,12 @@ Lookup:
 
 void GAME::InitFromPgn(istream& is)
 {
-    tpStart = chrono::system_clock::now();  // default date
-    gs = GS::GameOver;  // PGN files are generally completed games
-
     string key, sVal;
     while (FReadPgnTagPair(is, key, sVal))
         SaveTagPair(key, sVal);
     ReadPgnMoveList(is);
     
+    First(GS::GameOver);
     NotifyBdChanged();
 }
 
@@ -578,17 +608,17 @@ bool GAME::FReadPgnTagPair(istream& is, string& tag, string& sVal)
     /* must have opening bracket */
     auto pch = sLine.begin();
     if (*pch++ != '[')
-        throw;
+        throw ERR(rssErrPgnExpectedBracket);
     
     /* read tag */
     for (tag = ""; pch < sLine.end(); tag += *pch++)
         if (*pch == ' ')
             break;
     if (pch == sLine.end())
-        throw;
+        throw ERR(rssErrPgnNoValue);
     pch++;
     if (pch == sLine.end())
-        throw;
+        throw ERR(rssErrPgnNoValue);
 
     /* value is either a quoted string or an unquoted run of text terminated by the ] */
     if (*pch == '"') {
@@ -608,23 +638,23 @@ bool GAME::FReadPgnTagPair(istream& is, string& tag, string& sVal)
 
     /* must have closing bracket */
     if (pch == sLine.end() || *pch != ']')
-        throw;
+        throw ERR(rssErrPgnNoCloseBracket);
     pch++;
     if (pch != sLine.end())
-        throw;
+        throw ERR(rssErrPgnExtraneousKeyValue);
 
     return true;
 }
 
 void GAME::SaveTagPair(const string& tag, const string& sVal)
 {
-    /* should do special cases of the tags we know about, and then save
-       all other tags as generic strings */
+    /* should do special cases of the tags we know about */
+    AddKey(tag, VALEPD(VALEPD::TY::String, sVal));
 }
 
 void GAME::ReadPgnMoveList(istream& is)
 {
-    InitFromFen(fenStartPos);
+    bd.InitFromFen(mpkeyval.find("FEN") == mpkeyval.end() ? fenStartPos : mpkeyval["FEN"][0].s);
 
     string s;
     while (is >> s) {
@@ -646,7 +676,7 @@ void GAME::ParsePgnMoveNumber(const string& s)
         if (!isdigit(*pch)) {
             if (*pch == '.')
                 break;
-            throw;
+            throw ERR(rssErrPgnMoveNumber);
         }
         fmn = 10 * fmn + *pch - '0';
     }
@@ -654,7 +684,7 @@ void GAME::ParsePgnMoveNumber(const string& s)
     int cchDot = 0;
     for (; pch != s.end(); ++pch) {
         if (*pch != '.')
-            throw;
+            throw ERR(rssErrPgnMoveNumber);
         cchDot++;
     }
 
@@ -664,7 +694,7 @@ void GAME::ParsePgnMoveNumber(const string& s)
 
 void GAME::ParseAndMakePgnMove(const string& s)
 {
-    MV mv = MvParseSan(s);
+    MV mv = bd.MvParseSan(s);
     bd.MakeMv(mv);
 }
 
@@ -793,6 +823,9 @@ void GAME::RenderPgnMoveList(ostream& os) const
 
 string BD::SDecodeMvu(const MVU& mvu) const
 {
+    if (mvu.fIsNil())
+        return "-";
+
     VMV vmv;
     MoveGen(vmv);
     string s;

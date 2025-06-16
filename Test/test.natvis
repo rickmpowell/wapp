@@ -1,0 +1,5 @@
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="TESTC">
+		<DisplayString>{to_string()}</DisplayString>
+	</Type>
+</AutoVisualizer>

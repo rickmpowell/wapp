@@ -1,43 +1,27 @@
 #include <windows.h>
-#include <memory>
-#include <vector>
+#include <string>
 
-
-class MV
+class TESTC
 {
 public:
-    MV(int sqFrom, int sqTo) :
+    TESTC(int sqFrom, int sqTo) :
         sqFrom(sqFrom), sqTo(sqTo)
     {
+    }
+
+    std::string to_string(void) const
+    {
+        return std::string(1, sqFrom + 'a');
     }
 
 private:
     int sqFrom, sqTo;
 };
 
-class MVU : public MV
-{
-public:
-    MVU(const MV& mv, int cp) :
-        MV(mv),
-        cpTake(cp)
-    {
-    }
-
-private:
-    int cpTake;
-};
-
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
+    TESTC mv(1, 2);
+
     return 1;
-}
-
-std::vector<MVU> vmvu;
-
-void Test(MV mv)
-{
-    vmvu.emplace_back(mv, 7);
-
 }

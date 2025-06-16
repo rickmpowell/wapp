@@ -56,7 +56,7 @@ public:
     virtual void Wheel(const PT& pt, int dwheel) override;
 
     void clear(void);
-    virtual void ReceiveStream(const string& s) override;
+    virtual void ReceiveStream(int level, const string& s) override;
 
     void RenderLog(ostream& os) const;
     void Save(void) const;
@@ -76,19 +76,6 @@ private:
     float dyLine;
     virtual void DrawLine(const RC& rcLine, int li) override;
     virtual float DyLine(void) const override;
-};
-
-class indent 
-{
-    int cIndent;
-public:
-    explicit indent(int c) : cIndent(c) {}
-    friend ostream& operator << (ostream& os, const indent& in)
-    {
-        for (int i = 0; i < in.cIndent * 4; ++i)
-            os.put(' ');
-        return os;
-    }
 };
 
 extern bool fValidate;

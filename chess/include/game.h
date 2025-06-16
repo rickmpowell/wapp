@@ -89,6 +89,7 @@ public:
 
     /* game control */
 
+    void First(GS gs);
     void Start(void);
     void End(void);
     void Pause(void);
@@ -109,12 +110,13 @@ public:
 
     void InitFromEpd(istream& is);
     void InitFromEpd(const string& epd);
+    void ReadEpdOpCodes(istream& is, const string& op);
     bool FReadEpdOp(istream& is);
     bool FReadEpdOpValue(istream& is, const string& opcode);
 
     void RenderEpd(ostream& os);
     string EpdRender(void);
-    void AddEpdOp(const string& os, const VALEPD& val);
+    void AddKey(const string& key, const VALEPD& val);
 
     /* PGN reading and writing */
 
@@ -133,10 +135,10 @@ public:
     void RenderPgnTagPair(ostream& os, string_view tag, const string& sValue) const;
     string SPgnDate(chrono::time_point<chrono::system_clock> tm) const;
 
-    MV MvParseSan(string_view s) const;
-
 public:
     GS gs = GS::NotStarted;
+    string fenFirst;    // FEN that defines the opening position of the game
+    int imvFirst = 0; // move number of the opening position of the game
     BD bd;
     shared_ptr<PL> appl[2];
 
@@ -150,9 +152,10 @@ public:
     MATY maty = MATY::Random1ThenAlt;
     int cgaPlayed = 0;  // number of games played between the players
 
+    map<string, vector<VALEPD>> mpkeyval; // EPD/PGN file properties
+
 private:
     vector<LGAME*> vplgame; // listeners who get notified on changes
-    map<string, vector<VALEPD>> mpopvalepd; // EPD file properties
     chrono::time_point<chrono::system_clock> tpStart;   // start time of the game
 };
 

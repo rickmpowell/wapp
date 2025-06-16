@@ -1,8 +1,16 @@
+  Interface for picking piece on pawn promotions
+  Detect insufficient material draws
+  Add display depth to log window
+  Enable partial lines to log window
+  Add aspiration window to root search
+  Keep track of beginning position and move number in the GAME
+  Use std::variant for EPD and PGN properties
+  Implement an AI test browser that reads files with EPD lines
+  Implement a board editor
+  Implement a PGN game browser
   More intelligent aging of transposition table entries
-  Use good captures/bad captures in move list sorting
   Add the ability to pause a game
   Implement clicking on movelist
-  Change CMDMAKEMOVE to use game move list for undo/redo
   Add an AI test
   Implement WN based on an HWND
   Track down smaller icons for log toolbar
@@ -11,8 +19,7 @@
   Add the ability to set a FEN in New Game
   Pretty moves in move list.
   Disable UI when AI is thinking
-  Display game over state 
-  Save option for log
+  Display game over/playing state in movelist
   Implement game properties and use for PGN header tags
   Can we make dialog boxes Windows HWNDs?
   Convert New Game dialog to use resources
@@ -32,6 +39,8 @@
   Convert about box to dialog box
   Convert error messages to dialog box
   Add tooltip support
+* Save option for log
+* Use good captures/bad captures in move list sorting
 * Add iterative deepening
 * Build transposition table
 * Export PGN files

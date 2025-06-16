@@ -399,7 +399,8 @@ bool WN::FKeyDown(int vk)
 
 using int_type = streambuf::traits_type::int_type;
 
-wnstreambuf::wnstreambuf(WNSTREAM& wnstream) : wnstream(wnstream)
+wnstreambuf::wnstreambuf(WNSTREAM& wnstream) : 
+    wnstream(wnstream)
 {
 }
 
@@ -408,7 +409,8 @@ int_type wnstreambuf::overflow(int_type ch)
     if (ch == traits_type::eof())
         return ch;
     if (ch == '\n') {
-        wnstream.ReceiveStream(buffer);
+        int level = indentation::get_level(wnstream);
+        wnstream.ReceiveStream(level, buffer);
         buffer.clear();
     }
     else {
@@ -417,7 +419,10 @@ int_type wnstreambuf::overflow(int_type ch)
     return ch;
 }
 
-WNSTREAM::WNSTREAM(WN& wnParent) : WN(wnParent), ostream(&sb), sb(*this)
+WNSTREAM::WNSTREAM(WN& wnParent) : 
+    WN(wnParent), 
+    ostream(&sb), 
+    sb(*this)
 {
 }
 

@@ -53,6 +53,18 @@
 #define rssErrFenBadHalfMoveClock 138
 #define rssErrFenBadFullMoveNumber 139
 #define rssErrEpdNoEndQuote 140
+#define rssErrParseMovePromote 141
+#define rssErrParseMoveSuffix 142
+#define rssErrParseMoveNotAMove 143
+#define rssErrPgnExpectedBracket 144
+#define rssErrPgnNoValue 145
+#define rssErrPgnNoCloseBracket 146
+#define rssErrPgnExtraneousKeyValue 147
+#define rssErrPgnMoveNumber 148
+#define rssErrEpdFullMoveNumber 149
+#define rssErrEpdIllegalNumber 150
+#define rssErrParseMoveGeneric 151
+#define rssErrParseMoveDestination 152
 
 #define rssColor 256
 #define rssWhite 256
