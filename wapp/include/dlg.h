@@ -61,6 +61,22 @@ protected:
  *  TODO: we can probably make this a lot more compatible with the DLG
  */
 
+struct OFN
+{
+public:
+    OFN(int cwch)
+    {
+        memset(&ofn, 0, sizeof(ofn));
+        ofn.lStructSize = sizeof(ofn);
+        wsFilter = make_unique<wchar_t[]>(cwch);
+        wsFile = make_unique<wchar_t[]>(cwch);
+    }
+
+    OPENFILENAMEW ofn;
+    unique_ptr<wchar_t[]> wsFilter;
+    unique_ptr<wchar_t[]> wsFile;
+};
+
 class DLGFILE : public DLG
 {
 public:
@@ -68,6 +84,7 @@ public:
 
 protected:
     void BuildFilter(wchar_t* wsFilter, int cchFilter);
+    OFN OfnDefault(void);
 
 public:
     map<string, string> mpextsLabel;
@@ -80,6 +97,15 @@ class DLGFILEOPEN : public DLGFILE
 public:
     DLGFILEOPEN(IWAPP& wapp);
     virtual bool FRun(void) override;
+};
+
+class DLGFILEOPENMULTI : public DLGFILEOPEN
+{
+public:
+    DLGFILEOPENMULTI(IWAPP& wapp);
+    virtual bool FRun(void) override;
+public:
+    vector<string> vfile;
 };
 
 class DLGFILESAVE : public DLGFILE

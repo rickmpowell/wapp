@@ -16,6 +16,8 @@ wstring WsFromS(const string& s);
 string SFromWs(const wstring& ws);
 wstring WsFromS(string_view s);
 string SFromWs(wstring_view ws);
+wstring WsFromS(char* s);
+string SFromWs(const wchar_t* ws);
 
 string SCapitalizeFirst(const string& s);
 

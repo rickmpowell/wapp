@@ -113,6 +113,7 @@ public:
     void ReadEpdOpCodes(istream& is, const string& op);
     bool FReadEpdOp(istream& is);
     bool FReadEpdOpValue(istream& is, const string& opcode);
+    bool FValidEpdOp(const string& op) const;
 
     void RenderEpd(ostream& os);
     string EpdRender(void);

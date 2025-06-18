@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Test Files">
+      <UniqueIdentifier>{ea9453e5-5c8f-4dab-a77f-e720e0e4bcd6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -69,7 +72,84 @@
     <None Include="resources\Chess_Pieces_Sprite.svg">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="cpp.hint" />
+    <None Include="test\arsan21.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\BK-Test.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\CCR-One-Hour-Test.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\Eigenmann-Rapid-Engine-test.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\Kaufman-Test.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\LCT-II.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\Null-Move-Test.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\Silent-But-Deadly.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS1.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS2.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS3.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS4.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS5.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS6.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS7.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS8.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS9.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS10.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS11.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS12.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS13.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS14.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\STS15.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\The-Nolot-Suite.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="test\Win-At-Chess-New.epd">
+      <Filter>Test Files</Filter>
+    </None>
+    <None Include="cpp.hint">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\chess.h">

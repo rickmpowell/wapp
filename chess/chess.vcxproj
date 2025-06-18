@@ -195,6 +195,31 @@
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="resources\Chess_Pieces_Sprite.svg" />
+    <None Include="test\arsan21.epd" />
+    <None Include="test\BK-Test.epd" />
+    <None Include="test\CCR-One-Hour-Test.epd" />
+    <None Include="test\Eigenmann-Rapid-Engine-test.epd" />
+    <None Include="test\Kaufman-Test.epd" />
+    <None Include="test\LCT-II.epd" />
+    <None Include="test\Null-Move-Test.epd" />
+    <None Include="test\Silent-But-Deadly.epd" />
+    <None Include="test\STS1.epd" />
+    <None Include="test\STS10.epd" />
+    <None Include="test\STS11.epd" />
+    <None Include="test\STS12.epd" />
+    <None Include="test\STS13.epd" />
+    <None Include="test\STS14.epd" />
+    <None Include="test\STS15.epd" />
+    <None Include="test\STS2.epd" />
+    <None Include="test\STS3.epd" />
+    <None Include="test\STS4.epd" />
+    <None Include="test\STS5.epd" />
+    <None Include="test\STS6.epd" />
+    <None Include="test\STS7.epd" />
+    <None Include="test\STS8.epd" />
+    <None Include="test\STS9.epd" />
+    <None Include="test\The-Nolot-Suite.epd" />
+    <None Include="test\Win-At-Chess-New.epd" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\board.h" />

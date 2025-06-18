@@ -1,8 +1,13 @@
+  Display final results of AI test at end of test
+  Add king safety to static eval
+  Add pawn structure to static eval
+  Gray out problematic command in menus when UI is disabled
+  Disable UI during AI test
+  Implement time control options to search that are based on the various UCI options
   Interface for picking piece on pawn promotions
   Detect insufficient material draws
   Add display depth to log window
   Enable partial lines to log window
-  Add aspiration window to root search
   Keep track of beginning position and move number in the GAME
   Use std::variant for EPD and PGN properties
   Implement an AI test browser that reads files with EPD lines
@@ -11,13 +16,11 @@
   More intelligent aging of transposition table entries
   Add the ability to pause a game
   Implement clicking on movelist
-  Add an AI test
   Implement WN based on an HWND
   Track down smaller icons for log toolbar
   Add layout engine option to evenly size/space items within their owner, and use in VSEL
   Interrupt AI search
   Add the ability to set a FEN in New Game
-  Pretty moves in move list.
   Disable UI when AI is thinking
   Display game over/playing state in movelist
   Implement game properties and use for PGN header tags
@@ -39,6 +42,9 @@
   Convert about box to dialog box
   Convert error messages to dialog box
   Add tooltip support
+  Add an AI test
+* Pretty moves in move list.
+* Add aspiration window to root search
 * Save option for log
 * Use good captures/bad captures in move list sorting
 * Add iterative deepening

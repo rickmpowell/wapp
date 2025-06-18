@@ -149,6 +149,8 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
             if (ab.FPrune(*pmv, mvBest))
                 break;
         }
+        if (mvBest.ev > -evInfinity)
+            SaveXt(bd, mvBest, ab, 0, dLim);
         *pwnlog << outdent << "Best move: " << to_string(mvBest) << " " << to_string(mvBest.ev) << endl;
     } while (FDeepen(bd, mvBest, abAspiration, dLim, dMax));
 
@@ -303,7 +305,7 @@ void VMV::siterator::NextBestScore(void) noexcept
         {
             pmvBest = pmvCur;
             XTEV* pxtev = ppl->xt.Find(*pbd, 1, 1);
-            if (pxtev != nullptr && (EVT)pxtev->evt == EVT::Equal) {
+            if (pxtev != nullptr && ((EVT)pxtev->evt == EVT::Equal || (EVT)pxtev->evt == EVT::Higher)) {
                 for (pmvBest = pmvCur; pmvBest < pmvMac; pmvBest++)
                     if (*pmvBest == pxtev->Mv())
                         goto GotIt;

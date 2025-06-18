@@ -205,30 +205,60 @@ DLGFILEOPEN::DLGFILEOPEN(IWAPP& wapp) :
 {
 }
 
+OFN DLGFILE::OfnDefault(void)
+{
+    OFN ofn(1024);
+    ofn.ofn.hwndOwner = iwapp.hwnd;
+    ofn.ofn.hInstance = iwapp.hinst;
+    BuildFilter(ofn.wsFilter.get(), 1024);
+    ofn.ofn.lpstrFilter = ofn.wsFilter.get();
+    auto it = mpextsLabel.find(extDefault);
+    ofn.ofn.nFilterIndex = (int)distance(mpextsLabel.begin(), it) + 1;
+    ofn.ofn.lpstrFile = ofn.wsFile.get();
+    ofn.ofn.nMaxFile = 1024;
+    ofn.ofn.lpstrDefExt = WsFromS(extDefault).c_str();
+
+    wcscpy_s(ofn.wsFile.get(), 1024, WsFromS(path).c_str());
+
+    return move(ofn);
+}
+
 bool DLGFILEOPEN::FRun(void)
 {
-    wchar_t wsFile[1024] = { 0 };
+    OFN ofn(move(OfnDefault()));
+    ofn.ofn.lpstrTitle = L"Open";
+    ofn.ofn.Flags = OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER;
 
-    OPENFILENAMEW ofn = { 0 };
-    ofn.lStructSize = sizeof(OPENFILENAMEW);
-    ofn.hwndOwner = iwapp.hwnd;
-    ofn.hInstance = iwapp.hinst;
-    wchar_t wsFilter[1024] = { 0 };
-    BuildFilter(wsFilter, 1024);
-    ofn.lpstrFilter = wsFilter;
-    auto it = mpextsLabel.find(extDefault);
-    ofn.nFilterIndex = (int)distance(mpextsLabel.begin(), it) + 1;
-
-    ofn.lpstrFile = wsFile;
-    ofn.nMaxFile = size(wsFile);
-    ofn.lpstrTitle = L"Open";
-    ofn.Flags = OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER;
-    ofn.lpstrDefExt = WsFromS(extDefault).c_str();
-
-    if (!::GetOpenFileNameW(&ofn))
+    if (!::GetOpenFileNameW(&ofn.ofn))
         return false;
 
-    path = SFromWs(wstring_view(wsFile));
+    path = SFromWs(ofn.wsFile.get());
+    return true;
+}
+
+DLGFILEOPENMULTI::DLGFILEOPENMULTI(IWAPP& wapp) :
+    DLGFILEOPEN(wapp)
+{
+}
+
+bool DLGFILEOPENMULTI::FRun(void)
+{
+    OFN ofn(move(OfnDefault()));
+    ofn.ofn.lpstrTitle = L"Open";
+    ofn.ofn.Flags = OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT | OFN_EXPLORER;
+
+    if (!::GetOpenFileNameW(&ofn.ofn))
+        return false;
+
+    wchar_t* pwch = ofn.wsFile.get();
+    path = SFromWs(pwch);
+    for (pwch += wcslen(pwch) + 1; *pwch; pwch += wcslen(pwch) + 1)
+        vfile.emplace_back(SFromWs(pwch));
+    if (vfile.size() == 0) {
+        filesystem::path fpath(path);
+        path = fpath.parent_path().string();
+        vfile.emplace_back(fpath.filename().string());
+    }
     return true;
 }
 
@@ -240,29 +270,14 @@ DLGFILESAVE::DLGFILESAVE(IWAPP& wapp) :
 
 bool DLGFILESAVE::FRun(void)
 {
-    wchar_t wsFile[1024] = { 0 };
+    OFN ofn(move(OfnDefault()));
+    ofn.ofn.lpstrTitle = L"Save";
+    ofn.ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_EXPLORER;
 
-    OPENFILENAMEW ofn = { 0 };
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = iwapp.hwnd;
-    ofn.hInstance = iwapp.hinst;
-    wchar_t wsFilter[1024] = { 0 };
-    BuildFilter(wsFilter, 1024);
-    ofn.lpstrFilter = wsFilter;
-    auto it = mpextsLabel.find(extDefault);
-    ofn.nFilterIndex = (int)distance(mpextsLabel.begin(), it) + 1;
-    
-    wcscpy_s(wsFile, 1024, WsFromS(path).c_str());
-    ofn.lpstrFile = wsFile;
-    ofn.nMaxFile = size(wsFile);
-    ofn.lpstrTitle = L"Save";
-    ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_EXPLORER;
-    ofn.lpstrDefExt = WsFromS(extDefault).c_str();
-
-    if (!::GetSaveFileNameW(&ofn))
+    if (!::GetSaveFileNameW(&ofn.ofn))
         return false;
 
-    path = SFromWs(wstring_view(wsFile));
+    path = SFromWs(ofn.wsFile.get());
     return true;
 }
 

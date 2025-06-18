@@ -55,6 +55,16 @@ string SFromWs(wstring_view ws)
     return s;
 }
 
+wstring WsFromS(const char* s)
+{
+    return WsFromS(string_view(s));
+}
+
+string SFromWs(const wchar_t* ws)
+{
+    return SFromWs(wstring_view(ws));
+}
+
 /*
  *  SCapitalizeFirst
  * 

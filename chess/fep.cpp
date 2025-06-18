@@ -279,10 +279,10 @@ void GAME::InitFromEpd(istream& is)
         bd.SetHalfMoveClock(cmv);
         string sFullMove;
         if (!(is >> sFullMove))
-            throw ERR(rssErrEpdFullMoveNumber);
+            throw ERRAPP(rssErrEpdFullMoveNumber);
         from_chars_result res = from_chars(sFullMove.data(), sFullMove.data() + sFullMove.size(), cmv);
         if (res.ec != errc{})
-            throw ERR(rssErrEpdFullMoveNumber);
+            throw ERRAPP(rssErrEpdFullMoveNumber);
         bd.SetFullMoveNumber(cmv);
         ReadEpdOpCodes(is, "");
         }
@@ -323,12 +323,24 @@ bool GAME::FReadEpdOp(istream& is)
     if (is.eof())
         return false;
     
-    /* TODO: check for well-formed opcode */
+    if (!FValidEpdOp(op))
+        throw ERRAPP(rssErrEpdBadOp);
 
     while (FReadEpdOpValue(is, op))
         ;
 
     return true;
+}
+
+bool GAME::FValidEpdOp(const string& op) const
+{
+    if (op.size() == 0)
+        return false;
+    for (char ch : op) {
+        if (!inrange(ch, '0', '9') && !inrange(ch, 'a', 'z') && !inrange(ch, 'A', 'Z') && ch != '_')
+            return false;
+    }
+    return inrange(op[0], 'a', 'z') || inrange(op[0], 'A', 'Z');
 }
 
 /*
@@ -385,14 +397,14 @@ ParseNum:
             }
             else if (ch == '.') {
                 if (!fInteger)
-                    throw ERR(rssErrEpdIllegalNumber); 
+                    throw ERRAPP(rssErrEpdIllegalNumber); 
                 cchFrac = 0;
                 fInteger = false;
                 flVal = (double)iVal;
                 iVal = 0;
             }
             else {
-                throw ERR(rssErrEpdIllegalNumber);  // TODO: illegal character in number
+                throw ERRAPP(rssErrEpdIllegalNumber);  // TODO: illegal character in number
             }
         }
         if (!fInteger) {
@@ -503,7 +515,7 @@ MV BD::MvParseSan(string_view s) const
     /* get the piece that moves */
     {
         if (ich >= s.size())
-            throw ERR(rssErrParseMoveGeneric);
+            throw ERRAPP(rssErrParseMoveGeneric);
         size_t cptT = sParseBoard.find(s[ich]);
         if (cptT != string::npos && inrange((CPT)cptT, cptPawn, cptKing)) {
             cpt = (CPT)cptT;
@@ -513,7 +525,7 @@ MV BD::MvParseSan(string_view s) const
 
     /* handle disambiguation rank and file */
     if (ich + 1 >= s.size())
-        throw ERR(rssErrParseMoveGeneric);
+        throw ERRAPP(rssErrParseMoveGeneric);
     if (inrange(s[ich], '1', '8'))
         raDisambig = s[ich++] - '1';
     else if (inrange(s[ich], 'a', 'h') && (s[ich + 1] == 'x' || inrange(s[ich + 1], 'a', 'h')))
@@ -521,24 +533,24 @@ MV BD::MvParseSan(string_view s) const
 
     /* skip over capture */
     if (ich >= s.size())
-        throw ERR(rssErrParseMoveGeneric);
+        throw ERRAPP(rssErrParseMoveGeneric);
     if (s[ich] == 'x')
         ich++;
     /* destination square */
     if (ich + 1 >= s.size())
-        throw ERR(rssErrParseMoveDestination);
+        throw ERRAPP(rssErrParseMoveDestination);
     if (!inrange(s[ich], 'a', 'h') || !inrange(s[ich + 1], '1', '8'))
-        throw ERR(rssErrParseMoveDestination);;
+        throw ERRAPP(rssErrParseMoveDestination);;
     sqTo = Sq(s[ich] - 'a', s[ich + 1] - '1');
     ich += 2;
 
     /* promotion */
     if (ich < s.size() && s[ich] == '=') {
         if (++ich >= s.size())
-            throw ERR(rssErrParseMovePromote);;
+            throw ERRAPP(rssErrParseMovePromote);;
         size_t cptT = sParseBoard.find(s[ich]);
         if (cptT == string::npos || !inrange((CPT)cptT, cptKnight, cptQueen))
-            throw ERR(rssErrParseMovePromote);
+            throw ERRAPP(rssErrParseMovePromote);
         cptPromote = (CPT)cptT;
         ich++;
     }
@@ -546,12 +558,12 @@ MV BD::MvParseSan(string_view s) const
     /* check and mate marks */
     if (ich < s.size()) {
         if (s[ich] != '+' && s[ich] != '#')
-            throw ERR(rssErrParseMoveSuffix);
+            throw ERRAPP(rssErrParseMoveSuffix);
         ich++;
     }
 
     if (ich != s.size())
-        throw ERR(rssErrParseMoveSuffix);
+        throw ERRAPP(rssErrParseMoveSuffix);
 
 Lookup:
     /* look up the move in the currrent legal move list */
@@ -570,7 +582,7 @@ Lookup:
     }
 
     /* no move matched */
-    throw ERR(rssErrParseMoveNotAMove);
+    throw ERRAPP(rssErrParseMoveNotAMove);
 }
 
 /*
@@ -608,17 +620,17 @@ bool GAME::FReadPgnTagPair(istream& is, string& tag, string& sVal)
     /* must have opening bracket */
     auto pch = sLine.begin();
     if (*pch++ != '[')
-        throw ERR(rssErrPgnExpectedBracket);
+        throw ERRAPP(rssErrPgnExpectedBracket);
     
     /* read tag */
     for (tag = ""; pch < sLine.end(); tag += *pch++)
         if (*pch == ' ')
             break;
     if (pch == sLine.end())
-        throw ERR(rssErrPgnNoValue);
+        throw ERRAPP(rssErrPgnNoValue);
     pch++;
     if (pch == sLine.end())
-        throw ERR(rssErrPgnNoValue);
+        throw ERRAPP(rssErrPgnNoValue);
 
     /* value is either a quoted string or an unquoted run of text terminated by the ] */
     if (*pch == '"') {
@@ -638,10 +650,10 @@ bool GAME::FReadPgnTagPair(istream& is, string& tag, string& sVal)
 
     /* must have closing bracket */
     if (pch == sLine.end() || *pch != ']')
-        throw ERR(rssErrPgnNoCloseBracket);
+        throw ERRAPP(rssErrPgnNoCloseBracket);
     pch++;
     if (pch != sLine.end())
-        throw ERR(rssErrPgnExtraneousKeyValue);
+        throw ERRAPP(rssErrPgnExtraneousKeyValue);
 
     return true;
 }
@@ -676,7 +688,7 @@ void GAME::ParsePgnMoveNumber(const string& s)
         if (!isdigit(*pch)) {
             if (*pch == '.')
                 break;
-            throw ERR(rssErrPgnMoveNumber);
+            throw ERRAPP(rssErrPgnMoveNumber);
         }
         fmn = 10 * fmn + *pch - '0';
     }
@@ -684,7 +696,7 @@ void GAME::ParsePgnMoveNumber(const string& s)
     int cchDot = 0;
     for (; pch != s.end(); ++pch) {
         if (*pch != '.')
-            throw ERR(rssErrPgnMoveNumber);
+            throw ERRAPP(rssErrPgnMoveNumber);
         cchDot++;
     }
 
