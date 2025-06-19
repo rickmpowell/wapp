@@ -227,17 +227,22 @@ public:
 
     void Line(const PT& pt1, const PT& pt2, CO co = coNil, float dxyStroke = 1) const;
     void Line(const PT& pt1, const PT& pt2, const BR& br, float dxyStroke = 1) const;
+    
+    enum class FC {
+        Mono,
+        Color
+    };
 
-    void DrawS(const string& s, const TF& tf, const RC& rc, const BR& brText) const;
-    void DrawS(const string& s, const TF& tf, const RC& rc, CO coText = coNil) const;
-    void DrawS(string_view s, const TF& tf, const RC& rc, const BR& brText) const;
-    void DrawS(string_view s, const TF& tf, const RC& rc, CO coText = coNil) const;
-    void DrawSCenter(const string& s, TF& tf, const RC& rc, const BR& brText) const;
-    void DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText = coNil) const;
-    void DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText) const;
-    void DrawSCenterY(const string& s, TF& tf, const RC& rc, CO coText = coNil) const;
-    void DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText) const;
-    void DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText = coNil) const;
+    void DrawS(const string& s, const TF& tf, const RC& rc, const BR& brText, FC fc=FC::Color) const;
+    void DrawS(const string& s, const TF& tf, const RC& rc, CO coText = coNil, FC fc=FC::Color) const;
+    void DrawS(string_view s, const TF& tf, const RC& rc, const BR& brText, FC fc=FC::Color) const;
+    void DrawS(string_view s, const TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const;
+    void DrawSCenter(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc = FC::Color) const;
+    void DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const;
+    void DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc = FC::Color) const;
+    void DrawSCenterY(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const;
+    void DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc = FC::Color) const;
+    void DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const;
     SZ SzFromS(const string& s, const TF& tf, float dxWidth = -1.0f) const;
     FM FmFromTf(const TF& tf) const;
 

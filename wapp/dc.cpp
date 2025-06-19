@@ -337,6 +337,10 @@ void DC::DrawRc(const RC& rc, const BR& br, float dxyStroke) const
     iwapp.pdc2->DrawRectangle(&rcg, br, dxyStroke);
 }
 
+/*
+ *  Ellipses
+ */
+
 void DC::FillEll(const ELL& ellFill, CO coFill) const
 {
     if (coFill == coNil)
@@ -364,6 +368,9 @@ void DC::DrawEll(const ELL& ell, const BR& br, float dxyStroke) const
     iwapp.pdc2->DrawEllipse(&ellg, br, dxyStroke);
 }
 
+/*
+ *  Geometries
+ */
 
 void DC::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float angle, BR& brFill)
 {
@@ -383,6 +390,10 @@ void DC::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float
     FillGeom(geom, ptOffset, szScale, angle, brScratch.SetCo(coFill));
 }
 
+/*
+ *  Lines
+ */
+
 void DC::Line(const PT& pt1, const PT& pt2, CO co, float dxyStroke) const
 {
     if (co == coNil)
@@ -397,45 +408,51 @@ void DC::Line(const PT& pt1, const PT& pt2, const BR& br, float dxyStroke) const
     iwapp.pdc2->DrawLine(ptg1, ptg2, br, dxyStroke);
 }
 
-void DC::DrawS(const string& s, const TF& tf, const RC& rc, const BR& brText) const
+/*
+ *  Text
+ */
+
+void DC::DrawS(const string& s, const TF& tf, const RC& rc, const BR& brText, FC fc) const
 {
     RC rcg = RcgFromRc(rc);
     wstring ws(WsFromS(s));
-    iwapp.pdc2->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText);
+    iwapp.pdc2->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText, 
+                         fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
 }
 
-void DC::DrawS(string_view s, const TF& tf, const RC& rc, const BR& brText) const
+void DC::DrawS(string_view s, const TF& tf, const RC& rc, const BR& brText, FC fc) const
 {
     RC rcg = RcgFromRc(rc);
     wstring ws(WsFromS(s));
-    iwapp.pdc2->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText);
+    iwapp.pdc2->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText, 
+                         fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
 }
 
-void DC::DrawS(const string& s, const TF& tf, const RC& rc, CO coText) const
+void DC::DrawS(const string& s, const TF& tf, const RC& rc, CO coText, FC fc) const
 {
     if (coText == coNil)
         coText = CoText();
-    DrawS(s, tf, rc, brScratch.SetCo(coText));
+    DrawS(s, tf, rc, brScratch.SetCo(coText), fc);
 }
 
-void DC::DrawS(string_view s, const TF& tf, const RC& rc, CO coText) const
+void DC::DrawS(string_view s, const TF& tf, const RC& rc, CO coText, FC fc) const
 {
     if (coText == coNil)
         coText = CoText();
-    DrawS(s, tf, rc, brScratch.SetCo(coText));
+    DrawS(s, tf, rc, brScratch.SetCo(coText), fc);
 }
 
-void DC::DrawSCenter(const string& s, TF& tf, const RC& rc, const BR& brText) const
+void DC::DrawSCenter(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc) const
 {
     GUARDTFALIGNMENT sav(tf, DWRITE_TEXT_ALIGNMENT_CENTER);
-    DrawS(s, tf, rc, brText);
+    DrawS(s, tf, rc, brText, fc);
 }
 
-void DC::DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText) const
+void DC::DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText, FC fc) const
 {
     if (coText == coNil)
         coText = CoText();
-    DrawSCenter(s, tf, rc, brScratch.SetCo(coText));
+    DrawSCenter(s, tf, rc, brScratch.SetCo(coText), fc);
 }
 
 /*
@@ -447,7 +464,7 @@ void DC::DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText) const
  *  work for most text.
  */
 
-void DC::DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText) const
+void DC::DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc) const
 {
     RC rcg = RcgFromRc(rc);
     wstring ws(WsFromS(s));
@@ -464,17 +481,18 @@ void DC::DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText) 
     FM fm(FmFromTf(tf));
     float ygTop = (rcg.top + rcg.bottom + fm.dyXHeight) / 2 - dlm.baseline + (fm.dyDescent/2);
     float xgLeft = (rcg.left + rcg.right - dtm.width) / 2;
-    iwapp.pdc2->DrawTextLayout(PT(xgLeft, ygTop), ptxl.Get(), brText);
+    iwapp.pdc2->DrawTextLayout(PT(xgLeft, ygTop), ptxl.Get(), brText, 
+                               fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
 }
 
-void DC::DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText) const
+void DC::DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText, FC fc) const
 {
     if (coText == coNil)
         coText = CoText();
-    DrawSCenterXY(s, tf, rc, brScratch.SetCo(coText));
+    DrawSCenterXY(s, tf, rc, brScratch.SetCo(coText), fc);
 }
 
-void DC::DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText) const
+void DC::DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc) const
 {
     RC rcg = RcgFromRc(rc);
     wstring ws(WsFromS(s));
@@ -488,15 +506,20 @@ void DC::DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText) c
     ptxl->GetLineMetrics(&dlm, 1, &cdlm);
     FM fm(FmFromTf(tf));
     float ygTop = (rcg.top + rcg.bottom + fm.dyXHeight) / 2 - dlm.baseline + (fm.dyDescent/2);
-    iwapp.pdc2->DrawTextLayout(PT(rcg.left, ygTop), ptxl.Get(), brText);
+    iwapp.pdc2->DrawTextLayout(PT(rcg.left, ygTop), ptxl.Get(), brText, 
+                               fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
 }
 
-void DC::DrawSCenterY(const string& s, TF& tf, const RC& rc, CO coText) const
+void DC::DrawSCenterY(const string& s, TF& tf, const RC& rc, CO coText, FC fc) const
 {
     if (coText == coNil)
         coText = CoText();
-    DrawSCenterY(s, tf, rc, brScratch.SetCo(coText));
+    DrawSCenterY(s, tf, rc, brScratch.SetCo(coText), fc);
 }
+
+/*
+ *  Text metrics
+ */
 
 SZ DC::SzFromS(const string& s, const TF& tf, float dxWidth) const
 {
@@ -535,6 +558,10 @@ FM DC::FmFromTf(const TF& tf) const
 
     return fm;
 }
+
+/*
+ *  bitmaps
+ */
 
 void DC::DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity) const
 {

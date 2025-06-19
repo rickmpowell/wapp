@@ -266,7 +266,7 @@ void GAME::InitFromEpd(const string& epd)
 
 void GAME::InitFromEpd(istream& is)
 {
-    mpkeyval.clear();
+    mpkeyvar.clear();
     bd.InitFromFenShared(is);
 
     /* check if this EPD line has half-move clock and full-move number in it */
@@ -291,11 +291,11 @@ void GAME::InitFromEpd(istream& is)
     }
 
     /* handle half move clock (hmvc) and full move number (fmvn) opcodes */
-    if (mpkeyval.find("hmvc") != mpkeyval.end())
-        bd.SetHalfMoveClock((int)mpkeyval["hmvc"][0].w);
+    if (mpkeyvar.find("hmvc") != mpkeyvar.end())
+        bd.SetHalfMoveClock((int)get<int64_t>(mpkeyvar["hmvc"][0]));
 
-    if (mpkeyval.find("fmvn") != mpkeyval.end())
-        bd.SetHalfMoveClock((int)mpkeyval["fmvn"][0].w);
+    if (mpkeyvar.find("fmvn") != mpkeyvar.end())
+        bd.SetHalfMoveClock((int)get<int64_t>(mpkeyvar["fmvn"][0]));
 
     First(GS::Paused);
 
@@ -378,7 +378,7 @@ bool GAME::FReadEpdOpValue(istream& is, const string& op)
                 break;
             sVal += ch;
         }
-        AddKey(op, VALEPD(VALEPD::TY::String, sVal));
+        AddKey(op, sVal);
     }
     else if (inrange(ch, '1', '9')) {
         iVal = ch = '0';
@@ -410,31 +410,31 @@ ParseNum:
         if (!fInteger) {
             flVal = flVal + iVal / pow(10, cchFrac);
             flVal *= -fNegative;
-            AddKey(op, VALEPD(VALEPD::TY::Float, flVal));
+            AddKey(op, flVal);
         }
         else {
             iVal *= -fNegative;
-            AddKey(op, VALEPD(VALEPD::TY::Integer, iVal));
+            AddKey(op, iVal);
         }
     }
     else {
         /* otherwise it can only be a move, which is delimited by spaces */
-        string sMove(1, ch);
+        string s = string(1, ch);
         while (FNextCh(is, ch))
-            sMove += ch;
-        AddKey(op, VALEPD(VALEPD::TY::Move, sMove));
+            s += ch;
+        AddKey(op, s);
     }
 
     return true;
 }
 
-void GAME::AddKey(const string& key, const VALEPD& val)
+void GAME::AddKey(const string& key, const VAREPD& var)
 {
-    auto itepd = mpkeyval.find(key);
-    if (itepd == mpkeyval.end())
-        mpkeyval.emplace(key, vector<VALEPD>{val});
+    auto itepd = mpkeyvar.find(key);
+    if (itepd == mpkeyvar.end())
+        mpkeyvar.emplace(key, vector<VAREPD>{var});
     else 
-        itepd->second.emplace_back(val);
+        itepd->second.emplace_back(var);
 }
 
 void GAME::RenderEpd(ostream& os)
@@ -448,36 +448,28 @@ string GAME::EpdRender(void)
 
     /* overwrite any old half move clock and full move number */
 
-    VALEPD val(VALEPD::TY::Integer, (int64_t)bd.cmvNoCaptureOrPawn);
-    mpkeyval["hmvc"] = vector<VALEPD>({ val });
-    val.w = bd.vmvuGame.size() / 2 + 1;
-    mpkeyval["fmvn"] = vector<VALEPD>({ val });
+    VAREPD var = (int64_t)bd.cmvNoCaptureOrPawn;
+    mpkeyvar["hmvc"] = vector<VAREPD>({ var });
+    var =(int64_t)(bd.vmvuGame.size() / 2 + 1);
+    mpkeyvar["fmvn"] = vector<VAREPD>({ var });
 
     /* opcodes */
 
-    for (auto it = mpkeyval.begin(); it != mpkeyval.end(); ++it) {
+    for (auto pmp = mpkeyvar.begin(); pmp != mpkeyvar.end(); ++pmp) {
         s += " ";
-        s += it->first;
-        for (const VALEPD& valepd : it->second) {
+        s += pmp->first;
+        for (const VAREPD& varepd : pmp->second) {
             s += " ";
-            switch (valepd.valty) {
-            case VALEPD::TY::Integer:
-            case VALEPD::TY::Unsigned:
-                s += to_string(valepd.w);
-                break;
-            case VALEPD::TY::Float:
-                s += to_string(valepd.fl);
-                break;
-            case VALEPD::TY::String:
-                s += "\"" + valepd.s + "\"";
-                break;
-            case VALEPD::TY::Move:
-                s += valepd.s;
-                break;
-            default:
-                break;
-            }
-        }
+            if (holds_alternative<int64_t>(varepd))
+                s += to_string(get<int64_t>(varepd));
+            else if (holds_alternative<uint64_t>(varepd))
+                s += to_string(get<uint64_t>(varepd));
+            else if (holds_alternative<double>(varepd))
+                s += to_string(get<double>(varepd));
+            /* TODO: special case move types */
+            else if (holds_alternative<string>(varepd))
+                s += string("\"") + get<string>(varepd) + string("\"");
+       }
     }
 
     return s;
@@ -661,12 +653,13 @@ bool GAME::FReadPgnTagPair(istream& is, string& tag, string& sVal)
 void GAME::SaveTagPair(const string& tag, const string& sVal)
 {
     /* should do special cases of the tags we know about */
-    AddKey(tag, VALEPD(VALEPD::TY::String, sVal));
+    VAREPD var = string(sVal);
+    AddKey(tag, var);
 }
 
 void GAME::ReadPgnMoveList(istream& is)
 {
-    bd.InitFromFen(mpkeyval.find("FEN") == mpkeyval.end() ? fenStartPos : mpkeyval["FEN"][0].s);
+    bd.InitFromFen(mpkeyvar.find("FEN") == mpkeyvar.end() ? fenStartPos : get<string>(mpkeyvar["FEN"][0]));
 
     string s;
     while (is >> s) {

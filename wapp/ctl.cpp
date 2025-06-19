@@ -16,7 +16,7 @@ CTL::CTL(WN& wnParent, ICMD* pcmd, const string& sLabel, bool fVisible) :
     sLabel(sLabel),
     pcmd(pcmd),
     cdsCur(CDS::None),
-    tf(*this, "Verdana", 12)
+    tf(*this, sFontUI, 12)
 {
 }
 
@@ -25,7 +25,7 @@ CTL::CTL(WN& wnParent, ICMD* pcmd, int rssLabel, bool fVisible) :
     sLabel(rssLabel == -1 ? "" : wnParent.iwapp.SLoad(rssLabel)),
     pcmd(pcmd),
     cdsCur(CDS::None),
-    tf(*this, "Verdana", 12)
+    tf(*this, sFontUI, 12)
 {
 }
 
@@ -382,7 +382,7 @@ BTNCLOSE::BTNCLOSE(WN& wnParent, ICMD* pcmd, bool fVisible) :
     BTN(wnParent, pcmd, "", fVisible)
 {
     SetLayout(CTLL::SizeToFit);
-    SetFont("Segoe UI Symbol", 12, TF::WEIGHT::Bold);
+    SetFont(sFontUI, 12, TF::WEIGHT::Bold);
 }
 
 void BTNCLOSE::Erase(const RC& rcUpdate, DRO dro)
@@ -395,14 +395,14 @@ void BTNCLOSE::Draw(const RC& rcUpdate)
     RC rcInt(RcContent());
     FillEll(rcInt, coWhite);
     CO co = cdsCur == CDS::Hover || cdsCur == CDS::Execute ? coRed : coDarkRed;
-    FillEll(rcInt.RcInflate(-2.8f), co);
-    DrawSCenterXY(SFromU8(u8"\u2716"), tf, rcInt, coWhite);  // cross
+    FillEll(rcInt.RcInflate(-3.0f), co);
+    DrawSCenterXY(SFromU8(u8"\u2716"), tf, rcInt, coWhite, DC::FC::Mono);  // cross
 }
 
 void BTNCLOSE::Layout(void)
 {
     if (ctll == CTLL::SizeToFit)
-        SetFontHeight(RcContent().dyHeight() * 0.55f);
+        SetFontHeight(RcContent().dyHeight() * 0.45f);
 }
 
 SZ BTNCLOSE::SzRequestLayout(const RC& rc) const
@@ -420,7 +420,7 @@ BTNNEXT::BTNNEXT(WN& wnParent, ICMD* pcmd, bool fVisible) :
     BTN(wnParent, pcmd, "", fVisible)
 {
     SetLayout(CTLL::SizeToFit);
-    SetFont("Segoe UI Symbol");
+    SetFont(sFontUI);
 }
 
 CO BTNNEXT::CoText(void) const

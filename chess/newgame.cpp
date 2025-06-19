@@ -256,7 +256,7 @@ DLGNEWGAME::DLGNEWGAME(WN& wnParent, GAME& game) :
     btnResume(*this, SFromU8(u8"Resume \U0001F846"), 2),
     btnStart(*this, SFromU8(u8"Start \U0001F846"))
 {
-    btnSettings.SetFont(sFontSymbol, 24);
+    btnSettings.SetFont(sFontUI, 24);
 
     btnSwap.SetLayout(CTLL::SizeToFit);
     btnSwap.SetPadding(PAD(2));
@@ -425,7 +425,7 @@ CO SELPLAYER::CoBack(void) const
 VSELPLAYER::VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CPC cpc, NGCC ngcc) :
     VSEL(dlg , pcmd),
     /* TODO: resources */
-    selHuman(*this, SFromU8(u8"\U0001F464")),     // human profile emoji
+    selHuman(*this, SFromU8(u8"\U0001F9CD")),     // human profile emoji
     selComputer(*this, SFromU8(u8"\U0001F5A5")),   // desktop computer emoji
     editName(*this, "", rssLabelName),
     vsellevel(*this, new CMDLEVEL(dlg, *this), rssLabelLevel),
@@ -439,7 +439,7 @@ VSELPLAYER::VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CPC cpc, NGCC ngcc) :
     btnAISettings.SetLayout(CTLL::SizeToFit);
     editName.SetLayout(CTLL::SizeToFit);
     vsellevel.SetLayout(CTLL::SizeToFit);
-    btnAISettings.SetFont(sFontSymbol);
+    btnAISettings.SetFont(sFontUI);
     selHuman.SetBorder(PAD(4));
     selComputer.SetBorder(PAD(4));
 }
@@ -708,7 +708,7 @@ void SELTIMECUSTOM::Layout(void)
     rc.bottom -= 6;
     rc.CenterDx(rc.dyHeight());
     btn.SetBounds(rc);
-    btn.SetFont(sFontSymbol, rc.dyHeight() * 0.75f);
+    btn.SetFont(sFontUI, rc.dyHeight() * 0.75f);
     btn.Show(fSelected);
 }
 

@@ -323,13 +323,13 @@ SZ TITLEDLG::SzRequestLayout(const RC& rcWithin) const
 INSTRUCT::INSTRUCT(DLG& dlg, const string& sText) :
     STATICL(dlg, sText, rssInstructionBulb)
 {
-    SetFont(sFontSymbol, 16);
+    SetFont(sFontUI, 16);
 }
 
 INSTRUCT::INSTRUCT(DLG& dlg, int rssText) :
     STATICL(dlg, rssText, rssInstructionBulb)
 {
-    SetFont(sFontSymbol, 16);
+    SetFont(sFontUI, 16);
 }
 
 void INSTRUCT::DrawLabel(const RC& rcLabel)

@@ -14,33 +14,12 @@ class WAPP;
 class LGAME;
 
 /*
- *  VALEPD
+ *  VAREPD
  * 
- *  The value of an EPD opcode. 
- * 
- *  The spec for EPD opcodes is kind of annoying and doesn't lend itself to 
- *  a weakly typed language like C++.
+ *  The variant value of an EPD opcode. 
  */
 
-struct VALEPD
-{
-    enum class TY {
-        None = 0,
-        Integer,
-        Unsigned,
-        Float,
-        String,
-        Move
-    } valty = TY::None;
-
-    VALEPD(TY valty, int64_t wVal) : valty(valty), w(wVal) {}
-    VALEPD(TY valty, double flVal) : valty(valty), fl(flVal) {}
-    VALEPD(TY valty, const string& sVal) : valty(valty), s(sVal) {}
-
-    int64_t w = 0;
-    double fl = 0.0;
-    string s;
-};
+using VAREPD = variant < int64_t, uint64_t, double, string >;
 
 /*
  *  MATY    MAtch TYpe
@@ -117,7 +96,7 @@ public:
 
     void RenderEpd(ostream& os);
     string EpdRender(void);
-    void AddKey(const string& key, const VALEPD& val);
+    void AddKey(const string& key, const VAREPD& var);
 
     /* PGN reading and writing */
 
@@ -153,7 +132,7 @@ public:
     MATY maty = MATY::Random1ThenAlt;
     int cgaPlayed = 0;  // number of games played between the players
 
-    map<string, vector<VALEPD>> mpkeyval; // EPD/PGN file properties
+    map<string, vector<VAREPD>> mpkeyvar; // EPD/PGN file properties
 
 private:
     vector<LGAME*> vplgame; // listeners who get notified on changes

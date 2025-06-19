@@ -653,6 +653,8 @@ void WAPP::RunAITest(void)
 	game.appl[cpcBlack] = make_shared<PLCOMPUTER>(set);
 	game.NotifyPlChanged();
 
+	int cTotal = 0, cSuccess = 0;
+
 	for (const string& file : dlg.vfile) {
 		wnlog << file << endl << indent;
 		ifstream is(filesystem::path(dlg.path) / file);
@@ -665,13 +667,13 @@ void WAPP::RunAITest(void)
 			try {
 				game.InitFromEpd(epd);
 				/* get best/avoid move and log it */
-				wnlog << game.mpkeyval["id"][0].s << endl;
-				if (game.mpkeyval.find("bm") != game.mpkeyval.end()) {
-					mvBest = game.bd.MvParseSan(game.mpkeyval["bm"][0].s);
+				wnlog << get<string>(game.mpkeyvar["id"][0]) << endl;
+				if (game.mpkeyvar.find("bm") != game.mpkeyvar.end()) {
+					mvBest = game.bd.MvParseSan(get<string>(game.mpkeyvar["bm"][0]));
 					wnlog << "Best move: " << to_string(mvBest) << endl;
 				}
-				else if (game.mpkeyval.find("am") != game.mpkeyval.end()) {
-					mvAvoid = game.bd.MvParseSan(game.mpkeyval["am"][0].s);
+				else if (game.mpkeyvar.find("am") != game.mpkeyvar.end()) {
+					mvAvoid = game.bd.MvParseSan(get<string>(game.mpkeyvar["am"][0]));
 					wnlog << "Avoid move: " << to_string(mvAvoid) << endl;
 				}
 			}
@@ -688,17 +690,21 @@ void WAPP::RunAITest(void)
 
 			/* log rseults */
 			wnlog << outdent;
-			if (game.mpkeyval.find("bm") != game.mpkeyval.end()) {
+			cTotal++;
+			if (!mvBest.fIsNil()) {
 				wnlog << "Does " << to_string(mvAct) << " == " << to_string(mvBest) << endl;
 				wnlog << (mvAct == mvBest ? "Success" : "Failed") << endl;
+				cSuccess += (mvAct == mvBest);
 			}
-			else if (game.mpkeyval.find("am") != game.mpkeyval.end()) {
+			else if (!mvAvoid.fIsNil()) {
 				wnlog << "Does " << to_string(mvAct) << " != " << to_string(mvAvoid) << endl;
 				wnlog << (mvAct != mvAvoid ? "Success" : "Failed") << endl;
+				cSuccess += (mvAct != mvAvoid);
 			}
 			wnlog << endl;
 		}
 		wnlog << outdent << file << " test done" << endl;
+		wnlog << cSuccess << " of " << cTotal << " tests passed" << endl;
 	}
 }
 

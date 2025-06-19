@@ -43,6 +43,7 @@
 #include <array>
 #include <vector>
 #include <map>
+#include <variant>
 #include <stack>
 #include <queue>
 #include <algorithm>
