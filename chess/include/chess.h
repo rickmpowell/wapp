@@ -22,6 +22,17 @@ struct TMS
     int secMoveInc;
 };
 
+class WNPC : public WN
+{
+public:
+    WNPC(WN& wnParent, bool fVisible);
+    void DrawPiece(const RC& rc, CP cp, float opacity) const;
+    RC RcPiecesFromCp(CP cp) const;
+
+public:
+    static PNGX pngPieces;
+};
+
 /*
  *  WNBD
  * 
@@ -29,8 +40,9 @@ struct TMS
  *  and includes more detail at larger sizes.
  */
 
-class WNBD : public WN, public LGAME
+class WNBD : public WNPC, public LGAME
 {
+    friend class WNPROMOTE;
 public:
     WNBD(WN& wnParent, BD& bd);
 
@@ -42,9 +54,6 @@ public:
 
     virtual void BdChanged(void) override;
     virtual void ShowMv(MV mv, bool fAnimate) override;
-
-public:
-    static PNGX pngPieces;
 
 protected:
 
@@ -65,11 +74,40 @@ protected:
     void DrawBorder(void);
     void DrawSquares(void);
     virtual void DrawPieces(void);
-    void DrawPiece(const RC& rc, CP cp, float opacity);
 
     RC RcFromSq(int sq) const;
     RC RcFromSq(int fi, int ra) const;
     RC RcPiecesFromCp(CP cp) const;
+};
+
+/*
+ *  WNPROMOTE
+ * 
+ *  The promotion picker window
+ */
+
+class WNPROMOTE : public WNPC, public EVD
+{
+    friend class WNBOARD;
+public:
+    WNPROMOTE(WNBOARD& wnboard);
+    virtual void Erase(const RC& rcUpdate, DRO dro) override;
+    virtual void Draw(const RC& rcUpdate) override;
+
+    virtual bool FQuitPump(MSG& msg) const override;
+    virtual void EnterPump(void) override;
+    virtual int QuitPump(MSG& msg) override;
+
+    virtual void BeginDrag(const PT& pt, unsigned mk) override;
+    virtual void Drag(const PT& pt, unsigned mk) override;
+    virtual void EndDrag(const PT& pt, unsigned mk) override;
+    CPT CptHitTest(PT pt) const;
+
+private:
+    WNBOARD& wnboard;
+    CP acp[4];
+    CPT cptPromote = cptNone;
+    bool fQuit = false;
 };
 
 /*
@@ -81,6 +119,7 @@ protected:
 
 class WNBOARD : public WNBD
 {
+    friend class WNPROMOTE;
 public:
     WNBOARD(WN& wnParent, GAME& game);
 
@@ -96,6 +135,8 @@ public:
     virtual void BeginDrag(const PT& pt, unsigned mk) override;
     virtual void Drag(const PT& pt, unsigned mk) override;
     virtual void EndDrag(const PT& pt, unsigned mk) override;
+    
+    bool FGetPromotionMove(MV& mv);
 
     void FlipCpc(void);
 
@@ -114,7 +155,9 @@ public:
     VMV vmvLegal;
 
 private:
-    GAME game;
+    WNPROMOTE wnpromote;
+
+    GAME& game;
     float angleDraw = 0.0f;    // drawing during flipping
 
     BTNS btnFlip;

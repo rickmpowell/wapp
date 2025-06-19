@@ -226,6 +226,14 @@ bool EVD::FDragging(const WN* pwn) const
     return pwn == pwnDrag;
 }
 
+PT EVD::PtgMouse(void) const
+{
+    POINT ptg;
+    ::GetCursorPos(&ptg);
+    ::ScreenToClient(wnOwner.iwapp.hwnd, &ptg);
+    return ptg;
+}
+
 /*
  *  keyboard handling
  */

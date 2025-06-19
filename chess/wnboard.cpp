@@ -8,7 +8,32 @@
 #include "chess.h"
 #include "resource.h"
 
-PNGX WNBD::pngPieces(rspngChessPieces);
+/*
+ *  WNPC
+ * 
+ *  Little sub window functionality that can draw chess pieces
+ */
+
+PNGX WNPC::pngPieces(rspngChessPieces);
+
+WNPC::WNPC(WN& wnParent, bool fVisible) :
+    WN(wnParent, fVisible)
+{
+}
+
+void WNPC::DrawPiece(const RC& rc, CP cp, float opacity) const
+{
+    DrawBmp(rc, pngPieces, RcPiecesFromCp(cp), opacity);
+}
+
+RC WNPC::RcPiecesFromCp(CP cp) const
+{
+    static const int mpcptdx[cptMax] = { -1, 5, 3, 2, 4, 1, 0 }; // funky order of pieces in the bitmap
+    SZ szPng = pngPieces.sz();
+    SZ szPiece = SZ(szPng.width / 6, szPng.height / 2);
+    RC rc = RC(PT(0), szPiece) + PT(szPiece.width * (mpcptdx[cpt(cp)]), szPiece.height * static_cast<int>(cpc(cp)));
+    return rc;
+}
 
  /*
   *  WNBD
@@ -17,7 +42,7 @@ PNGX WNBD::pngPieces(rspngChessPieces);
   */
 
 WNBD::WNBD(WN& wnParent, BD& bd) : 
-    WN(wnParent), 
+    WNPC(wnParent, true), 
     bd(bd),
     dxyBorder(0.0f), dxyOutline(0.0f), dyLabels(0.0f), dxySquare(0.0f)
 {
@@ -171,19 +196,6 @@ void WNBD::DrawPieces(void)
             DrawPiece(RcFromSq(sq), bd[sq].cp(), 1.0f);
     }
 }
-void WNBD::DrawPiece(const RC& rc, CP cp, float opacity)
-{
-    DrawBmp(rc, pngPieces, RcPiecesFromCp(cp), opacity);
-}
-
-RC WNBD::RcPiecesFromCp(CP cp) const
-{
-    static const int mpcptdx[cptMax] = { -1, 5, 3, 2, 4, 1, 0 }; // funky order of pieces in the bitmap
-    SZ szPng = pngPieces.sz();
-    SZ szPiece = SZ(szPng.width/6, szPng.height/2);
-    RC rc = RC(PT(0), szPiece) + PT(szPiece.width*(mpcptdx[cpt(cp)]), szPiece.height*static_cast<int>(cpc(cp)));
-    return rc;
-}
 
 /*
  *  WNBD::RcFromSq
@@ -211,6 +223,7 @@ RC WNBD::RcFromSq(int fi, int ra) const
 
 WNBOARD::WNBOARD(WN& wnParent, GAME& game) :
     WNBD(wnParent, game.bd),
+    wnpromote(*this),
     game(game),
     btnFlip(*this, new CMDFLIPBOARD(Wapp(iwapp)), SFromU8(u8"\u2b6f")),
     fEnableMoveUI(true),
@@ -329,7 +342,7 @@ void WNBOARD::DrawDrag(void)
     if (cpDrag == cpEmpty)
         return;
     RC rcTo = RC(ptDrag - dptDrag, SZ(dxySquare));
-    DrawBmp(rcTo, pngPieces, RcPiecesFromCp(cpDrag), 1.0f);
+    DrawPiece(rcTo, cpDrag, 1.0f);
 }
 
 /*
@@ -460,7 +473,8 @@ void WNBOARD::EndDrag(const PT& pt, unsigned mk)
 
     SQ sqHit;
     MV mvHit;
-    if (FPtToSq(pt, sqHit) && FLegalSqTo(sqDragFrom, sqHit, mvHit)) {
+    if (FPtToSq(pt, sqHit) && FLegalSqTo(sqDragFrom, sqHit, mvHit) &&
+            (mvHit.cptPromote == cptNone || FGetPromotionMove(mvHit))) {
         pcmdMakeMove->SetMv(mvHit);
         Wapp(iwapp).PostCmd(*pcmdMakeMove);
     }
@@ -468,6 +482,27 @@ void WNBOARD::EndDrag(const PT& pt, unsigned mk)
     sqDragFrom = sqDragTo = sqNil;
     Redraw();
     Hover(pt);
+}
+
+bool WNBOARD::FGetPromotionMove(MV& mv)
+{
+    RC rc(RcFromSq(mv.sqTo));
+    rc.bottom = rc.top + rc.dyHeight() * 4;
+
+    if (rc.xCenter() < RcInterior().xCenter())
+        rc.Offset(rc.dxWidth()/2, 0);
+    else
+        rc.Offset(-rc.dxWidth()/2, 0);
+    if (rc.yCenter() > RcInterior().yCenter())
+        rc.Offset(0, -rc.dyHeight());
+    rc.Offset(0, rc.dxWidth()/2);
+    rc.Inflate(8);
+    wnpromote.SetBounds(rc);
+
+    iwapp.PushEvd(wnpromote);
+    mv.cptPromote = (CPT)wnpromote.MsgPump();
+    iwapp.PopEvd();
+    return mv.cptPromote != cptNone;
 }
 
 /*
@@ -494,4 +529,91 @@ void WNBOARD::FlipCpc(void)
     angleDraw = 0;
     cpcView = ~cpcView;
     Redraw();
+}
+
+/*
+ *  WNPROMOTE
+ *
+ *  The promotion piece picker
+ */
+
+WNPROMOTE::WNPROMOTE(WNBOARD& wnboard) :
+    WNPC(wnboard, false),
+    EVD((WN&)*this),
+    wnboard(wnboard)
+{
+}
+
+void WNPROMOTE::Erase(const RC& rcUpdate, DRO dro)
+{
+    TransparentErase(rcUpdate, dro);
+    FillRc(RcInterior(), CO(CoBack(), 0.75f));
+}
+
+void WNPROMOTE::Draw(const RC& rcUpdate)
+{
+    RC rc(RcInterior());
+    DrawRc(rc, CoText(), 2);
+    rc.Inflate(-8);
+    rc.bottom = rc.top + rc.dxWidth();
+    for (int icp = 0; icp < 4; icp++) {
+        if (cpt(acp[icp]) == cptPromote)
+            FillRc(rc, CoText());
+        DrawPiece(rc, acp[icp], 1.0f);
+        rc.TileDown();
+    }
+}
+
+bool WNPROMOTE::FQuitPump(MSG& msg) const
+{
+    return EVD::FQuitPump(msg) || fQuit;
+}
+
+void WNPROMOTE::EnterPump(void)
+{
+    acp[0] = Cp(wnboard.bd.cpcToMove, cptQueen);
+    acp[1] = Cp(wnboard.bd.cpcToMove, cptRook);
+    acp[2] = Cp(wnboard.bd.cpcToMove, cptBishop);
+    acp[3] = Cp(wnboard.bd.cpcToMove, cptKnight);
+    if (wnboard.bd.cpcToMove != wnboard.cpcView)
+        reverse(acp, acp + 4);
+    cptPromote = cptNone;
+    fQuit = false;
+    SetDrag(this, PtgMouse(), 0);
+    Show(true);
+}
+
+int WNPROMOTE::QuitPump(MSG& msg)
+{
+    SetDrag(nullptr, PtgMouse(), 0);
+    Show(false);
+    return (int)cptPromote;
+}
+
+void WNPROMOTE::BeginDrag(const PT& pt, unsigned mk) 
+{
+    cptPromote = CptHitTest(pt);
+    Redraw();
+}
+
+void WNPROMOTE::Drag(const PT& pt, unsigned mk) 
+{
+    cptPromote = CptHitTest(pt);
+    Redraw();
+}
+
+void WNPROMOTE::EndDrag(const PT& pt, unsigned mk) 
+{
+    cptPromote = CptHitTest(pt);
+    Redraw();
+    fQuit = true;
+}
+
+CPT WNPROMOTE::CptHitTest(PT pt) const
+{
+    RC rc(RcInterior());
+    rc.Inflate(-8);
+    if (!rc.FContainsPt(pt))
+        return cptNone;
+    return cpt(acp[(int)((pt.y - rc.top) / (rc.dyHeight() / 4))]);
 }

@@ -46,7 +46,10 @@ public:
     virtual void MouseUp(const PT& ptg, int mk);
     virtual void MouseWheel(const PT& ptg, int mk);
     
+    PT PtgMouse(void) const;
     bool FDragging(const WN* pwn) const;
+    void SetDrag(WN* pwn, const PT& ptg, unsigned mk);
+    void SetHover(WN* pwn, const PT& ptg);
 
     /* raw keyboard input */
     
@@ -60,10 +63,6 @@ public:
     bool FRedoCmd(void);
     bool FTopUndoCmd(ICMD*& pcmd);
     bool FTopRedoCmd(ICMD*& pcmd);
-
-private:
-    void SetDrag(WN* pwn, const PT& ptg, unsigned mk);
-    void SetHover(WN* pwn, const PT& ptg);
 
 private:
     WN& wnOwner;
