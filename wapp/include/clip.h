@@ -26,6 +26,9 @@ public:
 
 protected:
     int underflow(void) override;
+    char ach[1];    // feed out of single character buffer to give us space to normalize \r\n
+    unsigned ichClip = 0;
+    char* achClip = nullptr;
 };
 
 #pragma pack(1)
@@ -62,7 +65,7 @@ public:
 private:
     IWAPP& iwapp;
     UINT cf;
-};
+ };
 #pragma pack()
 
 #pragma pack(1)

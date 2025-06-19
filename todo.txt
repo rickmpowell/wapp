@@ -1,3 +1,4 @@
+  Detect text format on Paste and try to do PGN/FEN/EPD
   Implement checkbox control
   Review EVD design and tweak to streamline use cases
   Add king safety to static eval

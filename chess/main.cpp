@@ -466,10 +466,16 @@ public:
         try {
             iclipstream is(wapp);
             gameUndo = wapp.game;
-            wapp.game.InitFromFen(is);
+            wapp.game.InitFromEpd(is);
         }
         catch (ERR err) {
-            wapp.Error(ERRAPP(rssErrPasteFailed), err);
+            try {
+                iclipstream is(wapp);
+                wapp.game.InitFromPgn(is);
+            }
+            catch (ERR err) {
+                wapp.Error(ERRAPP(rssErrPasteFailed), err);
+            }
         }
         return 1;
     }
@@ -525,6 +531,35 @@ bool CMDFLIPBOARD::FMenuS(string& s, ICMD::CMS cms) const {
 }
 
 /*
+ *  CMDPASTE
+ *
+ *  Patstes text from the clipboard, which should be a FEN string.
+ *
+ *  Unddoable.
+ */
+
+CMD_DECLARE(CMDSHOWLOG)
+{
+public:
+    CMDSHOWLOG(WAPP & wapp) : CMD(wapp) {}
+
+    virtual int Execute(void) override
+    {
+        wapp.wnlog.Show(!wapp.wnlog.FVisible());
+        return 1;
+    }
+
+    virtual bool FMenuS(string & s, ICMD::CMS cms) const override
+    {
+        s = wapp.SLoad(rssShowLog + wapp.wnlog.FVisible());
+        return true;
+    }
+
+private:
+    GAME gameUndo;
+};
+
+/*
  *  WAPP::RegisterMenuCmds
  *
  *  Registers all the menu commands with the command dispatch system. Windows menus
@@ -550,6 +585,7 @@ void WAPP::RegisterMenuCmds(void)
     REGMENUCMD(cmdTestPolyglot, CMDTESTPOLYGLOT);
     REGMENUCMD(cmdTestAI, CMDTESTAI);
 
+    REGMENUCMD(cmdShowLog, CMDSHOWLOG);
     REGMENUCMD(cmdAbout, CMDABOUT);
     
     assert(FVerifyMenuCmdsRegistered());

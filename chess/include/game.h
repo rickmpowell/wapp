@@ -69,6 +69,7 @@ public:
     /* game control */
 
     void First(GS gs);
+    void Continuation(GS gs);
     void Start(void);
     void End(void);
     void Pause(void);

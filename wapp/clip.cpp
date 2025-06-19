@@ -50,17 +50,23 @@ iclipbuffer::iclipbuffer(IWAPP& iwapp, UINT cf)
 {
     CLIP clip(iwapp.hwnd);
     global_ptr pData(clip.GetData(cf));
-    char* s = pData.get();
-    setg(s, s, s + strlen(s));
+    achClip = pData.get();
+    ichClip = 0;
     pData.release();    // don't reset since the clipboard owns the item
 }
 
 int iclipbuffer::underflow(void)
 {
-    if (gptr() < egptr())
-        return traits_type::to_int_type(*gptr());
-    else
+    if (achClip[ichClip] == 0)
         return traits_type::eof();
+    char ch = achClip[ichClip++];
+    if (ch == '\r' && achClip[ichClip] == '\n') {
+        ++ichClip;
+        ch = '\n';
+    }
+    ach[0] = ch;
+    setg(ach, ach, ach + 1);
+    return traits_type::to_int_type(ch);
 }
 
 /*

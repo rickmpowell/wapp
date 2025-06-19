@@ -22,6 +22,7 @@
 #define cmdTestPolyglot 21
 #define cmdTestAI 22
 #define cmdOpenFile 23
+#define cmdShowLog 24
 
 /*
  *  Accelerator tables
@@ -39,6 +40,8 @@
 #define rssPaste 19
 #define rssNewGame 20
 #define rssFlipBoard 21
+#define rssShowLog 22
+#define rssHideLog 23
 
 #define rssErrPasteFailed 128
 #define rssErrCopyFailed 129

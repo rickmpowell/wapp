@@ -593,7 +593,7 @@ void GAME::InitFromPgn(istream& is)
         SaveTagPair(key, sVal);
     ReadPgnMoveList(is);
     
-    First(GS::GameOver);
+    Continuation(GS::GameOver);
     NotifyBdChanged();
 }
 

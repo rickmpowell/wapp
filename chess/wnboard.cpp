@@ -496,7 +496,7 @@ bool WNBOARD::FGetPromotionMove(MV& mv)
     if (rc.yCenter() > RcInterior().yCenter())
         rc.Offset(0, -rc.dyHeight());
     rc.Offset(0, rc.dxWidth()/2);
-    rc.Inflate(8);
+    rc.Inflate(4);
     wnpromote.SetBounds(rc);
 
     iwapp.PushEvd(wnpromote);
@@ -554,7 +554,7 @@ void WNPROMOTE::Draw(const RC& rcUpdate)
 {
     RC rc(RcInterior());
     DrawRc(rc, CoText(), 2);
-    rc.Inflate(-8);
+    rc.Inflate(-4);
     rc.bottom = rc.top + rc.dxWidth();
     for (int icp = 0; icp < 4; icp++) {
         if (cpt(acp[icp]) == cptPromote)
@@ -592,8 +592,7 @@ int WNPROMOTE::QuitPump(MSG& msg)
 
 void WNPROMOTE::BeginDrag(const PT& pt, unsigned mk) 
 {
-    cptPromote = CptHitTest(pt);
-    Redraw();
+    Drag(pt, mk);
 }
 
 void WNPROMOTE::Drag(const PT& pt, unsigned mk) 
@@ -604,15 +603,14 @@ void WNPROMOTE::Drag(const PT& pt, unsigned mk)
 
 void WNPROMOTE::EndDrag(const PT& pt, unsigned mk) 
 {
-    cptPromote = CptHitTest(pt);
-    Redraw();
+    Drag(pt, mk);
     fQuit = true;
 }
 
 CPT WNPROMOTE::CptHitTest(PT pt) const
 {
     RC rc(RcInterior());
-    rc.Inflate(-8);
+    rc.Inflate(-4);
     if (!rc.FContainsPt(pt))
         return cptNone;
     return cpt(acp[(int)((pt.y - rc.top) / (rc.dyHeight() / 4))]);
