@@ -584,6 +584,8 @@ Lookup:
  *  identification, and potentially analysis of the game.
  * 
  *  https://github.com/mliebelt/pgn-spec-commented/blob/main/pgn-specification.md
+ *
+ *  Should probably rewrite this to tokenize the input stream
  */
 
 void GAME::InitFromPgn(istream& is)
@@ -663,29 +665,68 @@ void GAME::ReadPgnMoveList(istream& is)
     fenFirst = mpkeyvar.find("FEN") == mpkeyvar.end() ? fenStartPos : get<string>(mpkeyvar["FEN"][0]);
     bd.InitFromFen(fenFirst);
     imvFirst = 0;
-    for (const MVU& mvu: bd.vmvuGame) {
+    for (const MVU& mvu : bd.vmvuGame) {
         if (!mvu.fIsNil())
             break;
         imvFirst++;
     }
 
-    string s;
-    while (is >> s) {
-        if (s.empty())
-            break;
-        if (isdigit(*s.begin()))
-            ParsePgnMoveNumber(s);
-        else
+    for (;;) {
+        string s;
+        char ch;
+        while (isspace(is.peek()))
+            is.get(ch);
+        if (is.peek() == '{')
+            ParsePgnAnnotation(is);
+        else if (isdigit(is.peek()))
+            ParsePgnMoveNumber(is);
+        else if ((is >> s) && !s.empty())
             ParseAndMakePgnMove(s);
-    }
+        else
+            break;
+        }
 }
 
-void GAME::ParsePgnMoveNumber(const string& s)
+/*
+ *  GAME::ParsePgnMoveNumber
+ * 
+ *  Parses the move number in the PGN move list. Pads the move list with nil
+ *  moves if it introduces a gap in the move numbers, which may not be a valid
+ *  thing to do, but it should leave us with a valid game state.
+ * 
+ *  Should only call this if the next character in the stream is a digit.
+ * 
+ *  Handles move numbers of the form "5." and "6...", with the multiple dots
+ *  signifying ther is no white move in the move list. 
+ * 
+ *  This stuff is in the PGN spec, but doesn't always make logical sense in a
+ *  real chess game. For example, a FEN string is required if we dno't start
+ *  at Move 1. 
+ * 
+ *  This code also handles end game marks, 1-0 0-1 and 1/2-1/2.
+ */
+
+void GAME::ParsePgnMoveNumber(istream& is)
 {
-    assert(s.size() > 0);
+    assert(isdigit(is.peek()));
+    string s;
+
+    char ch;
+    while (is.get(ch)) {
+        if (!isdigit(ch) && ch != '.' && ch != '/' && ch != '-') {
+            is.putback(ch);
+            break;
+        }
+        s += ch;
+    }
+
+    /* TODO: mark the status in the game state */
+    if (s == "1-0" || s == "0-1" || s == "1/2-1/2")
+        return;
+
     int fmn = 0;
     auto pch = s.begin();
-    for ( ; pch != s.end(); ++pch) {
+    for (; pch != s.end(); ++pch) {
         if (!isdigit(*pch)) {
             if (*pch == '.')
                 break;
@@ -701,8 +742,10 @@ void GAME::ParsePgnMoveNumber(const string& s)
         cchDot++;
     }
 
-    imvFirst = (fmn - 1) * 2 + (cchDot > 1);
-    while (bd.vmvuGame.size() < imvFirst)
+    int imv = (fmn - 1) * 2 + (cchDot > 1);
+    if (bd.vmvuGame.size() == 0)
+        imvFirst = imv;
+    while (bd.vmvuGame.size() < imv)
         bd.MakeMv(mvNil);
 }
 
@@ -711,6 +754,15 @@ void GAME::ParseAndMakePgnMove(const string& s)
     /* TODO: need to skip over annotations */
     MV mv = bd.MvParseSan(s);
     bd.MakeMv(mv);
+}
+
+void GAME::ParsePgnAnnotation(istream& is)
+{
+    assert(is.peek() == '{');
+    char ch;
+    while (is.get(ch))
+        if (ch == '}')
+            break;
 }
 
 /*

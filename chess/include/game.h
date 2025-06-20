@@ -106,8 +106,9 @@ public:
     void ReadPgnMoveList(istream& is);
     bool FReadPgnTagPair(istream& is, string& tag, string& sVal);
     void SaveTagPair(const string& tag, const string& sVal);
-    void ParsePgnMoveNumber(const string& s);
+    void ParsePgnMoveNumber(istream& is);
     void ParseAndMakePgnMove(const string& s);
+    void ParsePgnAnnotation(istream& is);
 
     void RenderPgn(ostream& os) const;
     string PgnRender(void) const;
