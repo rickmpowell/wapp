@@ -82,7 +82,6 @@ void GAME::Continuation(GS gs)
 {
     this->gs = gs;
     tpStart = chrono::system_clock::now();
-    imvFirst = 0;
 }
 
 void GAME::Start(void)

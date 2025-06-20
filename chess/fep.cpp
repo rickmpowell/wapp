@@ -592,7 +592,8 @@ void GAME::InitFromPgn(istream& is)
     while (FReadPgnTagPair(is, key, sVal))
         SaveTagPair(key, sVal);
     ReadPgnMoveList(is);
-    
+    bd.Validate();
+
     Continuation(GS::GameOver);
     NotifyBdChanged();
 }
@@ -659,7 +660,14 @@ void GAME::SaveTagPair(const string& tag, const string& sVal)
 
 void GAME::ReadPgnMoveList(istream& is)
 {
-    bd.InitFromFen(mpkeyvar.find("FEN") == mpkeyvar.end() ? fenStartPos : get<string>(mpkeyvar["FEN"][0]));
+    fenFirst = mpkeyvar.find("FEN") == mpkeyvar.end() ? fenStartPos : get<string>(mpkeyvar["FEN"][0]);
+    bd.InitFromFen(fenFirst);
+    imvFirst = 0;
+    for (const MVU& mvu: bd.vmvuGame) {
+        if (!mvu.fIsNil())
+            break;
+        imvFirst++;
+    }
 
     string s;
     while (is >> s) {
@@ -693,12 +701,14 @@ void GAME::ParsePgnMoveNumber(const string& s)
         cchDot++;
     }
 
-    /* TODO: pad the game moves with nil moves if number is not 1 */
-    /* TODO: don't forget ... for the dots after the number */
+    imvFirst = (fmn - 1) * 2 + (cchDot > 1);
+    while (bd.vmvuGame.size() < imvFirst)
+        bd.MakeMv(mvNil);
 }
 
 void GAME::ParseAndMakePgnMove(const string& s)
 {
+    /* TODO: need to skip over annotations */
     MV mv = bd.MvParseSan(s);
     bd.MakeMv(mv);
 }

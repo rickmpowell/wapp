@@ -913,7 +913,7 @@ public:
     HA ha = 0;  // zobrist hash of the board
     vector<MVU> vmvuGame;
 
-private:
+public:
 #ifndef NDEBUG
     void Validate(void) const noexcept;
 #else
