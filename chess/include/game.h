@@ -115,7 +115,7 @@ public:
     void RenderPgnHeader(ostream& os) const;
     void RenderPgnMoveList(ostream& os) const;
     void RenderPgnTagPair(ostream& os, string_view tag, const string& sValue) const;
-    string SPgnDate(chrono::time_point<chrono::system_clock> tm) const;
+    string SPgnDate(TPS tps) const;
 
 public:
     GS gs = GS::NotStarted;
@@ -138,7 +138,7 @@ public:
 
 private:
     vector<LGAME*> vplgame; // listeners who get notified on changes
-    chrono::time_point<chrono::system_clock> tpStart;   // start time of the game
+    TPS tpsStart;   // start time of the game
 };
 
 /*

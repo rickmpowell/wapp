@@ -266,10 +266,12 @@ int BD::PhaseCur(void) const noexcept
 bool BD::FGameDrawn(int cbd) const noexcept
 {
     if (vmvuGame.size() >= 256)  // our app can't handle games more than 256 moves
-        return  true;
+        return true;
     if (cmvNoCaptureOrPawn >= 2*50)   // 50 move rule
         return true;
     if (FDrawRepeat(cbd)) // 3-fold repetition rule
+        return true;
+    if (FDrawDead())
         return true;
     return false;
 }
@@ -287,6 +289,43 @@ bool BD::FDrawRepeat(int cbdDraw) const noexcept
             imv -= 2;
        }
     }
+    return false;
+}
+
+/*
+ *   BD::FDrawDead
+ *
+ *   Returns true if we're in a board state where no one can force checkmate on the
+ *   other player.
+ */
+
+bool BD::FDrawDead(void) const noexcept
+{
+    int acpcMinor[2] = { 0 };;
+    for (CPC cpc = cpcWhite; cpc <= cpcBlack; ++cpc) {
+        for (int icp = 0; icp < icpMax; ++icp) {
+            int icpbd = aicpbd[cpc][icp];
+            if (icpbd == -1 || acpbd[icpbd].cpt == cptKing)
+                continue;
+            if (acpbd[icpbd].cpt == cptPawn || acpbd[icpbd].cpt == cptRook ||
+                    acpbd[icpbd].cpt == cptQueen)
+                return false;
+            acpcMinor[acpbd[icpbd].cpc]++;
+        }
+    }
+    
+    /* from here on, there are only bishops, knights, and kings on the board */
+
+    /* mutiple pieces, keep playing */
+    if (acpcMinor[cpcWhite] > 1 || acpcMinor[cpcBlack] > 1)
+        return false;
+
+    /* this handles K vs. K, K-N vs. K, or K-B vs. K */
+    if (acpcMinor[cpcWhite] == 0 || acpcMinor[cpcBlack] == 0)
+        return true;
+
+    /* TODO: matching color bishops case */
+
     return false;
 }
 

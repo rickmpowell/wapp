@@ -585,6 +585,8 @@ inline EVENUM& operator ++ (EVENUM& evenum) noexcept
     return evenum;
 }
 
+string to_string(EVENUM evenum) noexcept;
+
 /*
  *  MV class
  * 
@@ -856,6 +858,7 @@ public:
     int PhaseCur(void) const noexcept;
     bool FGameDrawn(int cbd) const noexcept;
     bool FDrawRepeat(int cbdDraw) const noexcept;
+    bool FDrawDead(void) const noexcept;
 
     /* FEN reading and writing */
 

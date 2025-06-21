@@ -73,7 +73,7 @@ void GAME::NotifyPlChanged(void)
 void GAME::First(GS gs)
 {
     this->gs = gs;
-    tpStart = chrono::system_clock::now();
+    tpsStart = TpsNow();
     fenFirst = bd.FenRender();
     imvFirst = (int)bd.vmvuGame.size();
 }
@@ -81,7 +81,7 @@ void GAME::First(GS gs)
 void GAME::Continuation(GS gs)
 {
     this->gs = gs;
-    tpStart = chrono::system_clock::now();
+    tpsStart = TpsNow();
 }
 
 void GAME::Start(void)
@@ -89,7 +89,7 @@ void GAME::Start(void)
     if (gs == GS::Paused)
         Resume();
     else {
-        tpStart = chrono::system_clock::now();
+        tpsStart = TpsNow();
         gs = GS::Playing;
     }
 }

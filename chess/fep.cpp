@@ -678,6 +678,8 @@ void GAME::ReadPgnMoveList(istream& is)
             is.get(ch);
         if (is.peek() == '{')
             ParsePgnAnnotation(is);
+        else if (is.peek() == '*')
+            is.get(ch); /* TODO: end of game */
         else if (isdigit(is.peek()))
             ParsePgnMoveNumber(is);
         else if ((is >> s) && !s.empty())
@@ -789,7 +791,7 @@ void GAME::RenderPgnHeader(ostream& os) const
     /* render the standard 7 header items */
     RenderPgnTagPair(os, "Event", sEvent);
     RenderPgnTagPair(os, "Site", sSite);
-    RenderPgnTagPair(os, "Date", SPgnDate(tpStart));
+    RenderPgnTagPair(os, "Date", SPgnDate(tpsStart));
     RenderPgnTagPair(os, "Round", "");
     RenderPgnTagPair(os, "White", appl[cpcWhite]->SName());
     RenderPgnTagPair(os, "Black", appl[cpcBlack]->SName());
@@ -803,9 +805,9 @@ void GAME::RenderPgnHeader(ostream& os) const
  *  <year>.<month>.<day>
  */
 
-string GAME::SPgnDate(chrono::time_point<chrono::system_clock> tm) const
+string GAME::SPgnDate(TPS tps) const
 {
-    time_t time = std::chrono::system_clock::to_time_t(tm);
+    time_t time = std::chrono::system_clock::to_time_t(tps);
     struct tm stm;
     localtime_s(&stm, &time);
     return to_string(stm.tm_year+1900) + "." + to_string(stm.tm_mon+1) + "." + to_string(stm.tm_mday+1);

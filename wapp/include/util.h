@@ -41,3 +41,13 @@ bool inrange(const T& t, const T& tFirst, const T& tLast)
 #else
 #define IfDebug(wDebug, wNoDebug) (wNoDebug)
 #endif
+
+inline TP TpNow(void)
+{
+    return chrono::high_resolution_clock::now();
+}
+
+inline TPS TpsNow(void)
+{
+    return chrono::system_clock::now();
+}

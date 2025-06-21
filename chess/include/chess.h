@@ -203,6 +203,7 @@ public:
                          chrono::microseconds& dtpTotal, int64_t& cmvTotal);
     void RunPolyglotTest(void);
     void RunAITest(void);
+    void RunAIProfile(void);
 
 public:
     GAME game;

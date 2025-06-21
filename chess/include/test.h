@@ -66,6 +66,7 @@ public:
     int64_t CmvDivide(BD& bd, int d);
     TPERFT tperft = TPERFT::Perft;
     int dPerft = 4;
+    int levelLog = 2;
 
 private:
     TITLEBAR titlebar;

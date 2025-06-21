@@ -23,6 +23,7 @@
 #define cmdTestAI 22
 #define cmdOpenFile 23
 #define cmdShowLog 24
+#define cmdProfileAI 25
 
 /*
  *  Accelerator tables

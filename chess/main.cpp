@@ -272,9 +272,16 @@ CMDEXECUTE(CMDTESTPOLYGLOT)
     return 1;
 }
 
+/* TODO: move dialog handling into the CMD */
 CMDEXECUTE(CMDTESTAI)
 {
     wapp.RunAITest();
+    return 1;
+}
+
+CMDEXECUTE(CMDPROFILEAI)
+{
+    wapp.RunAIProfile();
     return 1;
 }
 
@@ -584,6 +591,7 @@ void WAPP::RegisterMenuCmds(void)
     REGMENUCMD(cmdTestPerftSuite, CMDTESTPERFTSUITE);
     REGMENUCMD(cmdTestPolyglot, CMDTESTPOLYGLOT);
     REGMENUCMD(cmdTestAI, CMDTESTAI);
+    REGMENUCMD(cmdProfileAI, CMDPROFILEAI);
 
     REGMENUCMD(cmdShowLog, CMDSHOWLOG);
     REGMENUCMD(cmdAbout, CMDABOUT);

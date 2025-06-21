@@ -246,7 +246,7 @@ public:
 
     /* static board evaluation */
     
-    EV EvStatic(BD& bd) noexcept;
+    virtual EV EvStatic(BD& bd) noexcept;
     /* piece square tables */
     EV EvFromPst(const BD& bd) const noexcept;
     void InitPsts(void) noexcept;
@@ -267,19 +267,19 @@ public:
 
     /* move scoring */
 
-    EV ScoreCapture(BD& bd, const MV& mv) noexcept;
-    EV ScoreMove(BD& bd, const MV& mv) noexcept;
+    virtual EV ScoreCapture(BD& bd, const MV& mv) noexcept;
+    virtual EV ScoreMove(BD& bd, const MV& mv) noexcept;
     EV EvAttackDefend(BD& bd, const MV& mvPrev) const noexcept;
 
     /* stats */
 
     void InitStats(void) noexcept;
-    void LogStats(chrono::time_point<chrono::high_resolution_clock>& tpEnd) noexcept;
+    void LogStats(TP tpEnd) noexcept;
     int64_t cmvSearch = 0;
     int64_t cmvQSearch = 0;
     int64_t cmvMoveGen = 0;
     int64_t cmvEval = 0;
-    chrono::time_point<chrono::high_resolution_clock> tpStart;
+    TP tpStart;
 
 public:
     SETAI set;

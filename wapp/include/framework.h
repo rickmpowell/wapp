@@ -65,3 +65,6 @@ using namespace Microsoft::WRL;
 
 template <typename T>
 using com_ptr = ComPtr<T>;
+
+typedef chrono::time_point<chrono::high_resolution_clock> TP;
+typedef chrono::time_point<chrono::system_clock> TPS;

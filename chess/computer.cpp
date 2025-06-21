@@ -141,7 +141,7 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
         *pwnlog << "Depth: " << dLim << " " << to_string(abAspiration) << endl << indent;
         for (VMV::siterator pmv = vmv.sbegin(*this, bd); pmv != vmv.send(); ++pmv) {
             brk.Check(0, *pmv);
-            *pwnlog << to_string(*pmv) << " ";
+            *pwnlog << to_string(*pmv) << " [" << to_string(pmv->evenum) << " " << to_string(pmv->ev) << "] ";
             bd.MakeMv(*pmv);
             pmv->ev = -EvSearch(bd, -ab, 1, dLim);
             bd.UndoMv();
@@ -150,11 +150,11 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
                 break;
         }
         if (mvBest.ev > -evInfinity)
-            SaveXt(bd, mvBest, ab, 0, dLim);
+            SaveXt(bd, mvBest, abAspiration, 0, dLim);
         *pwnlog << outdent << "Best move: " << to_string(mvBest) << " " << to_string(mvBest.ev) << endl;
     } while (FDeepen(bd, mvBest, abAspiration, dLim, dMax));
 
-    chrono::time_point<chrono::high_resolution_clock> tpEnd = chrono::high_resolution_clock::now();
+    TP tpEnd = TpNow();
     *pwnlog << outdent << "Best move: " << to_string(mvBest) << endl;
     LogStats(tpEnd);
 
@@ -236,7 +236,7 @@ EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
     }
 
     FInterrupt();
-    cmvSearch++; cmvQSearch++;
+    cmvQSearch++;
 
     VMV vmv;
     bd.MoveGenNoisy(vmv);
@@ -302,16 +302,6 @@ void VMV::siterator::NextBestScore(void) noexcept
         case EVENUM::None:
             break;
         case EVENUM::PV:
-        {
-            pmvBest = pmvCur;
-            XTEV* pxtev = ppl->xt.Find(*pbd, 1, 1);
-            if (pxtev != nullptr && ((EVT)pxtev->evt == EVT::Equal || (EVT)pxtev->evt == EVT::Higher)) {
-                for (pmvBest = pmvCur; pmvBest < pmvMac; pmvBest++)
-                    if (*pmvBest == pxtev->Mv())
-                        goto GotIt;
-            }
-            break;
-        }
         case EVENUM::GoodCapt:
         case EVENUM::Other:
         case EVENUM::BadCapt:
@@ -346,8 +336,18 @@ void VMV::siterator::InitEvEnum(void) noexcept
         break;
 
     case EVENUM::PV:
+    {
+        XTEV* pxtev = ppl->xt.Find(*pbd, 1, 1);
+        if (pxtev != nullptr && ((EVT)pxtev->evt == EVT::Equal || (EVT)pxtev->evt == EVT::Higher)) {
+            for (MV* pmv = pmvCur; pmv < pmvMac; pmv++)
+                if (*pmv == pxtev->Mv()) {
+                    pmv->ev = pxtev->Ev(1);
+                    pmv->evenum = EVENUM::PV;
+                    break;
+                }
+        }
         break;
-
+    }
     case EVENUM::GoodCapt:
         for (MV* pmv = pmvCur; pmv < pmvMac; pmv++) {
             if (pbd->FMvIsCapture(*pmv)) {
@@ -531,8 +531,9 @@ XTEV* XT::Save(const BD& bd, EVT evt, EV ev, const MV& mvBest, int d, int dLim) 
     XTEV& xtev = (*this)[bd];
 
     /* very primitive replacement strategy */
-    if ((int8_t)evt >= xtev.evt && dLim - d >= xtev.dd) {
-        xtev.Save(bd.ha, evt, ev, mvBest, d, dLim);
+    if (dLim - d >= xtev.dd) {
+        if (evt == EVT::Higher || evt == EVT::Equal || (int8_t)evt >= xtev.evt)
+            xtev.Save(bd.ha, evt, ev, mvBest, d, dLim);
         return &xtev;
     }
 
@@ -642,9 +643,10 @@ EV PLCOMPUTER::EvInterpolate(int phaseCur, EV evFirst, int phaseFirst, EV evLim,
 }
 
 /*
- *  Move/board scoring.
+ *  Move/capture scoring.
  * 
- *  Scoring is different than static evaluation. It is used for move ordering.
+ *  Note, "scoring" is different than static evaluation. It is used for 
+ *  move ordering so that alpha-beta search can be more effective. 
  */
 
 static const EV mpcptev[cptMax] = { 0, 100, 275, 300, 500, 900, 1000 };
@@ -682,6 +684,7 @@ EV PLCOMPUTER::ScoreMove(BD& bd, const MV& mv) noexcept
  *	Destination square of the previous move is in sqTo. Returns the amount to
  *	adjust the evaluation by.
  */
+
 EV PLCOMPUTER::EvAttackDefend(BD& bd, const MV& mvPrev) const noexcept
 {
     CPT cptMove = (CPT)bd[mvPrev.sqTo].cpt;
@@ -706,22 +709,23 @@ void PLCOMPUTER::InitStats(void) noexcept
     cmvSearch = 0;
     cmvQSearch = 0;
     cmvEval = 0;
-    tpStart = chrono::high_resolution_clock::now();
+    tpStart = TpNow();
 }
 
-void PLCOMPUTER::LogStats(chrono::time_point<chrono::high_resolution_clock>& tpEnd) noexcept
+void PLCOMPUTER::LogStats(TP tpEnd) noexcept
 {
     chrono::duration dtp = tpEnd - tpStart;
     chrono::microseconds us = duration_cast<chrono::microseconds>(dtp);
     *pwnlog << "Moves generated: " 
             << dec << cmvMoveGen << endl;
-    *pwnlog << "Nodes visited: " << cmvSearch << " | "
-             << dec << (int)roundf((float)(1000*cmvSearch) / us.count()) << " kn/s | "
-             << fixed << setprecision(1) << ((float)(100*cmvSearch) / cmvMoveGen) << "%"
+    int64_t cmvTotal = cmvSearch + cmvQSearch;
+    *pwnlog << "Nodes visited: " << cmvTotal << " | "
+             << dec << (int)roundf((float)(1000*cmvTotal) / us.count()) << " kn/s | "
+             << fixed << setprecision(1) << ((float)(100*cmvTotal) / cmvMoveGen) << "%"
              << endl;
     *pwnlog << "Quiescent nodes: "
             << dec << cmvQSearch << " | "
-            << fixed << setprecision(1) << ((float)(100*cmvQSearch) / cmvSearch) << "%"
+            << fixed << setprecision(1) << ((float)(100*cmvQSearch) / cmvTotal) << "%"
             << endl;
     *pwnlog << "Eval nodes: " 
             << dec << cmvEval << endl;
@@ -748,5 +752,5 @@ void PLCOMPUTER::DoYield(void) noexcept
 
 string to_string(AB ab)
 {
-    return "[" + to_string(ab.evAlpha) + "," + to_string(ab.evBeta) + "]";
+    return "(" + to_string(ab.evAlpha) + "," + to_string(ab.evBeta) + ")";
 }

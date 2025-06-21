@@ -487,3 +487,20 @@ string to_string(EV ev)
 
     return s + to_string(ev / 100) + "." + to_string(ev / 10 % 10) + to_string(ev % 10);
 }
+
+string to_string(EVENUM evenum) noexcept
+{
+    switch (evenum) {
+    case EVENUM::PV:
+        return "PV";
+    case EVENUM::GoodCapt:
+        return "GCapt";
+    case EVENUM::Other:
+        return "EV";
+    case EVENUM::BadCapt:
+        return "BCapt";
+    default:
+        break;
+    }
+    return "";
+}

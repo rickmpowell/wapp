@@ -69,7 +69,7 @@ void WNLOG::clear(void)
 
 void WNLOG::ReceiveStream(int level, const string& s)
 {
-	if (level > 3)
+	if (level > levelLog)
 		return;
     vs.push_back(string(4*level, ' ') + s);
     SetContentCli((int)vs.size());
@@ -227,9 +227,9 @@ void WAPP::RunPerft(void)
 	case TPERFT::Bulk:
 	{
 		for (int d = 1; d <= wnlog.dPerft; d++) {
-			auto tpStart = chrono::high_resolution_clock::now();
+			TP tpStart = TpNow();
 			int64_t cmv = wnlog.tperft == TPERFT::Perft ? game.bd.CmvPerft(d) : game.bd.CmvBulk(d);
-			chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tpStart;
+			chrono::duration<float> dtm = TpNow() - tpStart;
 			wnlog << (wnlog.tperft == TPERFT::Perft ? "Perft" : "Bulk") << " " 
 				  << dec << d << ": " 
 				  << cmv << endl;
@@ -559,9 +559,9 @@ bool WAPP::RunOnePerftTest(const char tag[], const char fen[], const int64_t mpd
 		wnlog << "Expected: " << mpdcmv[d] << endl;
 		
 		/* time the perft */
-		chrono::time_point<chrono::high_resolution_clock> tpStart = chrono::high_resolution_clock::now();
+		TP tpStart = TpNow();
 		int64_t cmvActual = bd.CmvPerft(d);
-		chrono::time_point<chrono::high_resolution_clock> tpEnd = chrono::high_resolution_clock::now();
+		TP tpEnd = TpNow();
 
 		/* display the results */
 		chrono::duration dtp = tpEnd - tpStart;
@@ -706,6 +706,29 @@ void WAPP::RunAITest(void)
 		wnlog << outdent << file << " test done" << endl;
 		wnlog << cSuccess << " of " << cTotal << " tests passed" << endl;
 	}
+}
+
+void WAPP::RunAIProfile(void)
+{
+	string fen("r1bq1rk1/ppp2ppp/2n2n2/3pp3/3P4/2P1PN2/PP3PPP/RNBQ1RK1 w - - 0 7");
+	//string fen("rnbqkbnr/pppp1ppp/8/4p3/3P4/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 3");
+	/* install AI players */
+	SETAI set = { 9 };
+	game.appl[cpcWhite] = make_shared<PLCOMPUTER>(set);
+	game.appl[cpcBlack] = make_shared<PLCOMPUTER>(set);
+	game.NotifyPlChanged();
+	game.InitFromFen(fen);
+
+	wnlog.levelLog = 0;
+	PLCOMPUTER* ppl = static_cast<PLCOMPUTER*>(game.appl[game.bd.cpcToMove].get());
+	TP tpStart = TpNow();
+	MV mvAct = ppl->MvBestTest(*this, game);
+	TP tpEnd = TpNow();
+	wnlog.levelLog = 2;
+
+	chrono::duration dtp = tpEnd - tpStart;
+	chrono::milliseconds ms = duration_cast<chrono::milliseconds>(dtp);
+	wnlog << ms << endl;
 }
 
 /*
