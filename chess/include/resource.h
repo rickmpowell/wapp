@@ -24,6 +24,7 @@
 #define cmdOpenFile 23
 #define cmdShowLog 24
 #define cmdProfileAI 25
+#define cmdCopyFEN 26
 
 /*
  *  Accelerator tables

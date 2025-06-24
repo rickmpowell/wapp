@@ -6,6 +6,7 @@
  */
 
 #include "chess.h"
+#include "computer.h"
 #include "resource.h"
 
 bool fValidate = false;
@@ -103,9 +104,7 @@ void WNLOG::RenderLog(ostream& os) const
 
 void WNLOG::Save(void) const
 {
-	wchar_t wsPath[MAX_PATH];
-	::GetModuleFileNameW(NULL, wsPath, MAX_PATH);
-	filesystem::path exe = SFromWs(wsPath);
+	filesystem::path exe = iwapp.exe();
 	ofstream os(exe.parent_path() / "chess.log");
 	RenderLog(os);
 }
@@ -633,31 +632,19 @@ void WAPP::RunPolyglotTest(void)
  *	WAPP::RUnAITest
  */
 
-void WAPP::RunAITest(void)
+void WAPP::RunAITest(const string& dir, const vector<string>& vfile)
 {
-	/* bring up the file open dialog */
-
-	/* TODO: move this dialog stuff into the CMD */
-	game.Pause();
-	DLGFILEOPENMULTI dlg(*this);
-	dlg.mpextsLabel["epd"] = "EPD files (*.epd)";
-	dlg.mpextsLabel["*"] = "All files (*.*)";
-	dlg.extDefault = "epd";
-	if (!dlg.FRun())
-		return;
-	game.End();
-
 	/* install AI players */
-	SETAI set = { 6 };
+	SETAI set = { 7 };
 	game.appl[cpcWhite] = make_shared<PLCOMPUTER>(set);
 	game.appl[cpcBlack] = make_shared<PLCOMPUTER>(set);
 	game.NotifyPlChanged();
 
 	int cTotal = 0, cSuccess = 0;
 
-	for (const string& file : dlg.vfile) {
+	for (const string& file : vfile) {
 		wnlog << file << endl << indent;
-		ifstream is(filesystem::path(dlg.path) / file);
+		ifstream is(filesystem::path(dir) / file);
 		string epd;
 		while (getline(is, epd)) {
 
@@ -685,19 +672,19 @@ void WAPP::RunAITest(void)
 			Redraw();
 
 			/* get what the AI thinks is the best move */
+			//wnlog.levelLog += 2;
 			PLCOMPUTER* ppl = static_cast<PLCOMPUTER*>(game.appl[game.bd.cpcToMove].get());
 			MV mvAct = ppl->MvBestTest(*this, game);
+			//wnlog.levelLog -= 2;
 
 			/* log rseults */
 			wnlog << outdent;
 			cTotal++;
 			if (!mvBest.fIsNil()) {
-				wnlog << "Does " << to_string(mvAct) << " == " << to_string(mvBest) << endl;
 				wnlog << (mvAct == mvBest ? "Success" : "Failed") << endl;
 				cSuccess += (mvAct == mvBest);
 			}
 			else if (!mvAvoid.fIsNil()) {
-				wnlog << "Does " << to_string(mvAct) << " != " << to_string(mvAvoid) << endl;
 				wnlog << (mvAct != mvAvoid ? "Success" : "Failed") << endl;
 				cSuccess += (mvAct != mvAvoid);
 			}
@@ -713,17 +700,17 @@ void WAPP::RunAIProfile(void)
 	string fen("r1bq1rk1/ppp2ppp/2n2n2/3pp3/3P4/2P1PN2/PP3PPP/RNBQ1RK1 w - - 0 7");
 	//string fen("rnbqkbnr/pppp1ppp/8/4p3/3P4/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 3");
 	/* install AI players */
-	SETAI set = { 9 };
+	SETAI set = { 8 };
 	game.appl[cpcWhite] = make_shared<PLCOMPUTER>(set);
 	game.appl[cpcBlack] = make_shared<PLCOMPUTER>(set);
 	game.NotifyPlChanged();
 	game.InitFromFen(fen);
 
-	wnlog.levelLog = 0;
 	PLCOMPUTER* ppl = static_cast<PLCOMPUTER*>(game.appl[game.bd.cpcToMove].get());
+	wnlog.levelLog = 0;
 	TP tpStart = TpNow();
 	MV mvAct = ppl->MvBestTest(*this, game);
-	TP tpEnd = TpNow();
+	TP tpEnd = TpNow();	
 	wnlog.levelLog = 2;
 
 	chrono::duration dtp = tpEnd - tpStart;

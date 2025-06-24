@@ -129,6 +129,7 @@ public:
 
     string SFromErr(ERR err) const;
     void Error(ERR err, ERR err2 = errNone);
+    string exe(void) const;
 
 private:
     map<int, unique_ptr<ICMD>> mpcmdpicmdMenu;

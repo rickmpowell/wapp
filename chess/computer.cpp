@@ -7,6 +7,7 @@
  */
 
 #include "chess.h"
+#include "computer.h"
 
 WNLOG* pwnlog = nullptr;  // logging
 
@@ -76,7 +77,7 @@ MV PLCOMPUTER::MvBestTest(WAPP& wapp, GAME& game)
  */
 
 static MV mpdmvBrk[] = { MV()
-    /*MV(sqD6, sqD1), MV(sqC1, sqD1), MV(sqD7, sqG4), MV(sqD1, sqC1), MV(sqD8, sqD1) */ };
+     /*MV(sqC2, sqE4), MV(sqF6, sqE4), MV(sqE5, sqE6), MV(sqE4, sqC3) */};
 static MV mpdmvCur[256];
 
 class BRK
@@ -90,6 +91,7 @@ public:
     void Check(int d, const MV& mv)
     {
         mpdmvCur[d] = mv;
+        mpdmvCur[d + 1] = MV();
         if (d >= size(mpdmvBrk))
             return;
 
@@ -132,7 +134,7 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
 
     *pwnlog << bd.FenRender() << endl << indent;
     MV mvBest;
-    int dMax = set.level + 1, dLim = 2;
+    int dMax = set.level + 2, dLim = 2;
     AB abAspiration(-evInfinity, evInfinity);
 
     do {    /* iterative deepening/aspiration window loop */
@@ -241,13 +243,13 @@ EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
     VMV vmv;
     bd.MoveGenNoisy(vmv);
     cmvMoveGen += vmv.size();
-    for (MV& mv : vmv) {
-        brk.Check(d, mv);
-        if (!bd.FMakeMvLegal(mv))
+    for (VMV::siterator pmv = vmv.sbegin(*this, bd); pmv != vmv.send(); ++pmv) {
+        brk.Check(d, *pmv);
+        if (!bd.FMakeMvLegal(*pmv))
             continue;
-        mv.ev = -EvQuiescent(bd, -ab, d+1);
+        pmv->ev = -EvQuiescent(bd, -ab, d+1);
         bd.UndoMv();
-        if (ab.FPrune(mv)) {
+        if (ab.FPrune(*pmv)) {
             assert(ab.evBeta != evInfinity);
             return ab.evBeta;
         }
@@ -291,6 +293,14 @@ VMV::siterator& VMV::siterator::operator ++ () noexcept
     return *this;
 }
 
+/*
+ *  VMV::siterator::NextBestScore
+ * 
+ *  Our smart move list iterator that finds the next best score in
+ *  the move list. Advances to next evenum if we run out of the current
+ *  evenum. 
+ */
+
 void VMV::siterator::NextBestScore(void) noexcept
 {
     if (pmvCur >= pmvMac)
@@ -327,6 +337,17 @@ GotIt:
         swap(*pmvBest, *pmvCur);
 }
 
+/*
+ *  VMV::siterator::InitEvEnum
+ * 
+ *  Our smart iterator works by doing a quick type check on all the moves
+ *  and then lazy evaluating each type. This allows us to skip evaluating
+ *  lots of moves if we happen to get a quick alpha-beta cut. 
+ * 
+ *  This function evaluates all moves depending on the current evenum
+ *  we're currently at. 
+ */
+
 void VMV::siterator::InitEvEnum(void) noexcept
 {
     switch (evenum) {
@@ -335,7 +356,7 @@ void VMV::siterator::InitEvEnum(void) noexcept
             pmv->evenum = EVENUM::None;
         break;
 
-    case EVENUM::PV:
+    case EVENUM::PV:    /* principle variation should be in the transposition table */
     {
         XTEV* pxtev = ppl->xt.Find(*pbd, 1, 1);
         if (pxtev != nullptr && ((EVT)pxtev->evt == EVT::Equal || (EVT)pxtev->evt == EVT::Higher)) {
@@ -348,7 +369,7 @@ void VMV::siterator::InitEvEnum(void) noexcept
         }
         break;
     }
-    case EVENUM::GoodCapt:
+    case EVENUM::GoodCapt:  /* good captures based on MVV-LVA heuristifc */
         for (MV* pmv = pmvCur; pmv < pmvMac; pmv++) {
             if (pbd->FMvIsCapture(*pmv)) {
                 pmv->ev = ScoreCapture(*pmv);
@@ -357,7 +378,8 @@ void VMV::siterator::InitEvEnum(void) noexcept
         }
         break;
 
-    case EVENUM::Other:
+    case EVENUM::Other: /* any other move needs to be scored, which is
+                           somewhat expensive */
         for (MV* pmv = pmvCur; pmv < pmvMac; pmv++) {
             if (pmv->evenum != EVENUM::None)
                 continue;
@@ -366,7 +388,7 @@ void VMV::siterator::InitEvEnum(void) noexcept
         }
         break;
 
-    case EVENUM::BadCapt:
+    case EVENUM::BadCapt:   /* bad captures based onh MVV-LVA heuristics */
         /* these are scored in the GoodCapt */
         break;
     }
@@ -568,6 +590,9 @@ EV PLCOMPUTER::EvStatic(BD& bd) noexcept
     cmvEval++;
     EV ev = 0;
     ev += EvFromPst(bd);
+    /* tempo adjustment causes alternating depth eval oscillation that messes 
+       with the aspiration window optimization */
+    // ev += evTempo;  
     return ev;
 }
 
@@ -649,19 +674,21 @@ EV PLCOMPUTER::EvInterpolate(int phaseCur, EV evFirst, int phaseFirst, EV evLim,
  *  move ordering so that alpha-beta search can be more effective. 
  */
 
-static const EV mpcptev[cptMax] = { 0, 100, 275, 300, 500, 900, 1000 };
+static const EV mpcptev[cptMax] = { 0, 100, 300, 320, 500, 900, 1000 };
 
 EV PLCOMPUTER::ScoreCapture(BD& bd, const MV& mv) noexcept
 {
-
     if (mv.cptPromote != cptNone)
         return mpcptev[mv.cptPromote] - mpcptev[cptPawn];
 
-    CPT cptFrom = (CPT)bd[mv.sqFrom].cpt;
-    EV ev = mpcptev[bd[mv.sqTo].cpt];
+    CP cpFrom = bd[mv.sqFrom].cp();
+    CP cpTo = bd[mv.sqTo].cp();
+    EV ev = mpcpsqevMid[cpTo][mv.sqTo]; 
     CPT cptDefender = bd.CptSqAttackedBy(mv.sqTo, ~bd.cpcToMove);
-    if (cptDefender && cptDefender < cptFrom)
-        ev -= mpcptev[cptFrom];
+    if (cptDefender)
+        ev -= mpcpsqevMid[cpFrom][mv.sqFrom];
+    else
+        ev -= mpcpsqevMid[cpFrom][mv.sqFrom] / 8;   // MMV-LVA style move ordering heuristic
     return ev;
 }
 

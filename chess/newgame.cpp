@@ -6,6 +6,7 @@
  */
 
 #include "chess.h"
+#include "computer.h"
 #include "resource.h"
 
 constexpr float valueDlgTextHilite = 0.95f;

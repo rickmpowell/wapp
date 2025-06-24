@@ -374,3 +374,10 @@ bool FILTERMSGACCEL::FFilterMsg(MSG& msg)
 {
     return ::TranslateAcceleratorW(iwapp.hwnd, haccel, &msg);
 }
+
+string IWAPP::exe(void) const
+{
+    wchar_t wsPath[MAX_PATH];
+    ::GetModuleFileNameW(NULL, wsPath, MAX_PATH);
+    return SFromWs(wsPath);
+}

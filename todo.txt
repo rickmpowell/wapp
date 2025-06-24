@@ -1,4 +1,7 @@
-  Detect text format on Paste and try to do PGN/FEN/EPD
+  Write FEN to PGN file if necessary
+  Write results to PGN files
+  Set player names from PGN header
+  Add some header and result information in AI test - and save to a dated filename
   Implement checkbox control
   Review EVD design and tweak to streamline use cases
   Add king safety to static eval
@@ -6,10 +9,8 @@
   Gray out problematic command in menus when UI is disabled
   Disable UI during AI test
   Implement time/search control options to search that are based on the various UCI options
-  Detect insufficient material draws
   Add display depth option to log window
   Enable partial lines to log window
-  Keep track of beginning position and move number in the GAME
   Implement an AI test browser that reads files with EPD lines
   Implement a board editor
   Implement a PGN game browser
@@ -19,9 +20,9 @@
   Implement WN based on an HWND
   Track down smaller icons for log toolbar
   Add layout engine option to evenly size/space items within their owner, and use in VSEL
-  Interrupt AI search
+  Interrupting AI search
   Add the ability to set a FEN in New Game and replace the Resume button
-  Disable UI when AI is thinking
+  Disable correct parts of the UI when AI is thinking
   Display game over/playing state in movelist
   Implement game properties and use for PGN header tags
   Can we make dialog boxes Windows HWNDs?
@@ -41,6 +42,10 @@
   Convert about box to dialog box
   Convert error messages to dialog box
   Add tooltip support
+* A bunch of UI isn't working during AI test
+* Detect text format on Paste and try to do PGN/FEN/EPD
+* Keep track of beginning position and move number in the GAME
+* Detect insufficient material draws
 * Use std::variant for EPD and PGN properties
 * Interface for picking piece on pawn promotions
 * Add an AI test

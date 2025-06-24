@@ -272,10 +272,19 @@ CMDEXECUTE(CMDTESTPOLYGLOT)
     return 1;
 }
 
-/* TODO: move dialog handling into the CMD */
 CMDEXECUTE(CMDTESTAI)
 {
-    wapp.RunAITest();
+    wapp.game.Pause();
+    DLGFILEOPENMULTI dlg(wapp);
+    dlg.mpextsLabel["epd"] = "EPD files (*.epd)";
+    dlg.mpextsLabel["*"] = "All files (*.*)";
+    filesystem::path exe = wapp.exe();
+    dlg.path = (exe.parent_path() / "../../Chess/Test/").lexically_normal().string();
+    dlg.extDefault = "epd";
+    if (!dlg.FRun())
+        return 0;
+    wapp.game.End();
+    wapp.RunAITest(dlg.path, dlg.vfile);
     return 1;
 }
 
@@ -446,6 +455,18 @@ CMDEXECUTE(CMDCOPY)
     return 1;
 }
 
+CMDEXECUTE(CMDCOPYFEN)
+{
+    try {
+        oclipstream os(wapp, CF_TEXT);
+        wapp.game.bd.RenderFen(os);
+    }
+    catch (ERR err) {
+        wapp.Error(ERRAPP(rssErrCopyFailed), err);
+    }
+    return 1;
+}
+
 /*
  *  CMDPASTE
  * 
@@ -586,6 +607,7 @@ void WAPP::RegisterMenuCmds(void)
     REGMENUCMD(cmdCut, CMDCUT);
     REGMENUCMD(cmdCopy, CMDCOPY);
     REGMENUCMD(cmdPaste, CMDPASTE);
+    REGMENUCMD(cmdCopyFEN, CMDCOPYFEN);
 
     REGMENUCMD(cmdTestPerft, CMDTESTPERFT);
     REGMENUCMD(cmdTestPerftSuite, CMDTESTPERFTSUITE);

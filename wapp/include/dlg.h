@@ -70,11 +70,13 @@ public:
         ofn.lStructSize = sizeof(ofn);
         wsFilter = make_unique<wchar_t[]>(cwch);
         wsFile = make_unique<wchar_t[]>(cwch);
+        wsDirectory = make_unique<wchar_t[]>(cwch);
     }
 
     OPENFILENAMEW ofn;
     unique_ptr<wchar_t[]> wsFilter;
     unique_ptr<wchar_t[]> wsFile;
+    unique_ptr<wchar_t[]> wsDirectory;
 };
 
 class DLGFILE : public DLG

@@ -224,6 +224,7 @@
   <ItemGroup>
     <ClInclude Include="include\board.h" />
     <ClInclude Include="include\chess.h" />
+    <ClInclude Include="include\computer.h" />
     <ClInclude Include="include\game.h" />
     <ClInclude Include="include\movelist.h" />
     <ClInclude Include="include\newgame.h" />

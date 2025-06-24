@@ -88,12 +88,10 @@ DLG::DLG(WN& wnOwner) :
     fEnd(false), 
     val(0)
 {
-    iwapp.PushEvd(*this);
 }
 
 DLG::~DLG()
 {
-    iwapp.PopEvd();
 }
 
 void DLG::ShowCentered(void)
@@ -136,6 +134,7 @@ void DLG::Validate(void)
 
 void DLG::EnterPump(void)
 {
+    iwapp.PushEvd(*this);
     fEnd = false;
     ShowCentered();
     iwapp.SetFocus(this);
@@ -144,7 +143,7 @@ void DLG::EnterPump(void)
 int DLG::QuitPump(MSG& msg)
 {
     Show(false);
-    iwapp.SetFocus(pwnParent);
+    iwapp.PopEvd();
     return val;
 }
 
@@ -182,6 +181,7 @@ bool DLG::FKeyDown(int vk)
 DLGFILE::DLGFILE(IWAPP& wapp) :
     DLG(wapp)
 {
+    fVisible = false;
 }
 
 void DLGFILE::BuildFilter(wchar_t* wsFilter, int cchFilter)
@@ -217,8 +217,13 @@ OFN DLGFILE::OfnDefault(void)
     ofn.ofn.lpstrFile = ofn.wsFile.get();
     ofn.ofn.nMaxFile = 1024;
     ofn.ofn.lpstrDefExt = WsFromS(extDefault).c_str();
+    ofn.ofn.lpstrInitialDir = ofn.wsDirectory.get();
 
-    wcscpy_s(ofn.wsFile.get(), 1024, WsFromS(path).c_str());
+    if (!path.empty()) {
+        filesystem::path p = path;
+        wcscpy_s(ofn.wsFile.get(), 1024, WsFromS(p.filename().string()).c_str());
+        wcscpy_s(ofn.wsDirectory.get(), 1024, WsFromS(p.parent_path().string()).c_str());
+    }
 
     return move(ofn);
 }
