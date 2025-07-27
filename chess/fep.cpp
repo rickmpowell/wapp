@@ -15,10 +15,25 @@ static int IchFind(const string_view& s, char ch);
 static string SEscapeQuoted(const string& s);
 
 /*
- *  FEN (Forsyth-Edwards Notation) file format.
+ *  linebreakbuf
  *
- *   board representation, which is a text- standard simple representation of the 
- *  chess board state.
+ *  a little helper buffer than line breaks its output
+ */
+
+class linebreakbuf : public stringbuf
+{
+public:
+    linebreakbuf(ostream& osOriginal, size_t cchMax);
+    int sync(void) override;
+
+private:
+    ostream& osOriginal;
+    size_t cchMax;
+};
+
+/*
+ *  FEN (Forsyth-Edwards Notation) file format and board representation, which 
+ *  is a text-based standard simple representation of the chess board state.
  */
 
 void GAME::InitFromFen(istream& is)
@@ -61,13 +76,11 @@ void BD::InitFromFen(istream& is)
     InitFromFenShared(is);
 
     /* half move clock and full move number */
-
     string sHalfMove, sFullMove;
     if (!(is >> sHalfMove >> sFullMove))
         throw ERRAPP(rssErrFenParseMissingPart);
 
     /* if we have a half-move clock, pad the move list with empty moves */
-
     int cmv;
     from_chars_result res = from_chars(sHalfMove.data(), sHalfMove.data() + sHalfMove.size(), cmv);
     if (res.ec != errc{})
@@ -75,7 +88,6 @@ void BD::InitFromFen(istream& is)
     SetHalfMoveClock(cmv);
 
     /* full move number is number (1-based) about to be played. */
-
     res = from_chars(sFullMove.data(), sFullMove.data() + sFullMove.size(), cmv);
     if (res.ec != errc{})
         throw ERRAPP(rssErrFenBadFullMoveNumber);
@@ -102,10 +114,22 @@ void BD::SetFullMoveNumber(int fmn)
         vmvuGame.emplace_back(mvNil, *this);
 }
 
+/*
+ *  BD::InitFromFenShared
+ * 
+ *  The FEN parsing that is shared between EPD and FEN strings. Handles
+ *  the board, the side to move, castle state, and en passant square.
+ * 
+ *  The half-move clock and full-move number are not handled here.
+ * 
+ *  This is enough to compute the Zobrist hash, which is also kept up. 
+ */
+
 void BD::InitFromFenShared(istream& is)
 {
-    /* pull in all the pieces of the FEN */
+    Empty();
 
+    /* pull in all the pieces of the FEN */
     string sBoard, sColor, sCastle, sEnPassant;
     if (!(is >> sBoard >> sColor >> sCastle >> sEnPassant))
         throw ERRAPP(rssErrFenParseMissingPart);
@@ -117,8 +141,6 @@ void BD::InitFromFenShared(istream& is)
     assert((1 << sParseCastle.find('K')) == csWhiteKing);
 
     /* parse the board */
-
-    Empty();
     int ich;
     int ra = raMax - 1;
     SQ sq = Sq(0, ra);
@@ -137,13 +159,11 @@ void BD::InitFromFenShared(istream& is)
     }
 
     /* parse the color with the move */
-
     if (sColor.length() != 1)
         throw ERRAPP(rssErrFenParse, sColor);
     cpcToMove = static_cast<CPC>(IchFind(sParseColor, sColor[0]));
 
     /* parse the castle state */
-
     csCur = csNone;
     if (sCastle != "-") {
         for (char ch : sCastle)
@@ -151,7 +171,6 @@ void BD::InitFromFenShared(istream& is)
     }
 
     /* parse the en passant square */
-
     if (sEnPassant == "-")
         sqEnPassant = sqNil;
     else if (sEnPassant.length() == 2 &&
@@ -168,47 +187,44 @@ void BD::InitFromFenShared(istream& is)
 }
 
 /*
- *  BD::FenRender(void)
+ *  BD::FenRender
  *
- *  Turns a BD into a FEN string.
+ *  Turns a BD into a FEN string and sends it to the output stream.
  */
-
-static string FenEmpties(int& csqEmpty)
-{
-    if (csqEmpty == 0)
-        return "";
-    int csq = csqEmpty;
-    csqEmpty = 0;
-    return to_string(csq);
-}
 
 void BD::RenderFen(ostream& os) const
 {
     os << FenRender();
 }
 
+/*
+ *  BD::FenRender
+ * 
+ *  Returns the FEN string for the given board position.
+ */
+
 string BD::FenRender(void) const
 {
     string fen = FenRenderShared();
 
-    /* half move clock and full move */
-
-    fen += " ";
-    fen += to_string((int)cmvNoCaptureOrPawn);
-    fen += " ";
-    fen += to_string(1 + vmvuGame.size() / 2);
-
+    /* half move clock and full move number */
+    fen += " " + to_string((int)cmvNoCaptureOrPawn);
+    fen += " " + to_string(1 + vmvuGame.size() / 2);
     return fen;
 }
+
+/*
+ *  BD::FenRenderShared
+ * 
+ *  The part of FEN rendering that is shared by EPD format
+ */
 
 string BD::FenRenderShared(void) const
 {
     Validate();
-
     string fen;
 
     /* render the board */
-
     int csqEmpty = 0;
     for (int ra = raMax - 1; ra >= 0; ra--) {
         for (int fi = 0; fi < fiMax; fi++) {
@@ -223,11 +239,9 @@ string BD::FenRenderShared(void) const
     fen[fen.size() - 1] = ' ';    // loop puts an extra slash at the end
 
     /* side to move */
-
     fen += sParseColor[cpcToMove];
 
     /* castle state */
-
     fen += ' ';
     if (csCur == 0)
         fen += '-';
@@ -238,11 +252,26 @@ string BD::FenRenderShared(void) const
     }
 
     /* en passant */
-
     fen += " ";
     fen += to_string(sqEnPassant);
 
     return fen;
+}
+
+/*
+ *  BD::FenEmpties
+ * 
+ *  Returns a FEN string sequence for empty squares for the given number
+ *  of squares. Resets the number to zero.
+ */
+
+string BD::FenEmpties(int& csqEmpty) const
+{
+    if (csqEmpty == 0)
+        return "";
+    int csq = csqEmpty;
+    csqEmpty = 0;
+    return to_string(csq);
 }
 
 /*
@@ -256,6 +285,9 @@ string BD::FenRenderShared(void) const
  * 
  *  VALEPD can be an integer, a float, a string, or a move. Moves will be
  *  stored as strings to be parsed at the point they are used.
+ *
+ *  This parser is probably a little underpowered for the EPD syntax and would
+ *  benefit from a tokenizer. 
  */
 
 void GAME::InitFromEpd(const string& epd)
@@ -270,35 +302,32 @@ void GAME::InitFromEpd(istream& is)
     bd.InitFromFenShared(is);
 
     /* check if this EPD line has half-move clock and full-move number in it */
-    string sHalfMove;
-    if (!(is >> sHalfMove))
+    string s;
+    if (!(is >> s))
         return;
     int cmv;
-    from_chars_result res = from_chars(sHalfMove.data(), sHalfMove.data() + sHalfMove.size(), cmv);
+    from_chars_result res = from_chars(s.data(), s.data() + s.size(), cmv);
     if (res.ec == errc{}) {
         bd.SetHalfMoveClock(cmv);
-        string sFullMove;
-        if (!(is >> sFullMove))
+        if (!(is >> s))
             throw ERRAPP(rssErrEpdFullMoveNumber);
-        from_chars_result res = from_chars(sFullMove.data(), sFullMove.data() + sFullMove.size(), cmv);
+        from_chars_result res = from_chars(s.data(), s.data() + s.size(), cmv);
         if (res.ec != errc{})
             throw ERRAPP(rssErrEpdFullMoveNumber);
         bd.SetFullMoveNumber(cmv);
         ReadEpdOpCodes(is, "");
         }
     else {
-        ReadEpdOpCodes(is, sHalfMove);
+        ReadEpdOpCodes(is, s);
     }
 
     /* handle half move clock (hmvc) and full move number (fmvn) opcodes */
     if (mpkeyvar.find("hmvc") != mpkeyvar.end())
         bd.SetHalfMoveClock((int)get<int64_t>(mpkeyvar["hmvc"][0]));
-
     if (mpkeyvar.find("fmvn") != mpkeyvar.end())
-        bd.SetHalfMoveClock((int)get<int64_t>(mpkeyvar["fmvn"][0]));
+        bd.SetFullMoveNumber((int)get<int64_t>(mpkeyvar["fmvn"][0]));
 
     First(GS::Paused);
-
     NotifyBdChanged();
 }
 
@@ -373,7 +402,7 @@ bool GAME::FReadEpdOpValue(istream& is, const string& op)
         string sVal;
         while (1) {
             if (is.get(ch).eof())
-                throw ERRAPP(rssErrEpdNoEndQuote);  // TODO: error - no end quote
+                throw ERRAPP(rssErrEpdNoEndQuote);
             if (ch == '"')
                 break;
             sVal += ch;
@@ -404,7 +433,7 @@ ParseNum:
                 iVal = 0;
             }
             else {
-                throw ERRAPP(rssErrEpdIllegalNumber);  // TODO: illegal character in number
+                throw ERRAPP(rssErrEpdIllegalNumber);
             }
         }
         if (!fInteger) {
@@ -418,7 +447,9 @@ ParseNum:
         }
     }
     else {
-        /* otherwise it can only be a move, which is delimited by spaces */
+        /* Otherwise it can only be a move, which is delimited by spaces.
+           Unfortunately, we do not have the information here to parse the
+           move, so we just store it as a string for now */
         string s = string(1, ch);
         while (FNextCh(is, ch))
             s += ch;
@@ -437,6 +468,10 @@ void GAME::AddKey(const string& key, const VAREPD& var)
         itepd->second.emplace_back(var);
 }
 
+/*
+ *  Rendering EPD file format
+ */
+
 void GAME::RenderEpd(ostream& os)
 {
     os << EpdRender();
@@ -444,17 +479,16 @@ void GAME::RenderEpd(ostream& os)
 
 string GAME::EpdRender(void)
 {
+    /* the base FEN string */
     string s = bd.FenRenderShared();
 
     /* overwrite any old half move clock and full move number */
-
     VAREPD var = (int64_t)bd.cmvNoCaptureOrPawn;
     mpkeyvar["hmvc"] = vector<VAREPD>({ var });
     var =(int64_t)(bd.vmvuGame.size() / 2 + 1);
     mpkeyvar["fmvn"] = vector<VAREPD>({ var });
 
     /* opcodes */
-
     for (auto pmp = mpkeyvar.begin(); pmp != mpkeyvar.end(); ++pmp) {
         s += " ";
         s += pmp->first;
@@ -494,7 +528,6 @@ MV BD::MvParseSan(string_view s) const
     int ich = 0;
 
     /* test for castles */
-
     if (s == "O-O") {
         csMove = csKing;
         goto Lookup;
@@ -520,26 +553,34 @@ MV BD::MvParseSan(string_view s) const
         throw ERRAPP(rssErrParseMoveGeneric);
     if (inrange(s[ich], '1', '8'))
         raDisambig = s[ich++] - '1';
-    else if (inrange(s[ich], 'a', 'h') && (s[ich + 1] == 'x' || inrange(s[ich + 1], 'a', 'h')))
-        fiDisambig = s[ich++] - 'a';
+    else if (inrange(s[ich], 'a', 'h')) {
+        if (s[ich + 1] == 'x' || s[ich + 1] == '-' || inrange(s[ich + 1], 'a', 'h'))
+            fiDisambig = s[ich++] - 'a';
+        else if (inrange(s[ich + 1], '1', '8') && 
+                 ich + 2 < s.size() && 
+                 (s[ich + 2] == 'x' || s[ich + 2] == '-' || inrange(s[ich + 2], 'a', 'h'))) {
+            fiDisambig = s[ich++] - 'a';
+            raDisambig = s[ich++] - '1';
+        }
+    }
 
     /* skip over capture */
     if (ich >= s.size())
         throw ERRAPP(rssErrParseMoveGeneric);
-    if (s[ich] == 'x')
+    if (s[ich] == 'x' || s[ich] == '-')
         ich++;
     /* destination square */
     if (ich + 1 >= s.size())
         throw ERRAPP(rssErrParseMoveDestination);
     if (!inrange(s[ich], 'a', 'h') || !inrange(s[ich + 1], '1', '8'))
-        throw ERRAPP(rssErrParseMoveDestination);;
+        throw ERRAPP(rssErrParseMoveDestination);
     sqTo = Sq(s[ich] - 'a', s[ich + 1] - '1');
     ich += 2;
 
     /* promotion */
     if (ich < s.size() && s[ich] == '=') {
         if (++ich >= s.size())
-            throw ERRAPP(rssErrParseMovePromote);;
+            throw ERRAPP(rssErrParseMovePromote);
         size_t cptT = sParseBoard.find(s[ich]);
         if (cptT == string::npos || !inrange((CPT)cptT, cptKnight, cptQueen))
             throw ERRAPP(rssErrParseMovePromote);
@@ -590,12 +631,15 @@ Lookup:
 
 void GAME::InitFromPgn(istream& is)
 {
+    /* header */
     string key, sVal;
     while (FReadPgnTagPair(is, key, sVal))
         SaveTagPair(key, sVal);
-    ReadPgnMoveList(is);
-    bd.Validate();
 
+    /* move list */
+    ReadPgnMoveList(is);
+    
+    bd.Validate();
     Continuation(GS::GameOver);
     NotifyBdChanged();
 }
@@ -605,6 +649,15 @@ void GAME::InitFromPgn(const string& pgn)
     istringstream is(pgn);
     InitFromPgn(is);
 }
+
+/*
+ *  GAME::FReadPgnTagPair
+ * 
+ *  Reads a tag pair from the PGN header. A tag pair is bracketed by [ and ],
+ *  and consists of a tag and a value. Values are specified as quoted strings,
+ *  but there are also unquoted values that are terminated by the closing
+ *  bracket.
+ */
 
 bool GAME::FReadPgnTagPair(istream& is, string& tag, string& sVal)
 {
@@ -653,12 +706,33 @@ bool GAME::FReadPgnTagPair(istream& is, string& tag, string& sVal)
     return true;
 }
 
+/*
+ *  GAME::SaveTagPair
+ * 
+ *  Saves a tag pair from the PGN header. The tag is a string, and the value is
+ *  variant that comes here as a stirng, but may be specially handled into other
+ *  types depending on the specific tag.
+ */
+
 void GAME::SaveTagPair(const string& tag, const string& sVal)
 {
-    /* should do special cases of the tags we know about */
+    /* TODO: we should do special cases of the tags we know about */
     VAREPD var = string(sVal);
     AddKey(tag, var);
 }
+
+/*
+ *  GAME::ReadPgnMoveList
+ * 
+ *  Reads the move list from the PGN file. The move list is a sequence of space-
+ *  separated moves with optional move numbers. Move numbers are followed by a
+ *  dot, or multiple dots if the white move is missing. 
+ * 
+ *  Move lists may include annotations.
+ * 
+ *  The move list is termianted by the end of the stream, or by a game termination
+ *  marker that tells who won the game, like 1-0, 0-1, or 1/2-1/2.
+ */
 
 void GAME::ReadPgnMoveList(istream& is)
 {
@@ -678,19 +752,24 @@ void GAME::ReadPgnMoveList(istream& is)
             is.get(ch);
         if (is.peek() == '{')
             ParsePgnAnnotation(is);
-        else if (is.peek() == '*')
-            is.get(ch); /* TODO: end of game */
-        else if (isdigit(is.peek()))
-            ParsePgnMoveNumber(is);
+        else if (is.peek() == '*') {
+            is.get(ch);
+            gr = GR::NotOver;
+            Continuation(GS::Paused);
+        }
+        else if (isdigit(is.peek())) {
+            if (FParsePgnMoveNumber(is))
+                return;
+        }
         else if ((is >> s) && !s.empty())
             ParseAndMakePgnMove(s);
         else
             break;
-        }
+    }
 }
 
 /*
- *  GAME::ParsePgnMoveNumber
+ *  GAME::FParsePgnMoveNumber
  * 
  *  Parses the move number in the PGN move list. Pads the move list with nil
  *  moves if it introduces a gap in the move numbers, which may not be a valid
@@ -702,17 +781,18 @@ void GAME::ReadPgnMoveList(istream& is)
  *  signifying ther is no white move in the move list. 
  * 
  *  This stuff is in the PGN spec, but doesn't always make logical sense in a
- *  real chess game. For example, a FEN string is required if we dno't start
+ *  real chess game. For example, a FEN string is required if we don't start
  *  at Move 1. 
  * 
  *  This code also handles end game marks, 1-0 0-1 and 1/2-1/2.
  */
 
-void GAME::ParsePgnMoveNumber(istream& is)
+bool GAME::FParsePgnMoveNumber(istream& is)
 {
     assert(isdigit(is.peek()));
     string s;
 
+    /* read the number in */
     char ch;
     while (is.get(ch)) {
         if (!isdigit(ch) && ch != '.' && ch != '/' && ch != '-') {
@@ -722,9 +802,15 @@ void GAME::ParsePgnMoveNumber(istream& is)
         s += ch;
     }
 
-    /* TODO: mark the status in the game state */
-    if (s == "1-0" || s == "0-1" || s == "1/2-1/2")
-        return;
+    /* if this the end of the move list, mark the status in the game state 
+       and we're done */
+    map<string, GR> mpsgr = {
+        { "1-0", GR::WhiteWon }, { "0-1", GR::BlackWon }, { "1/2-1/2", GR::Draw } };
+    if (mpsgr.find(s) != mpsgr.end()) {
+        gr = mpsgr[s];
+        Continuation(GS::GameOver);
+        return true;
+    }
 
     int fmn = 0;
     auto pch = s.begin();
@@ -749,6 +835,8 @@ void GAME::ParsePgnMoveNumber(istream& is)
         imvFirst = imv;
     while (bd.vmvuGame.size() < imv)
         bd.MakeMv(mvNil);
+
+    return false;
 }
 
 void GAME::ParseAndMakePgnMove(const string& s)
@@ -795,7 +883,24 @@ void GAME::RenderPgnHeader(ostream& os) const
     RenderPgnTagPair(os, "Round", "");
     RenderPgnTagPair(os, "White", appl[cpcWhite]->SName());
     RenderPgnTagPair(os, "Black", appl[cpcBlack]->SName());
-    RenderPgnTagPair(os, "Result", "");
+    if (gs == GS::GameOver)
+        RenderPgnTagPair(os, "Result", SResult());
+}
+
+string GAME::SResult(void) const
+{
+    if (gs == GS::Playing)
+        return "*";
+    switch (gr) {
+    case GR::WhiteWon:
+        return "1-0";
+    case GR::BlackWon:
+        return "0-1";
+    case GR::Draw:
+        return "1/2-1/2";
+    default:
+        return "*";
+    }
 }
 
 /*
@@ -810,63 +915,13 @@ string GAME::SPgnDate(TPS tps) const
     time_t time = std::chrono::system_clock::to_time_t(tps);
     struct tm stm;
     localtime_s(&stm, &time);
-    return to_string(stm.tm_year+1900) + "." + to_string(stm.tm_mon+1) + "." + to_string(stm.tm_mday+1);
+    return to_string(stm.tm_year+1900) + "." + to_string(stm.tm_mon+1) + "." + to_string(stm.tm_mday);
 }
 
 void GAME::RenderPgnTagPair(ostream& os, string_view tag, const string& sValue) const
 {
     os << "[" << tag << " " << "\"" << SEscapeQuoted(sValue) << "\"]" << endl;
 }
-
-/*
- *  linebreakbuf
- * 
- *  a little helper buffer than line breaks its output 
- */
-
-class linebreakbuf : public stringbuf
-{
-public:
-    linebreakbuf(ostream& osOriginal, size_t cchMax) :
-        osOriginal(osOriginal),
-        cchMax(cchMax)
-    {
-    }
-
-public:
-    int sync(void) override
-    {
-        string sContent = str();
-        str("");
-        size_t cchOut = 0;
-        string sWord;
-        for (char ch : sContent) {
-            if (ch != ' ')
-                sWord += ch;
-            else if (sWord.size() > 0) {
-                if (cchOut + sWord.size() > cchMax) {
-                    osOriginal << endl;
-                    cchOut = 0;
-                }
-                osOriginal << sWord << " ";
-                cchOut += sWord.size() + 1;
-                sWord = "";
-            }
-        }
-
-        if (sWord.size() > 0) {
-            if (cchOut + sWord.size() > cchMax)
-                osOriginal << '\n';
-            osOriginal << sWord << " ";
-        }
-
-        return 0;
-    }
-
-private:
-    ostream& osOriginal;
-    size_t cchMax;
-};
 
 /*
  *  GAME::RenderPgnMoveList
@@ -887,74 +942,91 @@ void GAME::RenderPgnMoveList(ostream& os) const
         bdT.MakeMv(bd.vmvuGame[imv]);
     }
 
+    osLineBreak << " " << SResult();
+
     buf.sync();
 }
 
-string BD::SDecodeMvu(const MVU& mvu) const
+/*
+ *  BD::SDecodeMvu
+ * 
+ *  Creates the text of the move in Standard Algebraic Notation (SAN). The move
+ *  must be a legal move on the current board, but has not yet been made on the
+ *  board.
+ * 
+ *  The undo information should be stored in the mvu.
+ */
+
+string BD::SDecodeMvu(const MVU& mvuDecode) const
 {
-    if (mvu.fIsNil())
+    if (mvuDecode.fIsNil())
         return "-";
 
     VMV vmv;
     MoveGen(vmv);
     string s;
     CPT cptMove;
+    int cmvAmbig = 0, cmvAmbigRank = 0, cmvAmbigFile = 0;
 
     /* castles */
-
-    if (mvu.csMove & (csWhiteKing | csBlackKing)) {
+    if (mvuDecode.csMove & (csWhiteKing | csBlackKing)) {
         s = "O-O";
         goto Checks;
     }
-    if (mvu.csMove & (csWhiteQueen | csBlackQueen)) {
+    if (mvuDecode.csMove & (csWhiteQueen | csBlackQueen)) {
         s = "O-O-O";
         goto Checks;
     }
 
     /* the piece moving */
-
-    cptMove = (CPT)(*this)[mvu.sqFrom].cpt;
+    cptMove = (CPT)(*this)[mvuDecode.sqFrom].cpt;
     if (cptMove != cptPawn)
         s += sParseBoard[cptMove];
 
-    /* do we need to disambiguate? */
-
-    /* BUG! this doesn't handle the case where there are 3 of the same piece on the board 
-       that can all move to the same square; in that case, we need full move disambiguation */
-
+    /* disambiguate source. this is tricky with 3 knights (queens) when all 3 
+       can move to the same square, which may need full disambiguation; note
+       also that cmvAmbig can be >1 while both rank and file counts are 
+       still =1; (eg, knights on a1 and e3 moving to c2) */
+    /* this does full disambiguation in cases it's not needed, e.g., if 3
+       rooks can move to the same square, which technically could always be 
+       disambiguated just rank or just file, but we'll do full square
+       disambiguation. */
     for (MV mv : vmv) {
-        if (mv.sqTo != mvu.sqTo || mv.sqFrom == mvu.sqFrom || (*this)[mv.sqFrom].cpt != cptMove)
+        if (mv.sqTo != mvuDecode.sqTo || (*this)[mv.sqFrom].cpt != cptMove || mv.cptPromote != mvuDecode.cptPromote)
             continue;
-        if (fi(mvu.sqFrom) != fi(mv.sqFrom)) {
-            s += 'a' + fi(mvu.sqFrom);
-            break;
+        cmvAmbig++;
+        cmvAmbigRank += ra(mvuDecode.sqFrom) == ra(mv.sqFrom);
+        cmvAmbigFile += fi(mvuDecode.sqFrom) == fi(mv.sqFrom);
+    }
+    assert(cmvAmbig >= 1 && cmvAmbigRank >= 1 && cmvAmbigFile >= 1);
+    if (cmvAmbig > 1) {
+        if (cmvAmbigRank > 1 && cmvAmbigFile > 1) {
+            s += 'a' + fi(mvuDecode.sqFrom);
+            s += '1' + ra(mvuDecode.sqFrom);
         }
-        if (ra(mvu.sqFrom) != ra(mv.sqFrom)) {
-            s += '1' + ra(mvu.sqFrom);
-            break;
-        }
+        else if (cmvAmbigFile > 1)
+            s += '1' + ra(mvuDecode.sqFrom);
+        else // use file disambiguation if it doesn't matter
+            s += 'a' + fi(mvuDecode.sqFrom);
     }
 
     /* capture */
-
-    if (cpt(mvu.cpTake) != cptNone)
+    if (cpt(mvuDecode.cpTake) != cptNone)
         s += 'x';
 
     /* destination square */
-
-    s += to_string(mvu.sqTo);
+    s += to_string(mvuDecode.sqTo);
 
     /* promotion */
-
-    if (mvu.cptPromote != cptNone) {
+    if (mvuDecode.cptPromote != cptNone) {
         s += '=';
-        s += sParseBoard[mvu.cptPromote];
+        s += sParseBoard[mvuDecode.cptPromote];
     }
 
-    /* TODO: mates */
+    /* mates */
 Checks:
     BD bdT = *this;
-    bdT.MakeMv(mvu);
+    bdT.MakeMv(mvuDecode);
     if (bdT.FInCheck(bdT.cpcToMove)) {
         VMV vmv;
         bdT.MoveGen(vmv);
@@ -992,4 +1064,46 @@ static string SEscapeQuoted(const string& s)
 {
     /* TODO: escape special characters */
     return s;
+}
+
+/*
+ *  linebreakbuf
+ * 
+ *  A stream buffer that just does simple line wrapping
+ */
+
+linebreakbuf::linebreakbuf(ostream& osOriginal, size_t cchMax) :
+    osOriginal(osOriginal),
+    cchMax(cchMax)
+{
+}
+
+int linebreakbuf::sync(void) 
+{
+    string sContent = str();
+    str("");
+    size_t cchOut = 0;
+    string sWord;
+    for (char ch : sContent) {
+        if (ch != ' ' || sWord.size() == 0)
+            sWord += ch;
+        else {
+            if (cchOut + sWord.size() > cchMax) {
+                osOriginal << endl;
+                cchOut = 0;
+            }
+            sWord += ch;
+            osOriginal << sWord;
+            cchOut += sWord.size();
+            sWord = "";
+        }
+    }
+
+    if (sWord.size() > 0) {
+        if (cchOut + sWord.size() > cchMax)
+            osOriginal << endl;
+        osOriginal << sWord;
+    }
+
+    return 0;
 }

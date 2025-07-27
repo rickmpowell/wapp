@@ -54,6 +54,26 @@ private:
 };
 
 /*
+ *  WNGS
+ *
+ *  Game state information.
+ */
+
+class WNGS : public CTL
+{
+public:
+    WNGS(WNML& wnParent, GAME& game);
+
+    virtual CO CoBack(void) const override;
+    virtual CO CoText(void) const override;
+    virtual void Draw(const RC& rcUpdate) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+
+private:
+    GAME& game;
+};
+
+/*
  *  WNML
  *
  *  The move list window. Displays the player names, clocks, game status,
@@ -75,6 +95,7 @@ public:
 
     virtual void PlChanged(void) override;
     virtual void BdChanged(void) override;
+    virtual void GsChanged(void) override;
 
 private:
     virtual float DyLine(void) const;
@@ -83,6 +104,7 @@ private:
 private:
     array<WNPLAYER, 2> awnplayer;
     array<WNCLOCK, 2> awnclock;
+    WNGS wngs;
     GAME& game;
 
     TF tf;

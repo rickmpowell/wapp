@@ -35,6 +35,7 @@ WAPP::WAPP(const string& wsCmdLine, int sw) :
 {
     game.AddListener(&wnboard);
     game.AddListener(&wnml);
+    game.AddListener(this);
     CreateWnd(rssAppTitle);
     PushFilterMsg(new FILTERMSGACCEL(*this, rsaApp));
     Show();
@@ -100,6 +101,13 @@ void WAPP::PostCmd(const ICMD& cmd)
     qpcmd.emplace(move(pcmdClone));
 }
 
+void WAPP::BdChanged(void)
+{
+    filesystem::path exe = this->exe();
+    ofstream os(exe.parent_path() / "game.pgn");
+    game.RenderPgn(os);
+}
+
 /*
  *  Application Commands
  */
@@ -147,7 +155,7 @@ public:
         if (!FRunDlg(dlg))
             return 0;
         gameUndo = wapp.game;
-        wapp.game.End();
+        wapp.game.End(GR::Abandon);
         dlg.Extract(wapp.game);
         wapp.game.cgaPlayed++;
         wapp.game.Start();
@@ -165,6 +173,7 @@ public:
     virtual int Undo(void) override {
         wapp.game = gameUndo;
         wapp.game.NotifyBdChanged();
+        wapp.game.NotifyGsChanged();
         return 1;
     }
 
@@ -205,7 +214,7 @@ public:
         if (!dlg.FRun())
             return 0;
         gameUndo = wapp.game;
-        wapp.game.End();
+        wapp.game.End(GR::Abandon);
         ifstream is(dlg.path);
         try {
             wapp.game.InitFromPgn(is);
@@ -220,6 +229,7 @@ public:
     {
         wapp.game = gameUndo;
         wapp.game.NotifyBdChanged();
+        wapp.game.NotifyGsChanged();
         return 1;
     }
 
@@ -283,7 +293,7 @@ CMDEXECUTE(CMDTESTAI)
     dlg.extDefault = "epd";
     if (!dlg.FRun())
         return 0;
-    wapp.game.End();
+    wapp.game.End(GR::Abandon);
     wapp.RunAITest(dlg.path, dlg.vfile);
     return 1;
 }
@@ -317,6 +327,8 @@ int CMDMAKEMOVE::Execute(void)
 int CMDMAKEMOVE::Undo(void)
 {
     wapp.game.UndoMv();
+    wapp.game.gs = GS::Playing;
+    wapp.game.NotifyGsChanged();
     unique_ptr<CMDREQUESTMOVE> pcmdRequest = make_unique<CMDREQUESTMOVE>(wapp);
     wapp.PostCmd(*pcmdRequest);
     return 1;
@@ -511,6 +523,7 @@ public:
     virtual int Undo(void) override {
         swap(wapp.game, gameUndo);
         wapp.game.NotifyBdChanged();
+        wapp.game.NotifyGsChanged();
         return 1;
     }
 

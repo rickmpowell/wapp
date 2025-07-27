@@ -3,8 +3,8 @@
  *  game.cpp
  *
  *  The chess game. This class should be UI neutral and should only
- *  communicate to the UI through well-defined API. The API needs to be
- *  easily compatible with the UCI protocol.
+ *  communicate to the UI through well-defined notification API. The 
+ *  API needs to be easily compatible with the UCI protocol.
  */
 
 #include "chess.h"
@@ -70,33 +70,42 @@ void GAME::NotifyPlChanged(void)
         plgame->PlChanged();
 }
 
+void GAME::NotifyGsChanged(void)
+{
+    for (LGAME* plgame : vplgame)
+        plgame->GsChanged();
+}
+
 void GAME::First(GS gs)
 {
     this->gs = gs;
     tpsStart = TpsNow();
     fenFirst = bd.FenRender();
     imvFirst = (int)bd.vmvuGame.size();
+    NotifyGsChanged();
 }
 
 void GAME::Continuation(GS gs)
 {
     this->gs = gs;
     tpsStart = TpsNow();
+    NotifyGsChanged();
 }
 
 void GAME::Start(void)
 {
-    if (gs == GS::Paused)
-        Resume();
-    else {
+    if (gs != GS::Paused)
         tpsStart = TpsNow();
-        gs = GS::Playing;
-    }
+    gs = GS::Playing;
+    gr = GR::NotOver;
+    NotifyGsChanged();
 }
 
-void GAME::End(void)
+void GAME::End(GR gr)
 {
-    gs = GS::GameOver;
+    this->gs = GS::GameOver;
+    this->gr = gr;
+    NotifyGsChanged();
 }
 
 void GAME::Pause(void)
@@ -104,12 +113,14 @@ void GAME::Pause(void)
     if (gs != GS::Playing)
         return;
     gs = GS::Paused;
+    NotifyGsChanged();
 }
 
 void GAME::Resume(void)
 {
     assert(gs == GS::Paused);
     gs = GS::Playing;
+    NotifyGsChanged();
 }
 
 bool GAME::FIsPlaying(void) const
@@ -121,24 +132,32 @@ bool GAME::FIsPlaying(void) const
  *  GAME::FGameOver
  * 
  *  Detects if the game is over, either due to checkmate, stalemate, or
- *  various draw conditions.
+ *  various draw conditions. Returns the game result if the game is over.
  */
 
-bool GAME::FGameOver(void) const
+bool GAME::FGameOver(GR& gr) const
 {
     VMV vmv;
     bd.MoveGen(vmv);
-    if (vmv.size() == 0)
+    if (vmv.size() == 0) {
+        if (bd.FInCheck(bd.cpcToMove))
+            gr = bd.cpcToMove == cpcBlack ? GR::WhiteWon : GR::BlackWon;
+        else
+            gr = GR::Draw;
         return true;
-    if (bd.FGameDrawn(3))
+    }
+    if (bd.FGameDrawn(3)) {
+        gr = GR::Draw;
         return true;
+    }
     return false;
 }
 
 void GAME::RequestMv(WAPP& wapp)
 {
-    if (FGameOver()) {
-        End();
+    GR gr;
+    if (FGameOver(gr)) {
+        End(gr);
         return;
     }
     appl[bd.cpcToMove]->RequestMv(wapp, *this);

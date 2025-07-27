@@ -22,7 +22,9 @@ class LGAME;
 using VAREPD = variant < int64_t, uint64_t, double, string >;
 
 /*
- *  MATY    MAtch TYpe
+ *  MATY    
+ *
+ *  MAtch TYpe
  * 
  *  If playing a series of games, how games are structured
  */
@@ -43,10 +45,52 @@ enum class MATY
 
 enum class GS
 {
-    NotStarted,
+    NotStarted = 0,
     Playing,
     Paused,
     GameOver
+};
+
+/*
+ *  GR
+ * 
+ *  Game result
+ */
+
+enum class GR
+{
+    NotOver = 0,
+    WhiteWon,
+    BlackWon,
+    Draw,
+    Abandon
+};
+
+/*
+ *  Game Win type
+ */
+
+enum class GWT
+{
+    None = 0,
+    Checkmate,
+    TimeExpired,
+    Resignation
+};
+
+/*
+ *  Game Draw type
+ */
+
+enum class GDT
+{
+    None = 0,
+    Stalemate,
+    InsuffMaterial,
+    ThreefoldRepetition,
+    FiftyMoveRule,
+    TimeExpiredInsuffMaterial,
+    Agreement
 };
 
 /*
@@ -65,17 +109,18 @@ public:
     void NotifyShowMv(MV vm, bool fAnimate);
     void NotifyEnableUI(bool fEnable);
     void NotifyPlChanged(void);
+    void NotifyGsChanged(void);
 
     /* game control */
 
     void First(GS gs);
     void Continuation(GS gs);
     void Start(void);
-    void End(void);
+    void End(GR gr);
     void Pause(void);
     void Resume(void);
     bool FIsPlaying(void) const;
-    bool FGameOver(void) const;
+    bool FGameOver(GR& gr) const;
     void RequestMv(WAPP& wapp);
 
     void MakeMv(MV mv);
@@ -106,9 +151,10 @@ public:
     void ReadPgnMoveList(istream& is);
     bool FReadPgnTagPair(istream& is, string& tag, string& sVal);
     void SaveTagPair(const string& tag, const string& sVal);
-    void ParsePgnMoveNumber(istream& is);
+    bool FParsePgnMoveNumber(istream& is);
     void ParseAndMakePgnMove(const string& s);
     void ParsePgnAnnotation(istream& is);
+    string SResult(void) const;
 
     void RenderPgn(ostream& os) const;
     string PgnRender(void) const;
@@ -119,6 +165,10 @@ public:
 
 public:
     GS gs = GS::NotStarted;
+    GR gr = GR::NotOver;
+    GWT gwt = GWT::None;
+    GDT gdt = GDT::None;
+
     string fenFirst;    // FEN that defines the opening position of the game
     int imvFirst = 0; // move number of the opening position of the game
     BD bd;
@@ -153,8 +203,9 @@ private:
 class LGAME
 {
 public:
-    virtual void BdChanged(void) {};   /* sent *after* the board has changed */
-    virtual void ShowMv(MV mv, bool fAnimate) {};  /* sent *before* a move has been made */
-    virtual void EnableUI(bool fEnable) {};    /* sent to enable/disable the move UI */
-    virtual void PlChanged(void) {};  /* sent when the players change */
+    virtual void BdChanged(void) {}   /* sent *after* the board has changed */
+    virtual void ShowMv(MV mv, bool fAnimate) {}  /* sent *before* a move has been made */
+    virtual void EnableUI(bool fEnable) {}    /* sent to enable/disable the move UI */
+    virtual void PlChanged(void) {}  /* sent when the players change */
+    virtual void GsChanged(void) {} /* sent when game state changes */
 };

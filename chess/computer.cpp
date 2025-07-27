@@ -76,8 +76,8 @@ MV PLCOMPUTER::MvBestTest(WAPP& wapp, GAME& game)
  *  in the search.
  */
 
-static MV mpdmvBrk[] = { MV()
-     /*MV(sqC2, sqE4), MV(sqF6, sqE4), MV(sqE5, sqE6), MV(sqE4, sqC3) */};
+static MV mpdmvBrk[] = { //MV()
+     MV(sqA2, sqB1), MV(sqD2, sqH2), MV(sqB1, sqC1), MV(sqH2, sqB2), MV(sqC1, sqD1) };
 static MV mpdmvCur[256];
 
 class BRK
@@ -105,8 +105,44 @@ public:
             }
         }
     }
+
+    void LogMvStart(const MV& mv, const AB& ab, string_view s = "") noexcept
+    {
+        if (s.size() > 0)
+            *pwnlog << s << " ";
+        *pwnlog << to_string(mv)
+                << " [" << to_string(mv.evenum) << " " << to_string(mv.ev) << "] "
+                << to_string(ab) << endl << indent;
+    }
+
+    void LogMvEnd(const MV& mv, string_view sPost="") noexcept
+    {
+        *pwnlog << outdent << to_string(mv) << " " << to_string(mv.ev);
+        if (sPost.size() > 0)
+            *pwnlog << " " << sPost;
+        *pwnlog << endl;
+    }
+
+    void LogEnd(EV ev, string_view s, string_view sPost="") noexcept
+    {
+        *pwnlog << s << " " << to_string(ev);
+        if (sPost.size() > 0)
+            *pwnlog << " " << sPost;
+        *pwnlog << endl;
+    }
+
+    void LogDepth(int d, const AB& ab, string_view s) noexcept
+    {
+        *pwnlog << s << " " << d << " " << to_string(ab) << endl << indent;
+    }
+
+    void LogDepthEnd(const MV& mv, string_view s) noexcept
+    {
+        *pwnlog << outdent << s << " " << to_string(mv) << " " << to_string(mv.ev) << endl;
+    }
+
 private:
-    int dMatch = -1;
+    int dMatch = -1;  // the last depth we matched in the breakpoint array
 };
 
 BRK brk;
@@ -124,6 +160,8 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
     InitStats();
     InitPsts();
     xt.Init();
+    InitKillers();
+    InitHistory();
     brk.Init();
 
     /* generate all possible legal moves */
@@ -139,25 +177,29 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
 
     do {    /* iterative deepening/aspiration window loop */
         mvBest.ev = -evInfinity;
+        brk.LogDepth(dLim, abAspiration, "depth");
         AB ab(abAspiration);
-        *pwnlog << "Depth: " << dLim << " " << to_string(abAspiration) << endl << indent;
         for (VMV::siterator pmv = vmv.sbegin(*this, bd); pmv != vmv.send(); ++pmv) {
             brk.Check(0, *pmv);
-            *pwnlog << to_string(*pmv) << " [" << to_string(pmv->evenum) << " " << to_string(pmv->ev) << "] ";
+            brk.LogMvStart(*pmv, ab);
             bd.MakeMv(*pmv);
             pmv->ev = -EvSearch(bd, -ab, 1, dLim);
             bd.UndoMv();
-            *pwnlog << to_string(pmv->ev) << endl;
-            if (ab.FPrune(*pmv, mvBest))
+            if (FPrune(ab, *pmv, mvBest, dMax)) {
+                dLim = min(dLim, dMax);
+                SaveKiller(bd, *pmv);
+                brk.LogMvEnd(*pmv, "cut");
                 break;
+            }
+            brk.LogMvEnd(*pmv);
         }
         if (mvBest.ev > -evInfinity)
             SaveXt(bd, mvBest, abAspiration, 0, dLim);
-        *pwnlog << outdent << "Best move: " << to_string(mvBest) << " " << to_string(mvBest.ev) << endl;
+        brk.LogDepthEnd(mvBest, "best");
     } while (FDeepen(bd, mvBest, abAspiration, dLim, dMax));
 
     TP tpEnd = TpNow();
-    *pwnlog << outdent << "Best move: " << to_string(mvBest) << endl;
+    *pwnlog << outdent << "best " << to_string(mvBest) << endl;
     LogStats(tpEnd);
 
     return mvBest;
@@ -181,12 +223,16 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
     FInterrupt();
     cmvSearch++;
 
-    if (bd.FGameDrawn(2))
+    if (bd.FGameDrawn(2)) {
+        brk.LogEnd(evDraw, "draw");
         return evDraw;
+    }
 
     MV mvBest(-evInfinity);
-    if (FLookupXt(bd, mvBest, ab, d, dLim))
+    if (FLookupXt(bd, mvBest, ab, d, dLim)) {
+        brk.LogEnd(mvBest.ev, "xt");
         return mvBest.ev;
+    }
 
     AB abInit(ab);
     VMV vmv;
@@ -199,22 +245,28 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
         if (!bd.FMakeMvLegal(*pmv))
             continue;
         cmvLegal++;
+        brk.LogMvStart(*pmv, ab);
         pmv->ev = -EvSearch(bd, -ab, d+1, dLim);
         bd.UndoMv();
-        if (ab.FPrune(*pmv, mvBest)) {
+        if (FPrune(ab, *pmv, mvBest, dLim)) {
+            SaveKiller(bd, *pmv);
+            brk.LogMvEnd(*pmv, "cut");
             SaveXt(bd, *pmv, ab, d, dLim);
-            return ab.evBeta;
+            return pmv->ev;
         }
+        brk.LogMvEnd(*pmv);
     }
 
     if (cmvLegal == 0) {
         mvBest = MV(fInCheck ? -EvMate(d) : evDraw);
+        brk.LogEnd(mvBest.ev, "no moves");
         SaveXt(bd, mvBest, AB(-evInfinity, evInfinity), d, dLim);
         return mvBest.ev;
     }
 
+    brk.LogEnd(mvBest.ev, "best");
     SaveXt(bd, mvBest, abInit, d, dLim);
-    return ab.evAlpha;
+    return mvBest.ev;
 }
 
 /*
@@ -231,32 +283,40 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
 
 EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
 {
-    MV mvPat(EvStatic(bd));
-    if (ab.FPrune(mvPat)) {
-        assert(ab.evBeta != evInfinity);
-        return ab.evBeta;
+    MV mvBest(EvStatic(bd));
+    if (FPrune(ab, mvBest)) {
+        //brk.LogEnd(mvBest.ev, "eval", "cut");
+        return mvBest.ev;
     }
+    //brk.LogEnd(mvBest.ev, "eval");
 
     FInterrupt();
     cmvQSearch++;
 
+    bool fInCheck = bd.FInCheck(bd.cpcToMove);
     VMV vmv;
-    bd.MoveGenNoisy(vmv);
+    if (fInCheck)
+        bd.MoveGenPseudo(vmv);
+    else
+        bd.MoveGenNoisy(vmv);
     cmvMoveGen += vmv.size();
     for (VMV::siterator pmv = vmv.sbegin(*this, bd); pmv != vmv.send(); ++pmv) {
         brk.Check(d, *pmv);
         if (!bd.FMakeMvLegal(*pmv))
             continue;
+        //brk.LogMvStart(*pmv, ab, "q");
         pmv->ev = -EvQuiescent(bd, -ab, d+1);
         bd.UndoMv();
-        if (ab.FPrune(*pmv)) {
-            assert(ab.evBeta != evInfinity);
-            return ab.evBeta;
+        if (FPrune(ab, *pmv, mvBest)) {
+            //brk.LogMvEnd(*pmv, "cut");
+            SaveKiller(bd, *pmv);
+            return pmv->ev;
         }
+        //brk.LogMvEnd(*pmv, "");
     }
 
-    assert(ab.evAlpha != -evInfinity);
-    return ab.evAlpha;
+    //brk.LogEnd(mvBest.ev, "best");
+    return mvBest.ev;
 }
 
 /*
@@ -313,6 +373,8 @@ void VMV::siterator::NextBestScore(void) noexcept
             break;
         case EVENUM::PV:
         case EVENUM::GoodCapt:
+        case EVENUM::Killer:
+        case EVENUM::History:
         case EVENUM::Other:
         case EVENUM::BadCapt:
             pmvBest = nullptr;
@@ -323,7 +385,7 @@ void VMV::siterator::NextBestScore(void) noexcept
                 goto GotIt;
             break;
         case EVENUM::Max:
-            /* should go through all the moves before we get here */
+            /* should handle through all the moves before we get here */
             assert(false);
             break;
         }
@@ -372,19 +434,31 @@ void VMV::siterator::InitEvEnum(void) noexcept
     case EVENUM::GoodCapt:  /* good captures based on MVV-LVA heuristifc */
         for (MV* pmv = pmvCur; pmv < pmvMac; pmv++) {
             if (pbd->FMvIsCapture(*pmv)) {
-                pmv->ev = ScoreCapture(*pmv);
+                ppl->ScoreCapture(*pbd, *pmv);
                 pmv->evenum = pmv->ev > -200 ? EVENUM::GoodCapt : EVENUM::BadCapt;
             }
         }
         break;
 
+    case EVENUM::Killer:
+        for (MV* pmv = pmvCur; pmv < pmvMac; pmv++)
+            if (pmv->evenum == EVENUM::None && ppl->FScoreKiller(*pbd, *pmv))
+                pmv->evenum = EVENUM::Killer;
+        break;
+
+    case EVENUM::History:
+        for (MV* pmv = pmvCur; pmv < pmvMac; pmv++)
+            if (pmv->evenum == EVENUM::None && ppl->FScoreHistory(*pbd, *pmv))
+                pmv->evenum = EVENUM::History;
+        break;
+
     case EVENUM::Other: /* any other move needs to be scored, which is
                            somewhat expensive */
         for (MV* pmv = pmvCur; pmv < pmvMac; pmv++) {
-            if (pmv->evenum != EVENUM::None)
-                continue;
-            pmv->ev = ScoreOther(*pmv);
-            pmv->evenum = EVENUM::Other;
+            if (pmv->evenum == EVENUM::None) {
+                ppl->ScoreMove(*pbd, *pmv);
+                pmv->evenum = EVENUM::Other;
+            }
         }
         break;
 
@@ -394,17 +468,50 @@ void VMV::siterator::InitEvEnum(void) noexcept
     }
 }
 
-EV VMV::siterator::ScoreCapture(const MV& mv) noexcept
+bool PLCOMPUTER::FPrune(AB& ab, const MV& mv, int& dLim) noexcept
 {
-    EV ev = ppl->ScoreCapture(*pbd, mv);
-    return ev;
+    assert(ab.evAlpha <= ab.evBeta);
+    if (mv.ev > ab.evAlpha) {
+        if (FEvIsMate(mv.ev))
+            dLim = min(dLim, DFromEvMate(mv.ev));
+        if (mv.ev >= ab.evBeta) {   // cut?
+            ab.evAlpha = ab.evBeta;
+            return true;
+        }
+        ab.evAlpha = mv.ev;
+    }
+    return false;
 }
 
-EV VMV::siterator::ScoreOther(const MV& mv) noexcept
+bool PLCOMPUTER::FPrune(AB& ab, const MV& mv, MV& mvBest, int& dLim) noexcept
 {
-    EV ev = -ppl->ScoreMove(*pbd, mv);
-    return ev;
+    assert(ab.evAlpha <= ab.evBeta);
+    if (mv.ev > mvBest.ev)
+        mvBest = mv;
+    return FPrune(ab, mv, dLim);
 }
+
+bool PLCOMPUTER::FPrune(AB& ab, const MV& mv) noexcept
+{
+    assert(ab.evAlpha <= ab.evBeta);
+    if (mv.ev > ab.evAlpha) {
+        ab.evAlpha = mv.ev;
+        if (mv.ev >= ab.evBeta) {   // cut?
+            ab.evAlpha = ab.evBeta;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool PLCOMPUTER::FPrune(AB& ab, const MV& mv, MV& mvBest) noexcept
+{
+    assert(ab.evAlpha <= ab.evBeta);
+    if (mv.ev > mvBest.ev)
+        mvBest = mv;
+    return FPrune(ab, mv);
+}
+
 
 /*
  *  PLCOMPUTER::FDeepen
@@ -432,7 +539,6 @@ bool PLCOMPUTER::FDeepen(BD& bd, MV mvBest, AB& ab, int& d, int dMax) noexcept
     }
     return d < dMax;
 }
-
 
 /*
  *  PLCOMPUTER::FLookupXt
@@ -488,17 +594,17 @@ bool PLCOMPUTER::FLookupXt(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
 XTEV* PLCOMPUTER::SaveXt(BD &bd, const MV& mvBest, AB ab, int d, int dLim) noexcept
 {
     /*
-    if (FEvIsInterrupt(mveBest.ev))
+    if (FEvIsInterrupt(mvBest.ev))
         return nullptr;
     */
 
     EV evBest = mvBest.ev;
-    assert(evBest != -evInfinity && evBest != evInfinity);
+    assert(evBest > -evInfinity && evBest < evInfinity);
 
     if (evBest <= ab.evAlpha)
-        return xt.Save(bd, EVT::Lower, ab.evAlpha, mvBest, d, dLim);
+        return xt.Save(bd, EVT::Lower, evBest, mvBest, d, dLim);
     if (evBest >= ab.evBeta)
-        return xt.Save(bd, EVT::Higher, ab.evBeta, mvBest, d, dLim);
+        return xt.Save(bd, EVT::Higher, evBest, mvBest, d, dLim);
     return xt.Save(bd, EVT::Equal, evBest, mvBest, d, dLim);
 }
 
@@ -676,28 +782,131 @@ EV PLCOMPUTER::EvInterpolate(int phaseCur, EV evFirst, int phaseFirst, EV evLim,
 
 static const EV mpcptev[cptMax] = { 0, 100, 300, 320, 500, 900, 1000 };
 
-EV PLCOMPUTER::ScoreCapture(BD& bd, const MV& mv) noexcept
+void PLCOMPUTER::ScoreCapture(BD& bd, MV& mv) noexcept
 {
-    if (mv.cptPromote != cptNone)
-        return mpcptev[mv.cptPromote] - mpcptev[cptPawn];
+    if (mv.cptPromote != cptNone) {
+        mv.ev = mpcptev[mv.cptPromote] - mpcptev[cptPawn];
+        return;
+    }
 
     CP cpFrom = bd[mv.sqFrom].cp();
     CP cpTo = bd[mv.sqTo].cp();
-    EV ev = mpcpsqevMid[cpTo][mv.sqTo]; 
+    mv.ev = mpcpsqevMid[cpTo][mv.sqTo]; 
     CPT cptDefender = bd.CptSqAttackedBy(mv.sqTo, ~bd.cpcToMove);
     if (cptDefender)
-        ev -= mpcpsqevMid[cpFrom][mv.sqFrom];
+        mv.ev -= mpcpsqevMid[cpFrom][mv.sqFrom];
     else
-        ev -= mpcpsqevMid[cpFrom][mv.sqFrom] / 8;   // MMV-LVA style move ordering heuristic
-    return ev;
+        mv.ev -= mpcpsqevMid[cpFrom][mv.sqFrom] / 8;   // MMV-LVA style move ordering heuristic
 }
 
-EV PLCOMPUTER::ScoreMove(BD& bd, const MV& mv) noexcept
+void PLCOMPUTER::ScoreMove(BD& bd, MV& mv) noexcept
 {
     bd.MakeMv(mv);
-    EV ev = EvFromPst(bd) + EvAttackDefend(bd, mv);
+    mv.ev = -(EvFromPst(bd) + EvAttackDefend(bd, mv));
     bd.UndoMv();
-    return ev;
+}
+
+/*
+ *  Killers
+ * 
+ *  Keep track of cut moves to help front-load move ordering with moves
+ *  that will likely cause another cut.
+ */
+
+void PLCOMPUTER::InitKillers(void) noexcept
+{
+    for (int imvGame = 0; imvGame < 256; imvGame++)
+        for (int imv = 0; imv < cmvKillers; imv++)
+            amvKillers[imvGame][imv] = mvNil;
+}
+
+void PLCOMPUTER::SaveKiller(BD& bd, const MV& mv) noexcept
+{
+    if (bd.FMvIsCapture(mv) || mv.cptPromote)
+        return;
+    int imvLim = (int)bd.vmvuGame.size() + 1;
+    if (imvLim >= 256 || mv == amvKillers[imvLim][0])
+        return;
+    for (int imv = cmvKillers - 1; imv >= 1; imv--)
+        amvKillers[imvLim][imv] = amvKillers[imvLim][imv - 1];
+    amvKillers[imvLim][0] = mv;
+}
+
+bool PLCOMPUTER::FScoreKiller(BD& bd, MV& mv) noexcept
+{
+    int imvLim = (int)bd.vmvuGame.size() + 1;
+    for (int imv = 0; imv < cmvKillers; imv++) {
+        if (mv == amvKillers[imvLim][imv]) {
+            mv.ev = evPawn - 10 * imv;
+            return true;
+        }
+    }
+    return false;
+}
+
+/*
+ *  History
+ */
+
+void PLCOMPUTER::InitHistory(void) noexcept
+{
+    for (CP cp = 0; cp < cpMax; ++cp)
+        for (SQ sqTo = 0; sqTo < sqMax; sqTo++)
+            mpcpsqcHistory[cp][sqTo] = 0;
+}
+
+/*
+ *  PLCOMPUTER::AddHistory
+ *
+ *	Bumps the move history count, which is non-captures that cause beta
+ *	cut-offs, indexed by the source/destination squares of the move
+ */
+
+void PLCOMPUTER::AddHistory(BD& bd, const MV& mv, int d, int dLim) noexcept
+{
+    if (bd.FMvIsCapture(mv) || mv.cptPromote)
+        return;
+    int& csqHistory = mpcpsqcHistory[bd[mv.sqFrom].cp()][mv.sqTo];
+    csqHistory += (dLim - d) * (dLim - d);
+    if (csqHistory >= evMateMin)
+        AgeHistory();
+}
+
+/*	
+ *  PLCOMPUTER::SubtractHistory
+ *
+ *	Lowers history count in the history table, which is done on non-beta
+ *	cut-offs.Note that bumping is much faster than decaying.
+ */
+
+void PLCOMPUTER::SubtractHistory(BD& bd, const MV& mv) noexcept
+{
+    if (bd.FMvIsCapture(mv) || mv.cptPromote)
+        return;
+    int& csqHistory = mpcpsqcHistory[bd[mv.sqFrom].cp()][mv.sqTo];
+    if (csqHistory > 0)
+        csqHistory--;
+}
+
+/*	
+ *  PLCOMPUTER::AgeHistory
+ *
+ *	Redece old history's impact with each move
+ */
+
+void PLCOMPUTER::AgeHistory(void) noexcept
+{
+    for (CP cp = 0; cp < cpMax; ++cp)
+        for (SQ sqTo = 0; sqTo < sqMax; ++sqTo)
+            mpcpsqcHistory[cp][sqTo] /= 8;
+}
+
+bool PLCOMPUTER::FScoreHistory(BD& bd, MV& mv) noexcept
+{
+    if (mpcpsqcHistory[bd[mv.sqFrom].cp()][mv.sqTo] == 0)
+        return false;
+    mv.ev = mpcpsqcHistory[bd[mv.sqFrom].cp()][mv.sqTo];
+    return true;
 }
 
 /*	

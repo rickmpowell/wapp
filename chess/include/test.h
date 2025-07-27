@@ -61,12 +61,15 @@ public:
     void RenderLog(ostream& os) const;
     void Save(void) const;
 
+    static WNLOG* pwnlog;
+    static int ReportHook(int rt, char* sMessage, int* pret);
+
     /* perft tests */
 
     int64_t CmvDivide(BD& bd, int d);
     TPERFT tperft = TPERFT::Perft;
     int dPerft = 4;
-    int levelLog = 2;
+    int levelLog = 1; // 8
 
 private:
     TITLEBAR titlebar;

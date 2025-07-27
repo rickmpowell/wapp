@@ -95,7 +95,7 @@ extern const ERR errNone;
 extern const ERR errFail;
 
 /*
- *  ThrowError - throws an error if we have a failed operation
+ *  ThrowError - throws an error if we have a failed Windows operation
  */
 
 inline void ThrowError(HRESULT hr) 

@@ -35,7 +35,9 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
-#include <assert.h>
+//#include <assert.h>
+#include <crtdbg.h>
+#define assert(f) _ASSERTE(f)
 
 /* C++ standard library */
 
@@ -43,9 +45,10 @@
 #include <array>
 #include <vector>
 #include <map>
-#include <variant>
 #include <stack>
 #include <queue>
+#include <variant>
+#include <functional>
 #include <algorithm>
 #include <iterator>
 #include <memory>

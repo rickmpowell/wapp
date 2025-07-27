@@ -29,6 +29,11 @@ WNLOG::WNLOG(WN& wnParent) :
     tfTest(*this, sFontUI, 12),
     dyLine(12)
 {
+	pwnlog = this;
+#ifndef NDEBUG
+	/* TODO: can we enable/disable this when WNLOG is hidden/shown */
+	_CrtSetReportHook2(_CRT_RPTHOOK_INSTALL, ReportHook);
+#endif
 }
 
 void WNLOG::Layout(void)
@@ -107,6 +112,17 @@ void WNLOG::Save(void) const
 	filesystem::path exe = iwapp.exe();
 	ofstream os(exe.parent_path() / "chess.log");
 	RenderLog(os);
+}
+
+WNLOG* WNLOG::pwnlog = nullptr;
+
+int WNLOG::ReportHook(int rt, char* sMessage, int* pret)
+{
+	if (pwnlog) {
+		*pwnlog << "Assertion failed: " << sMessage;
+		pwnlog->Save();
+	}
+	return false;
 }
 
 /*
@@ -648,7 +664,7 @@ void WAPP::RunAITest(const string& dir, const vector<string>& vfile)
 		string epd;
 		while (getline(is, epd)) {
 
-			MV mvBest, mvAvoid;
+			vector<VAREPD>* pvvar = nullptr;
 	
 			/* read the EPD line */
 			try {
@@ -656,13 +672,16 @@ void WAPP::RunAITest(const string& dir, const vector<string>& vfile)
 				/* get best/avoid move and log it */
 				wnlog << get<string>(game.mpkeyvar["id"][0]) << endl;
 				if (game.mpkeyvar.find("bm") != game.mpkeyvar.end()) {
-					mvBest = game.bd.MvParseSan(get<string>(game.mpkeyvar["bm"][0]));
-					wnlog << "Best move: " << to_string(mvBest) << endl;
+					wnlog << "Best move:";
+					pvvar = &game.mpkeyvar["bm"];
 				}
 				else if (game.mpkeyvar.find("am") != game.mpkeyvar.end()) {
-					mvAvoid = game.bd.MvParseSan(get<string>(game.mpkeyvar["am"][0]));
-					wnlog << "Avoid move: " << to_string(mvAvoid) << endl;
+					wnlog << "Avoid move:";
+					pvvar = &game.mpkeyvar["am"];
 				}
+				for (const VAREPD& var : *pvvar)
+					wnlog << " " << to_string(game.bd.MvParseSan(get<string>(var)));
+				wnlog << endl;
 			}
 			catch (ERR err) {
 				Error(ERRAPP(rssErrEpdParse), err);
@@ -672,23 +691,29 @@ void WAPP::RunAITest(const string& dir, const vector<string>& vfile)
 			Redraw();
 
 			/* get what the AI thinks is the best move */
-			//wnlog.levelLog += 2;
+			wnlog.levelLog += 2;
 			PLCOMPUTER* ppl = static_cast<PLCOMPUTER*>(game.appl[game.bd.cpcToMove].get());
 			MV mvAct = ppl->MvBestTest(*this, game);
-			//wnlog.levelLog -= 2;
+			wnlog.levelLog -= 2;
 
 			/* log rseults */
 			wnlog << outdent;
 			cTotal++;
-			if (!mvBest.fIsNil()) {
-				wnlog << (mvAct == mvBest ? "Success" : "Failed") << endl;
-				cSuccess += (mvAct == mvBest);
+			bool fSuccess;
+			if (game.mpkeyvar.find("bm") != game.mpkeyvar.end()) {
+				fSuccess = false;
+				for (const VAREPD& var : *pvvar)
+					if (mvAct == game.bd.MvParseSan(get<string>(var)))
+						fSuccess = true;
 			}
-			else if (!mvAvoid.fIsNil()) {
-				wnlog << (mvAct != mvAvoid ? "Success" : "Failed") << endl;
-				cSuccess += (mvAct != mvAvoid);
+			else if (game.mpkeyvar.find("am") != game.mpkeyvar.end()) {
+				fSuccess = true;
+				for (const VAREPD& var : *pvvar)
+					if (mvAct != game.bd.MvParseSan(get<string>(var)))
+						fSuccess = false;
 			}
-			wnlog << endl;
+			wnlog << (fSuccess ? "Success" : "Failed") << endl << endl;
+			cSuccess += fSuccess;
 		}
 		wnlog << outdent << file << " test done" << endl;
 		wnlog << cSuccess << " of " << cTotal << " tests passed" << endl;

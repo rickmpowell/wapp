@@ -14,6 +14,7 @@ WNML::WNML(WN& wnParent, GAME& game) :
     game(game),
     awnclock{ WNCLOCK(*this, game, cpcBlack), WNCLOCK(*this, game, cpcWhite) },
     awnplayer{ WNPLAYER(*this, game, cpcBlack), WNPLAYER(*this, game, cpcWhite) },
+    wngs(*this, game),
     tf(*this, "Segoe UI", 12)
 {  
 }
@@ -40,6 +41,7 @@ void WNML::Layout(void)
     len.Position(awnclock[0]);
     len.PositionBottom(awnplayer[1]);
     len.PositionBottom(awnclock[1]);
+    len.PositionBottom(wngs);
     SetView(len.RcLayout());
 
     tf.SetHeight(*this, 15);
@@ -107,6 +109,12 @@ void WNML::BdChanged(void)
     Redraw();
 }
 
+void WNML::GsChanged(void)
+{
+    Relayout();
+    Redraw();
+}
+
 /*
  *  WNPLAYER
  */
@@ -151,6 +159,7 @@ SZ WNPLAYER::SzRequestLayout(const RC& rcWithin) const
 /*
  *  WNCLOCK
  */
+
 WNCLOCK::WNCLOCK(WNML& wnml, GAME& game, CPC cpc) :
     CTL(wnml, nullptr),
     game(game),
@@ -189,4 +198,84 @@ void WNCLOCK::Layout(void)
 SZ WNCLOCK::SzRequestLayout(const RC& rcWithin) const
 {
     return SZ(rcWithin.dxWidth(), 72);
+}
+
+/*
+ *  WNGS
+ * 
+ *  Game state.
+ */
+
+WNGS::WNGS(WNML& wnml, GAME& game) :
+    CTL(wnml, nullptr),
+    game(game)
+{
+}
+
+CO WNGS::CoBack(void) const
+{
+    return coWhite;
+}
+
+CO WNGS::CoText(void) const
+{
+    return coBlack;
+}
+
+void WNGS::Draw(const RC& rcUpdate)
+{
+    RC rc(RcInterior());
+    Line(rc.ptTopLeft(), rc.ptTopRight(), CoText(), 1);
+
+    TF tfStatus(*this, sFontUI, 15, TF::WEIGHT::Bold);
+    TF tfResult(*this, sFontUI, 15, TF::WEIGHT::Normal);
+
+    switch (game.gs) {
+    case GS::GameOver:
+    {
+        string sResult, sScore;
+        if (game.gr == GR::WhiteWon) {
+            sResult = "White Wins";
+            sScore = SFromU8(u8"1 \x2013 0");
+        }
+        else if (game.gr == GR::BlackWon) {
+            sResult = "Black Wins";
+            sScore = SFromU8(u8"0 \x2013 1");
+        }
+        else if (game.gr == GR::Draw) {
+            sResult = "Draw";
+            sScore = SFromU8(u8"\x00bd \x2013 \x00bd");
+        }
+        rc.bottom = rc.yCenter();
+        rc.top = rc.bottom - SzFromS(sResult, tfResult).height - 2*2;
+        DrawSCenterXY(sResult, tfResult, rc);
+        rc.TileDown();
+        DrawSCenterXY(sScore, tfStatus, rc);
+        break;
+    }
+    case GS::Playing:
+        DrawSCenterXY(game.bd.cpcToMove == cpcWhite ? "White to Move" : "Black to Move",
+                      tfResult, rc);
+        break;
+    case GS::Paused:
+        DrawSCenterXY("Paused", tfResult, rc);
+        break;
+    case GS::NotStarted:
+        DrawSCenterXY("Ready", tfResult, rc);
+        break;
+    }
+    
+}
+
+SZ WNGS::SzRequestLayout(const RC& rcWithin) const
+{
+    switch (game.gs) {
+    case GS::GameOver:
+        return SZ(rcWithin.dxWidth(), 72);
+    case GS::Playing:
+    case GS::Paused:
+    case GS::NotStarted:
+        break;
+    }
+    return SZ(rcWithin.dxWidth(), 36);
 }

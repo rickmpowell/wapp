@@ -574,9 +574,11 @@ enum class EVENUM
     None = 0,
     PV = 1,
     GoodCapt = 2,
-    Other = 3,
-    BadCapt = 4,
-    Max = 5
+    Killer = 3,
+    History = 4,
+    Other = 5,
+    BadCapt = 6,
+    Max = 7
 };
 
 inline EVENUM& operator ++ (EVENUM& evenum) noexcept
@@ -731,9 +733,7 @@ public:
     private:
         void NextBestScore(void) noexcept;
         void InitEvEnum(void) noexcept;
-        EV ScoreCapture(const MV& mv) noexcept;
-        EV ScoreOther(const MV& mv) noexcept;
-
+    
         PLCOMPUTER* ppl;
         BD* pbd;
         EVENUM evenum = EVENUM::None;
@@ -868,6 +868,7 @@ public:
     void RenderFen(ostream& os) const;
     string FenRender(void) const;
     string FenRenderShared(void) const;
+    string FenEmpties(int& csqEmpty) const;
     void SetHalfMoveClock(int cmv);
     void SetFullMoveNumber(int cmv);
 

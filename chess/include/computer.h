@@ -30,34 +30,6 @@ public:
         return AB(-evBeta, -evAlpha);
     }
 
-    bool FPrune(const MV& mv) noexcept
-    {
-        assert(evAlpha <= evBeta);
-        if (mv.ev > evAlpha) {
-            evAlpha = mv.ev;
-            if (mv.ev >= evBeta) {
-                evAlpha = evBeta;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    bool FPrune(const MV& mv, MV& mvBest) noexcept
-    {
-        assert(evAlpha <= evBeta);
-        if (mv.ev > mvBest.ev)
-            mvBest = mv;
-        if (mv.ev > evAlpha) {
-            evAlpha = mv.ev;
-            if (mv.ev >= evBeta) {
-                evAlpha = evBeta;
-                return true;
-            }
-        }
-        return false;
-    }
-
     void AdjustMissLow(void) noexcept
     {
         int dev = evBeta - evAlpha;
@@ -192,6 +164,11 @@ public:
     EV EvSearch(BD& bd, AB ab, int d, int dLim) noexcept;
     EV EvQuiescent(BD& bd, AB ab, int d) noexcept;
     bool FDeepen(BD& bd, MV mvBest, AB& ab, int& d, int dMax) noexcept;
+    bool FPrune(AB& ab, const MV& mv, int& dLim) noexcept;
+    bool FPrune(AB& ab, const MV& mv, MV& mvBest, int& dLim) noexcept;
+    bool FPrune(AB& ab, const MV& mv) noexcept;
+    bool FPrune(AB& ab, const MV& mv, MV& mvBest) noexcept;
+
 
     inline bool FInterrupt(void) noexcept
     {
@@ -226,9 +203,22 @@ public:
 
     /* move scoring */
 
-    virtual EV ScoreCapture(BD& bd, const MV& mv) noexcept;
-    virtual EV ScoreMove(BD& bd, const MV& mv) noexcept;
+    void ScoreCapture(BD& bd, MV& mv) noexcept;
+    void ScoreMove(BD& bd, MV& mv) noexcept;
     EV EvAttackDefend(BD& bd, const MV& mvPrev) const noexcept;
+
+    void InitKillers() noexcept;
+    void SaveKiller(BD& bd, const MV& mv) noexcept;
+    bool FScoreKiller(BD& bd, MV& mv) noexcept;
+    static const int cmvKillers = 2;
+    MV amvKillers[256][cmvKillers];
+
+    void InitHistory() noexcept;
+    void AddHistory(BD& bd, const MV& mv, int d, int dLim) noexcept;
+    void SubtractHistory(BD& bd, const MV& mv) noexcept;
+    void AgeHistory(void) noexcept;
+    bool FScoreHistory(BD& bd, MV& mv) noexcept;
+    int mpcpsqcHistory[cpMax][sqMax];
 
     /* stats */
 

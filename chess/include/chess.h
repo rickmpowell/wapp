@@ -181,7 +181,7 @@ private:
  *  The sample windows chess application class
  */
 
-class WAPP : public IWAPP
+class WAPP : public IWAPP, public LGAME
 {
 public:
     WAPP(const string& sCmd, int sw);
@@ -193,6 +193,8 @@ public:
 
     virtual int MsgPump(void) override;
     virtual void PostCmd(const ICMD& cmd);
+
+    virtual void BdChanged(void) override;
 
     /* tests */
 

@@ -483,7 +483,7 @@ string to_string(EV ev)
     if (ev == evInfinity)
         return s + "Inf";
     if (FEvIsMate(ev))
-        return s + "#" + to_string(DFromEvMate(ev) / 2 + 1);
+        return s + "#" + to_string((DFromEvMate(ev) + 1) / 2);
 
     return s + to_string(ev / 100) + "." + to_string(ev / 10 % 10) + to_string(ev % 10);
 }
@@ -492,13 +492,17 @@ string to_string(EVENUM evenum) noexcept
 {
     switch (evenum) {
     case EVENUM::PV:
-        return "PV";
+        return "pv";
     case EVENUM::GoodCapt:
-        return "GCapt";
+        return "good capture";
+    case EVENUM::Killer:
+        return "killer";
+    case EVENUM::History:
+        return "history";
     case EVENUM::Other:
-        return "EV";
+        return "eval";
     case EVENUM::BadCapt:
-        return "BCapt";
+        return "bad capture";
     default:
         break;
     }

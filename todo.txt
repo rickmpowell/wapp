@@ -1,47 +1,4 @@
-  Write FEN to PGN file if necessary
-  Write results to PGN files
-  Set player names from PGN header
-  Add some header and result information in AI test - and save to a dated filename
-  Implement checkbox control
-  Review EVD design and tweak to streamline use cases
-  Add king safety to static eval
-  Add pawn structure to static eval
-  Gray out problematic command in menus when UI is disabled
-  Disable UI during AI test
-  Implement time/search control options to search that are based on the various UCI options
-  Add display depth option to log window
-  Enable partial lines to log window
-  Implement an AI test browser that reads files with EPD lines
-  Implement a board editor
-  Implement a PGN game browser
-  More intelligent aging of transposition table entries
-  Add the ability to pause a game
-  Implement clicking on movelist
-  Implement WN based on an HWND
-  Track down smaller icons for log toolbar
-  Add layout engine option to evenly size/space items within their owner, and use in VSEL
-  Interrupting AI search
-  Add the ability to set a FEN in New Game and replace the Resume button
-  Disable correct parts of the UI when AI is thinking
-  Display game over/playing state in movelist
-  Implement game properties and use for PGN header tags
-  Can we make dialog boxes Windows HWNDs?
-  Implement real edit controls
-  Implement Game Options dialog
-  Implement Custome Time Control dialog
-  Implement AI settings dialog
-  Make modal dialog boxes disable parent windows more systematically
-  In New Game dialog, clicking on custom time control, while dialog up, click on cutom time control again. cresh on dialog coming down.
-  Redesign menus and CMDs to build on the fly and use CMD to populate text of MENUITEMs
-  Redesign accelerator tables to build on the fly using CMDs
-  Add closebox to titlebars
-  Click-move-click move interface
-  Write a simple resource manager for handling things like graphics
-  Implement a scrollbar
-  Add chess clock 
-  Convert about box to dialog box
-  Convert error messages to dialog box
-  Add tooltip support
+* Convert to-do list to GitHub Project/Issues format
 * A bunch of UI isn't working during AI test
 * Detect text format on Paste and try to do PGN/FEN/EPD
 * Keep track of beginning position and move number in the GAME
