@@ -1,0 +1,32 @@
+name: Build WAPP library and Samples
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+     
+      - name: Set up build path
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build solution with msbuild
+        run: msbuild wapp.sln /t:Clean;Build /p:Configuration=Release /p:Platform=x64
+
+      - name: Build verification
+        shell: bash
+        run: |
+          if [[ ! -f x64/Release/wapp.lib ]]; then 
+            echo "wapp.lib not found"
+            exit 1
+          fi
+          if [[ ! -f x64/Release/chess.exe ]]; then
+            echo "chess.exe not found"
+            exit 1
+          fi
