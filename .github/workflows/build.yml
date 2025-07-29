@@ -17,7 +17,7 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Build solution with msbuild
-        run: msbuild wapp.sln /t:Clean;Build /p:Configuration=Release /p:Platform=x64
+        run: msbuild wapp.sln /p:Configuration=Release /p:Platform=x64
 
       - name: Build verification
         shell: bash
