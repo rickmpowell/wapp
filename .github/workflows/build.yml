@@ -3,7 +3,7 @@ name: Build WAPP library and Samples
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
