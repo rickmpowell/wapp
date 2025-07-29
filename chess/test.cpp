@@ -699,7 +699,7 @@ void WAPP::RunAITest(const string& dir, const vector<string>& vfile)
 			/* log rseults */
 			wnlog << outdent;
 			cTotal++;
-			bool fSuccess;
+			bool fSuccess = false;
 			if (game.mpkeyvar.find("bm") != game.mpkeyvar.end()) {
 				fSuccess = false;
 				for (const VAREPD& var : *pvvar)
