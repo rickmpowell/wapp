@@ -71,6 +71,8 @@ protected:
     /* size dependent resources */
     com_ptr<IDXGISwapChain1> pswapchain;
     com_ptr<ID2D1Bitmap1> pbmpBackBuf;
+
+    bool fDirty = true; // if the back buffer has not been completely drawn
 };
 
 

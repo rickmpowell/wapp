@@ -151,6 +151,7 @@ void RTCFLIP::RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
 
     CreateBuffer(pdc2, pbmpBackBuf);
     pdc2->SetTarget(pbmpBackBuf.Get());
+    fDirty = true;
 
     RTC::RebuildRegisteredDevDeps(iwapp);
 }
@@ -167,12 +168,15 @@ void RTCFLIP::Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate)
     RECT rectUpdate = rcgUpdate;
     RECT rectClient;
     GetClientRect(iwapp.hwnd, &rectClient);
-    if (rectUpdate.left > rectClient.left || rectUpdate.top > rectClient.top || 
-        rectUpdate.right < rectClient.right || rectUpdate.bottom < rectClient.bottom) {
+    if (rectUpdate.left > rectClient.left || rectUpdate.top > rectClient.top ||
+            rectUpdate.right < rectClient.right || rectUpdate.bottom < rectClient.bottom) {
+        assert(!fDirty);
         pp.DirtyRectsCount = 1;
         pp.pDirtyRects = &rectUpdate;
     }
-        
+    else
+        fDirty = false;
+
     HRESULT err = pswapchain->Present1(1, 0, &pp);
 }
 
@@ -220,6 +224,7 @@ void RTC2::RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
                                                 &pswapchain));
     CreateBuffer(pdc2, pbmpBackBuf);
     pdc2->SetTarget(pbmpBackBuf.Get());
+    fDirty = true;
 
     RTC::RebuildRegisteredDevDeps(iwapp);
 }
@@ -230,6 +235,7 @@ void RTC2::Prepare(com_ptr<ID2D1DeviceContext>& pdc2)
 
 void RTC2::Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate)
 {
+    fDirty = false;
     DXGI_PRESENT_PARAMETERS pp = { 0 };
     HRESULT err = pswapchain->Present1(0, 0, &pp);
 }

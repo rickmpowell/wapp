@@ -155,6 +155,9 @@ void IWAPP::OnPaint(void)
     assert(fVisible);
     PAINTSTRUCT ps;
     ::BeginPaint(hwnd, &ps);
+    /* we force a full redraw here because we're using a back buffer that
+       may need to be filled after a WM_SIZE */
+    ::GetClientRect(hwnd, &ps.rcPaint);
     BeginDraw();
     DrawWithChildren(ps.rcPaint, droParentDrawn);
     EndDraw(ps.rcPaint);

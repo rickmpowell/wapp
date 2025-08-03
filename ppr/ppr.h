@@ -27,12 +27,16 @@ public:
     virtual void Layout(void) override;
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
+
     void DrawContent(ifstream& ifs, const RC& rcPage, string& s, int& ili);
     void DrawHeaderFooter(const string& s, const RC& rcBorder, float y, CO coBorder);
     bool FDrawLine(const string& s, TF& tf, RC& rcLine, int ili);
-    bool FMeasureLine(const string& s, TF& tf, RC& rcLine);
+
     void SetPage(int ipgNew);
     bool FSetPage(ifstream& ifs, int ipgNew);
+    bool FMeasureLine(const string& s, TF& tf, RC& rcLine);
+
+    virtual void Wheel(const PT& pt, int dwheel) override;
 
 public:
     filesystem::path file;

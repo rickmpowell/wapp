@@ -133,7 +133,7 @@ WNDCLASSEXW WND::WcexRegister(void) const
     wcex.cbWndExtra = sizeof(WND*);
     wcex.hInstance = app.hinst;
     wcex.hCursor = NULL;
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wcex.hbrBackground = NULL; // (HBRUSH)(COLOR_WINDOW + 1);
     return wcex;
 }
 
@@ -157,9 +157,11 @@ void WND::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
 {
     POINT point = (POINT)pt;
     SIZE size = (SIZE)sz;
-    ::CreateWindowW(SRegister(), WsFromS(sTitle).c_str(), ws,
-                    point.x, point.y, size.cx, size.cy,
-                    NULL, NULL, app.hinst, this);
+    ::CreateWindowExW(0L,
+                      SRegister(), 
+                      WsFromS(sTitle).c_str(), ws,
+                      point.x, point.y, size.cx, size.cy,
+                      NULL, NULL, app.hinst, this);
     if (!hwnd)
         throw ERRLAST();
 }
@@ -211,11 +213,15 @@ LRESULT CALLBACK WND::WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
 
     case WM_SIZE:
         pwnd->OnSize(SZ(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+        InvalidateRect(hwnd, NULL, FALSE);
         break;
 
     case WM_SHOWWINDOW:
         pwnd->OnShow((bool)wParam);
         break;
+
+    case WM_ERASEBKGND:
+        return TRUE;
 
     case WM_PAINT:
         pwnd->OnPaint();

@@ -56,6 +56,7 @@ CO WAPP::CoBack(void) const
 
 void WAPP::Layout(void)
 {
+
     RC rc(RcInterior().RcInflate(-8));
     /* 8.5 x 11 paper in landscape mode */
     SZ szinPaper(11.0f, 8.5f);
@@ -120,6 +121,15 @@ void WAPP::Draw(const RC& rcUpdate)
     DrawContent(ifs, rcPage2, s, ili);
 }
 
+/*
+ *  WAPP:DrawHeaderFooter
+ * 
+ *  Draws the header or footer text on top of the page border for the page,
+ *  using text s and border for the page rcPage. y is the vertical position
+ *  of the particular border (rcBorder.top for header, rcBorder.bottom for
+ *  footer), using color coBorder.
+ */
+
 void WAPP::DrawHeaderFooter(const string& s, const RC& rcBorder, float y, CO coBorder)
 {
     SZ sz = SzFromS(s, tf);
@@ -129,16 +139,30 @@ void WAPP::DrawHeaderFooter(const string& s, const RC& rcBorder, float y, CO coB
     DrawSCenterXY(s, tf, rc, coBorder);
 }
 
+/*
+ *  WAPP::DrawContent
+ * 
+ *  Draws content from ifs to the page encompassed by rcPage, with page numbers
+ *  starting at ili. The string s contains the first line of the page, and on
+ *  exit will be the first line of the next page.
+ */
+
 void WAPP::DrawContent(ifstream& ifs, const RC& rcPage, string& s, int& ili)
 {
     RC rcLine = rcPage;
-    while (1) {
-        if (!FDrawLine(s, tf, rcLine, ili))
-            break;
+    while (FDrawLine(s, tf, rcLine, ili) && ifs) {
         ili++;
         getline(ifs, s);
     }
 }
+
+/*
+ *  WAPP::FDrawLine
+ * 
+ *  Draws the line s using font tf in the area surrounded by rcLine. On exit,
+ *  rcLine contains the area left on the page. If the line doesn't fit on the
+ *  page, no output is drawn and we return false. The line number will be ili.
+ */
 
 bool WAPP::FDrawLine(const string& s, TF& tf, RC& rcLine, int ili)
 {
@@ -159,6 +183,24 @@ bool WAPP::FDrawLine(const string& s, TF& tf, RC& rcLine, int ili)
     return true;
 }
 
+/*
+ *  WAPP::Wheel
+ * 
+ *  Handles the mouse wheel interface, which simply scrolls through the
+ *  pages.
+ */
+
+void WAPP::Wheel(const PT& pt, int dwheel)
+{
+    SetPage(ipgCur - (dwheel / 120) * 2);
+}
+
+/*
+ *  WAPP::SetPage
+ * 
+ *  Sets the first page being displayed to ipgNew.
+ */
+
 void WAPP::SetPage(int ipgNew)
 {
     if (ipgNew < 0)
@@ -172,10 +214,18 @@ void WAPP::SetPage(int ipgNew)
         Redraw();
 }
 
+/*
+ *  WAPP::FSetPage
+ * 
+ *  Sets the page on the file ifs to ipgNew. Returns true if something
+ *  actually changed.
+ */
+
 bool WAPP::FSetPage(ifstream& ifs, int ipgNew)
 {
     int ili, ipg = 0;
     RC rc(rcPage1);
+    ipgNew = ipgNew / 2 * 2;    // round down to multiple of 2
 
     for (ili = 0; ipg < ipgNew; ili++) {
         if (!ifs)
