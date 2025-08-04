@@ -126,7 +126,9 @@ void DOC::SetPaper(const RC& rcPaper)
     this->rcPaper = rcPaper;
 
    /* compute font size */
-    float dxFont = rcPaper.dxWidth() / ((100 + 3 + 5) * 2);
+    const int cchLine = 112;
+    const int cchLineNumber = 4;
+    float dxFont = rcPaper.dxWidth() / ((1 + 1 + cchLineNumber + 1 + cchLine + 1) * 2);
     float dyFont = dxFont * 2;
     dyLine = dyFont + 1.5f;
     tf.SetHeight(wapp, dyFont);
