@@ -8,7 +8,7 @@
 
 #include "coord.h"
 #include "color.h"
-class DC;
+class DCS;
 class BR;
 class TF;
 class BMP;
