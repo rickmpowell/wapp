@@ -27,12 +27,12 @@ public:
 
 public:
     BR(void) {}
-    BR(DC& dc, CO co);
+    BR(DCS& dcs, CO co);
     BR& SetCo(CO co);
     BR& SetOpacity(float opacity);
 
     void reset(void);
-    void reset(DC& dc, CO co);
+    void reset(DCS& dcs, CO co);
     operator ID2D1Brush* () const;
     ID2D1SolidColorBrush* release(void);
     operator bool() const;
@@ -63,13 +63,13 @@ public:
     com_ptr<IDWriteTextFormat> ptf;
 
 public:
-    TF(DC& dc, const string& sFace, float dyHeight = 12.0f,
+    TF(DCS& dcs, const string& sFace, float dyHeight = 12.0f,
        WEIGHT weight = WEIGHT::Normal, STYLE = STYLE::Normal);
     operator IDWriteTextFormat* () const;
 
-    void Set(DC& dc, const string& sFace, float dyHeight = 12.0f,
+    void Set(DCS& dcs, const string& sFace, float dyHeight = 12.0f,
              WEIGHT weight = WEIGHT::Normal, STYLE = STYLE::Normal);
-    void SetHeight(DC& dc, float dyHeight);
+    void SetHeight(DCS& dcs, float dyHeight);
 };
 
 /*
@@ -106,7 +106,7 @@ public:
     PNG(void) : BMP() {}
     PNG(IWAPP& iwapp, int rspng);
     void reset(void);
-    void reset(DC& dc, int rspng);
+    void reset(DCS& dcs, int rspng);
 };
 
 /*
@@ -119,8 +119,8 @@ class GEOM
 {
 public:
     GEOM(void) = default;
-    explicit GEOM(DC& dc, const vector<PT>& vpt);
-    explicit GEOM(DC& dc, const PT apt[], size_t cpt);
+    explicit GEOM(DCS& dcs, const vector<PT>& vpt);
+    explicit GEOM(DCS& dcs, const PT apt[], size_t cpt);
 
     operator ID2D1PathGeometry* () const 
     {
@@ -128,7 +128,7 @@ public:
     }
 
 protected:
-    void Init(DC& dc, const PT apt[], size_t cpt);
+    void Init(DCS& dcs, const PT apt[], size_t cpt);
 
 protected:
     com_ptr<ID2D1PathGeometry> pgeometry;
@@ -169,7 +169,7 @@ class BRX : public BR, public DDDO
 public:
     BRX(void) = default;
     BRX(CO co);
-    void reset(DC& dc, CO co);
+    void reset(DCS& dcs, CO co);
     virtual void rebuild(IWAPP& iwapp) override;
     virtual void purge(void) override;
 
@@ -193,48 +193,69 @@ struct FM
 /*
  *  Drawing context class
  * 
- *  This is the base class for drawing. 
+ *  This is the base class for drawing operations. Defines the common
+ *  interface for printing and screen drawing.
  */
 
 class DC
 {
 public:
-    DC(IWAPP& iwapp);
-    void SetBounds(const RC& rcNew);
-    RC RcInterior(void) const;
-    RC RcgFromRc(const RC& rc) const;
-    RC RcFromRcg(const RC& rcg) const;
-    PT PtgFromPt(const PT& pt) const;
-    PT PtFromPtg(const PT& ptg) const;
-    PT PtFromWnPt(const PT& pt, const DC& wn) const;
+    DC(void);
+
+    virtual RC RcInterior(void) const = 0;
 
     virtual CO CoText(void) const;
     virtual CO CoBack(void) const;
 
-    /* drawing primitives */
+    virtual void FillRc(const RC& rcFill, CO coFill = coNil) const = 0;
+    virtual void DrawRc(const RC& rc, CO co = coNil, float dxyStroke = 1) const = 0;
+    virtual void Line(const PT& pt1, const PT& pt2, CO co = coNil, float dxyStroke = 1) const = 0;
 
-    void FillRc(const RC& rcFill, CO coFill = coNil) const;
-    void FillRc(const RC& rcFill, const BR& br) const;
-    void FillRcBack(const RC& rcFill) const;
-    void DrawRc(const RC& rc, CO co = coNil, float dxyStroke = 1) const;
-    void DrawRc(const RC& rc, const BR& br, float dxyStroke = 1) const;
-    void FillEll(const ELL& ellFill, CO coFill = coNil) const;
-    void FillEll(const ELL& ellFill, const BR& br) const;
-    void DrawEll(const ELL& ell, CO co = coNil, float dxyStroke = 1) const;
-    void DrawEll(const ELL& ell, const BR& br, float dxyStroke = 1) const;
-    void FillGeom(const GEOM& geomFill, const PT& ptOffset, const SZ& szScale, float angle, BR& br);
-    void FillGeom(const GEOM& geomFill, const PT& ptOffset, const SZ& szScale, float angle, CO co);
-
-    void Line(const PT& pt1, const PT& pt2, CO co = coNil, float dxyStroke = 1) const;
-    void Line(const PT& pt1, const PT& pt2, const BR& br, float dxyStroke = 1) const;
-    
     enum class FC {
         Mono,
         Color
     };
 
+    virtual void DrawS(const string& s, const TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const = 0;
+    virtual void DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const = 0;
+    virtual SZ SzFromS(const string& s, const TF& tf, float dxWidth = -1.0f) const = 0;
+};
+
+/*
+ *  The screen DC class, uses DirectX
+ */
+
+class DCS : public DC
+{
+public:
+    DCS(IWAPP& iwapp);
+    virtual void SetBounds(const RC& rcNew);
+    virtual RC RcInterior(void) const override;
+    RC RcgFromRc(const RC& rc) const;
+    RC RcFromRcg(const RC& rcg) const;
+    PT PtgFromPt(const PT& pt) const;
+    PT PtFromPtg(const PT& ptg) const;
+    PT PtFromWnPt(const PT& pt, const DCS& dcs) const;
+
+    /* drawing primitives */
+
+    void FillRc(const RC& rcFill, const BR& br) const;
+    virtual void FillRc(const RC& rcFill, CO coFill = coNil) const override;
+    void FillRcBack(const RC& rcFill) const;
+    void DrawRc(const RC& rc, const BR& br, float dxyStroke = 1) const;
+    virtual void DrawRc(const RC& rc, CO co = coNil, float dxyStroke = 1) const override;
+    void FillEll(const ELL& ellFill, const BR& br) const;
+    void FillEll(const ELL& ellFill, CO coFill = coNil) const;
+    void DrawEll(const ELL& ell, const BR& br, float dxyStroke = 1) const;
+    void DrawEll(const ELL& ell, CO co = coNil, float dxyStroke = 1) const;
+    void FillGeom(const GEOM& geomFill, const PT& ptOffset, const SZ& szScale, float angle, BR& br);
+    void FillGeom(const GEOM& geomFill, const PT& ptOffset, const SZ& szScale, float angle, CO co);
+
+    void Line(const PT& pt1, const PT& pt2, const BR& br, float dxyStroke = 1) const;
+    virtual void Line(const PT& pt1, const PT& pt2, CO co = coNil, float dxyStroke = 1) const override;
+
     void DrawS(const string& s, const TF& tf, const RC& rc, const BR& brText, FC fc=FC::Color) const;
-    void DrawS(const string& s, const TF& tf, const RC& rc, CO coText = coNil, FC fc=FC::Color) const;
+    virtual void DrawS(const string& s, const TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const override;
     void DrawS(string_view s, const TF& tf, const RC& rc, const BR& brText, FC fc=FC::Color) const;
     void DrawS(string_view s, const TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const;
     void DrawSCenter(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc = FC::Color) const;
@@ -242,8 +263,8 @@ public:
     void DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc = FC::Color) const;
     void DrawSCenterY(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const;
     void DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc = FC::Color) const;
-    void DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const;
-    SZ SzFromS(const string& s, const TF& tf, float dxWidth = -1.0f) const;
+    virtual void DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const override;
+    virtual SZ SzFromS(const string& s, const TF& tf, float dxWidth = -1.0f) const override;
     FM FmFromTf(const TF& tf) const;
 
     void DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity = 1.0f) const;

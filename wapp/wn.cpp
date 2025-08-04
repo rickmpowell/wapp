@@ -8,7 +8,7 @@
 #include "wapp.h"
 
 WN::WN(IWAPP& iwapp, WN* pwnParent) : 
-    DC(iwapp), 
+    DCS(iwapp), 
     pwnParent(pwnParent),
     fVisible(pwnParent != nullptr),
     fEnabled(true)
@@ -18,7 +18,7 @@ WN::WN(IWAPP& iwapp, WN* pwnParent) :
 }
 
 WN::WN(WN& wnParent, bool fVisible) :
-    DC(wnParent.iwapp),
+    DCS(wnParent.iwapp),
     pwnParent(&wnParent),
     fVisible(fVisible),
     fEnabled(true)
@@ -71,7 +71,7 @@ void WN::RemoveChild(WN* pwnChild)
 
 void WN::SetBounds(const RC& rcpNew)
 {
-    DC::SetBounds(pwnParent ? pwnParent->RcgFromRc(rcpNew) : rcpNew);
+    DCS::SetBounds(pwnParent ? pwnParent->RcgFromRc(rcpNew) : rcpNew);
     Layout();
 }
 

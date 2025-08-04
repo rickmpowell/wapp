@@ -101,6 +101,7 @@
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\id.h" />
     <ClInclude Include="include\len.h" />
+    <ClInclude Include="include\printer.h" />
     <ClInclude Include="include\rt.h" />
     <ClInclude Include="include\util.h" />
     <ClInclude Include="include\wapp.h" />
@@ -115,6 +116,7 @@
     <ClCompile Include="dlg.cpp" />
     <ClCompile Include="ev.cpp" />
     <ClCompile Include="len.cpp" />
+    <ClCompile Include="printer.cpp" />
     <ClCompile Include="rt.cpp" />
     <ClCompile Include="scroll.cpp" />
     <ClCompile Include="util.cpp" />

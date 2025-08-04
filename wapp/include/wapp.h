@@ -172,6 +172,7 @@ private:
 #include "dlg.h"
 #include "len.h"
 #include "clip.h"
+#include "printer.h"
 
 /*
  *  Some Direct2D guard classes
@@ -204,7 +205,7 @@ private:
 };
 
 /*
- *  DC transform
+ *  DCS transform
  * 
  *  Temporarily set and restore the coordinate transform matrix in the DC.
  */
@@ -212,20 +213,20 @@ private:
 struct GUARDDCTRANSFORM
 {
 public:
-    GUARDDCTRANSFORM(DC& dc, const D2D1_MATRIX_3X2_F& matrix) : 
-        dc(dc) 
+    GUARDDCTRANSFORM(DCS& dcs, const D2D1_MATRIX_3X2_F& matrix) : 
+        dcs(dcs) 
     {
-        dc.iwapp.pdc2->GetTransform(&matrixSav);
-        dc.iwapp.pdc2->SetTransform(matrix);
+        dcs.iwapp.pdc2->GetTransform(&matrixSav);
+        dcs.iwapp.pdc2->SetTransform(matrix);
     }
 
     ~GUARDDCTRANSFORM()
     {
-        dc.iwapp.pdc2->SetTransform(matrixSav);
+        dcs.iwapp.pdc2->SetTransform(matrixSav);
     }
 
 private:
-    DC& dc;
+    DCS& dcs;
     D2D1_MATRIX_3X2_F matrixSav;
 };
 
@@ -238,19 +239,19 @@ private:
 struct GUARDDCAA
 {
 public:
-    GUARDDCAA(DC& dc, D2D1_ANTIALIAS_MODE aa) :
-        dc(dc) 
+    GUARDDCAA(DCS& dcs, D2D1_ANTIALIAS_MODE aa) :
+        dcs(dcs) 
     {
-        aaSav = dc.iwapp.pdc2->GetAntialiasMode();
-        dc.iwapp.pdc2->SetAntialiasMode(aa);
+        aaSav = dcs.iwapp.pdc2->GetAntialiasMode();
+        dcs.iwapp.pdc2->SetAntialiasMode(aa);
     }
 
     ~GUARDDCAA() 
     {
-        dc.iwapp.pdc2->SetAntialiasMode(aaSav);
+        dcs.iwapp.pdc2->SetAntialiasMode(aaSav);
     }
 
 private:
-    DC& dc;
+    DCS& dcs;
     D2D1_ANTIALIAS_MODE aaSav;
 };

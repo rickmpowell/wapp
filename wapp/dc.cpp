@@ -7,15 +7,15 @@
 
 #include "wapp.h"
 
-BRX DC::brScratch;
+BRX DCS::brScratch;
 
 /*
  *  Brushes
  */
 
-BR::BR(DC& dc, CO co)
+BR::BR(DCS& dcs, CO co)
 {
-    reset(dc, co);
+    reset(dcs, co);
 }
 
 BR& BR::SetCo(CO co)
@@ -41,9 +41,9 @@ void BR::reset(void)
         pbrush.Detach()->Release();
 }
 
-void BR::reset(DC& dc, CO co)
+void BR::reset(DCS& dcs, CO co)
 {
-    dc.iwapp.pdc2->CreateSolidColorBrush(co, &pbrush);
+    dcs.iwapp.pdc2->CreateSolidColorBrush(co, &pbrush);
 }
 
 ID2D1SolidColorBrush* BR::release(void)
@@ -65,22 +65,22 @@ bool BR::operator ! () const
  *  Geometry
  */
 
-GEOM::GEOM(DC& dc, const vector<PT>& vpt) 
+GEOM::GEOM(DCS& dcs, const vector<PT>& vpt) 
 {
     auto apt = make_unique<PT[]>(vpt.size());
     for (int ipt = 0; ipt < vpt.size(); ipt++)
         apt[ipt] = vpt[ipt];
-    Init(dc, apt.get(), vpt.size());
+    Init(dcs, apt.get(), vpt.size());
 }
 
-GEOM::GEOM(DC& dc, const PT apt[], size_t cpt)
+GEOM::GEOM(DCS& dcs, const PT apt[], size_t cpt)
 {
-    Init(dc, apt, cpt);
+    Init(dcs, apt, cpt);
 }
 
-void GEOM::Init(DC& dc, const PT apt[], size_t cpt)
+void GEOM::Init(DCS& dcs, const PT apt[], size_t cpt)
 {
-    dc.iwapp.pfactd2->CreatePathGeometry(&pgeometry);
+    dcs.iwapp.pfactd2->CreatePathGeometry(&pgeometry);
     com_ptr<ID2D1GeometrySink> psink;
     pgeometry->Open(&psink);
     psink->BeginFigure(apt[0], D2D1_FIGURE_BEGIN_FILLED);
@@ -93,15 +93,15 @@ void GEOM::Init(DC& dc, const PT apt[], size_t cpt)
  *  Text objects
  */
 
-TF::TF(DC& dc, const string& sFace, float dyHeight, WEIGHT weight, STYLE style) 
+TF::TF(DCS& dcs, const string& sFace, float dyHeight, WEIGHT weight, STYLE style) 
 {
     assert(dyHeight > 0);
-    Set(dc, sFace, dyHeight, weight, style);
+    Set(dcs, sFace, dyHeight, weight, style);
 }
 
-void TF::Set(DC& dc, const string& sFace, float dyHeight, WEIGHT weight, STYLE style)
+void TF::Set(DCS& dcs, const string& sFace, float dyHeight, WEIGHT weight, STYLE style)
 {
-    dc.iwapp.pfactdwr->CreateTextFormat(WsFromS(sFace).c_str(), nullptr,
+    dcs.iwapp.pfactdwr->CreateTextFormat(WsFromS(sFace).c_str(), nullptr,
                                         weight == WEIGHT::Bold ? DWRITE_FONT_WEIGHT_BOLD : DWRITE_FONT_WEIGHT_NORMAL,
                                         style == STYLE::Italic ? DWRITE_FONT_STYLE_ITALIC : DWRITE_FONT_STYLE_NORMAL,
                                         DWRITE_FONT_STRETCH_NORMAL,
@@ -110,13 +110,13 @@ void TF::Set(DC& dc, const string& sFace, float dyHeight, WEIGHT weight, STYLE s
                                         &ptf);
 }
 
-void TF::SetHeight(DC& dc, float dyHeight)
+void TF::SetHeight(DCS& dcs, float dyHeight)
 {
     wchar_t wsFamily[64];
     ptf->GetFontFamilyName(wsFamily, size(wsFamily));
     WEIGHT weight = (ptf->GetFontWeight() >= DWRITE_FONT_WEIGHT_BOLD) ? WEIGHT::Bold : WEIGHT::Normal;
     STYLE style = ptf->GetFontStyle() == DWRITE_FONT_STYLE_ITALIC ? STYLE::Italic : STYLE::Normal;
-    Set(dc, SFromWs(wstring_view(wsFamily)), dyHeight, weight, style);
+    Set(dcs, SFromWs(wstring_view(wsFamily)), dyHeight, weight, style);
 }
 
 TF::operator IDWriteTextFormat* () const 
@@ -164,29 +164,29 @@ void PNG::reset(void)
     BMP::reset();
 }
 
-void PNG::reset(DC& dc, int rspng)
+void PNG::reset(DCS& dcs, int rspng)
 {
-    resource_ptr prsrc(dc.iwapp, "PNG", rspng);
+    resource_ptr prsrc(dcs.iwapp, "PNG", rspng);
 
     com_ptr<IWICStream> pstream;
-    ThrowError(dc.iwapp.pfactwic->CreateStream(&pstream));
+    ThrowError(dcs.iwapp.pfactwic->CreateStream(&pstream));
     pstream->InitializeFromMemory(prsrc.get(), prsrc.size());
     com_ptr<IWICBitmapDecoder> pdecoder;
-    ThrowError(dc.iwapp.pfactwic->CreateDecoderFromStream(pstream.Get(),
+    ThrowError(dcs.iwapp.pfactwic->CreateDecoderFromStream(pstream.Get(),
                                                           nullptr,
                                                           WICDecodeMetadataCacheOnLoad,
                                                           &pdecoder));
     com_ptr<IWICBitmapFrameDecode> pframe;
     pdecoder->GetFrame(0, &pframe);
     com_ptr<IWICFormatConverter> pconverter;
-    ThrowError(dc.iwapp.pfactwic->CreateFormatConverter(&pconverter));
+    ThrowError(dcs.iwapp.pfactwic->CreateFormatConverter(&pconverter));
     ThrowError(pconverter->Initialize(pframe.Get(),
                                       GUID_WICPixelFormat32bppPBGRA,
                                       WICBitmapDitherTypeNone,
                                       nullptr,
                                       0.0f,
                                       WICBitmapPaletteTypeMedianCut));
-    ThrowError(dc.iwapp.pdc2->CreateBitmapFromWicBitmap(pconverter.Get(),
+    ThrowError(dcs.iwapp.pdc2->CreateBitmapFromWicBitmap(pconverter.Get(),
                                                         nullptr,
                                                         &pbitmap));
 }
@@ -225,9 +225,9 @@ BRX::BRX(CO co) : co(co), BR()
 {
 }
 
-void BRX::reset(DC& dc, CO co)
+void BRX::reset(DCS& dcs, CO co)
 {
-    BR::reset(dc, co);
+    BR::reset(dcs, co);
 }
 
 void BRX::purge(void)
@@ -266,28 +266,13 @@ void DDDO::rebuild(IWAPP& iwapp)
 }
 
 /*
- *  Drawing context
- */
-
-DC::DC(IWAPP &iwapp) : iwapp(iwapp), rcgBounds(0, 0, 0, 0)
-{
-}
-
-/*
- *  DC::SetBounds
+ *  DC
  * 
- *  Sets the new bounds of the object, using global coordinates
+ *  Drawing context base class
  */
 
-void DC::SetBounds(const RC& rcgNew)
+DC::DC(void)
 {
-    assert(rcgNew.right >= rcgNew.left && rcgNew.bottom >= rcgNew.top);
-    rcgBounds = rcgNew;
-}
-
-RC DC::RcInterior(void) const
-{
-    return RcFromRcg(rcgBounds);
 }
 
 CO DC::CoBack(void) const
@@ -301,36 +286,63 @@ CO DC::CoText(void) const
 }
 
 /*
+ *  DCS
+ *  
+ *  Screen drawing context
+ */
+
+DCS::DCS(IWAPP &iwapp) : iwapp(iwapp), rcgBounds(0, 0, 0, 0)
+{
+}
+
+/*
+ *  DCS::SetBounds
+ * 
+ *  Sets the new bounds of the object, using global coordinates
+ */
+
+void DCS::SetBounds(const RC& rcgNew)
+{
+    assert(rcgNew.right >= rcgNew.left && rcgNew.bottom >= rcgNew.top);
+    rcgBounds = rcgNew;
+}
+
+RC DCS::RcInterior(void) const
+{
+    return RcFromRcg(rcgBounds);
+}
+
+/*
  *  Drawing primitives
  */
 
-void DC::FillRc(const RC& rc, const BR& br) const
+void DCS::FillRc(const RC& rc, const BR& br) const
 {
     RC rcg = RcgFromRc(rc);
     iwapp.pdc2->FillRectangle(&rcg, br);
 }
 
-void DC::FillRc(const RC& rc, CO coFill) const
+void DCS::FillRc(const RC& rc, CO coFill) const
 {
     if (coFill == coNil)
         coFill = CoText();
     FillRc(rc, brScratch.SetCo(coFill));
 }
 
-void DC::FillRcBack(const RC& rc) const
+void DCS::FillRcBack(const RC& rc) const
 {
     RC rcg = RcgFromRc(rc);
     iwapp.pdc2->FillRectangle(&rcg, brScratch.SetCo(CoBack()));
 }
 
-void DC::DrawRc(const RC& rc, CO co, float dxyStroke) const
+void DCS::DrawRc(const RC& rc, CO co, float dxyStroke) const
 {
     if (co == coNil)
         co = CoText();
     DrawRc(rc, brScratch.SetCo(co), dxyStroke);
 }
 
-void DC::DrawRc(const RC& rc, const BR& br, float dxyStroke) const
+void DCS::DrawRc(const RC& rc, const BR& br, float dxyStroke) const
 {
     RC rcg = RcgFromRc(rc);
     rcg.Inflate(SZ(-dxyStroke/2));
@@ -341,27 +353,27 @@ void DC::DrawRc(const RC& rc, const BR& br, float dxyStroke) const
  *  Ellipses
  */
 
-void DC::FillEll(const ELL& ellFill, CO coFill) const
+void DCS::FillEll(const ELL& ellFill, CO coFill) const
 {
     if (coFill == coNil)
         coFill = CoText();
     FillEll(ellFill, brScratch.SetCo(coFill));
 }
 
-void DC::FillEll(const ELL& ellFill, const BR& brFill) const
+void DCS::FillEll(const ELL& ellFill, const BR& brFill) const
 {
     ELL ellg = ellFill.EllOffset(PtgFromPt(PT(0)));
     iwapp.pdc2->FillEllipse(&ellg, brFill);
 }
 
-void DC::DrawEll(const ELL& ell, CO co, float dxyStroke) const
+void DCS::DrawEll(const ELL& ell, CO co, float dxyStroke) const
 {
     if (co == coNil)
         co = CoText();
     DrawEll(ell, brScratch.SetCo(co), dxyStroke);
 }
 
-void DC::DrawEll(const ELL& ell, const BR& br, float dxyStroke) const
+void DCS::DrawEll(const ELL& ell, const BR& br, float dxyStroke) const
 {
     ELL ellg = ell.EllOffset(PtgFromPt(PT(0)));
     ellg.Inflate(SZ(-dxyStroke/2));
@@ -372,7 +384,7 @@ void DC::DrawEll(const ELL& ell, const BR& br, float dxyStroke) const
  *  Geometries
  */
 
-void DC::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float angle, BR& brFill)
+void DCS::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float angle, BR& brFill)
 {
     PT ptgOrigin = rcgBounds.ptTopLeft();
     GUARDDCTRANSFORM trans(*this,
@@ -383,7 +395,7 @@ void DC::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float
     iwapp.pdc2->FillGeometry(geom, brFill);
 }
 
-void DC::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float angle, CO coFill)
+void DCS::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float angle, CO coFill)
 {
     if (coFill == coNil)
         coFill = CoText();
@@ -394,14 +406,14 @@ void DC::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float
  *  Lines
  */
 
-void DC::Line(const PT& pt1, const PT& pt2, CO co, float dxyStroke) const
+void DCS::Line(const PT& pt1, const PT& pt2, CO co, float dxyStroke) const
 {
     if (co == coNil)
         co = CoText();
     Line(pt1, pt2, brScratch.SetCo(co), dxyStroke);
 }
 
-void DC::Line(const PT& pt1, const PT& pt2, const BR& br, float dxyStroke) const
+void DCS::Line(const PT& pt1, const PT& pt2, const BR& br, float dxyStroke) const
 {
     PT ptg1 = PtgFromPt(pt1);
     PT ptg2 = PtgFromPt(pt2);
@@ -412,7 +424,7 @@ void DC::Line(const PT& pt1, const PT& pt2, const BR& br, float dxyStroke) const
  *  Text
  */
 
-void DC::DrawS(const string& s, const TF& tf, const RC& rc, const BR& brText, FC fc) const
+void DCS::DrawS(const string& s, const TF& tf, const RC& rc, const BR& brText, FC fc) const
 {
     RC rcg = RcgFromRc(rc);
     wstring ws(WsFromS(s));
@@ -420,7 +432,7 @@ void DC::DrawS(const string& s, const TF& tf, const RC& rc, const BR& brText, FC
                          fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
 }
 
-void DC::DrawS(string_view s, const TF& tf, const RC& rc, const BR& brText, FC fc) const
+void DCS::DrawS(string_view s, const TF& tf, const RC& rc, const BR& brText, FC fc) const
 {
     RC rcg = RcgFromRc(rc);
     wstring ws(WsFromS(s));
@@ -428,27 +440,27 @@ void DC::DrawS(string_view s, const TF& tf, const RC& rc, const BR& brText, FC f
                          fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
 }
 
-void DC::DrawS(const string& s, const TF& tf, const RC& rc, CO coText, FC fc) const
+void DCS::DrawS(const string& s, const TF& tf, const RC& rc, CO coText, FC fc) const
 {
     if (coText == coNil)
         coText = CoText();
     DrawS(s, tf, rc, brScratch.SetCo(coText), fc);
 }
 
-void DC::DrawS(string_view s, const TF& tf, const RC& rc, CO coText, FC fc) const
+void DCS::DrawS(string_view s, const TF& tf, const RC& rc, CO coText, FC fc) const
 {
     if (coText == coNil)
         coText = CoText();
     DrawS(s, tf, rc, brScratch.SetCo(coText), fc);
 }
 
-void DC::DrawSCenter(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc) const
+void DCS::DrawSCenter(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc) const
 {
     GUARDTFALIGNMENT sav(tf, DWRITE_TEXT_ALIGNMENT_CENTER);
     DrawS(s, tf, rc, brText, fc);
 }
 
-void DC::DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText, FC fc) const
+void DCS::DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText, FC fc) const
 {
     if (coText == coNil)
         coText = CoText();
@@ -456,7 +468,7 @@ void DC::DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText, FC fc) co
 }
 
 /*
- *  DC::DrawSCenterXY
+ *  DCS::DrawSCenterXY
  * 
  *  Centers the text horizontally and vertically within the rectangle. Where centered
  *  vertidally means the x-height of the text is centered, with ascenders and descenders
@@ -464,7 +476,7 @@ void DC::DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText, FC fc) co
  *  work for most text.
  */
 
-void DC::DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc) const
+void DCS::DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc) const
 {
     RC rcg = RcgFromRc(rc);
     wstring ws(WsFromS(s));
@@ -485,14 +497,14 @@ void DC::DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText, 
                                fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
 }
 
-void DC::DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText, FC fc) const
+void DCS::DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText, FC fc) const
 {
     if (coText == coNil)
         coText = CoText();
     DrawSCenterXY(s, tf, rc, brScratch.SetCo(coText), fc);
 }
 
-void DC::DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc) const
+void DCS::DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc) const
 {
     RC rcg = RcgFromRc(rc);
     wstring ws(WsFromS(s));
@@ -510,7 +522,7 @@ void DC::DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText, F
                                fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
 }
 
-void DC::DrawSCenterY(const string& s, TF& tf, const RC& rc, CO coText, FC fc) const
+void DCS::DrawSCenterY(const string& s, TF& tf, const RC& rc, CO coText, FC fc) const
 {
     if (coText == coNil)
         coText = CoText();
@@ -521,7 +533,7 @@ void DC::DrawSCenterY(const string& s, TF& tf, const RC& rc, CO coText, FC fc) c
  *  Text metrics
  */
 
-SZ DC::SzFromS(const string& s, const TF& tf, float dxWidth) const
+SZ DCS::SzFromS(const string& s, const TF& tf, float dxWidth) const
 {
     wstring ws(WsFromS(s));
     if (dxWidth < 0.0f)
@@ -534,7 +546,7 @@ SZ DC::SzFromS(const string& s, const TF& tf, float dxWidth) const
     return SZ(dtm.width, dtm.height);
 }
 
-FM DC::FmFromTf(const TF& tf) const
+FM DCS::FmFromTf(const TF& tf) const
 {
     FM fm(0);
 
@@ -563,7 +575,7 @@ FM DC::FmFromTf(const TF& tf) const
  *  bitmaps
  */
 
-void DC::DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity) const
+void DCS::DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity) const
 {
     iwapp.pdc2->DrawBitmap(bmp,
                            RcgFromRc(rcTo),
@@ -576,48 +588,48 @@ void DC::DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity
  *  Coordinate transformations
  */
 
-RC DC::RcgFromRc(const RC& rc) const
+RC DCS::RcgFromRc(const RC& rc) const
 {
     return rc + rcgBounds.ptTopLeft();
 }
 
-RC DC::RcFromRcg(const RC& rcg) const
+RC DCS::RcFromRcg(const RC& rcg) const
 {
     return rcg - rcgBounds.ptTopLeft();
 }
 
-PT DC::PtgFromPt(const PT& pt) const
+PT DCS::PtgFromPt(const PT& pt) const
 {
     return pt + rcgBounds.ptTopLeft();
 }
 
-PT DC::PtFromPtg(const PT& ptg) const
+PT DCS::PtFromPtg(const PT& ptg) const
 {
     return ptg - rcgBounds.ptTopLeft();
 }
 
-PT DC::PtFromWnPt(const PT& pt, const DC& dc) const
+PT DCS::PtFromWnPt(const PT& pt, const DCS& dcs) const
 {
-    return pt - rcgBounds.ptTopLeft() + dc.rcgBounds.ptTopLeft();
+    return pt - rcgBounds.ptTopLeft() + dcs.rcgBounds.ptTopLeft();
 }
 
 /*
  *  Drawing object management
  */
 
-void DC::RebuildDevIndeps(void)
+void DCS::RebuildDevIndeps(void)
 {
 }
 
-void DC::PurgeDevIndeps(void)
+void DCS::PurgeDevIndeps(void)
 {
 }
 
-void DC::RebuildDevDeps(void)
+void DCS::RebuildDevDeps(void)
 {
 }
 
-void DC::PurgeDevDeps(void)
+void DCS::PurgeDevDeps(void)
 {
 }
 

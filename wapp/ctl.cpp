@@ -396,7 +396,7 @@ void BTNCLOSE::Draw(const RC& rcUpdate)
     FillEll(rcInt, coWhite);
     CO co = cdsCur == CDS::Hover || cdsCur == CDS::Execute ? coRed : coDarkRed;
     FillEll(rcInt.RcInflate(-3.0f), co);
-    DrawSCenterXY(SFromU8(u8"\u2716"), tf, rcInt, coWhite, DC::FC::Mono);  // cross
+    DrawSCenterXY(SFromU8(u8"\u2716"), tf, rcInt, coWhite, DCS::FC::Mono);  // cross
 }
 
 void BTNCLOSE::Layout(void)

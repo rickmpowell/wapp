@@ -33,7 +33,7 @@ enum DRO
     droParentDrawn = 1
 };
 
-class WN : public DC
+class WN : public DCS
 {
 private:
     WN(const WN& wn) = delete;  /* disable copy constructors */
@@ -44,8 +44,8 @@ public:
     WN(WN& wnParent, bool fVisible = true);
     virtual ~WN();
 
-    void SetBounds(const RC& rcpNew);
-    RC RcBounds(void) const;
+    virtual void SetBounds(const RC& rcpNew);
+    virtual RC RcBounds(void) const;
     RC RcNonClient(void) const;
     RC RcClient(void) const;
     virtual void Layout(void);
