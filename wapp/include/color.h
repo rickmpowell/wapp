@@ -49,6 +49,13 @@ public:
         this->a = a;
     }
 
+    DWORD rgb(void) const
+    {
+        return RGB((BYTE)(r * 255), 
+                   (BYTE)(g * 255),
+                   (BYTE)(b * 255));
+    }
+
     bool operator == (const CO& co) const 
     {
         return r == co.r && g == co.g && b == co.b && a == co.a;

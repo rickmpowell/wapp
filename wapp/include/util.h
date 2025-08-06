@@ -36,6 +36,15 @@ bool inrange(const T& t, const T& tFirst, const T& tLast)
     return t >= tFirst && t <= tLast;
 }
 
+template<typename T, std::size_t ct>
+constexpr size_t index_of(const array<T, ct>& at, const T& t)
+{
+    for (size_t it = 0; it < ct; ++it)
+        if (at[it] == t) 
+            return it;
+    return ct;
+}
+
 #ifndef NDEBUG
 #define IfDebug(wDebug, wNoDebug) (wDebug)
 #else

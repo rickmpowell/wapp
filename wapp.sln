@@ -22,6 +22,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fonts", "fonts\fonts.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ppr", "ppr\ppr.vcxproj", "{B9FABC15-1D09-4527-8221-435E84EF7FDC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sandbox", "sandbox\sandbox.vcxproj", "{EAF5F884-4664-4906-AE69-1B73EDF13517}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -52,6 +54,10 @@ Global
 		{B9FABC15-1D09-4527-8221-435E84EF7FDC}.Debug|x64.Build.0 = Debug|x64
 		{B9FABC15-1D09-4527-8221-435E84EF7FDC}.Release|x64.ActiveCfg = Release|x64
 		{B9FABC15-1D09-4527-8221-435E84EF7FDC}.Release|x64.Build.0 = Release|x64
+		{EAF5F884-4664-4906-AE69-1B73EDF13517}.Debug|x64.ActiveCfg = Debug|x64
+		{EAF5F884-4664-4906-AE69-1B73EDF13517}.Debug|x64.Build.0 = Debug|x64
+		{EAF5F884-4664-4906-AE69-1B73EDF13517}.Release|x64.ActiveCfg = Release|x64
+		{EAF5F884-4664-4906-AE69-1B73EDF13517}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

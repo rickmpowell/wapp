@@ -8,6 +8,7 @@
 
 #include "coord.h"
 #include "color.h"
+class DC;
 class DCS;
 class BR;
 class TF;
@@ -50,26 +51,35 @@ class TF
 public:
     enum class WEIGHT
     {
-        Normal,
-        Bold
+        Normal = 0,
+        Semibold,
+        Bold,
+        Max
     };
     enum class STYLE
     {
-        Normal,
-        Italic
+        Normal = 0,
+        Italic,
+        Max
     };
 
 public:
     com_ptr<IDWriteTextFormat> ptf;
+    HFONT hfont = NULL;
 
 public:
-    TF(DCS& dcs, const string& sFace, float dyHeight = 12.0f,
-       WEIGHT weight = WEIGHT::Normal, STYLE = STYLE::Normal);
+    TF(DC& dc, 
+       const string& sFace, 
+       float dyHeight = 12.0f,
+       WEIGHT weight = WEIGHT::Normal, 
+       STYLE = STYLE::Normal);
+    ~TF();
     operator IDWriteTextFormat* () const;
+    operator HGDIOBJ () const;
 
-    void Set(DCS& dcs, const string& sFace, float dyHeight = 12.0f,
+    void Set(DC& dc, const string& sFace, float dyHeight = 12.0f,
              WEIGHT weight = WEIGHT::Normal, STYLE = STYLE::Normal);
-    void SetHeight(DCS& dcs, float dyHeight);
+    void SetHeight(DC& dc, float dyHeight);
 };
 
 /*
@@ -207,6 +217,9 @@ public:
     virtual CO CoText(void) const;
     virtual CO CoBack(void) const;
 
+    virtual void SetFont(TF& tf, const string& sFace, float dyHeight, TF::WEIGHT weight, TF::STYLE style) = 0;
+    virtual void SetFontHeight(TF& tf, float dyHeight) = 0;
+
     virtual void FillRc(const RC& rcFill, CO coFill = coNil) const = 0;
     virtual void DrawRc(const RC& rc, CO co = coNil, float dxyStroke = 1) const = 0;
     virtual void Line(const PT& pt1, const PT& pt2, CO co = coNil, float dxyStroke = 1) const = 0;
@@ -217,6 +230,7 @@ public:
     };
 
     virtual void DrawS(const string& s, const TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const = 0;
+    virtual void DrawSRight(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const = 0;
     virtual void DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const = 0;
     virtual SZ SzFromS(const string& s, const TF& tf, float dxWidth = -1.0f) const = 0;
 };
@@ -229,13 +243,18 @@ class DCS : public DC
 {
 public:
     DCS(IWAPP& iwapp);
+
     virtual void SetBounds(const RC& rcNew);
     virtual RC RcInterior(void) const override;
+    
     RC RcgFromRc(const RC& rc) const;
     RC RcFromRcg(const RC& rcg) const;
     PT PtgFromPt(const PT& pt) const;
     PT PtFromPtg(const PT& ptg) const;
     PT PtFromWnPt(const PT& pt, const DCS& dcs) const;
+
+    virtual void SetFont(TF& tf, const string& sFace, float dyHeight, TF::WEIGHT weight, TF::STYLE style) override;
+    virtual void SetFontHeight(TF& tf, float dyHeight) override;
 
     /* drawing primitives */
 
@@ -258,6 +277,8 @@ public:
     virtual void DrawS(const string& s, const TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const override;
     void DrawS(string_view s, const TF& tf, const RC& rc, const BR& brText, FC fc=FC::Color) const;
     void DrawS(string_view s, const TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const;
+    void DrawSRight(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc = FC::Color) const;
+    virtual void DrawSRight(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const override;
     void DrawSCenter(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc = FC::Color) const;
     void DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const;
     void DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc = FC::Color) const;

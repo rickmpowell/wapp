@@ -11,31 +11,37 @@
 
 #include "wapp.h"
 
+class linestream {
+public:
+    explicit linestream(istream& is);
+    optional<string> next(void);
+    void push(const string& s);
+    bool eof() const;
+
+private:
+    istream& is;
+    stack<string> stackBack;
+    bool fEof = false;
+};
+
 class DOC
 {
 public:
-    DOC(WAPP& wapp, filesystem::path file);
+    DOC(DC& dc, filesystem::path dir, filesystem::path file);
 
     void SetPaper(const RC& rcPaper);
-    void SetLocation(int ipgNew, int iliFirst);
-    void Draw(void);
-
-    void DrawContent(ifstream& ifs, const RC& rcPage, string& s, int& ili);
+    void Draw(linestream& ls, int& ipg, int& ili);
+ 
+    void DrawContent(linestream& ls, const RC& rcPage, int& ili);
     void DrawHeaderFooter(const string& s, const RC& rcBorder, float y, CO coBorder);
-    bool FDrawLine(const string& s, TF& tf, RC& rcLine, int ili);
+    bool FDrawLine(linestream& ls, TF& tf, RC& rcLine, int ili);
 
-    bool FSetPage(int ipgNew);
+    bool FSetPage(linestream& ls, int& ipgNew, int& iliFirst);
     bool FMeasureLine(const string& s, TF& tf, RC& rcLine);
 
-    WAPP& wapp;
     filesystem::path dir;
     filesystem::path file;
 
-    ifstream ifs;
-    string sNext;
-    int ipgCur = 0;
-    int iliFirst = 0;
-   
     DC& dc;
     TF tf;
 
@@ -63,11 +69,13 @@ public:
 
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
+    void Print(DCP& dcp);
 
     void SetPage(int ipgNew);
     virtual void Wheel(const PT& pt, int dwheel) override;
 
 public:
+    filesystem::path dir;
     filesystem::path file;
     int ipgCur = 0;
     int iliFirst = 0;

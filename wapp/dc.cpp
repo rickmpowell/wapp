@@ -93,35 +93,36 @@ void GEOM::Init(DCS& dcs, const PT apt[], size_t cpt)
  *  Text objects
  */
 
-TF::TF(DCS& dcs, const string& sFace, float dyHeight, WEIGHT weight, STYLE style) 
+TF::TF(DC& dc, const string& sFace, float dyHeight, WEIGHT weight, STYLE style) 
 {
     assert(dyHeight > 0);
-    Set(dcs, sFace, dyHeight, weight, style);
+    dc.SetFont(*this, sFace, dyHeight, weight, style);
 }
 
-void TF::Set(DCS& dcs, const string& sFace, float dyHeight, WEIGHT weight, STYLE style)
+TF::~TF()
 {
-    dcs.iwapp.pfactdwr->CreateTextFormat(WsFromS(sFace).c_str(), nullptr,
-                                        weight == WEIGHT::Bold ? DWRITE_FONT_WEIGHT_BOLD : DWRITE_FONT_WEIGHT_NORMAL,
-                                        style == STYLE::Italic ? DWRITE_FONT_STYLE_ITALIC : DWRITE_FONT_STYLE_NORMAL,
-                                        DWRITE_FONT_STRETCH_NORMAL,
-                                        dyHeight,
-                                        L"",
-                                        &ptf);
+    if (hfont)
+        ::DeleteObject(hfont);
 }
 
-void TF::SetHeight(DCS& dcs, float dyHeight)
+void TF::Set(DC& dc, const string& sFace, float dyHeight, TF::WEIGHT weight, TF::STYLE style)
 {
-    wchar_t wsFamily[64];
-    ptf->GetFontFamilyName(wsFamily, size(wsFamily));
-    WEIGHT weight = (ptf->GetFontWeight() >= DWRITE_FONT_WEIGHT_BOLD) ? WEIGHT::Bold : WEIGHT::Normal;
-    STYLE style = ptf->GetFontStyle() == DWRITE_FONT_STYLE_ITALIC ? STYLE::Italic : STYLE::Normal;
-    Set(dcs, SFromWs(wstring_view(wsFamily)), dyHeight, weight, style);
+    dc.SetFont(*this, sFace, dyHeight, weight, style);
+}
+
+void TF::SetHeight(DC& dc, float dyHeight)
+{
+    dc.SetFontHeight(*this, dyHeight);
 }
 
 TF::operator IDWriteTextFormat* () const 
 {
     return ptf.Get();
+}
+
+TF::operator HGDIOBJ () const
+{
+    return (HGDIOBJ)hfont;
 }
 
 /*
@@ -313,6 +314,41 @@ RC DCS::RcInterior(void) const
 }
 
 /*
+ *  Creating objects
+ */
+
+constexpr std::array<DWRITE_FONT_WEIGHT, static_cast<int>(TF::WEIGHT::Max)> mpweightdfw = {
+    DWRITE_FONT_WEIGHT_NORMAL,
+    DWRITE_FONT_WEIGHT_SEMI_BOLD,
+    DWRITE_FONT_WEIGHT_BOLD
+};
+
+constexpr std::array<DWRITE_FONT_STYLE, static_cast<int>(TF::STYLE::Max)> mpstyledfs = {
+    DWRITE_FONT_STYLE_NORMAL,
+    DWRITE_FONT_STYLE_ITALIC
+};
+
+void DCS::SetFont(TF& tf, const string& sFace, float dyHeight, TF::WEIGHT weight, TF::STYLE style)
+{
+    iwapp.pfactdwr->CreateTextFormat(WsFromS(sFace).c_str(), nullptr,
+                                     mpweightdfw[(int)weight],
+                                     mpstyledfs[(int)style],
+                                     DWRITE_FONT_STRETCH_NORMAL,
+                                     dyHeight,
+                                     L"",
+                                     &tf.ptf);
+}
+
+void DCS::SetFontHeight(TF& tf, float dyHeight)
+{
+    wchar_t wsFamily[64];
+    tf.ptf->GetFontFamilyName(wsFamily, size(wsFamily));
+    TF::WEIGHT weight = (TF::WEIGHT)index_of(mpweightdfw, tf.ptf->GetFontWeight());
+    TF::STYLE style = (TF::STYLE)index_of(mpstyledfs, tf.ptf->GetFontStyle());
+    SetFont(tf, SFromWs(wstring_view(wsFamily)), dyHeight, weight, style);
+}
+
+/*
  *  Drawing primitives
  */
 
@@ -454,6 +490,18 @@ void DCS::DrawS(string_view s, const TF& tf, const RC& rc, CO coText, FC fc) con
     DrawS(s, tf, rc, brScratch.SetCo(coText), fc);
 }
 
+void DCS::DrawSRight(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc) const
+{
+    GUARDTFALIGNMENT sav(tf, DWRITE_TEXT_ALIGNMENT_TRAILING);
+    DrawS(s, tf, rc, brText, fc);
+}
+
+void DCS::DrawSRight(const string& s, TF& tf, const RC& rc, CO coText, FC fc) const
+{
+    GUARDTFALIGNMENT sav(tf, DWRITE_TEXT_ALIGNMENT_TRAILING);
+    DrawS(s, tf, rc, coText, fc);
+}
+
 void DCS::DrawSCenter(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc) const
 {
     GUARDTFALIGNMENT sav(tf, DWRITE_TEXT_ALIGNMENT_CENTER);
@@ -462,9 +510,8 @@ void DCS::DrawSCenter(const string& s, TF& tf, const RC& rc, const BR& brText, F
 
 void DCS::DrawSCenter(const string& s, TF& tf, const RC& rc, CO coText, FC fc) const
 {
-    if (coText == coNil)
-        coText = CoText();
-    DrawSCenter(s, tf, rc, brScratch.SetCo(coText), fc);
+    GUARDTFALIGNMENT sav(tf, DWRITE_TEXT_ALIGNMENT_CENTER);
+    DrawS(s, tf, rc, coText, fc);
 }
 
 /*

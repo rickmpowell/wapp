@@ -270,7 +270,6 @@ bool DLGFILEOPENMULTI::FRun(void)
 DLGFILESAVE::DLGFILESAVE(IWAPP& wapp) :
     DLGFILE(wapp)
 {
-
 }
 
 bool DLGFILESAVE::FRun(void)
@@ -283,6 +282,27 @@ bool DLGFILESAVE::FRun(void)
         return false;
 
     path = SFromWs(ofn.wsFile.get());
+    return true;
+}
+
+/*
+ *  DLGPRINT dialog 
+ */
+
+DLGPRINT::DLGPRINT(IWAPP& wapp) : 
+    DLG(wapp)
+{
+}
+
+bool DLGPRINT::FRun(void)
+{
+    PRINTDLG pd = { sizeof(pd) };
+    pd.Flags = PD_RETURNDC;
+    pd.hwndOwner = iwapp.hwnd; 
+    if (!PrintDlg(&pd))
+        return false;
+
+    hdc = pd.hDC;
     return true;
 }
 

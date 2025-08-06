@@ -118,6 +118,19 @@ public:
 };
 
 /*
+ *  DLGPRINT
+ */
+
+class DLGPRINT : public DLG
+{
+public:
+    DLGPRINT(IWAPP& wapp);
+    virtual bool FRun(void) override;
+
+    HDC hdc = NULL; // the printer DC
+};
+
+/*
  *  CMDOK
  *
  *  OK buytton in dialogs.

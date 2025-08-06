@@ -264,8 +264,7 @@ STATICR::STATICR(WN& wnParent, const string& sImage, int rssLabel, bool fVisible
 
 void STATICR::Draw(const RC& rcUpdate)
 {
-    GUARDTFALIGNMENT sav(tf, DWRITE_TEXT_ALIGNMENT_TRAILING);
-    DrawS(sImage, tf, RcContent());
+    DrawSRight(sImage, tf, RcContent());
 }
 
 /*

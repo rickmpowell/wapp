@@ -22,6 +22,45 @@ int Run(const string& sCmdLine, int sw)
 }
 
 /*
+ *  linestream
+ * 
+ *  A little line stream wrapper that permits pushback.
+ */
+
+
+linestream::linestream(istream& is) : is(is) 
+{
+}
+
+optional<string> linestream::next()
+{
+    string sLine;
+    if (!stackBack.empty()) {
+        sLine = stackBack.top();
+        stackBack.pop();
+        return sLine;
+    }
+
+    if (getline(is, sLine))
+        return sLine;
+
+    fEof = true;
+    return nullopt;
+}
+
+void linestream::push(const string& s)
+{
+    stackBack.push(s);
+}
+
+bool linestream::eof() const
+{
+    return fEof && stackBack.empty();
+}
+
+
+
+/*
  *  WAPP
  *
  *  The application class for the WAPP pretty printer.
@@ -30,6 +69,8 @@ int Run(const string& sCmdLine, int sw)
 WAPP::WAPP(const string& sCmdLine, int sw)
 {
     file = "ppr/ppr.cpp";
+    filesystem::path exe = this->exe();
+    dir = exe.parent_path() / ".." / "..";
 
     CreateWnd(rssAppTitle);
     PushFilterMsg(new FILTERMSGACCEL(*this, rsaApp));
@@ -55,15 +96,39 @@ CO WAPP::CoBack(void) const
 
 void WAPP::Draw(const RC& rcUpdate)
 {
-    DOC doc(*this, file);
+    DOC doc(*this, dir, file);
+    ifstream ifs(dir / file);
+    linestream ls(ifs);
 
     RC rcPaper(RcPaper());
     doc.SetPaper(rcPaper);
     FillRc(rcPaper, coWhite);
     DrawRc(rcPaper, coBlack);
 
-    doc.SetLocation(ipgCur, iliFirst);
-    doc.Draw();
+    int ili = 0;
+    for (ili = 0; ili < iliFirst; ili++)
+        ls.next();
+    int ipg = ipgCur;
+    doc.Draw(ls, ipg, ili);
+}
+
+void WAPP::Print(DCP& dcp)
+{
+    ifstream ifs(dir / file);
+    linestream ls(ifs);
+    DOC doc(dcp, dir, file);
+    dcp.Start();
+
+    int ili = 0;
+    int ipg = 0;
+    while (!ls.eof()) {
+        dcp.PageStart();
+        doc.SetPaper(dcp.RcInterior());
+        doc.Draw(ls, ipg, ili);
+        dcp.PageEnd();
+    }
+
+    dcp.End();
 }
 
 RC WAPP::RcPaper(void) const
@@ -101,24 +166,23 @@ void WAPP::SetPage(int ipgNew)
     if (ipgNew < 0)
         ipgNew = 0;
 
-    DOC doc(*this, file);
+    DOC doc(*this, dir, file);
     doc.SetPaper(RcPaper());
-    if (doc.FSetPage(ipgNew)) {
-        ipgCur = doc.ipgCur;
-        iliFirst = doc.iliFirst;
+    ifstream ifs(dir / file);
+    linestream ls(ifs);
+    int ili;
+    if (doc.FSetPage(ls, ipgNew, ili)) {
+        ipgCur = ipgNew;
+        iliFirst = ili;
         Redraw();
     }
 }
 
-DOC::DOC(WAPP& wapp, filesystem::path file) :
-    wapp(wapp),
-    dc(wapp),
-    ifs(),
-    tf(wapp, "Cascadia Mono", 12)
+DOC::DOC(DC& dc, filesystem::path dir, filesystem::path file) :
+    dc(dc),
+    dir(dir), file(file),
+    tf(dc, "Fira Code", 12, TF::WEIGHT::Semibold)
 {
-    filesystem::path exe = wapp.exe();
-    this->dir = exe.parent_path() / ".." / "..";
-    this->file = file;
 }
 
 void DOC::SetPaper(const RC& rcPaper)
@@ -126,12 +190,12 @@ void DOC::SetPaper(const RC& rcPaper)
     this->rcPaper = rcPaper;
 
    /* compute font size */
-    const int cchLine = 112;
+    const int cchLine = 120;
     const int cchLineNumber = 4;
     float dxFont = rcPaper.dxWidth() / ((1 + 1 + cchLineNumber + 1 + cchLine + 1) * 2);
     float dyFont = dxFont * 2;
     dyLine = dyFont + 1.5f;
-    tf.SetHeight(wapp, dyFont);
+    tf.SetHeight(dc, dyFont);
 
     /* compute borders */
     RC rcBorder = rcPaper.RcInflate(-dyLine);
@@ -143,37 +207,28 @@ void DOC::SetPaper(const RC& rcPaper)
     rcPage2 = rcBorder2.RcInflate(-dyLine / 2);
 }
 
-void DOC::SetLocation(int ipgNew, int iliFirst)
-{
-    this->ipgCur = ipgNew;
-    this->iliFirst = iliFirst;
-}
-
-void DOC::Draw(void)
+void DOC::Draw(linestream& ls, int& ipg, int& ili)
 {
     CO coBorder(0.3f, 0.1f, 0.7f);
     float dxyBorder = 0.5f;
 
-    int ili = 0;
-    ifs.open(dir / file);
-    for (ili = 0; ili < iliFirst; ili++)
-        getline(ifs, sNext);
-
     /* draw page 1 */
     dc.DrawRc(rcBorder1, coBorder, dxyBorder);
     DrawHeaderFooter(file.string(), rcBorder1, rcBorder1.top, coBorder);
-    DrawHeaderFooter(to_string(ipgCur + 1), rcBorder1, rcBorder1.bottom, coBorder);
-    getline(ifs, sNext);
-    DrawContent(ifs, rcPage1, sNext, ili);
+    DrawHeaderFooter(to_string(++ipg), rcBorder1, rcBorder1.bottom, coBorder);
+    DrawContent(ls, rcPage1, ili);
 
-    /* draw page 2 */
-    dc.Line(rcBorder2.ptTopLeft(), rcBorder2.ptTopRight(), coBorder, dxyBorder);
-    dc.Line(rcBorder2.ptTopRight(), rcBorder2.ptBottomRight(), coBorder, dxyBorder);
-    dc.Line(rcBorder2.ptBottomRight(), rcBorder2.ptBottomLeft(), coBorder, dxyBorder);
-    DrawHeaderFooter("wapp", rcBorder2, rcBorder2.top, coBorder);
-    DrawHeaderFooter(to_string(ipgCur + 2), rcBorder2, rcBorder2.bottom, coBorder);
-    DrawContent(ifs, rcPage2, sNext, ili);
+    if (!ls.eof()) {
+        /* draw page 2 */
+        dc.Line(rcBorder2.ptTopLeft(), rcBorder2.ptTopRight(), coBorder, dxyBorder);
+        dc.Line(rcBorder2.ptTopRight(), rcBorder2.ptBottomRight(), coBorder, dxyBorder);
+        dc.Line(rcBorder2.ptBottomRight(), rcBorder2.ptBottomLeft(), coBorder, dxyBorder);
+        DrawHeaderFooter("wapp", rcBorder2, rcBorder2.top, coBorder);
+        DrawHeaderFooter(to_string(++ipg), rcBorder2, rcBorder2.bottom, coBorder);
+        DrawContent(ls, rcPage2, ili);
+    }
 }
+
 /*
  *  DOC:DrawHeaderFooter
  *
@@ -200,13 +255,11 @@ void DOC::DrawHeaderFooter(const string& s, const RC& rcBorder, float y, CO coBo
  *  exit will be the first line of the next page.
  */
 
-void DOC::DrawContent(ifstream& ifs, const RC& rcPage, string& s, int& ili)
+void DOC::DrawContent(linestream& ls, const RC& rcPage, int& ili)
 {
     RC rcLine = rcPage;
-    while (FDrawLine(s, tf, rcLine, ili) && ifs) {
+    while (FDrawLine(ls, tf, rcLine, ili))
         ili++;
-        getline(ifs, s);
-    }
 }
 
 /*
@@ -217,21 +270,24 @@ void DOC::DrawContent(ifstream& ifs, const RC& rcPage, string& s, int& ili)
  *  page, no output is drawn and we return false. The line number will be ili.
  */
 
-bool DOC::FDrawLine(const string& s, TF& tf, RC& rcLine, int ili)
+bool DOC::FDrawLine(linestream &ls, TF& tf, RC& rcLine, int ili)
 {
     /* draw the line */
     SZ szNum = dc.SzFromS("9999", tf);
-    SZ szLine = dc.SzFromS(s, tf, rcLine.dxWidth() - szNum.width - dyLine);
-    if (rcLine.top + szLine.height > rcLine.bottom)
+    optional<string> os = ls.next();
+    if (!os)
         return false;
+    SZ szLine = dc.SzFromS(*os, tf, rcLine.dxWidth() - szNum.width - dyLine);
+    if (rcLine.top + szLine.height > rcLine.bottom) {
+        ls.push(*os);
+        return false;
+    }
 
     RC rc(rcLine);
-    {
-        GUARDTFALIGNMENT gtSav(tf, DWRITE_TEXT_ALIGNMENT_TRAILING);
-        dc.DrawS(to_string(ili + 1), tf, rc.RcSetRight(rc.left + szNum.width), coGray);
-    }
+    dc.DrawSRight(to_string(ili + 1), tf, rc.RcSetRight(rc.left + szNum.width), coGray);
     rc.left += szNum.width + dyLine;
-    dc.DrawS(s, tf, rc);
+
+    dc.DrawS(*os, tf, rc);
     rcLine.top += szLine.height;
     return true;
 }
@@ -243,29 +299,24 @@ bool DOC::FDrawLine(const string& s, TF& tf, RC& rcLine, int ili)
  *  actually changed.
  */
 
-bool DOC::FSetPage(int ipgNew)
+bool DOC::FSetPage(linestream& ls, int& ipgNew, int &iliFirst)
 {
-    filesystem::path exe = wapp.exe();
-    this->file = exe.parent_path() / "../.." / file;
-    ifs.open(this->file);
-
     int ili, ipg = 0;
     RC rc(rcPage1);
     ipgNew = ipgNew / 2 * 2;    // round down to multiple of 2
 
     for (ili = 0; ipg < ipgNew; ili++) {
-        if (!ifs)
+        optional<string> os = ls.next();
+        if (!os)
             return false;
-        string sLine;
-        getline(ifs, sLine);
-        if (!FMeasureLine(sLine, tf, rc)) {
+        if (!FMeasureLine(*os, tf, rc)) {
             ipg++;
             rc = rcPage1;
-            FMeasureLine(sLine, tf, rc);
+            FMeasureLine(*os, tf, rc);
         }
     }
 
-    ipgCur = ipg;
+    ipgNew = ipg;
     iliFirst = ili;
     return true;
 }
@@ -340,9 +391,32 @@ public:
     }
 };
 
+class CMDPRINT : public CMD<CMDPRINT, WAPP>
+{
+public:
+    CMDPRINT(WAPP& wapp) : CMD(wapp) {}
+
+    virtual int Execute(void)
+    {
+        DLGPRINT dlg(wapp);
+        if (!dlg.FRun())
+            return 0;
+
+        DCP dcp(dlg.hdc);
+        try {
+            wapp.Print(dcp);
+        }
+        catch (ERR err) {
+            wapp.Error(err);
+        }
+        return 1;
+    }
+};
+
 void WAPP::RegisterMenuCmds()
 {
     RegisterMenuCmd(cmdAbout, new CMDABOUT(*this));
+    RegisterMenuCmd(cmdPrint, new CMDPRINT(*this));
     RegisterMenuCmd(cmdExit, new CMDEXIT(*this));
 
     RegisterMenuCmd(cmdNextPage, new CMDNEXTPAGE(*this));
