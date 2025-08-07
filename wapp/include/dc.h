@@ -80,6 +80,7 @@ public:
     void Set(DC& dc, const string& sFace, float dyHeight = 12.0f,
              WEIGHT weight = WEIGHT::Normal, STYLE = STYLE::Normal);
     void SetHeight(DC& dc, float dyHeight);
+    void SetWidth(DC& dc, float dxWidth);
 };
 
 /*
@@ -219,6 +220,7 @@ public:
 
     virtual void SetFont(TF& tf, const string& sFace, float dyHeight, TF::WEIGHT weight, TF::STYLE style) = 0;
     virtual void SetFontHeight(TF& tf, float dyHeight) = 0;
+    virtual void SetFontWidth(TF& tf, float dxWidth) = 0;
 
     virtual void FillRc(const RC& rcFill, CO coFill = coNil) const = 0;
     virtual void DrawRc(const RC& rc, CO co = coNil, float dxyStroke = 1) const = 0;
@@ -233,6 +235,7 @@ public:
     virtual void DrawSRight(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const = 0;
     virtual void DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const = 0;
     virtual SZ SzFromS(const string& s, const TF& tf, float dxWidth = -1.0f) const = 0;
+    virtual FM FmFromTf(const TF& tf) const = 0;
 };
 
 /*
@@ -255,6 +258,7 @@ public:
 
     virtual void SetFont(TF& tf, const string& sFace, float dyHeight, TF::WEIGHT weight, TF::STYLE style) override;
     virtual void SetFontHeight(TF& tf, float dyHeight) override;
+    virtual void SetFontWidth(TF& tf, float dxWidth) override;
 
     /* drawing primitives */
 
@@ -286,7 +290,7 @@ public:
     void DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc = FC::Color) const;
     virtual void DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const override;
     virtual SZ SzFromS(const string& s, const TF& tf, float dxWidth = -1.0f) const override;
-    FM FmFromTf(const TF& tf) const;
+    virtual FM FmFromTf(const TF& tf) const override;
 
     void DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity = 1.0f) const;
 

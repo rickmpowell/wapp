@@ -115,6 +115,11 @@ void TF::SetHeight(DC& dc, float dyHeight)
     dc.SetFontHeight(*this, dyHeight);
 }
 
+void TF::SetWidth(DC& dc, float dxWidth)
+{
+    dc.SetFontWidth(*this, dxWidth);
+}
+
 TF::operator IDWriteTextFormat* () const 
 {
     return ptf.Get();
@@ -346,6 +351,28 @@ void DCS::SetFontHeight(TF& tf, float dyHeight)
     TF::WEIGHT weight = (TF::WEIGHT)index_of(mpweightdfw, tf.ptf->GetFontWeight());
     TF::STYLE style = (TF::STYLE)index_of(mpstyledfs, tf.ptf->GetFontStyle());
     SetFont(tf, SFromWs(wstring_view(wsFamily)), dyHeight, weight, style);
+}
+
+void DCS::SetFontWidth(TF& tf, float dxWidth)
+{
+    com_ptr<IDWriteFontCollection> pcollection;
+    tf.ptf->GetFontCollection(&pcollection);
+    com_ptr<IDWriteFontFamily> pfamily;
+    pcollection->GetFontFamily(0, &pfamily);
+    com_ptr<IDWriteFont> pfont;
+    pfamily->GetFont(0, &pfont);
+    com_ptr<IDWriteFontFace> pface;
+    pfont->CreateFontFace(&pface);
+    DWRITE_FONT_METRICS dfm;
+    pface->GetMetrics(&dfm);
+    DWRITE_GLYPH_METRICS dgm;
+    UINT16 gi;
+    UINT32 wch = L'9';
+    pface->GetGlyphIndicesW(&wch, 1, &gi);
+    pface->GetDesignGlyphMetrics(&gi, 1, &dgm, false);
+    float wRatio = (float)dfm.designUnitsPerEm / (float)dgm.advanceWidth;
+
+    SetFontHeight(tf, dxWidth * wRatio);
 }
 
 /*

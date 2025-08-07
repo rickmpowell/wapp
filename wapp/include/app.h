@@ -172,9 +172,9 @@ public:
 };
 
 /*
- *  Some Windows guard classes that ensure proper cleanup of various
- *  Windows allocated objects. These are similar to unique_ptr in that only
- *  oneresource_ptr will ever point to the object at any time.
+ *  Some Windows classes that ensure proper cleanup of various Windows 
+ *  allocated objects. These are similar to unique_ptr in that only one 
+ *  resource_ptr can ever point to the object at any time.
  */
 
 /*
@@ -189,6 +189,8 @@ public:
  *  resource handle internally, so that handle is lost. 
  *
  *  The size is lost after a reset(), so use it with care.
+ * 
+ *  REVIEW: should this be a templated class?
  */
 
 class resource_ptr
@@ -241,6 +243,7 @@ public:
 
     HGLOBAL release(void) noexcept 
     {
+        /* we don't need to unlock resources */
         HGLOBAL hT = hData;
         hData = NULL;
         pData = nullptr;
@@ -253,7 +256,8 @@ public:
         hData = hDataNew;
         if (hData) {
             pData = static_cast<BYTE*>(::LockResource(hData));
-            cbData = 0;     // note that we lose the size on reset
+            assert(pData);
+            cbData = 0;     /* note that we lose the size on reset because we don't have access to the hinst */
         }
         else {
             pData = nullptr;
@@ -293,38 +297,37 @@ private:
  *  global_ptr
  * 
  *  Holds a global allocated Windows handle, similar semantics to unique_ptr.
+ *  By default, this wrapper keeps the underlying global memory object
+ *  locked.
  * 
  *  Note that the get() function returns a *pointer* to the globally allocated 
  *  memory, while reset() returns a *handle* to the allocated memory.
+ * 
+ *  Throws errors on failures.
  */
 
+template<typename T>
 class global_ptr
 {
     global_ptr(const global_ptr&) = delete;
     global_ptr& operator = (const global_ptr&) = delete;
 
 public:
-    global_ptr(unsigned cb) : 
-        h(NULL), 
-        p(nullptr) 
+    global_ptr(unsigned ct, int gmem = GMEM_MOVEABLE) : 
+        ht(NULL), 
+        pt(nullptr) 
     {
-        h = ::GlobalAlloc(GMEM_MOVEABLE, cb);
-        if (h == NULL)
+        ht = ::GlobalAlloc(gmem, ct * sizeof(T));
+        if (ht == NULL)
             throw ERRLAST();
-        p = static_cast<char*>(::GlobalLock(h));
-        if (p == nullptr) {
-            ::GlobalFree(h);
-            throw ERRLAST();
-        }
+        lock();
     }
 
-    global_ptr(HGLOBAL h) : 
-        h(h), 
-        p(nullptr) 
+    global_ptr(HGLOBAL ht) : 
+        ht(ht), 
+        pt(nullptr) 
     {
-        p = static_cast<char*>(::GlobalLock(h));
-        if (p == nullptr)
-            throw ERRLAST();
+        lock();
     }
 
     global_ptr(resource_ptr&& ptr) 
@@ -332,62 +335,91 @@ public:
         reset(ptr.release());
     }
 
-    global_ptr& operator = (global_ptr&& ptr) noexcept 
+    ~global_ptr()
+    {
+        reset();
+    }
+
+    global_ptr& operator = (global_ptr&& ptr) noexcept
     {
         if (this != &ptr)
             reset(ptr.release());
         return *this;
     }
 
-    ~global_ptr() 
-    {
-        reset();
-    }
-
     HGLOBAL release(void) 
     {
-        HGLOBAL hT = h;
-        if (p) {
-            ::GlobalUnlock(h);
-            p = nullptr;
-        }
-        h = NULL;
-        return hT;
+        HGLOBAL htT = ht;
+        unlock();
+        ht = NULL;
+        return htT;
     }
 
-    void reset(HGLOBAL hNew = NULL) 
+    void reset(HGLOBAL htNew = NULL) 
     {
-        if (p)
-            ::GlobalUnlock(h);
-        p = nullptr;
-        if (h)
-            ::GlobalFree(h);
-        h = hNew;
-        if (h) {
-            p = static_cast<char*>(::GlobalLock(h));
-            if (p == nullptr)
+        unlock();
+        if (ht)
+            ::GlobalFree(ht);
+        ht = htNew;
+        if (ht)
+            lock();
+    }
+
+    void unlock(void)
+    {
+        if (pt) {
+            ::GlobalUnlock(ht);
+            pt = nullptr;
+        }
+    }
+
+    T* lock(void)
+    {
+        assert(ht);
+        if (pt == nullptr) {
+            pt = static_cast<T*>(::GlobalLock(ht));
+            if (pt == nullptr)
                 throw ERRLAST();
         }
+        return pt;
     }
 
     void swap(global_ptr& ptr) 
     {
-        std::swap(h, ptr.h);
-        std::swap(p, ptr.p);
+        std::swap(ht, ptr.ht);
+        std::swap(pt, ptr.pt);
     }
 
-    char* get(void) 
+    T* get(void) 
     {
-        return p;
+        return pt;
     }
 
     HGLOBAL handle(void) const 
     {
-        return h;
+        return ht;
+    }
+
+    T& operator * () const
+    {
+        assert(pt);
+        return *pt;
+    }
+
+    T* operator -> () const
+    {
+        assert(pt);
+        return pt;
+    }
+
+    T& operator [] (size_t it) const
+    {
+        assert(pt);
+        return pt[it];
     }
 
 private:
-    HGLOBAL h;
-    char* p;
+    HGLOBAL ht;
+    T* pt;
 };
 

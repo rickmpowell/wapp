@@ -29,6 +29,7 @@ public:
 
     virtual void SetFont(TF& tf, const string& sFace, float dyHeight, TF::WEIGHT weight, TF::STYLE style) override;
     virtual void SetFontHeight(TF& tf, float dyHeight) override;
+    virtual void SetFontWidth(TF& tf, float dxWidth) override;
 
     virtual void FillRc(const RC& rcFill, CO coFill = coNil) const override;
     virtual void DrawRc(const RC& rc, CO co = coNil, float dxyStroke = 1) const override;
@@ -37,7 +38,9 @@ public:
     virtual void DrawS(const string& s, const TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const override;
     virtual void DrawSRight(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const override;
     virtual void DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText = coNil, FC fc = FC::Color) const override;
+
     virtual SZ SzFromS(const string& s, const TF& tf, float dxWidth = -1.0f) const override;
+    virtual FM FmFromTf(const TF& tf) const override;
 
 private:
     HDC hdc = NULL;

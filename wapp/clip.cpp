@@ -49,10 +49,10 @@ public:
 iclipbuffer::iclipbuffer(IWAPP& iwapp, UINT cf)
 {
     CLIP clip(iwapp.hwnd);
-    global_ptr pData(clip.GetData(cf));
+    global_ptr<char> pData(clip.GetData(cf));
     achClip = pData.get();
-    ichClip = 0;
     pData.release();    // don't reset since the clipboard owns the item
+    ach[0] = 0;
 }
 
 int iclipbuffer::underflow(void)
@@ -87,7 +87,7 @@ int oclipbuffer::sync(void)
     CLIP clip(iwapp.hwnd);
     clip.Empty();
     unsigned cb = static_cast<unsigned>(str().size() + 1);
-    global_ptr pData(cb);
+    global_ptr<char> pData(cb);
     memcpy(pData.get(), str().c_str(), cb);
     return clip.SetData(cf, pData.release()) ? 0 : -1;
 }

@@ -183,11 +183,11 @@ public:
 		dlg.mpextsLabel["log"] = "Log File (*.log)";
 		dlg.mpextsLabel["txt"] = "Text File (*.txt)";
 		dlg.mpextsLabel["*"] = "All Files (*.*)";
-		dlg.path = "chess.log";
+		dlg.file = "chess.log";
 		dlg.extDefault = "log";
 		if (!dlg.FRun())
 			return 0;
-		ofstream os(dlg.path);
+		ofstream os(dlg.file);
 		wnlog.RenderLog(os);
 		return 1;
 	}
@@ -648,7 +648,7 @@ void WAPP::RunPolyglotTest(void)
  *	WAPP::RUnAITest
  */
 
-void WAPP::RunAITest(const string& dir, const vector<string>& vfile)
+void WAPP::RunAITest(filesystem::path folder, const vector<filesystem::path>& vfile)
 {
 	/* install AI players */
 	SETAI set = { 7 };
@@ -658,9 +658,9 @@ void WAPP::RunAITest(const string& dir, const vector<string>& vfile)
 
 	int cTotal = 0, cSuccess = 0;
 
-	for (const string& file : vfile) {
+	for (const filesystem::path& file : vfile) {
 		wnlog << file << endl << indent;
-		ifstream is(filesystem::path(dir) / file);
+		ifstream is(folder / file);
 		string epd;
 		while (getline(is, epd)) {
 

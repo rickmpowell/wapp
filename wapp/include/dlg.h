@@ -91,7 +91,7 @@ protected:
 public:
     map<string, string> mpextsLabel;
     string extDefault;
-    string path;
+    filesystem::path file;
 };
 
 class DLGFILEOPEN : public DLGFILE
@@ -107,7 +107,8 @@ public:
     DLGFILEOPENMULTI(IWAPP& wapp);
     virtual bool FRun(void) override;
 public:
-    vector<string> vfile;
+    filesystem::path folder;
+    vector<filesystem::path> vfile;
 };
 
 class DLGFILESAVE : public DLGFILE
@@ -128,6 +129,19 @@ public:
     virtual bool FRun(void) override;
 
     HDC hdc = NULL; // the printer DC
+};
+
+/*
+ *  DLGFOLDER
+ */
+
+class DLGFOLDER : public DLG
+{
+public:
+    DLGFOLDER(IWAPP& wapp);
+    virtual bool FRun(void) override;
+
+    filesystem::path folder;
 };
 
 /*

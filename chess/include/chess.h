@@ -204,7 +204,7 @@ public:
     bool RunOnePerftTest(const char tag[], const char fen[], const int64_t mpdcmv[],  
                          chrono::microseconds& dtpTotal, int64_t& cmvTotal);
     void RunPolyglotTest(void);
-    void RunAITest(const string& dir, const vector<string>& vfile);
+    void RunAITest(filesystem::path folder, const vector<filesystem::path>& vfile);
     void RunAIProfile(void);
 
 public:

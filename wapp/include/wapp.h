@@ -129,6 +129,7 @@ public:
 
     string SFromErr(ERR err) const;
     void Error(ERR err, ERR err2 = errNone);
+    void Error(const string& s);
     string exe(void) const;
 
 private:

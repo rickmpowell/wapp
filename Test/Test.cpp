@@ -1,4 +1,6 @@
+#define WINVER 0x0500
 #include <windows.h>
+#include <wrl.h>
 #include <string>
 
 class TESTC
@@ -21,7 +23,8 @@ private:
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
-    TESTC mv(1, 2);
+    PRINTDLGEX pd = { sizeof pd };
+    ::PrintDlgEx(&pd);
 
     return 1;
 }

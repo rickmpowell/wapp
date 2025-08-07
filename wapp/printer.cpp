@@ -105,6 +105,29 @@ void DCP::SetFontHeight(TF& tf, float dyHeight)
     tf.hfont = ::CreateFontIndirectW(&lf);
 }
 
+/*
+ *  DCP::SetFontWidth
+ * 
+ *  Sets the HFONT to the given width, trying to preserve other attributes
+ *  and aspecdt ratio.
+ */
+
+void DCP::SetFontWidth(TF& tf, float dxWidth)
+{
+    assert(tf.hfont != NULL);
+    HGDIOBJ hfontSav = ::SelectObject(hdc, tf.hfont);
+    TEXTMETRICW tm;
+    ::GetTextMetricsW(hdc, &tm);
+    ::SelectObject(hdc, hfontSav);
+    LOGFONTW lf;
+    ::GetObject(tf.hfont, sizeof(lf), &lf);
+    lf.lfHeight = (int)roundf((float)tm.tmHeight * dxWidth / (float)tm.tmAveCharWidth);
+    lf.lfWidth = 0;// (int)roundf(dxWidth);
+    ::DeleteObject(tf.hfont);
+    tf.hfont = NULL;
+    tf.hfont = ::CreateFontIndirectW(&lf);
+}
+
 void DCP::FillRc(const RC& rcFill, CO coFill) const
 {
     ::SetBkColor(hdc, coFill.rgb());
@@ -192,4 +215,21 @@ SZ DCP::SzFromS(const string& s, const TF& tf, float dxWidth) const
     }
     ::SelectObject(hdc, hfontSav);
     return sz;
+}
+
+FM DCP::FmFromTf(const TF& tf) const
+{
+    FM fm(0);
+    HGDIOBJ hfontSav = ::SelectObject(hdc, tf);
+    TEXTMETRICW tm;
+    ::GetTextMetrics(hdc, &tm);
+    ::SelectObject(hdc, hfontSav);
+
+    fm.dyAscent = (float)tm.tmAscent;
+    fm.dyDescent = (float)tm.tmDescent;
+    fm.dyXHeight = (float)3*tm.tmAscent/4;
+    fm.dyCapHeight = (float)(tm.tmAscent - tm.tmInternalLeading);
+    fm.dyLineGap = (float)(tm.tmHeight - tm.tmInternalLeading);
+
+    return fm;
 }

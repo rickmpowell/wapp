@@ -12,7 +12,9 @@
 #pragma warning(push, 0)
 #include <windows.h>
 #include <windowsx.h>
+#include <objbase.h>
 #include <commdlg.h>
+#include <shobjidl.h>
 #include <wrl.h>
 #pragma warning(pop)
 
@@ -61,6 +63,8 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <locale>
+#include <codecvt>
 
 using namespace std;
 using namespace D2D1;

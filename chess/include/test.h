@@ -85,7 +85,7 @@ private:
 extern bool fValidate;
 
 /*
- *	perft dialog
+ *  perft dialog
  */
 
 class SELPERFT : public SELS

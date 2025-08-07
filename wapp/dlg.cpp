@@ -219,10 +219,9 @@ OFN DLGFILE::OfnDefault(void)
     ofn.ofn.lpstrDefExt = WsFromS(extDefault).c_str();
     ofn.ofn.lpstrInitialDir = ofn.wsDirectory.get();
 
-    if (!path.empty()) {
-        filesystem::path p = path;
-        wcscpy_s(ofn.wsFile.get(), 1024, WsFromS(p.filename().string()).c_str());
-        wcscpy_s(ofn.wsDirectory.get(), 1024, WsFromS(p.parent_path().string()).c_str());
+    if (!file.empty()) {
+        wcscpy_s(ofn.wsFile.get(), 1024, WsFromS(file.filename().string()).c_str());
+        wcscpy_s(ofn.wsDirectory.get(), 1024, WsFromS(file.parent_path().string()).c_str());
     }
 
     return move(ofn);
@@ -237,7 +236,7 @@ bool DLGFILEOPEN::FRun(void)
     if (!::GetOpenFileNameW(&ofn.ofn))
         return false;
 
-    path = SFromWs(ofn.wsFile.get());
+    file = SFromWs(ofn.wsFile.get());
     return true;
 }
 
@@ -256,13 +255,12 @@ bool DLGFILEOPENMULTI::FRun(void)
         return false;
 
     wchar_t* pwch = ofn.wsFile.get();
-    path = SFromWs(pwch);
+    folder = SFromWs(pwch);
     for (pwch += wcslen(pwch) + 1; *pwch; pwch += wcslen(pwch) + 1)
         vfile.emplace_back(SFromWs(pwch));
     if (vfile.size() == 0) {
-        filesystem::path fpath(path);
-        path = fpath.parent_path().string();
-        vfile.emplace_back(fpath.filename().string());
+        vfile.emplace_back(folder.filename().string());
+        folder = folder.parent_path().string();
     }
     return true;
 }
@@ -281,25 +279,70 @@ bool DLGFILESAVE::FRun(void)
     if (!::GetSaveFileNameW(&ofn.ofn))
         return false;
 
-    path = SFromWs(ofn.wsFile.get());
+    file = SFromWs(ofn.wsFile.get());
     return true;
 }
 
 /*
- *  DLGPRINT dialog 
+ *  DLGFOLDER dialog
  */
 
-DLGPRINT::DLGPRINT(IWAPP& wapp) : 
+DLGFOLDER::DLGFOLDER(IWAPP& wapp) :
+    DLG(wapp)
+{
+}
+
+bool DLGFOLDER::FRun(void)
+{
+    com_ptr<IFileDialog> pdlg;
+    ThrowError(CoCreateInstance(CLSID_FileOpenDialog, 
+                                NULL, 
+                                CLSCTX_INPROC_SERVER,
+                                __uuidof(pdlg),
+                                &pdlg));
+    DWORD opt;
+    ThrowError(pdlg->GetOptions(&opt));
+    ThrowError(pdlg->SetOptions(opt| FOS_PICKFOLDERS));
+    HRESULT hr = pdlg->Show(NULL);
+    if (!SUCCEEDED(hr))
+        return false;
+    com_ptr<IShellItem> psi;
+    pdlg->GetResult(&psi);
+    PWSTR wsPath = nullptr;
+    psi->GetDisplayName(SIGDN_FILESYSPATH, &wsPath);
+    folder = SFromWs(wstring_view(wsPath));
+    CoTaskMemFree(wsPath);
+    return true;
+}
+
+/*
+ *  DLGPRINT dialog
+ */
+
+DLGPRINT::DLGPRINT(IWAPP& wapp) :
     DLG(wapp)
 {
 }
 
 bool DLGPRINT::FRun(void)
 {
-    PRINTDLG pd = { sizeof(pd) };
-    pd.Flags = PD_RETURNDC;
-    pd.hwndOwner = iwapp.hwnd; 
-    if (!PrintDlg(&pd))
+    PRINTDLGEXW pd = { sizeof(pd) };
+    pd.hwndOwner = iwapp.hwnd;
+    pd.Flags = PD_RETURNDC | PD_NOPAGENUMS;
+    pd.nCopies = 1;
+    pd.nStartPage = START_PAGE_GENERAL;
+    pd.hDevNames = NULL; 
+    
+    global_ptr<DEVMODEW> pdevmode(1, GMEM_MOVEABLE | GMEM_ZEROINIT);
+    pd.hDevMode = pdevmode.handle();
+    pdevmode->dmSize = sizeof(DEVMODEW);
+    pdevmode->dmFields = DM_ORIENTATION | DM_PAPERSIZE;
+    pdevmode->dmOrientation = DMORIENT_LANDSCAPE;
+    pdevmode->dmPaperSize = DMPAPER_LETTER;
+    pdevmode.unlock();
+
+    HRESULT hr = ::PrintDlgEx(&pd);
+    if (!SUCCEEDED(hr) || pd.dwResultAction != PD_RESULT_PRINT || pd.hDC == NULL)
         return false;
 
     hdc = pd.hDC;

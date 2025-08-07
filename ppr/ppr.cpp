@@ -2,7 +2,13 @@
 /*
  *  ppr.cpp
  *
- *  A very simple WAPP sample application.
+ *  A simple WAPP sample application that implements a source code pretty
+ *  printer. 
+ * 
+ *  Shows how to print, uses several of the standard dialog boxes to pick
+ *  files and print destinations.
+ * 
+ *  Copyright (c) 2025 by Richard Powell.
  */
 
 #include "ppr.h"
@@ -21,44 +27,41 @@ int Run(const string& sCmdLine, int sw)
     return wapp.MsgPump();
 }
 
-/*
- *  linestream
- * 
- *  A little line stream wrapper that permits pushback.
- */
-
-
-linestream::linestream(istream& is) : is(is) 
+vector<filesystem::path> VfileFromFolder(const filesystem::path& folder,
+                                         const vector<string>& vext)
 {
-}
+    vector<filesystem::path> vfile;
 
-optional<string> linestream::next()
-{
-    string sLine;
-    if (!stackBack.empty()) {
-        sLine = stackBack.top();
-        stackBack.pop();
-        return sLine;
+    for (const auto& file : filesystem::recursive_directory_iterator(folder)) {
+        if (!file.is_regular_file())
+            continue;
+        const filesystem::path path = file.path();
+        string ext = path.extension().string();
+        transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+        if (find(vext.begin(), vext.end(), ext) != vext.end())
+            vfile.emplace_back(filesystem::relative(path, folder));
     }
 
-    if (getline(is, sLine))
-        return sLine;
-
-    fEof = true;
-    return nullopt;
+    return vfile;
 }
 
-void linestream::push(const string& s)
+string SExpandTabs(const string& s, int cchTab)
 {
-    stackBack.push(s);
+    string sRet;
+    int ich = 0;
+    for (char ch : s) {
+        if (ch == '\t') {
+            int cch = cchTab - (ich % cchTab);
+            sRet.append(cch, ' ');
+            ich += cch;
+        }
+        else {
+            sRet += ch;
+            ich++;
+        }
+    }
+    return sRet;
 }
-
-bool linestream::eof() const
-{
-    return fEof && stackBack.empty();
-}
-
-
 
 /*
  *  WAPP
@@ -68,13 +71,28 @@ bool linestream::eof() const
 
 WAPP::WAPP(const string& sCmdLine, int sw)
 {
-    file = "ppr/ppr.cpp";
     filesystem::path exe = this->exe();
-    dir = exe.parent_path() / ".." / "..";
+    folder = exe.parent_path() / ".." / ".." / "ppr";
+    vfile = VfileFromFolder(folder, { ".h", ".cpp", ".rc" });
 
     CreateWnd(rssAppTitle);
     PushFilterMsg(new FILTERMSGACCEL(*this, rsaApp));
     Show(true);
+}
+
+void WAPP::SetFile(filesystem::path fileNew)
+{
+    folder = fileNew.parent_path();
+    vfile.clear();
+    vfile.emplace_back(fileNew.filename());
+    SetPage(0);
+}
+
+void WAPP::SetProject(filesystem::path folderNew)
+{
+    folder = folderNew;
+    vfile = VfileFromFolder(folder, { ".h", ".cpp", ".rc" });
+    SetPage(0);
 }
 
 /*
@@ -96,40 +114,55 @@ CO WAPP::CoBack(void) const
 
 void WAPP::Draw(const RC& rcUpdate)
 {
-    DOC doc(*this, dir, file);
-    ifstream ifs(dir / file);
-    linestream ls(ifs);
+    SHEET sheet(*this);
 
     RC rcPaper(RcPaper());
-    doc.SetPaper(rcPaper);
+    sheet.SetPaper(rcPaper);
     FillRc(rcPaper, coWhite);
     DrawRc(rcPaper, coBlack);
+
+    filesystem::path file = vfile[0];
+    linestream ls(folder / file);
 
     int ili = 0;
     for (ili = 0; ili < iliFirst; ili++)
         ls.next();
     int ipg = ipgCur;
-    doc.Draw(ls, ipg, ili);
+    sheet.Draw(ls, file, ipg, ili);
 }
+
+/*
+ *  WAPP::Print
+ * 
+ *  Prints the document to the device context dcp.
+ */
 
 void WAPP::Print(DCP& dcp)
 {
-    ifstream ifs(dir / file);
-    linestream ls(ifs);
-    DOC doc(dcp, dir, file);
+    SHEET sheet(dcp);
     dcp.Start();
 
-    int ili = 0;
-    int ipg = 0;
-    while (!ls.eof()) {
-        dcp.PageStart();
-        doc.SetPaper(dcp.RcInterior());
-        doc.Draw(ls, ipg, ili);
-        dcp.PageEnd();
+    for (auto file : vfile) {
+        linestream ls(folder /file);
+        int ili = 0;
+        int ipg = 0;
+        while (!ls.eof()) {
+            dcp.PageStart();
+            sheet.SetPaper(dcp.RcInterior());
+            sheet.Draw(ls, file, ipg, ili);
+            dcp.PageEnd();
+        }
     }
 
     dcp.End();
 }
+
+/*
+ *  WAPP::RcPaper
+ * 
+ *  Returns the rectangle of the paper area we draw on when we're drawing
+ *  on the screen.
+ */
 
 RC WAPP::RcPaper(void) const
 {
@@ -166,48 +199,72 @@ void WAPP::SetPage(int ipgNew)
     if (ipgNew < 0)
         ipgNew = 0;
 
-    DOC doc(*this, dir, file);
-    doc.SetPaper(RcPaper());
-    ifstream ifs(dir / file);
-    linestream ls(ifs);
-    int ili;
-    if (doc.FSetPage(ls, ipgNew, ili)) {
-        ipgCur = ipgNew;
-        iliFirst = ili;
-        Redraw();
-    }
+    SHEET sheet(*this);
+    sheet.SetPaper(RcPaper());
+
+    int ili = 0;
+    filesystem::path file = vfile[0];
+    linestream ls(folder / file);
+    if (!sheet.FSetPage(ls, ipgNew, ili))
+        return;
+    
+    ipgCur = ipgNew;
+    iliFirst = ili;
+    Redraw();
 }
 
-DOC::DOC(DC& dc, filesystem::path dir, filesystem::path file) :
+/*
+ *  SJEEET
+ *
+ *  The sheet class that handles drawing and pagination of the document.
+ */
+
+SHEET::SHEET(DC& dc) :
     dc(dc),
-    dir(dir), file(file),
-    tf(dc, "Fira Code", 12, TF::WEIGHT::Semibold)
+    tf(dc, "Cascadia Mono", 12, TF::WEIGHT::Normal)
 {
 }
 
-void DOC::SetPaper(const RC& rcPaper)
+/*
+ *  SHEET::SetPaper
+ *
+ *  Sets the paper rectangle to rcPaper, and computes all the other
+ *  rectangles and sizes we need.
+ */
+
+void SHEET::SetPaper(const RC& rcPaper)
 {
     this->rcPaper = rcPaper;
 
    /* compute font size */
-    const int cchLine = 120;
-    const int cchLineNumber = 4;
-    float dxFont = rcPaper.dxWidth() / ((1 + 1 + cchLineNumber + 1 + cchLine + 1) * 2);
-    float dyFont = dxFont * 2;
-    dyLine = dyFont + 1.5f;
-    tf.SetHeight(dc, dyFont);
+    const int cchLine = 100;
+    const int cchLineNumber = fLineNumbers ? 4+2 : 0;
+    const int cchPage = 2 + cchLineNumber + cchLine + 2;
+    FM fm = dc.FmFromTf(tf);
+    float dxFont = rcPaper.dxWidth() / (6 + 2*cchPage + 3);
+    tf.SetWidth(dc, dxFont);
+    fm = dc.FmFromTf(tf);
+    dyLine = fm.dyAscent + fm.dyDescent + fm.dyLineGap;
 
     /* compute borders */
-    RC rcBorder = rcPaper.RcInflate(-dyLine);
+    RC rcBorder = rcPaper.RcInflate(-2*dxFont);
+    rcBorder.left += 2 * dxFont;
     rcBorder1 = rcBorder.RcSetRight(rcBorder.xCenter());
     rcBorder2 = rcBorder1.RcTileRight(0);
 
     /* compute pages */
-    rcPage1 = rcBorder1.RcInflate(-dyLine / 2);
-    rcPage2 = rcBorder2.RcInflate(-dyLine / 2);
+    rcPage1 = rcBorder1.RcInflate(-dxFont, -dyLine);
+    rcPage2 = rcBorder2.RcInflate(-dxFont, -dyLine);
 }
 
-void DOC::Draw(linestream& ls, int& ipg, int& ili)
+/*
+ *  SHEET::Draw
+ *
+ *  Draws two pages of the document from the line stream ls, starting
+ *  at page number ipg and line number ili.
+ */ 
+
+void SHEET::Draw(linestream& ls, filesystem::path file, int& ipg, int& ili)
 {
     CO coBorder(0.3f, 0.1f, 0.7f);
     float dxyBorder = 0.5f;
@@ -230,7 +287,7 @@ void DOC::Draw(linestream& ls, int& ipg, int& ili)
 }
 
 /*
- *  DOC:DrawHeaderFooter
+ *  SHEET::DrawHeaderFooter
  *
  *  Draws the header or footer text on top of the page border for the page,
  *  using text s and border for the page rcPage. y is the vertical position
@@ -238,7 +295,7 @@ void DOC::Draw(linestream& ls, int& ipg, int& ili)
  *  footer), using color coBorder.
  */
 
-void DOC::DrawHeaderFooter(const string& s, const RC& rcBorder, float y, CO coBorder)
+void SHEET::DrawHeaderFooter(const string& s, const RC& rcBorder, float y, CO coBorder)
 {
     SZ sz = dc.SzFromS(s, tf);
     RC rc = RC(PT(rcBorder.xCenter() - sz.width / 2, y - sz.height / 2), sz);
@@ -248,14 +305,14 @@ void DOC::DrawHeaderFooter(const string& s, const RC& rcBorder, float y, CO coBo
 }
 
 /*
- *  DOC::DrawContent
+ *  SHEET::DrawContent
  *
  *  Draws content from ifs to the page encompassed by rcPage, with page numbers
  *  starting at ili. The string s contains the first line of the page, and on
  *  exit will be the first line of the next page.
  */
 
-void DOC::DrawContent(linestream& ls, const RC& rcPage, int& ili)
+void SHEET::DrawContent(linestream& ls, const RC& rcPage, int& ili)
 {
     RC rcLine = rcPage;
     while (FDrawLine(ls, tf, rcLine, ili))
@@ -263,43 +320,47 @@ void DOC::DrawContent(linestream& ls, const RC& rcPage, int& ili)
 }
 
 /*
- *  DOC::FDrawLine
+ *  SHEET::FDrawLine
  *
  *  Draws the line s using font tf in the area surrounded by rcLine. On exit,
  *  rcLine contains the area left on the page. If the line doesn't fit on the
  *  page, no output is drawn and we return false. The line number will be ili.
  */
 
-bool DOC::FDrawLine(linestream &ls, TF& tf, RC& rcLine, int ili)
+bool SHEET::FDrawLine(linestream &ls, TF& tf, RC& rcLine, int ili)
 {
     /* draw the line */
-    SZ szNum = dc.SzFromS("9999", tf);
+    SZ szNum = fLineNumbers ? dc.SzFromS("9999", tf) : SZ(0);
+    SZ szNumMargin = fLineNumbers ? dc.SzFromS("..", tf) : SZ(0);
     optional<string> os = ls.next();
     if (!os)
         return false;
-    SZ szLine = dc.SzFromS(*os, tf, rcLine.dxWidth() - szNum.width - dyLine);
+    string s = SExpandTabs(*os, 4);
+    SZ szLine = dc.SzFromS(SExpandTabs(s, 4), tf, rcLine.dxWidth() - szNum.width - szNumMargin.width);
     if (rcLine.top + szLine.height > rcLine.bottom) {
         ls.push(*os);
         return false;
     }
 
     RC rc(rcLine);
-    dc.DrawSRight(to_string(ili + 1), tf, rc.RcSetRight(rc.left + szNum.width), coGray);
-    rc.left += szNum.width + dyLine;
+    if (fLineNumbers) {
+        dc.DrawSRight(to_string(ili + 1), tf, rc.RcSetRight(rc.left + szNum.width), coGray);
+        rc.left += szNum.width + dyLine;
+    }
 
-    dc.DrawS(*os, tf, rc);
+    dc.DrawS(s, tf, rc);
     rcLine.top += szLine.height;
     return true;
 }
 
 /*
- *  DOC::FSetPage
+ *  SHEET::FSetPage
  * 
  *  Sets the page on the file ifs to ipgNew. Returns true if something
  *  actually changed.
  */
 
-bool DOC::FSetPage(linestream& ls, int& ipgNew, int &iliFirst)
+bool SHEET::FSetPage(linestream& ls, int& ipgNew, int &iliFirst)
 {
     int ili, ipg = 0;
     RC rc(rcPage1);
@@ -321,10 +382,18 @@ bool DOC::FSetPage(linestream& ls, int& ipgNew, int &iliFirst)
     return true;
 }
 
-bool DOC::FMeasureLine(const string& s, TF& tf, RC& rcLine)
+/*
+ *  SHEET::FMeasureLine
+ *
+ *  Measures the line s using font tf in the area surrounded by rcLine. On exit,
+ *  rcLine contains the area left on the page. If the line doesn't fit on the
+ *  we return false.
+ */
+
+bool SHEET::FMeasureLine(const string& s, TF& tf, RC& rcLine)
 {
-    SZ szNum = dc.SzFromS("9999", tf);
-    SZ szLine = dc.SzFromS(s, tf, rcLine.dxWidth() - szNum.width - dyLine);
+    SZ szNum = fLineNumbers ? dc.SzFromS("9999..", tf) : SZ(0);
+    SZ szLine = dc.SzFromS(SExpandTabs(s, 4), tf, rcLine.dxWidth() - szNum.width);
     if (rcLine.top + szLine.height > rcLine.bottom)
         return false;
     rcLine.top += szLine.height;
@@ -367,6 +436,12 @@ public:
     }
 };
 
+/*
+ *  CMDNEXTPAGE
+ *
+ *  The Next Page menu command
+ */
+
 class CMDNEXTPAGE : public CMD<CMDNEXTPAGE, WAPP>
 {
 public:
@@ -379,6 +454,12 @@ public:
     }
 };
 
+/*
+ *  CMDPREVPAGE
+ *
+ *  The Previous Page menu command
+ */
+
 class CMDPREVPAGE : public CMD<CMDPREVPAGE, WAPP>
 {
 public:
@@ -390,6 +471,12 @@ public:
         return 1;
     }
 };
+
+/*
+ *  CMDPRINT
+ *
+ *  The Print menu command
+ */
 
 class CMDPRINT : public CMD<CMDPRINT, WAPP>
 {
@@ -413,12 +500,162 @@ public:
     }
 };
 
+/*
+ *  CMDOPENPROJECT
+ *
+ *  The Print Project menu command. Prompts the user for a folder
+ *  and displays all the source files that it finds inside that
+ *  folder.
+ */
+
+class CMDOPENPROJECT : public CMD<CMDOPENPROJECT, WAPP>
+{
+public:
+    CMDOPENPROJECT(WAPP& wapp) : CMD(wapp) {}
+
+    virtual int Execute(void)
+    {
+        DLGFOLDER dlg(wapp);
+        if (!dlg.FRun())
+            return 0;
+
+        wapp.SetProject(dlg.folder);
+        return 1;
+    }
+};
+
+/*
+ *  CMDOPEN
+ */
+
+class CMDOPEN : public CMD<CMDOPEN, WAPP>
+{
+public:
+    CMDOPEN(WAPP& wapp) : CMD(wapp) {}
+
+    virtual int Execute(void)
+    {
+        DLGFILEOPEN dlg(wapp);
+        if (!dlg.FRun())
+            return 0;
+        wapp.SetFile(dlg.file);
+        return 1;
+    }
+};
+
+/*
+ *  WAPP::RegisterMenuCmds
+ *
+ *  Registers all the menu commands with the application.
+ */
+
 void WAPP::RegisterMenuCmds()
 {
     RegisterMenuCmd(cmdAbout, new CMDABOUT(*this));
     RegisterMenuCmd(cmdPrint, new CMDPRINT(*this));
+    RegisterMenuCmd(cmdOpen, new CMDOPEN(*this));
+    RegisterMenuCmd(cmdOpenProject, new CMDOPENPROJECT(*this));
     RegisterMenuCmd(cmdExit, new CMDEXIT(*this));
 
     RegisterMenuCmd(cmdNextPage, new CMDNEXTPAGE(*this));
     RegisterMenuCmd(cmdPrevPage, new CMDPREVPAGE(*this));
+}
+
+/*
+ *  linestream
+ *
+ *  A little line stream wrapper that permits full line pushback.
+ *  Detects UTF-16 and UTF-8 BOMs and converts them to UTF-8 on
+ *  the fly.
+ */
+
+linestream::linestream(filesystem::path file) :
+    ifs()
+{
+    switch (encode = Encode(file)) {
+    case ENCODE::Utf8:
+        ifs.open(file);
+        ifs.seekg(3);
+        break;
+    case ENCODE::Unknown:
+        ifs.open(file);
+        break;
+    case ENCODE::Utf16BE:
+    case ENCODE::Utf16LE:
+        {
+        ifs.open(file, ios::binary);
+        ifs.seekg(2);
+        break;
+        }
+    }
+}
+
+optional<string> linestream::next()
+{
+    string s;
+    if (!stackBack.empty()) {
+        s = stackBack.top();
+        stackBack.pop();
+        return s;
+    }
+
+    switch (encode) {
+    default:
+        if (!getline(ifs, s))
+            break;
+        return s;
+    case ENCODE::Utf16BE:
+    case ENCODE::Utf16LE:
+        {
+        wstring ws;
+        if (!wgetline(ifs, ws))
+            break;
+        return SFromWs(ws);
+        }
+    }
+
+    fEof = true;
+    return nullopt;
+}
+
+void linestream::push(const string& s)
+{
+    stackBack.push(s);
+}
+
+bool linestream::eof() const
+{
+    return fEof && stackBack.empty();
+}
+
+linestream::ENCODE linestream::Encode(filesystem::path file)
+{
+    ifstream ifs(file, ios::binary);
+    unsigned char bom[3];
+    ifs.read(reinterpret_cast<char*>(bom), 3);
+    if (bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF)
+        return ENCODE::Utf8;
+    if (bom[0] == 0xFF && bom[1] == 0xFE)
+        return ENCODE::Utf16LE;
+    if (bom[0] == 0xFE && bom[1] == 0xFF)
+        return ENCODE::Utf16BE;
+    return ENCODE::Unknown;
+}
+
+bool linestream::wgetline(ifstream& ifs, wstring& ws)
+{
+    ws.clear();
+    for (;;) {
+        wchar_t wch;
+        if (!ifs.read((char*)&wch, 2))
+            return ws.length() > 0;
+        if (encode == ENCODE::Utf16BE)
+            wch = _byteswap_ushort(wch);
+        if (wch == L'\n')
+            break;
+        ws.push_back(wch);
+    }
+    if (ws[ws.size() - 1] == L'\r')
+        ws.pop_back();
+    return true;
 }

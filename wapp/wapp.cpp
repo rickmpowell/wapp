@@ -276,6 +276,14 @@ void IWAPP::Error(ERR err, ERR err2)
                   MB_OK | MB_ICONERROR);
 }
 
+void IWAPP::Error(const string& s)
+{
+    string sCaption = SLoad(rssAppTitle);
+    ::MessageBoxW(hwnd, WsFromS(s).c_str(),
+                  WsFromS(sCaption).c_str(),
+                  MB_OK | MB_ICONERROR);
+}
+
 /*
  *  IWAPP::WsFromErr
  *

@@ -583,12 +583,12 @@ bool PLCOMPUTER::FLookupXt(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
     return true;
 }
 
-/*	
+/*
  *  PLCOMPUTER::SaveXt
  *
- *	Saves the evaluated board in the transposition table, including the depth,
- *	best move, and making sure we keep track of whether the eval was outside
- *	the a-b window.
+ *  Saves the evaluated board in the transposition table, including the depth,
+ *  best move, and making sure we keep track of whether the eval was outside
+ *  the a-b window.
  */
 
 XTEV* PLCOMPUTER::SaveXt(BD &bd, const MV& mvBest, AB ab, int d, int dLim) noexcept
@@ -702,18 +702,18 @@ EV PLCOMPUTER::EvStatic(BD& bd) noexcept
     return ev;
 }
 
-/*	
+/*
  *  PLCOMPUTER:EvFromPst
  *
- *	Returns the piece value table board evaluation for the side with
- *	the move.
+ *  Returns the piece value table board evaluation for the side with
+ *  the move.
  */
 
 EV PLCOMPUTER::EvFromPst(const BD& bd) const noexcept
 {
     EV mpcpcevMid[2] = { 0, 0 };
     EV mpcpcevEnd[2] = { 0, 0 };
-    int phase = phaseMax;	
+    int phase = phaseMax;
 
     for (CPC cpc = cpcWhite; cpc <= cpcBlack; ++cpc) {
         for (int icp = 0; icp < 16; ++icp) {
@@ -735,11 +735,11 @@ EV PLCOMPUTER::EvFromPst(const BD& bd) const noexcept
 
 #include "piecetables.h"
 
-/*	
+/*
  *  PLCOMPUTER::InitPsts
  *
- *	Initializes the piece value weight tables for the different phases of the
- *	game. We may build these tables on the fly in the future, but for now
+ *  Initializes the piece value weight tables for the different phases of the
+ *  game. We may build these tables on the fly in the future, but for now
  *  we waste a little time at beginning of search, but it's not a big deal.
  */
 
@@ -760,10 +760,10 @@ void PLCOMPUTER::InitPst(EV mpcptev[cptMax], EV mpcptsqdev[cptMax][sqMax], EV mp
     }
 }
 
-/*	
+/*
  *  PLCOMPUTER::EvInterpolate
  *
- *	Interpolate the piece value evaluation based on game phase
+ *  Interpolate the piece value evaluation based on game phase
  */
 
 EV PLCOMPUTER::EvInterpolate(int phaseCur, EV evFirst, int phaseFirst, EV evLim, int phaseLim) const noexcept
@@ -858,8 +858,8 @@ void PLCOMPUTER::InitHistory(void) noexcept
 /*
  *  PLCOMPUTER::AddHistory
  *
- *	Bumps the move history count, which is non-captures that cause beta
- *	cut-offs, indexed by the source/destination squares of the move
+ *  Bumps the move history count, which is non-captures that cause beta
+ *  cut-offs, indexed by the source/destination squares of the move
  */
 
 void PLCOMPUTER::AddHistory(BD& bd, const MV& mv, int d, int dLim) noexcept
@@ -872,11 +872,11 @@ void PLCOMPUTER::AddHistory(BD& bd, const MV& mv, int d, int dLim) noexcept
         AgeHistory();
 }
 
-/*	
+/*
  *  PLCOMPUTER::SubtractHistory
  *
- *	Lowers history count in the history table, which is done on non-beta
- *	cut-offs.Note that bumping is much faster than decaying.
+ *  Lowers history count in the history table, which is done on non-beta
+ *  cut-offs.Note that bumping is much faster than decaying.
  */
 
 void PLCOMPUTER::SubtractHistory(BD& bd, const MV& mv) noexcept
@@ -888,7 +888,7 @@ void PLCOMPUTER::SubtractHistory(BD& bd, const MV& mv) noexcept
         csqHistory--;
 }
 
-/*	
+/*
  *  PLCOMPUTER::AgeHistory
  *
  *	Redece old history's impact with each move
@@ -912,13 +912,13 @@ bool PLCOMPUTER::FScoreHistory(BD& bd, MV& mv) noexcept
 /*	
  *  PLCOMPUTER::EvAttackDefend
  *
- *	Little heuristic for board evaluation that tries to detect bad moves,
- *	which are if we have moved to an attacked square that isn't defended. This
- *	is only useful for pre-sorting, because it's somewhat more accurate than
- *	not doing it at all, but it's not nearly as good as full quiescent search.
+ *  Little heuristic for board evaluation that tries to detect bad moves,
+ *  which are if we have moved to an attacked square that isn't defended. This
+ *  is only useful for pre-sorting, because it's somewhat more accurate than
+ *  not doing it at all, but it's not nearly as good as full quiescent search.
  *
- *	Destination square of the previous move is in sqTo. Returns the amount to
- *	adjust the evaluation by.
+ *  Destination square of the previous move is in sqTo. Returns the amount to
+ *  adjust the evaluation by.
  */
 
 EV PLCOMPUTER::EvAttackDefend(BD& bd, const MV& mvPrev) const noexcept

@@ -186,7 +186,7 @@ void RTCFLIP::CreateBuffer(com_ptr<ID2D1DeviceContext>& pdc2, com_ptr<ID2D1Bitma
     ThrowError(pswapchain->GetBuffer(0, __uuidof(IDXGISurface), &psurfdxgi));
     DXGI_SURFACE_DESC surfdesc;
     psurfdxgi->GetDesc(&surfdesc);
-    float dxy = (float)GetDpiForWindow(iwapp.hwnd);
+    float dxy = (float)::GetDpiForWindow(iwapp.hwnd);
 
     D2D1_BITMAP_PROPERTIES1 bmpprop = {
         PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE),

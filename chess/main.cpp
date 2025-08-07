@@ -215,7 +215,7 @@ public:
             return 0;
         gameUndo = wapp.game;
         wapp.game.End(GR::Abandon);
-        ifstream is(dlg.path);
+        ifstream is(dlg.file);
         try {
             wapp.game.InitFromPgn(is);
         }
@@ -289,12 +289,12 @@ CMDEXECUTE(CMDTESTAI)
     dlg.mpextsLabel["epd"] = "EPD files (*.epd)";
     dlg.mpextsLabel["*"] = "All files (*.*)";
     filesystem::path exe = wapp.exe();
-    dlg.path = (exe.parent_path() / "../../Chess/Test/").lexically_normal().string();
+    dlg.folder = (exe.parent_path() / "../../Chess/Test/").lexically_normal().string();
     dlg.extDefault = "epd";
     if (!dlg.FRun())
         return 0;
     wapp.game.End(GR::Abandon);
-    wapp.RunAITest(dlg.path, dlg.vfile);
+    wapp.RunAITest(dlg.folder, dlg.vfile);
     return 1;
 }
 

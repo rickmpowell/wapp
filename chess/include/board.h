@@ -440,14 +440,14 @@ inline int IcpbdFromSq(int fi, int ra) noexcept
 typedef uint64_t HA;
 
 /*
- *	GENHA class
+ *  GENHA class
  *
- *	Generate game board hashing. This uses Zobrist hashing, which creates a large
- *	bit-array for each possible individual square state on the board. The hash is
- *	the XOR of all the individual states.
+ *  Generate game board hashing. This uses Zobrist hashing, which creates a large
+ *  bit-array for each possible individual square state on the board. The hash is
+ *  the XOR of all the individual states.
  *
- *	The advantage of Zobrist hashing is it's inexpensive to keep up-to-date during
- *	move/undo with two or three simple xor operations.
+ *  The advantage of Zobrist hashing is it's inexpensive to keep up-to-date during
+ *  move/undo with two or three simple xor operations.
  */
 
 class GENHA
@@ -462,7 +462,7 @@ public:
     /*
      *  TogglePiece
      *
-     *	Toggles the square in the hash at the given square.
+     *  Toggles the square in the hash at the given square.
      */
 
     inline static void TogglePiece(HA& ha, SQ sq, CP cp) noexcept
@@ -473,7 +473,7 @@ public:
     /*
      *  ToggleToMove
      *
-     *	Toggles the player to move in the hash.
+     *  Toggles the player to move in the hash.
      */
 
     inline static void ToggleToMove(HA& ha)
@@ -484,7 +484,7 @@ public:
     /*
      *  ToggleCastle
      *
-     *	Toggles the castle state in the hash
+     *  Toggles the castle state in the hash
      */
 
     inline static void ToggleCastle(HA& ha, int cs)
@@ -495,7 +495,7 @@ public:
     /*
      *  ToggleEnPassant
      *
-     *	Toggles the en passant state in the hash
+     *  Toggles the en passant state in the hash
      */
 
     inline static void ToggleEnPassant(HA& ha, SQ sq)
@@ -530,19 +530,19 @@ extern GENHA genha;
 
 typedef int16_t EV;
 
-constexpr int dMax = 127;							/* maximum search depth */
-constexpr EV evPawn = 100;							/* evals are in centi-pawns */
-constexpr EV evInfinity = 160 * evPawn + dMax;			/* largest possible evaluation */
-constexpr EV evSureWin = 40 * evPawn;				/* we have sure win when up this amount of material */
-constexpr EV evMate = evInfinity - 1;					/* checkmates are given evals of evalMate minus moves to mate */
+constexpr int dMax = 127;                       /* maximum search depth */
+constexpr EV evPawn = 100;                      /* evals are in centi-pawns */
+constexpr EV evInfinity = 160 * evPawn + dMax;  /* largest possible evaluation */
+constexpr EV evSureWin = 40 * evPawn;           /* we have sure win when up this amount of material */
+constexpr EV evMate = evInfinity - 1;           /* checkmates are given evals of evalMate minus moves to mate */
 constexpr EV evMateMin = evMate - dMax;
-constexpr EV evTempo = 20;					/* evaluation of a single move advantage */
-constexpr EV evDraw = 0;							/* evaluation of a draw */
+constexpr EV evTempo = 20;                      /* evaluation of a single move advantage */
+constexpr EV evDraw = 0;                        /* evaluation of a draw */
 constexpr EV evTimedOut = evInfinity + 1;
 constexpr EV evCanceled = evTimedOut + 1;
 constexpr EV evStopped = evCanceled + 1;
 constexpr EV evMax = evCanceled + 1;
-constexpr EV evBias = evInfinity;						/* used to bias evaluations for saving as an unsigned */
+constexpr EV evBias = evInfinity;               /* used to bias evaluations for saving as an unsigned */
 static_assert(evMax <= 16384);					/* there is code that asssumes EV stores in 15 bits */
 
 inline EV EvMate(int d) noexcept

@@ -4,6 +4,12 @@
  * 
  *  Implementation of the lowest level application and window classes for 
  *  the WAPP library. 
+ * 
+ *  This is the main program entry point, the simplest Win32 application
+ *  APP class (windowless, but supports resources). We also have the basic
+ *  WND wrapper class, which is a light wrapper around the Windows HWND.
+ * 
+ *  Copyright (c) 2025 by Richard Powell.
  */
 
 #include "wapp.h"
@@ -127,14 +133,11 @@ WND::~WND()
 
 WNDCLASSEXW WND::WcexRegister(void) const
 {
-    WNDCLASSEXW wcex = { 0 };
-    wcex.cbSize = sizeof wcex;
+    WNDCLASSEXW wcex = { sizeof wcex };
     wcex.lpfnWndProc = WND::WndProc;
     wcex.cbWndExtra = sizeof(WND*);
     wcex.hInstance = app.hinst;
-    wcex.hCursor = NULL;
-    wcex.hbrBackground = NULL; // (HBRUSH)(COLOR_WINDOW + 1);
-    return wcex;
+   return wcex;
 }
 
 /*

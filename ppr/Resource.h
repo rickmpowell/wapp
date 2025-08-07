@@ -10,6 +10,8 @@
 #define cmdNextPage 3
 #define cmdPrevPage 4
 #define cmdPrint 5
+#define cmdOpen 6
+#define cmdOpenProject 7
 
 /*
  *  Accelerator tables

@@ -73,7 +73,7 @@ enum class EVT {
 };
 
 /*
- *	XTEV class
+ *  XTEV class
  *
  *  THe individual transposition table entry
  */

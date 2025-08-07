@@ -11,6 +11,7 @@
 #include <sstream>
 #include <istream>
 #include <streambuf>
+class IWAPP;
 
 /*
  *  iclipstream
@@ -26,7 +27,7 @@ public:
 
 protected:
     int underflow(void) override;
-    char ach[1];    // feed out of single character buffer to give us space to normalize \r\n
+    char ach[1] = { 0 };    // feed out of single character buffer to give us space to normalize \r\n
     unsigned ichClip = 0;
     char* achClip = nullptr;
 };
