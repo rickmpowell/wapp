@@ -60,3 +60,34 @@ inline TPS TpsNow(void)
 {
     return chrono::system_clock::now();
 }
+
+/*
+ *  linestream class
+ *
+ *  A utility class that reads text files as a sequence of lines. Handles
+ *  UTF-16, UTF-8, and regular ASCII files. Permits a push operation that
+ *  returns strings back into the stream which allows for code that needs
+ *  a line look-ahead.
+ *
+ *  The strings returned as lines are UTF-8. Line end marks are stripped.
+ *  Will return empty lines
+ */
+
+class linestream {
+    enum class ENCODE { Unknown, Utf8, Utf16LE, Utf16BE };
+public:
+    explicit linestream(filesystem::path file);
+    optional<string> next(void);
+    void push(const string& s);
+    bool eof() const;
+
+private:
+    ENCODE Encode(filesystem::path file);
+    bool wgetline(ifstream& ifs, wstring& ws);
+
+private:
+    ifstream ifs;
+    ENCODE encode;
+    stack<string> stackBack;
+    bool fEof = false;
+};

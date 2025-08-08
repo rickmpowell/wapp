@@ -164,7 +164,7 @@ void DCP::DrawS(const string& s, const TF& tf, const RC& rc, CO coText, FC fc) c
     ::SetTextColor(hdc, coText.rgb());
     ::SetBkMode(hdc, TRANSPARENT);
     HGDIOBJ hfontSav = ::SelectObject(hdc, tf);
-    ::DrawTextW(hdc, ws.c_str(), (int)ws.length(), &rect, DT_LEFT | DT_TOP | DT_WORDBREAK);
+    ::DrawTextW(hdc, ws.c_str(), (int)ws.length(), &rect, DT_LEFT | DT_TOP | DT_WORDBREAK | DT_NOPREFIX);
     ::SelectObject(hdc, hfontSav);
 }
 
@@ -175,7 +175,7 @@ void DCP::DrawSRight(const string& s, TF& tf, const RC& rc, CO coText, FC fc) co
     ::SetTextColor(hdc, coText.rgb());
     ::SetBkMode(hdc, TRANSPARENT);
     HGDIOBJ hfontSav = ::SelectObject(hdc, tf);
-    ::DrawTextW(hdc, ws.c_str(), (int)ws.length(), &rect, DT_RIGHT | DT_TOP | DT_WORDBREAK);
+    ::DrawTextW(hdc, ws.c_str(), (int)ws.length(), &rect, DT_RIGHT | DT_TOP | DT_WORDBREAK | DT_NOPREFIX);
     ::SelectObject(hdc, hfontSav);
 }
 
@@ -186,7 +186,7 @@ void DCP::DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText, FC fc)
     ::SetBkMode(hdc, TRANSPARENT);
     ::SetTextColor(hdc, coText.rgb());
     HGDIOBJ hfontSav = ::SelectObject(hdc, tf);
-    ::DrawTextW(hdc, ws.c_str(), (int)ws.length(), &rect, DT_CENTER | DT_VCENTER | DT_WORDBREAK);
+    ::DrawTextW(hdc, ws.c_str(), (int)ws.length(), &rect, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX);
     ::SelectObject(hdc, hfontSav);
 }
 
@@ -209,7 +209,7 @@ SZ DCP::SzFromS(const string& s, const TF& tf, float dxWidth) const
         if (size.cx <= rect.right - rect.left)
             sz = size;
         else {
-            ::DrawTextW(hdc, ws.c_str(), (int)ws.length(), &rect, DT_WORDBREAK | DT_CALCRECT);
+            ::DrawTextW(hdc, ws.c_str(), (int)ws.length(), &rect, DT_WORDBREAK | DT_CALCRECT | DT_NOPREFIX);
             sz = SZ(dxWidth, (float)(rect.bottom - rect.top));
         }
     }

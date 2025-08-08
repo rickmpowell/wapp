@@ -12,6 +12,7 @@
 #define cmdPrint 5
 #define cmdOpen 6
 #define cmdOpenProject 7
+#define cmdSettings 8
 
 /*
  *  Accelerator tables
@@ -23,7 +24,9 @@
  *  Strings
  */
 
-#define rssFirstUnused 16
+#define rssSettingsTitle 16
+#define rssSettingsInstructions 17
+#define rssSettingsLineNumbers 18
 
 /*
  *  Dialogs

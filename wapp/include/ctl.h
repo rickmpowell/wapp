@@ -227,6 +227,48 @@ public:
 };
 
 /*
+ *  CHK
+ * 
+ *  Checkbox control
+ */
+
+class CHK;
+
+class CMDCHK : public ICMD
+{
+public:
+    CMDCHK(CHK& chk);
+    CMDCHK(const CMDCHK& cmd) = default;
+    CMDCHK& operator = (const CMDCHK& cmd) = default;
+
+    virtual ICMD* clone(void) const override;
+    virtual int Execute(void) override;
+
+private:
+    CHK& chk;
+};
+
+class CHK : public CTL
+{
+public:
+    CHK(WN& wnParent, const string& sLabel, bool fVisible = true);
+    CHK(WN& wnParent, int rssLabel = -1, bool fVisible = true);
+    virtual ~CHK() = default;
+
+    virtual void Layout(void) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+
+    virtual void Draw(const RC& rcUpdate) override;
+
+    virtual void Toggle(void);
+    bool ValueGet(void) const;
+    void SetValue(bool f);
+
+private:
+    bool f = false;
+};
+
+/*
  *  CYCLE
  * 
  *  A control with an up and down button to cycle through options

@@ -619,6 +619,16 @@ public:
         return RC(*this).Union(rc);
     }
 
+    void CenterOn(const PT& pt)
+    {
+        Offset(pt - ptCenter());
+    }
+
+    void CenterIn(const RC& rc)
+    {
+        Offset(rc.ptCenter() - ptCenter());
+    }
+
     RC& CenterDy(float dy) 
     {
         top += (dyHeight() - dy) / 2;

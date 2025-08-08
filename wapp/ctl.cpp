@@ -665,6 +665,84 @@ int CMDSELECTOR::Execute(void)
 }
 
 /*
+ *  CHK
+ */
+
+CMDCHK::CMDCHK(CHK& chk) :
+    chk(chk)
+{
+}
+
+ICMD* CMDCHK::clone(void) const
+{
+    return new CMDCHK(*this);
+}
+
+int CMDCHK::Execute(void) 
+{
+    chk.Toggle();
+    return 1;
+}
+
+CHK::CHK(WN& wnParent, const string& sLabel, bool fVisible) :
+    CTL(wnParent, new CMDCHK(*this), sLabel, fVisible)
+{
+}
+
+CHK::CHK(WN& wnParent, int rssLabel, bool fVisible) :
+    CTL(wnParent, new CMDCHK(*this), rssLabel, fVisible)
+{
+}
+
+SZ CHK::SzRequestLayout(const RC& rcWithin) const
+{
+    SZ sz(SzFromS(SFromU8(u8"\u2713"), tf));
+    SZ szLabel(SzLabel());
+    sz.width += szLabel.width + szLabel.height + szLabel.height * 0.25f;
+    return sz;
+}
+
+void CHK::Layout(void)
+{
+    if (ctll == CTLL::SizeToFit)
+        SetFontHeight(RcContent().dyHeight());
+}
+
+void CHK::Draw(const RC& rcUpdate)
+{
+    RC rc(RcContent());
+    SZ szLabel = SzLabel();
+    float x = rc.right - szLabel.width;
+    DrawLabel(rc.RcSetLeft(x));
+    rc.right = x - szLabel.height * 0.25f;
+    RC rcBox = rc;
+    if (rc.dxWidth() > rc.dyHeight())
+        rcBox.SetWidth(rc.dyHeight());
+    else
+        rcBox.SetHeight(rc.dxWidth());
+    rcBox.CenterIn(rc);
+    DrawRc(rcBox, CoText(), 2);
+    if (f)
+        DrawSCenterXY((string)SFromU8(u8"\u2713"), tf, rcBox);
+}
+
+void CHK::Toggle(void)
+{
+    f = !f;
+    Redraw();
+}
+
+bool CHK::ValueGet(void) const
+{
+    return f;
+}
+
+void CHK::SetValue(bool fNew)
+{
+    f = fNew;
+}
+
+/*
  *  CYCLE
  */
 

@@ -69,7 +69,8 @@ string SExpandTabs(const string& s, int cchTab)
  *  The application class for the WAPP pretty printer.
  */
 
-WAPP::WAPP(const string& sCmdLine, int sw)
+WAPP::WAPP(const string& sCmdLine, int sw) :
+    tools(*this)
 {
     filesystem::path exe = this->exe();
     folder = exe.parent_path() / ".." / ".." / "ppr";
@@ -95,6 +96,13 @@ void WAPP::SetProject(filesystem::path folderNew)
     SetPage(0);
 }
 
+void WAPP::Layout(void)
+{
+    LEN len(RcInterior(), PAD(0), PAD(0));
+    len.Position(tools);
+    rcContent = len.RcLayout();
+}
+
 /*
  *  WAPP::CoBack
  *
@@ -117,7 +125,7 @@ void WAPP::Draw(const RC& rcUpdate)
     SHEET sheet(*this);
 
     RC rcPaper(RcPaper());
-    sheet.SetPaper(rcPaper);
+    sheet.SetPaper(rcPaper, fLineNumbers);
     FillRc(rcPaper, coWhite);
     DrawRc(rcPaper, coBlack);
 
@@ -128,7 +136,7 @@ void WAPP::Draw(const RC& rcUpdate)
     for (ili = 0; ili < iliFirst; ili++)
         ls.next();
     int ipg = ipgCur;
-    sheet.Draw(ls, file, ipg, ili);
+    sheet.Draw(ls, file, ipg, ili, fLineNumbers);
 }
 
 /*
@@ -148,8 +156,8 @@ void WAPP::Print(DCP& dcp)
         int ipg = 0;
         while (!ls.eof()) {
             dcp.PageStart();
-            sheet.SetPaper(dcp.RcInterior());
-            sheet.Draw(ls, file, ipg, ili);
+            sheet.SetPaper(dcp.RcInterior(), fLineNumbers);
+            sheet.Draw(ls, file, ipg, ili, fLineNumbers);
             dcp.PageEnd();
         }
     }
@@ -166,7 +174,7 @@ void WAPP::Print(DCP& dcp)
 
 RC WAPP::RcPaper(void) const
 {
-    RC rc(RcInterior().RcInflate(-8));
+    RC rc(rcContent.RcInflate(-8));
     /* 8.5 x 11 paper in landscape mode */
     SZ szinPaper(11.0f, 8.5f);
     float wxScale = rc.dxWidth() / szinPaper.width; // pixels / inch
@@ -200,12 +208,12 @@ void WAPP::SetPage(int ipgNew)
         ipgNew = 0;
 
     SHEET sheet(*this);
-    sheet.SetPaper(RcPaper());
+    sheet.SetPaper(RcPaper(), fLineNumbers);
 
     int ili = 0;
     filesystem::path file = vfile[0];
     linestream ls(folder / file);
-    if (!sheet.FSetPage(ls, ipgNew, ili))
+    if (!sheet.FSetPage(ls, ipgNew, ili, fLineNumbers))
         return;
     
     ipgCur = ipgNew;
@@ -232,7 +240,7 @@ SHEET::SHEET(DC& dc) :
  *  rectangles and sizes we need.
  */
 
-void SHEET::SetPaper(const RC& rcPaper)
+void SHEET::SetPaper(const RC& rcPaper, bool fLineNumbers)
 {
     this->rcPaper = rcPaper;
 
@@ -264,7 +272,7 @@ void SHEET::SetPaper(const RC& rcPaper)
  *  at page number ipg and line number ili.
  */ 
 
-void SHEET::Draw(linestream& ls, filesystem::path file, int& ipg, int& ili)
+void SHEET::Draw(linestream& ls, filesystem::path file, int& ipg, int& ili, bool fLineNumbers)
 {
     CO coBorder(0.3f, 0.1f, 0.7f);
     float dxyBorder = 0.5f;
@@ -273,7 +281,7 @@ void SHEET::Draw(linestream& ls, filesystem::path file, int& ipg, int& ili)
     dc.DrawRc(rcBorder1, coBorder, dxyBorder);
     DrawHeaderFooter(file.string(), rcBorder1, rcBorder1.top, coBorder);
     DrawHeaderFooter(to_string(++ipg), rcBorder1, rcBorder1.bottom, coBorder);
-    DrawContent(ls, rcPage1, ili);
+    DrawContent(ls, rcPage1, ili, fLineNumbers);
 
     if (!ls.eof()) {
         /* draw page 2 */
@@ -282,7 +290,7 @@ void SHEET::Draw(linestream& ls, filesystem::path file, int& ipg, int& ili)
         dc.Line(rcBorder2.ptBottomRight(), rcBorder2.ptBottomLeft(), coBorder, dxyBorder);
         DrawHeaderFooter("wapp", rcBorder2, rcBorder2.top, coBorder);
         DrawHeaderFooter(to_string(++ipg), rcBorder2, rcBorder2.bottom, coBorder);
-        DrawContent(ls, rcPage2, ili);
+        DrawContent(ls, rcPage2, ili, fLineNumbers);
     }
 }
 
@@ -312,10 +320,10 @@ void SHEET::DrawHeaderFooter(const string& s, const RC& rcBorder, float y, CO co
  *  exit will be the first line of the next page.
  */
 
-void SHEET::DrawContent(linestream& ls, const RC& rcPage, int& ili)
+void SHEET::DrawContent(linestream& ls, const RC& rcPage, int& ili, bool fLineNumbers)
 {
     RC rcLine = rcPage;
-    while (FDrawLine(ls, tf, rcLine, ili))
+    while (FDrawLine(ls, tf, rcLine, ili, fLineNumbers))
         ili++;
 }
 
@@ -327,7 +335,7 @@ void SHEET::DrawContent(linestream& ls, const RC& rcPage, int& ili)
  *  page, no output is drawn and we return false. The line number will be ili.
  */
 
-bool SHEET::FDrawLine(linestream &ls, TF& tf, RC& rcLine, int ili)
+bool SHEET::FDrawLine(linestream &ls, TF& tf, RC& rcLine, int ili, bool fLineNumbers)
 {
     /* draw the line */
     SZ szNum = fLineNumbers ? dc.SzFromS("9999", tf) : SZ(0);
@@ -360,7 +368,7 @@ bool SHEET::FDrawLine(linestream &ls, TF& tf, RC& rcLine, int ili)
  *  actually changed.
  */
 
-bool SHEET::FSetPage(linestream& ls, int& ipgNew, int &iliFirst)
+bool SHEET::FSetPage(linestream& ls, int& ipgNew, int &iliFirst, bool fLineNumbers)
 {
     int ili, ipg = 0;
     RC rc(rcPage1);
@@ -370,10 +378,10 @@ bool SHEET::FSetPage(linestream& ls, int& ipgNew, int &iliFirst)
         optional<string> os = ls.next();
         if (!os)
             return false;
-        if (!FMeasureLine(*os, tf, rc)) {
+        if (!FMeasureLine(*os, tf, rc, fLineNumbers)) {
             ipg++;
             rc = rcPage1;
-            FMeasureLine(*os, tf, rc);
+            FMeasureLine(*os, tf, rc, fLineNumbers);
         }
     }
 
@@ -390,7 +398,7 @@ bool SHEET::FSetPage(linestream& ls, int& ipgNew, int &iliFirst)
  *  we return false.
  */
 
-bool SHEET::FMeasureLine(const string& s, TF& tf, RC& rcLine)
+bool SHEET::FMeasureLine(const string& s, TF& tf, RC& rcLine, bool fLineNumbers)
 {
     SZ szNum = fLineNumbers ? dc.SzFromS("9999..", tf) : SZ(0);
     SZ szLine = dc.SzFromS(SExpandTabs(s, 4), tf, rcLine.dxWidth() - szNum.width);
@@ -544,6 +552,109 @@ public:
 };
 
 /*
+ *  DLGSETTINGS
+ * 
+ *  Dialog settings
+ */
+
+DLGSETTINGS::DLGSETTINGS(WAPP& wapp) :
+    DLG(wapp),
+    title(*this, rssSettingsTitle),
+    instruct(*this, rssSettingsInstructions),
+    chkLineNumbers(*this, rssSettingsLineNumbers),
+    btnok(*this)
+{
+    chkLineNumbers.SetFontHeight(20);
+    Init(wapp);
+}
+
+void DLGSETTINGS::Init(WAPP& wapp)
+{
+    chkLineNumbers.SetValue(wapp.fLineNumbers);
+}
+
+void DLGSETTINGS::Extract(WAPP& wapp)
+{
+    wapp.fLineNumbers = chkLineNumbers.ValueGet();
+}
+
+void DLGSETTINGS::Layout(void)
+{
+    LENDLG len(*this);
+    len.Position(title);
+    /* TODO: this should happen automatically if we had the right margins on title and instruct */
+    len.AdjustMarginDy(-dxyDlgGutter / 2);
+    len.Position(instruct);
+    len.Position(chkLineNumbers);
+    len.PositionOK(btnok);
+}
+
+SZ DLGSETTINGS::SzRequestLayout(const RC& rcWithin) const
+{
+    return SZ(640, 320);
+}
+
+void DLGSETTINGS::Validate(void)
+{
+}
+
+/*
+ *  CMDSETTINGS
+ * 
+ *  THe settings command
+ */
+
+class CMDSETTINGS : public CMD<CMDSETTINGS, WAPP>
+{
+public:
+    CMDSETTINGS(WAPP& wapp) : CMD(wapp) {}
+
+    virtual int Execute(void)
+    {
+        DLGSETTINGS dlg(wapp);
+        if (!FRunDlg(dlg))
+            return 0;
+        dlg.Extract(wapp);
+        wapp.Redraw();
+        return 1;
+    }
+
+    virtual int FRunDlg(DLG& dlg) override
+    {
+        int val = dlg.MsgPump();
+        return val;
+    }
+};
+
+/*
+ *  TOOLS
+ */
+
+TOOLS::TOOLS(WAPP& wapp) : 
+    TOOLBAR(wapp),
+    btnOpen(*this, new CMDOPEN(wapp), SFromU8(u8"\U0001F9FE Open")),
+    btnOpenProject(*this, new CMDOPENPROJECT(wapp), SFromU8(u8"\U0001F4C2 Open Project")),
+    btnPrint(*this, new CMDPRINT(wapp), SFromU8(u8"\U0001F5A8 Print")),
+    btnSettings(*this, new CMDSETTINGS(wapp), SFromU8(u8"\u2699"))
+{
+    btnOpen.SetFontHeight(18);
+    btnOpenProject.SetFontHeight(18);
+    btnPrint.SetFontHeight(18);
+    btnSettings.SetFontHeight(18);
+}
+
+void TOOLS::Layout(void)
+{
+    LEN len(*this, PAD(16, 6, 16, 0), PAD(24, 0));
+    len.StartFlow();
+    len.PositionLeft(btnOpen);
+    len.PositionLeft(btnOpenProject);
+    len.PositionLeft(btnPrint);
+    len.PositionRight(btnSettings);
+    len.EndFlow();
+}
+
+/*
  *  WAPP::RegisterMenuCmds
  *
  *  Registers all the menu commands with the application.
@@ -551,111 +662,15 @@ public:
 
 void WAPP::RegisterMenuCmds()
 {
-    RegisterMenuCmd(cmdAbout, new CMDABOUT(*this));
-    RegisterMenuCmd(cmdPrint, new CMDPRINT(*this));
     RegisterMenuCmd(cmdOpen, new CMDOPEN(*this));
     RegisterMenuCmd(cmdOpenProject, new CMDOPENPROJECT(*this));
+    RegisterMenuCmd(cmdPrint, new CMDPRINT(*this));
     RegisterMenuCmd(cmdExit, new CMDEXIT(*this));
+
+    RegisterMenuCmd(cmdSettings, new CMDSETTINGS(*this));
+    RegisterMenuCmd(cmdAbout, new CMDABOUT(*this));
 
     RegisterMenuCmd(cmdNextPage, new CMDNEXTPAGE(*this));
     RegisterMenuCmd(cmdPrevPage, new CMDPREVPAGE(*this));
 }
 
-/*
- *  linestream
- *
- *  A little line stream wrapper that permits full line pushback.
- *  Detects UTF-16 and UTF-8 BOMs and converts them to UTF-8 on
- *  the fly.
- */
-
-linestream::linestream(filesystem::path file) :
-    ifs()
-{
-    switch (encode = Encode(file)) {
-    case ENCODE::Utf8:
-        ifs.open(file);
-        ifs.seekg(3);
-        break;
-    case ENCODE::Unknown:
-        ifs.open(file);
-        break;
-    case ENCODE::Utf16BE:
-    case ENCODE::Utf16LE:
-        {
-        ifs.open(file, ios::binary);
-        ifs.seekg(2);
-        break;
-        }
-    }
-}
-
-optional<string> linestream::next()
-{
-    string s;
-    if (!stackBack.empty()) {
-        s = stackBack.top();
-        stackBack.pop();
-        return s;
-    }
-
-    switch (encode) {
-    default:
-        if (!getline(ifs, s))
-            break;
-        return s;
-    case ENCODE::Utf16BE:
-    case ENCODE::Utf16LE:
-        {
-        wstring ws;
-        if (!wgetline(ifs, ws))
-            break;
-        return SFromWs(ws);
-        }
-    }
-
-    fEof = true;
-    return nullopt;
-}
-
-void linestream::push(const string& s)
-{
-    stackBack.push(s);
-}
-
-bool linestream::eof() const
-{
-    return fEof && stackBack.empty();
-}
-
-linestream::ENCODE linestream::Encode(filesystem::path file)
-{
-    ifstream ifs(file, ios::binary);
-    unsigned char bom[3];
-    ifs.read(reinterpret_cast<char*>(bom), 3);
-    if (bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF)
-        return ENCODE::Utf8;
-    if (bom[0] == 0xFF && bom[1] == 0xFE)
-        return ENCODE::Utf16LE;
-    if (bom[0] == 0xFE && bom[1] == 0xFF)
-        return ENCODE::Utf16BE;
-    return ENCODE::Unknown;
-}
-
-bool linestream::wgetline(ifstream& ifs, wstring& ws)
-{
-    ws.clear();
-    for (;;) {
-        wchar_t wch;
-        if (!ifs.read((char*)&wch, 2))
-            return ws.length() > 0;
-        if (encode == ENCODE::Utf16BE)
-            wch = _byteswap_ushort(wch);
-        if (wch == L'\n')
-            break;
-        ws.push_back(wch);
-    }
-    if (ws[ws.size() - 1] == L'\r')
-        ws.pop_back();
-    return true;
-}
