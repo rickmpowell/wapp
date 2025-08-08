@@ -51,6 +51,9 @@
     <ClCompile Include="fep.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="psqt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\1920px-Chess_Pieces_Sprite.svg.png">

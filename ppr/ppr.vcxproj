@@ -160,6 +160,11 @@
     <Image Include="ppr.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\wapp\wapp.vcxproj">
+      <Project>{d38f8636-a730-45b7-906c-0adb987405f7}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

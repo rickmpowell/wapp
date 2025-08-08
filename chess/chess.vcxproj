@@ -105,6 +105,7 @@
     <ClCompile Include="movegen.cpp" />
     <ClCompile Include="movelist.cpp" />
     <ClCompile Include="newgame.cpp" />
+    <ClCompile Include="psqt.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="wnboard.cpp" />
   </ItemGroup>

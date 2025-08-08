@@ -733,7 +733,7 @@ EV PLCOMPUTER::EvFromPst(const BD& bd) const noexcept
                          mpcpcevEnd[bd.cpcToMove] - mpcpcevEnd[~bd.cpcToMove], phaseEndFirst);
 }
 
-#include "piecetables.h"
+#include "psqt.h"
 
 /*
  *  PLCOMPUTER::InitPsts
