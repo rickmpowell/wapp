@@ -281,3 +281,38 @@ int ICMD::FRunDlg(DLG& dlg)
 
     return 1;
 }
+
+/*
+ *  CMDABOUT
+ *
+ *  The About menu command
+ */
+
+CMDABOUT::CMDABOUT(IWAPP& wapp) : 
+    CMD(wapp) 
+{
+}
+
+int CMDABOUT::Execute(void)
+{
+    DLGABOUT dlg(wapp);
+    dlg.MsgPump();
+    return 1;
+}
+
+/*
+ *  CMDEXIT
+ *
+ *  The Exit menu command
+ */
+
+CMDEXIT::CMDEXIT(IWAPP& wapp) : 
+    CMD(wapp) 
+{
+}
+
+int CMDEXIT::Execute(void)
+{
+    wapp.DestroyWnd();
+    return 1;
+}

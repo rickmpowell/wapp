@@ -118,7 +118,7 @@ class STATICL : public STATIC
 public:
     STATICL(WN& wnParent, const string& sImage, const string& sLabel, bool fVisible = true);
     STATICL(WN& wnParent, const string& wsImage, int rssLabel = -1, bool fVisible = true);
-    STATICL(WN& wnParent, int rssImage, int rssLabel = 1, bool fVisible = true);
+    STATICL(WN& wnParent, int rssImage, int rssLabel = -1, bool fVisible = true);
     virtual ~STATICL() = default;
 
     virtual void Draw(const RC& rcUpdate) override;
@@ -132,6 +132,20 @@ public:
     virtual ~STATICR() = default;
 
     virtual void Draw(const RC& rcUpdate) override;
+};
+
+class STATICICON : public CTL
+{
+public:
+    STATICICON(WN& wnParent, int rsiImage, const string& sLabel, bool fVisible = true);
+    STATICICON(WN& wnParent, int rsiImage, int rssLabel = -1, bool fVisible = true);
+    virtual ~STATICICON();
+
+    virtual void Draw(const RC& rcUpdate) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+
+private:
+    HICON hicon = NULL;
 };
 
 /*

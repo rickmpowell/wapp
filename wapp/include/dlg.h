@@ -247,3 +247,26 @@ public:
 
     virtual void DrawLabel(const RC& rcLabel) override;
 };
+
+/*
+ *  DLGABOUT
+ *
+ *  Simple about dialog that pulls information from standard resources.
+ *  to display the dialog.
+ */
+
+class DLGABOUT : public DLG
+{
+public:
+    DLGABOUT(IWAPP& wapp);
+    virtual void Layout(void) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+
+private:
+    TITLEDLG title;
+    STATICL instruct;
+    STATICL copyright;
+    STATICICON icon;
+    BTNOK btnok;
+};
+

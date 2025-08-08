@@ -409,42 +409,6 @@ bool SHEET::FMeasureLine(const string& s, TF& tf, RC& rcLine, bool fLineNumbers)
 }
 
 /*
- *  CMDABOUT
- *
- *  The About menu command
- */
-
-class CMDABOUT : public CMD<CMDABOUT, WAPP>
-{
-public:
-    CMDABOUT(WAPP& wapp) : CMD(wapp) {}
-
-    virtual int Execute(void)
-    {
-        wapp.Dialog(rsdAbout);
-        return 1;
-    }
-};
-
-/*
- *  CMDEXIT
- *
- *  The Exit menu command
- */
-
-class CMDEXIT : public CMD<CMDEXIT, WAPP>
-{
-public:
-    CMDEXIT(WAPP& wapp) : CMD(wapp) {}
-
-    virtual int Execute(void)
-    {
-        wapp.DestroyWnd();
-        return 1;
-    }
-};
-
-/*
  *  CMDNEXTPAGE
  *
  *  The Next Page menu command

@@ -267,6 +267,53 @@ void STATICR::Draw(const RC& rcUpdate)
     DrawSRight(sImage, tf, RcContent());
 }
 
+STATICICON::STATICICON(WN& wnParent, int rsiImage, const string& sLabel, bool fVisible) :
+    CTL(wnParent, nullptr, sLabel, fVisible)
+{
+    hicon = (HICON)::LoadImage(iwapp.hinst,
+                               MAKEINTRESOURCE(rsiImage),
+                               IMAGE_ICON,
+                               0, 0,
+                               LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
+}
+
+STATICICON::STATICICON(WN& wnParent, int rsiImage, int rssLabel, bool fVisible) :
+    CTL(wnParent, nullptr, rssLabel, fVisible)
+{
+    hicon = (HICON)::LoadImage(iwapp.hinst,
+                               MAKEINTRESOURCE(rsiImage),
+                               IMAGE_ICON,
+                               0, 0,
+                               LR_CREATEDIBSECTION | LR_DEFAULTSIZE);
+}
+
+STATICICON::~STATICICON()
+{
+    if (hicon)
+        ::DestroyIcon(hicon);
+}
+
+void STATICICON::Draw(const RC& rcUpdate)
+{
+    ICONINFO ii;
+    ::GetIconInfo(hicon, &ii);
+    com_ptr<IWICBitmap> pwicbmp;
+    iwapp.pfactwic->CreateBitmapFromHBITMAP(ii.hbmColor,
+                                      nullptr,
+                                      WICBitmapIgnoreAlpha,
+                                      &pwicbmp);
+    com_ptr<ID2D1Bitmap> pbmp;
+    iwapp.pdc2->CreateBitmapFromWicBitmap(pwicbmp.Get(), nullptr, &pbmp);
+    RC rc(RcInterior());
+    rc = RcgFromRc(rc);
+    iwapp.pdc2->DrawBitmap(pbmp.Get(), &rc);
+}
+
+SZ STATICICON::SzRequestLayout(const RC& rcWithin) const
+{
+    return SZ(96);
+}
+
 /*
  *  BTN
  */

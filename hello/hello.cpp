@@ -55,40 +55,6 @@ void WAPP::Draw(const RC& rcUpdate)
     DrawSCenterXY(SLoad(rssHelloWorld), tf, RcInterior());
 }
 
-/*
- *  CMDABOUT
- *
- *  The About menu command
- */
-
-class CMDABOUT : public CMD<CMDABOUT, WAPP>
-{
-public:
-    CMDABOUT(WAPP& wapp) : CMD(wapp) {}
-
-    virtual int Execute(void) {
-        wapp.Dialog(rsdAbout);
-        return 1;
-    }
-};
-
-/*
- *  CMDEXIT
- *
- *  The Exit menu command
- */
-
-class CMDEXIT : public CMD<CMDEXIT, WAPP>
-{
-public:
-    CMDEXIT(WAPP& wapp) : CMD(wapp) {}
-
-    virtual int Execute(void) {
-        wapp.DestroyWnd();
-        return 1;
-    }
-};
-
 void WAPP::RegisterMenuCmds()
 {
     RegisterMenuCmd(cmdAbout, new CMDABOUT(*this));

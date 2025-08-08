@@ -113,30 +113,6 @@ void WAPP::BdChanged(void)
  */
 
 /*
- *  CMDABOUT - The About menu command
- * 
- *  Not undoable.
- */
-
-CMDEXECUTE(CMDABOUT)
-{
-    wapp.Dialog(rsdAbout);
-    return 1;
-}
-
-/*
- *  CMDEXIT - The Exit menu command
- * 
- *  Not undoable.
- */
-
-CMDEXECUTE(CMDEXIT) 
-{
-    wapp.DestroyWnd();
-    return 1;
-}
-
-/*
  *  CMDNEWGAME - starts a new game
  * 
  *  Prompts with the new game dialog. 
@@ -205,7 +181,7 @@ public:
     {
         wapp.game.Pause();
         DLGFILEOPEN dlg(wapp);
-        dlg.mpextsLabel["pgn"] = "PGN Files (*.pgn)";
+        dlg.mpextsLabel["pgn"] = "PGN files (*.pgn)";
         dlg.mpextsLabel["epd"] = "EPD files (*.epd)";
         dlg.mpextsLabel["fen"] = "FEN files (*.fen)";
         dlg.mpextsLabel["txt"] = "Text files (*.txt)";

@@ -350,6 +350,41 @@ bool DLGPRINT::FRun(void)
 }
 
 /*
+ *  DLGABOUT
+ */
+
+DLGABOUT::DLGABOUT(IWAPP& wapp) :
+    DLG(wapp),
+    title(*this, rssAboutTitle),
+    instruct(*this, rssAboutInstruct),
+    copyright(*this, rssAboutCopyright),
+    icon(*this, rsiAppLarge),
+    btnok(*this)
+{
+    instruct.SetFontHeight(16);
+    copyright.SetFontHeight(16);
+}
+
+void DLGABOUT::Layout(void)
+{
+    LENDLG len(*this);
+    len.Position(title);
+    len.AdjustMarginDy(dxyDlgGutter / 2);
+    len.StartFlow();
+    len.PositionLeft(icon);
+    LEN len2(len.RcFlow(), PAD(0), PAD(16));
+        len2.Position(instruct);
+        len2.Position(copyright);
+    len.EndFlow();
+    len.PositionOK(btnok);
+}
+
+SZ DLGABOUT::SzRequestLayout(const RC& rcWithin) const
+{
+    return SZ(700, 360);
+}
+
+/*
  *  TITLEDLG control
  */
 

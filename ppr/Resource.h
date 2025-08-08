@@ -27,9 +27,3 @@
 #define rssSettingsTitle 16
 #define rssSettingsInstructions 17
 #define rssSettingsLineNumbers 18
-
-/*
- *  Dialogs
- */
-
-#define rsdAbout 1

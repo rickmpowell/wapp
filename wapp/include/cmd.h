@@ -221,3 +221,33 @@ private:
     int citem;
 };
 #pragma pack()
+
+/*
+ *  some standard commands 
+ */
+
+/*
+ *  CMDABOUT
+ *
+ *  The About menu command
+ */
+
+class CMDABOUT : public CMD<CMDABOUT, IWAPP>
+{
+public:
+    CMDABOUT(IWAPP& wapp);
+    virtual int Execute(void) override;
+};
+
+/*
+ *  CMDEXIT
+ *
+ *  The Exit menu command
+ */
+
+class CMDEXIT : public CMD<CMDEXIT, IWAPP>
+{
+public:
+    CMDEXIT(IWAPP& wapp);
+    virtual int Execute(void) override;
+};

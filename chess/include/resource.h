@@ -104,12 +104,6 @@
 #define rssPerftHash 1405
 
 /*
- *  Dialogs
- */
-
-#define rsdAbout 1
-
-/*
  *  PNGs
  */
 

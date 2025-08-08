@@ -14,8 +14,3 @@
 
 #define rssFirstUnused 16
 
-/*
- *  Dialogs
- */
-
-#define rsdAbout 1

@@ -29,5 +29,8 @@
 
 #define rssAppTitle 1
 #define rssInstructionBulb 2
+#define rssAboutTitle 3
+#define rssAboutInstruct 4
+#define rssAboutCopyright 5
 
 #pragma warning(pop)
