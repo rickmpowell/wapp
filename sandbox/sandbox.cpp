@@ -53,13 +53,21 @@ void WAPP::Draw(const RC& rcUpdate)
 {
 }
 
+void doit(filesystem::path file);
+
 class CMDTOKENIZE : public CMD<CMDTOKENIZE, WAPP>
 {
 public:
     CMDTOKENIZE(WAPP& wapp) : CMD(wapp) {}
     
-    virtual int Execute(void) 
+    virtual int Execute(void)
     {
+        try {
+            doit(filesystem::path("\\users\\rickp\\source\\repos") / "chess\\chess\\test\\openings" / "kingsgambit.pgn");
+        }
+        catch (...) {
+            wapp.Error("parse failed");
+        }
         return 1;
     }
 };
