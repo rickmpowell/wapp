@@ -15,31 +15,46 @@
 class WAPP;
 
 /*
- *  SHEET  class
+ *  printer settings
+ */
+
+struct SETPPR
+{
+    bool fLineNumbers;
+    bool fTwoSided;
+};
+
+/*
+ *  PAPER class
  * 
  *  Helper class that renders a page
  */
 
-class SHEET
+class PAPER
 {
 public:
-    SHEET(DC& dc);
+    PAPER(DC& dc);
 
-    void SetPaper(const RC& rcPaper, bool fLineNumbers);
-    void Draw(linestream& ls, filesystem::path file, int& ipg, int& ili, bool fLineNumbers);
+    void SetPaper(int ipaper, const RC& rcPaper, const SETPPR& set);
+    void Draw(linestream& ls, filesystem::path file, int& ipg, int& ili, const SETPPR& set);
  
-    void DrawContent(linestream& ls, const RC& rcPage, int& ili, bool fLineNumbers);
+    void DrawContent(linestream& ls, const RC& rcPage, int& ili, const SETPPR& set);
     void DrawHeaderFooter(const string& s, const RC& rcBorder, float y, CO coBorder);
-    bool FDrawLine(linestream& ls, TF& tf, RC& rcLine, int ili, bool fLineNumbers);
+    bool FDrawLine(linestream& ls, TF& tf, RC& rcLine, int ili, const SETPPR& set);
 
-    bool FSetPage(linestream& ls, int& ipgNew, int& iliFirst, bool fLineNumbers);
-    bool FMeasureLine(const string& s, TF& tf, RC& rcLine, bool fLineNumbers);
+    bool FSetPage(linestream& ls, int& ipgNew, int& iliFirst, const SETPPR& set);
+    bool FMeasureLine(const string& s, TF& tf, RC& rcLine, const SETPPR& set);
 
     DC& dc;
     TF tf;
 
     RC rcPaper;
-    float dyLine;
+    float dyLine = 2;
+    float dxFont = 1;
+    float dxLineNumbers = 4;
+    float dxLineNumbersMargin = 2;
+    float dxyPaperMargin = 2;
+    float dxyPageMargin = 2;
     RC rcBorder1;
     RC rcBorder2;
     RC rcPage1;
@@ -84,6 +99,7 @@ private:
     TITLEDLG title;
     INSTRUCT instruct;
     CHK chkLineNumbers;
+    CHK chkTwoSided;
     BTNOK btnok;
 };
 
@@ -119,7 +135,8 @@ public:
     filesystem::path folder;
     filesystem::path file;
     vector<filesystem::path> vfile;
-    int ipgCur = 0;
+    int ipaperJob = 0;
+    int ipgFile = 0;
     int iliFirst = 0;
-    bool fLineNumbers = true;
+    SETPPR set = { true, false };
 };

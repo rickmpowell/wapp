@@ -454,7 +454,6 @@ class GENHA
 {
 public:
     GENHA(void);
-    HA HaRandom(void);
     HA HaFromBd(const BD& bd) const;
     HA HaPolyglotFromBd(const BD& bd) const;
     bool FEnPassantPolyglot(const BD& bd) const;
@@ -512,15 +511,10 @@ private:
     static HA ahaCastle[16];
     static HA ahaEnPassant[8];
     static HA haToMove;
-
-    /* hash data can be random, but there are 3rd party tools that use hard-coded
-       values, which is this */
-
-    int ihaRandom;
-    static const uint64_t ahaRandom[781];
 };
 
 extern GENHA genha;
+HA HaRandom(void);
 
 /*
  *  EV type

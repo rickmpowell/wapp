@@ -122,10 +122,10 @@ CO WAPP::CoBack(void) const
 
 void WAPP::Draw(const RC& rcUpdate)
 {
-    SHEET sheet(*this);
+    PAPER paper(*this);
 
     RC rcPaper(RcPaper());
-    sheet.SetPaper(rcPaper, fLineNumbers);
+    paper.SetPaper(ipaperJob, rcPaper, set);
     FillRc(rcPaper, coWhite);
     DrawRc(rcPaper, coBlack);
 
@@ -135,8 +135,8 @@ void WAPP::Draw(const RC& rcUpdate)
     int ili = 0;
     for (ili = 0; ili < iliFirst; ili++)
         ls.next();
-    int ipg = ipgCur;
-    sheet.Draw(ls, file, ipg, ili, fLineNumbers);
+    int ipg = ipgFile;
+    paper.Draw(ls, file, ipg, ili, set);
 }
 
 /*
@@ -147,18 +147,20 @@ void WAPP::Draw(const RC& rcUpdate)
 
 void WAPP::Print(DCP& dcp)
 {
-    SHEET sheet(dcp);
+    PAPER paper(dcp);
     dcp.Start();
 
+    int ipaper = 0;
     for (auto file : vfile) {
         linestream ls(folder /file);
         int ili = 0;
         int ipg = 0;
         while (!ls.eof()) {
             dcp.PageStart();
-            sheet.SetPaper(dcp.RcInterior(), fLineNumbers);
-            sheet.Draw(ls, file, ipg, ili, fLineNumbers);
+            paper.SetPaper(ipaper, dcp.RcInterior(), set);
+            paper.Draw(ls, file, ipg, ili, set);
             dcp.PageEnd();
+            ipaper++;
         }
     }
 
@@ -193,7 +195,7 @@ RC WAPP::RcPaper(void) const
 
 void WAPP::Wheel(const PT& pt, int dwheel)
 {
-    SetPage(ipgCur - (dwheel / 120) * 2);
+    SetPage(ipaperJob - (dwheel / 120));
 }
 
 /*
@@ -202,77 +204,146 @@ void WAPP::Wheel(const PT& pt, int dwheel)
  *  Sets the first page being displayed to ipgNew.
  */
 
-void WAPP::SetPage(int ipgNew)
+void WAPP::SetPage(int ipaperNew)
 {
-    if (ipgNew < 0)
-        ipgNew = 0;
+    if (ipaperNew < 0)
+        ipaperNew = 0;
 
-    SHEET sheet(*this);
-    sheet.SetPaper(RcPaper(), fLineNumbers);
+    PAPER paper(*this);
+    paper.SetPaper(ipaperJob, RcPaper(), set);
 
     int ili = 0;
     filesystem::path file = vfile[0];
     linestream ls(folder / file);
-    if (!sheet.FSetPage(ls, ipgNew, ili, fLineNumbers))
+    int ipgNew = ipaperNew * 2;
+    if (!paper.FSetPage(ls, ipgNew, ili, set))
         return;
     
-    ipgCur = ipgNew;
+    ipgFile = ipgNew;
+    ipaperJob = ipgFile / 2;
     iliFirst = ili;
     Redraw();
 }
 
 /*
- *  SJEEET
+ *  PAPER
  *
  *  The sheet class that handles drawing and pagination of the document.
  */
 
-SHEET::SHEET(DC& dc) :
+PAPER::PAPER(DC& dc) :
     dc(dc),
     tf(dc, "Cascadia Mono", 12, TF::WEIGHT::Normal)
 {
 }
 
 /*
- *  SHEET::SetPaper
+ *  PAPER::SetPaper
  *
  *  Sets the paper rectangle to rcPaper, and computes all the other
  *  rectangles and sizes we need.
  */
 
-void SHEET::SetPaper(const RC& rcPaper, bool fLineNumbers)
+void PAPER::SetPaper(int ipaper, const RC& rcPaper, const SETPPR& set)
 {
     this->rcPaper = rcPaper;
 
-   /* compute font size */
-    const int cchLine = 100;
-    const int cchLineNumber = fLineNumbers ? 4+2 : 0;
-    const int cchPage = 2 + cchLineNumber + cchLine + 2;
+    /*  OK, we have some math to do here. If we change the layout of the page
+     *  we hae to change these computations
+     *
+     *  horizontal layout is:
+     *
+     *  dxPaper = dxStapleSpace + dxBorder + dxPage + dxBorder + dxPage + dxBorder + dxPaperMargin
+     *          = dxStapleSpace + 3*dxBorder + 2*dxPage + dxPaperMargin        
+     *  dxStapleSpace = 0.5 inches
+     *  dxBorder = 1
+     *  dxPage = dxPageMargin + dxLineNumberArea + dxContent + dxPageMargin
+     *  dxPageMargin = dxyPageMargin
+     *  dxLineNumberArea = dxLineNumbers + dxLineNumberMargin
+     *  dxContent = n * dxChar
+     *  dxPaperMargin = dxyPaperMargin
+     *  dxyPageMargin = dyChar
+     *  dxLineNumbers = 4 * dxChar
+     *  dxLineNumberMargin = 2*dxChar
+     *  dxyPaperMargin = dyChar
+     *
+     *  dyChar = dxChar * aspect
+     *
+     *  Put everything in terms of dxChar:
+     *
+     *  dxyPaperMargin = aspect * dxChar
+     *  dxLineNumbers = 4 * dxChar
+     *  dxyPageMargin = aspect * dxChar
+     *  dxPaperMargin = aspect * dxChar
+     *  dxContent = n * dxChar
+     *  dxLineNumberArea = 4*dxChar + 2*dxChar 
+     *  dxPageMargin = aspect * dxChar
+     *  dxBorder = 1
+     *  dxStapleSpace = 0.5 inches
+     *  dxPage = aspect*dxChar + 5*dxChar + n*dxChar + aspect*dxChar
+     *         = (2*aspect + 5 + n) * dxChar
+     *  dxPaper = 0.5 in + 3*1 + 2*(2*aspect + 6 + n) * dxChar + aspect * dxChar
+     *          = 0.5in + 3 + (5*aspect + 12 + 2*n) * dxChar
+     *  
+     *  dxChar = (dxPaper - (0.5in + 3)) / (5*aspect + 12 + 2*n)
+     *
+     *  Also:
+     *
+     *  0.5in = 0.5 * dxPerInch
+     *  where dxPerIn = dxPaper / 11
+     *  0.5in = 0.5 * dxPaper / 11
+     *
+     *  dxChar = (dxPaper - (0.5*dxPaper/11 + 3)) / (5*aspect + 10 + 2*n)
+     *         = ((dxPaper * 10.5/11) - 3) / (5*aspect + 2*(nNum+n))
+     *
+     *  where nNum = 6 or 0
+     */
+
+    /* our goal layout */
+    const int cchLine = 92;
+    const int cchLineNumbers = set.fLineNumbers ? (4+2) : 0;
+    const float dxyBorder = 1;
+    float dxStaple = 0.5f * rcPaper.dxWidth() / 11.0f;
+
+    /* get information on our font so we can guess how much space we'll need */
     FM fm = dc.FmFromTf(tf);
-    float dxFont = rcPaper.dxWidth() / (6 + 2*cchPage + 3);
+    SZ szAspect = dc.SzFromS("9", tf);
+    float aspect = (fm.dyAscent+fm.dyDescent) / szAspect.width;
+
+    /* our magic computation shown in the comment above */
+    dxFont = (rcPaper.dxWidth() - dxStaple - 3*dxyBorder) / (cchLineNumbers*aspect + 2 * (cchLineNumbers + cchLine));
+
+    /* get the actual font metrics */
     tf.SetWidth(dc, dxFont);
     fm = dc.FmFromTf(tf);
     dyLine = fm.dyAscent + fm.dyDescent + fm.dyLineGap;
+    dxLineNumbers = cchLineNumbers*dxFont;
+    dxLineNumbersMargin = 2*dxFont;
 
     /* compute borders */
-    RC rcBorder = rcPaper.RcInflate(-2*dxFont);
-    rcBorder.left += 2 * dxFont;
+    dxyPaperMargin = dyLine;
+    RC rcBorder(rcPaper.RcInflate(-dxyPaperMargin));
+    if (!set.fTwoSided || ipaper % 2 == 0)
+        rcBorder.left += dxStaple - dxyPaperMargin;
+    else
+        rcBorder.right -= dxStaple - dxyPaperMargin;
     rcBorder1 = rcBorder.RcSetRight(rcBorder.xCenter());
     rcBorder2 = rcBorder1.RcTileRight(0);
 
     /* compute pages */
-    rcPage1 = rcBorder1.RcInflate(-dxFont, -dyLine);
-    rcPage2 = rcBorder2.RcInflate(-dxFont, -dyLine);
+    dxyPageMargin = dyLine;
+    rcPage1 = rcBorder1.RcInflate(-dxFont-dxyBorder, -dyLine-dxyBorder);
+    rcPage2 = rcBorder2.RcInflate(-dxFont-dxyBorder, -dyLine-dxyBorder);
 }
 
 /*
- *  SHEET::Draw
+ *  PAPER::Draw
  *
  *  Draws two pages of the document from the line stream ls, starting
  *  at page number ipg and line number ili.
  */ 
 
-void SHEET::Draw(linestream& ls, filesystem::path file, int& ipg, int& ili, bool fLineNumbers)
+void PAPER::Draw(linestream& ls, filesystem::path file, int& ipg, int& ili, const SETPPR& set)
 {
     CO coBorder(0.3f, 0.1f, 0.7f);
     float dxyBorder = 0.5f;
@@ -280,8 +351,9 @@ void SHEET::Draw(linestream& ls, filesystem::path file, int& ipg, int& ili, bool
     /* draw page 1 */
     dc.DrawRc(rcBorder1, coBorder, dxyBorder);
     DrawHeaderFooter(file.string(), rcBorder1, rcBorder1.top, coBorder);
-    DrawHeaderFooter(to_string(++ipg), rcBorder1, rcBorder1.bottom, coBorder);
-    DrawContent(ls, rcPage1, ili, fLineNumbers);
+    DrawHeaderFooter(to_string(ipg+1), rcBorder1, rcBorder1.bottom, coBorder);
+    DrawContent(ls, rcPage1, ili, set);
+    ipg++;
 
     if (!ls.eof()) {
         /* draw page 2 */
@@ -289,13 +361,14 @@ void SHEET::Draw(linestream& ls, filesystem::path file, int& ipg, int& ili, bool
         dc.Line(rcBorder2.ptTopRight(), rcBorder2.ptBottomRight(), coBorder, dxyBorder);
         dc.Line(rcBorder2.ptBottomRight(), rcBorder2.ptBottomLeft(), coBorder, dxyBorder);
         DrawHeaderFooter("wapp", rcBorder2, rcBorder2.top, coBorder);
-        DrawHeaderFooter(to_string(++ipg), rcBorder2, rcBorder2.bottom, coBorder);
-        DrawContent(ls, rcPage2, ili, fLineNumbers);
+        DrawHeaderFooter(to_string(ipg+1), rcBorder2, rcBorder2.bottom, coBorder);
+        DrawContent(ls, rcPage2, ili, set);
+        ipg++;
     }
 }
 
 /*
- *  SHEET::DrawHeaderFooter
+ *  PAPER::DrawHeaderFooter
  *
  *  Draws the header or footer text on top of the page border for the page,
  *  using text s and border for the page rcPage. y is the vertical position
@@ -303,7 +376,7 @@ void SHEET::Draw(linestream& ls, filesystem::path file, int& ipg, int& ili, bool
  *  footer), using color coBorder.
  */
 
-void SHEET::DrawHeaderFooter(const string& s, const RC& rcBorder, float y, CO coBorder)
+void PAPER::DrawHeaderFooter(const string& s, const RC& rcBorder, float y, CO coBorder)
 {
     SZ sz = dc.SzFromS(s, tf);
     RC rc = RC(PT(rcBorder.xCenter() - sz.width / 2, y - sz.height / 2), sz);
@@ -313,17 +386,17 @@ void SHEET::DrawHeaderFooter(const string& s, const RC& rcBorder, float y, CO co
 }
 
 /*
- *  SHEET::DrawContent
+ *  PAPER::DrawContent
  *
  *  Draws content from ifs to the page encompassed by rcPage, with page numbers
  *  starting at ili. The string s contains the first line of the page, and on
  *  exit will be the first line of the next page.
  */
 
-void SHEET::DrawContent(linestream& ls, const RC& rcPage, int& ili, bool fLineNumbers)
+void PAPER::DrawContent(linestream& ls, const RC& rcPage, int& ili, const SETPPR& set)
 {
     RC rcLine = rcPage;
-    while (FDrawLine(ls, tf, rcLine, ili, fLineNumbers))
+    while (FDrawLine(ls, tf, rcLine, ili, set))
         ili++;
 }
 
@@ -335,25 +408,23 @@ void SHEET::DrawContent(linestream& ls, const RC& rcPage, int& ili, bool fLineNu
  *  page, no output is drawn and we return false. The line number will be ili.
  */
 
-bool SHEET::FDrawLine(linestream &ls, TF& tf, RC& rcLine, int ili, bool fLineNumbers)
+bool PAPER::FDrawLine(linestream &ls, TF& tf, RC& rcLine, int ili, const SETPPR& set)
 {
     /* draw the line */
-    SZ szNum = fLineNumbers ? dc.SzFromS("9999", tf) : SZ(0);
-    SZ szNumMargin = fLineNumbers ? dc.SzFromS("..", tf) : SZ(0);
     optional<string> os = ls.next();
     if (!os)
         return false;
     string s = SExpandTabs(*os, 4);
-    SZ szLine = dc.SzFromS(SExpandTabs(s, 4), tf, rcLine.dxWidth() - szNum.width - szNumMargin.width);
+    SZ szLine = dc.SzFromS(SExpandTabs(s, 4), tf, rcLine.dxWidth() - dxLineNumbers);
     if (rcLine.top + szLine.height > rcLine.bottom) {
         ls.push(*os);
         return false;
     }
 
     RC rc(rcLine);
-    if (fLineNumbers) {
-        dc.DrawSRight(to_string(ili + 1), tf, rc.RcSetRight(rc.left + szNum.width), coGray);
-        rc.left += szNum.width + dyLine;
+    if (set.fLineNumbers) {
+        dc.DrawSRight(to_string(ili + 1), tf, rc.RcSetRight(rc.left + (dxLineNumbers - dxLineNumbersMargin)), coGray);
+        rc.left += dxLineNumbers;
     }
 
     dc.DrawS(s, tf, rc);
@@ -362,13 +433,13 @@ bool SHEET::FDrawLine(linestream &ls, TF& tf, RC& rcLine, int ili, bool fLineNum
 }
 
 /*
- *  SHEET::FSetPage
+ *  PAPER::FSetPage
  * 
  *  Sets the page on the file ifs to ipgNew. Returns true if something
  *  actually changed.
  */
 
-bool SHEET::FSetPage(linestream& ls, int& ipgNew, int &iliFirst, bool fLineNumbers)
+bool PAPER::FSetPage(linestream& ls, int& ipgNew, int &iliFirst, const SETPPR& set)
 {
     int ili, ipg = 0;
     RC rc(rcPage1);
@@ -378,10 +449,10 @@ bool SHEET::FSetPage(linestream& ls, int& ipgNew, int &iliFirst, bool fLineNumbe
         optional<string> os = ls.next();
         if (!os)
             return false;
-        if (!FMeasureLine(*os, tf, rc, fLineNumbers)) {
+        if (!FMeasureLine(*os, tf, rc, set)) {
             ipg++;
             rc = rcPage1;
-            FMeasureLine(*os, tf, rc, fLineNumbers);
+            FMeasureLine(*os, tf, rc, set);
         }
     }
 
@@ -391,17 +462,16 @@ bool SHEET::FSetPage(linestream& ls, int& ipgNew, int &iliFirst, bool fLineNumbe
 }
 
 /*
- *  SHEET::FMeasureLine
+ *  PAPER::FMeasureLine
  *
  *  Measures the line s using font tf in the area surrounded by rcLine. On exit,
  *  rcLine contains the area left on the page. If the line doesn't fit on the
  *  we return false.
  */
 
-bool SHEET::FMeasureLine(const string& s, TF& tf, RC& rcLine, bool fLineNumbers)
+bool PAPER::FMeasureLine(const string& s, TF& tf, RC& rcLine, const SETPPR& set)
 {
-    SZ szNum = fLineNumbers ? dc.SzFromS("9999..", tf) : SZ(0);
-    SZ szLine = dc.SzFromS(SExpandTabs(s, 4), tf, rcLine.dxWidth() - szNum.width);
+    SZ szLine = dc.SzFromS(SExpandTabs(s, 4), tf, rcLine.dxWidth() - dxLineNumbers);
     if (rcLine.top + szLine.height > rcLine.bottom)
         return false;
     rcLine.top += szLine.height;
@@ -421,7 +491,7 @@ public:
 
     virtual int Execute(void)
     {
-        wapp.SetPage(wapp.ipgCur + 2);
+        wapp.SetPage(wapp.ipaperJob + 1);
         return 1;
     }
 };
@@ -439,7 +509,7 @@ public:
 
     virtual int Execute(void)
     {
-        wapp.SetPage(wapp.ipgCur - 2);
+        wapp.SetPage(wapp.ipaperJob - 1);
         return 1;
     }
 };
@@ -526,20 +596,24 @@ DLGSETTINGS::DLGSETTINGS(WAPP& wapp) :
     title(*this, rssSettingsTitle),
     instruct(*this, rssSettingsInstructions),
     chkLineNumbers(*this, rssSettingsLineNumbers),
+    chkTwoSided(*this, rssSettingsTwoSided),
     btnok(*this)
 {
     chkLineNumbers.SetFontHeight(20);
+    chkTwoSided.SetFontHeight(20);
     Init(wapp);
 }
 
 void DLGSETTINGS::Init(WAPP& wapp)
 {
-    chkLineNumbers.SetValue(wapp.fLineNumbers);
+    chkLineNumbers.SetValue(wapp.set.fLineNumbers);
+    chkTwoSided.SetValue(wapp.set.fTwoSided);
 }
 
 void DLGSETTINGS::Extract(WAPP& wapp)
 {
-    wapp.fLineNumbers = chkLineNumbers.ValueGet();
+    wapp.set.fLineNumbers = chkLineNumbers.ValueGet();
+    wapp.set.fTwoSided = chkTwoSided.ValueGet();
 }
 
 void DLGSETTINGS::Layout(void)
@@ -550,12 +624,13 @@ void DLGSETTINGS::Layout(void)
     len.AdjustMarginDy(-dxyDlgGutter / 2);
     len.Position(instruct);
     len.Position(chkLineNumbers);
+    len.Position(chkTwoSided);
     len.PositionOK(btnok);
 }
 
 SZ DLGSETTINGS::SzRequestLayout(const RC& rcWithin) const
 {
-    return SZ(640, 320);
+    return SZ(600, 480);
 }
 
 void DLGSETTINGS::Validate(void)

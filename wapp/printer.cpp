@@ -121,7 +121,7 @@ void DCP::SetFontWidth(TF& tf, float dxWidth)
     ::SelectObject(hdc, hfontSav);
     LOGFONTW lf;
     ::GetObject(tf.hfont, sizeof(lf), &lf);
-    lf.lfHeight = (int)roundf((float)tm.tmHeight * dxWidth / (float)tm.tmAveCharWidth);
+    lf.lfHeight = -(int)roundf((float)(tm.tmHeight-tm.tmInternalLeading) * dxWidth / (float)tm.tmAveCharWidth);
     lf.lfWidth = 0;// (int)roundf(dxWidth);
     ::DeleteObject(tf.hfont);
     tf.hfont = NULL;
@@ -229,7 +229,8 @@ FM DCP::FmFromTf(const TF& tf) const
     fm.dyDescent = (float)tm.tmDescent;
     fm.dyXHeight = (float)3*tm.tmAscent/4;
     fm.dyCapHeight = (float)(tm.tmAscent - tm.tmInternalLeading);
-    fm.dyLineGap = (float)(tm.tmHeight - tm.tmInternalLeading);
+
+    fm.dyLineGap = (float)tm.tmExternalLeading;
 
     return fm;
 }

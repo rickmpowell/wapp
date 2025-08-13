@@ -27,3 +27,4 @@
 #define rssSettingsTitle 16
 #define rssSettingsInstructions 17
 #define rssSettingsLineNumbers 18
+#define rssSettingsTwoSided 19

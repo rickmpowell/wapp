@@ -7,6 +7,7 @@
  */
 
 #include "player.h"
+#include "psqt.h"
 
 /*
  *  AB
@@ -184,14 +185,8 @@ public:
 
     virtual EV EvStatic(BD& bd) noexcept;
     /* piece square tables */
-    EV EvFromPst(const BD& bd) const noexcept;
+    EV EvFromPsqt(const BD& bd) const noexcept;
     void InitPsts(void) noexcept;
-    void InitPst(EV mpcptev[cptMax],
-                 EV mpcptsqdev[cptMax][sqMax],
-                 EV mpcpsqev[cpMax][sqMax]) noexcept;
-    EV EvInterpolate(int phase,
-                     EV evFirst, int phaseFirst,
-                     EV evLim, int phaseLim) const noexcept;
     EV mpcpsqevMid[cpMax][sqMax];
     EV mpcpsqevEnd[cpMax][sqMax];
 
