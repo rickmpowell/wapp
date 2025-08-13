@@ -695,7 +695,7 @@ EV PLCOMPUTER::EvStatic(BD& bd) noexcept
 {
     cmvEval++;
     EV ev = 0;
-    ev += EvFromPst(bd);
+    ev += EvFromPsqt(bd);
     /* tempo adjustment causes alternating depth eval oscillation that messes 
        with the aspiration window optimization */
     // ev += evTempo;  
@@ -703,13 +703,13 @@ EV PLCOMPUTER::EvStatic(BD& bd) noexcept
 }
 
 /*
- *  PLCOMPUTER:EvFromPst
+ *  PLCOMPUTER:EvFromPsqt
  *
  *  Returns the piece value table board evaluation for the side with
  *  the move.
  */
 
-EV PLCOMPUTER::EvFromPst(const BD& bd) const noexcept
+EV PLCOMPUTER::EvFromPsqt(const BD& bd) const noexcept
 {
     EV mpcpcevMid[2] = { 0, 0 };
     EV mpcpcevEnd[2] = { 0, 0 };
@@ -733,8 +733,6 @@ EV PLCOMPUTER::EvFromPst(const BD& bd) const noexcept
                          mpcpcevEnd[bd.cpcToMove] - mpcpcevEnd[~bd.cpcToMove], phaseEndFirst);
 }
 
-#include "psqt.h"
-
 /*
  *  PLCOMPUTER::InitPsts
  *
@@ -745,32 +743,8 @@ EV PLCOMPUTER::EvFromPst(const BD& bd) const noexcept
 
 void PLCOMPUTER::InitPsts(void) noexcept
 {
-    InitPst(mpcptevMid, mpcptsqdevMid, mpcpsqevMid);
-    InitPst(mpcptevEnd, mpcptsqdevEnd, mpcpsqevEnd);
-}
-
-void PLCOMPUTER::InitPst(EV mpcptev[cptMax], EV mpcptsqdev[cptMax][sqMax], EV mpcpsqev[cpMax][sqMax]) noexcept
-{
-    memset(mpcpsqev, 0, sizeof(EV)*cpMax*sqMax);
-    for (CPT cpt = cptPawn; cpt < cptMax; ++cpt) {
-        for (SQ sq = 0; sq < sqMax; ++sq) {
-            mpcpsqev[Cp(cpcWhite, cpt)][sq] = mpcptev[cpt] + mpcptsqdev[cpt][SqFlip(sq)];
-            mpcpsqev[Cp(cpcBlack, cpt)][sq] = mpcptev[cpt] + mpcptsqdev[cpt][sq];
-        }
-    }
-}
-
-/*
- *  PLCOMPUTER::EvInterpolate
- *
- *  Interpolate the piece value evaluation based on game phase
- */
-
-EV PLCOMPUTER::EvInterpolate(int phaseCur, EV evFirst, int phaseFirst, EV evLim, int phaseLim) const noexcept
-{
-    assert(phaseCur >= phaseFirst && phaseCur <= phaseLim);
-    return (evFirst * (phaseLim-phaseFirst) + 
-           (evLim-evFirst) * (phaseCur-phaseFirst)) / (phaseLim-phaseFirst);
+    InitPsqt(mpcptevMid, mpcptsqdevMid, mpcpsqevMid);
+    InitPsqt(mpcptevEnd, mpcptsqdevEnd, mpcpsqevEnd);
 }
 
 /*
@@ -802,7 +776,7 @@ void PLCOMPUTER::ScoreCapture(BD& bd, MV& mv) noexcept
 void PLCOMPUTER::ScoreMove(BD& bd, MV& mv) noexcept
 {
     bd.MakeMv(mv);
-    mv.ev = -(EvFromPst(bd) + EvAttackDefend(bd, mv));
+    mv.ev = -(EvFromPsqt(bd) + EvAttackDefend(bd, mv));
     bd.UndoMv();
 }
 

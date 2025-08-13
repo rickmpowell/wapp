@@ -100,6 +100,7 @@
     <ClCompile Include="computer.cpp" />
     <ClCompile Include="fep.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="hash.cpp" />
     <ClCompile Include="human.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="movegen.cpp" />
@@ -158,8 +159,8 @@
     <ClInclude Include="include\game.h" />
     <ClInclude Include="include\movelist.h" />
     <ClInclude Include="include\newgame.h" />
-    <ClInclude Include="include\piecetables.h" />
     <ClInclude Include="include\player.h" />
+    <ClInclude Include="include\psqt.h" />
     <ClInclude Include="include\resource.h" />
     <ClInclude Include="include\test.h" />
   </ItemGroup>

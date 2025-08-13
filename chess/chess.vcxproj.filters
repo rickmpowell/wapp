@@ -54,6 +54,9 @@
     <ClCompile Include="psqt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="hash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\1920px-Chess_Pieces_Sprite.svg.png">
@@ -176,13 +179,13 @@
     <ClInclude Include="include\test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\piecetables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\movelist.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\computer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\psqt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
