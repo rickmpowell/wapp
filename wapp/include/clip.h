@@ -13,7 +13,7 @@
 #include <streambuf>
 class IWAPP;
 
-/*
+/**
  *  iclipstream
  * 
  *  An istream compatible input stream that interacts with CF_TEXT
@@ -46,7 +46,7 @@ private:
 };
 #pragma pack()
 
-/*
+/**
  *  oclipstream
  * 
  *  Stream that writes text to the clipboard.

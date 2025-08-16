@@ -23,8 +23,8 @@
 class WAPP;
 class DLG;
 
-/*
- *  ICMD class
+/**
+ *  ICMD
  * 
  *  The actual command object. These objects live inside various UI elements
  *  within the application, and are cloned in order to execute them. This 
@@ -71,8 +71,10 @@ public:
     virtual int FRunDlg(DLG& dlg);
 };
 
-/*
- *  CMD command base class
+/**
+ *  CMD
+ *
+ *  command base class
  *
  *  Keeps some standard information around that is useful for all the commands
  *  in the applciation. 
@@ -112,7 +114,9 @@ public:
     WAPP& wapp;
 };
 
-/*
+/**
+ *  menuiterator
+ * 
  *  A Windows menu enumerator
  */
 
@@ -194,6 +198,12 @@ private:
 };
 #pragma pack()
 
+/**
+ *  MENU
+ * 
+ *  A wrapper cloass around the Windows HMENU
+ */
+
 #pragma pack(1)
 class MENU
 {
@@ -226,7 +236,7 @@ private:
  *  some standard commands 
  */
 
-/*
+/**
  *  CMDABOUT
  *
  *  The About menu command
@@ -239,7 +249,7 @@ public:
     virtual int Execute(void) override;
 };
 
-/*
+/**
  *  CMDEXIT
  *
  *  The Exit menu command

@@ -176,6 +176,10 @@ DocProject/Help/*.hhp
 DocProject/Help/Html2
 DocProject/Help/html
 
+# doxygen generated documentation
+doc/html/
+dox/latex/
+
 # Click-Once directory
 publish/
 

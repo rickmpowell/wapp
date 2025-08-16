@@ -12,9 +12,9 @@
 class VSEL;
 class CYCLE;
 
-/*
- *  CTL base class
- * 
+/**
+ *  CTL 
+ *
  *  The base class used for all controls, which just implements common functionality.
  * 
  *  TODO: every CTL creates a font. There must be a more efficient way.
@@ -86,8 +86,10 @@ protected:
     CDS cdsCur = CDS::None;
 };
 
-/*
- *  static controls
+/**
+ *  STATIC
+ * 
+ *  Base class for no-UI static controls
  */
 
 class STATIC : public CTL
@@ -113,6 +115,12 @@ protected:
     string sImage;
 };
 
+/**
+ *  STATICL
+ * 
+ *  Static text control, left aligned.
+ */
+
 class STATICL : public STATIC
 {
 public:
@@ -124,6 +132,12 @@ public:
     virtual void Draw(const RC& rcUpdate) override;
 };
 
+/**
+ *  STATICR
+ * 
+ *  Static text control, right aligned
+ */
+
 class STATICR : public STATIC
 {
 public:
@@ -133,6 +147,12 @@ public:
 
     virtual void Draw(const RC& rcUpdate) override;
 };
+
+/**
+ *  STATICICON
+ * 
+ *  Static icon control
+ */
 
 class STATICICON : public CTL
 {
@@ -148,9 +168,9 @@ private:
     HICON hicon = NULL;
 };
 
-/*
- *  BTN class
- * 
+/**
+ *  BTN
+ *
  *  The simple button control. Buttons are square UI elements that interact with the mous 
  *  eevents, and launch a command when pressed.
  */
@@ -167,7 +187,7 @@ public:
     virtual void Draw(const RC& rcUpdate) override;
 };
 
-/*
+/**
  *  BTNS
  * 
  *  Button with a line of text for its image
@@ -188,7 +208,7 @@ protected:
     string sImage;
  };
 
-/*
+/**
  *  BTNCLOSE
  * 
  *  A close button for use in titlebars and dialogs
@@ -206,7 +226,7 @@ public:
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 };
 
-/*
+/**
  *  BTNNEXT
  * 
  *  A next button, just a little arrow pointing to the right
@@ -225,7 +245,7 @@ public:
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 };
 
-/*
+/**
  *  BTNPREV
  * 
  *  A previous button, just a little arrow pointing to the left
@@ -240,27 +260,13 @@ public:
     virtual void Draw(const RC& rcUpdate) override;
 };
 
-/*
+/**
  *  CHK
  * 
  *  Checkbox control
  */
 
 class CHK;
-
-class CMDCHK : public ICMD
-{
-public:
-    CMDCHK(CHK& chk);
-    CMDCHK(const CMDCHK& cmd) = default;
-    CMDCHK& operator = (const CMDCHK& cmd) = default;
-
-    virtual ICMD* clone(void) const override;
-    virtual int Execute(void) override;
-
-private:
-    CHK& chk;
-};
 
 class CHK : public CTL
 {
@@ -282,11 +288,47 @@ private:
     bool f = false;
 };
 
-/*
+class CMDCHK : public ICMD
+{
+public:
+    CMDCHK(CHK& chk);
+    CMDCHK(const CMDCHK& cmd) = default;
+    CMDCHK& operator = (const CMDCHK& cmd) = default;
+
+    virtual ICMD* clone(void) const override;
+    virtual int Execute(void) override;
+
+private:
+    CHK& chk;
+};
+
+/**
  *  CYCLE
  * 
  *  A control with an up and down button to cycle through options
  */
+
+class CYCLE : public CTL
+{
+public:
+    CYCLE(WN& wnParent, ICMD* pcmd);
+    virtual ~CYCLE() = default;
+
+    virtual void Draw(const RC& rcUpdate) override;
+    virtual void Layout(void) override;
+    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+
+    virtual void Next(void);
+    virtual void Prev(void);
+
+    void SetValue(int val);
+    int ValueGet(void) const;
+
+private:
+    BTNNEXT btnnext;
+    BTNPREV btnprev;
+    int i;
+};
 
 class CMDCYCLENEXT : public ICMD
 {
@@ -316,30 +358,11 @@ private:
     CYCLE& cycle;
 };
 
-class CYCLE : public CTL
-{
-public:
-    CYCLE(WN& wnParent, ICMD* pcmd);
-    virtual ~CYCLE() = default;
 
-    virtual void Draw(const RC& rcUpdate) override;
-    virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
-
-    virtual void Next(void);
-    virtual void Prev(void);
-
-    void SetValue(int val);
-    int ValueGet(void) const;
-
-private:
-    BTNNEXT btnnext;
-    BTNPREV btnprev;
-    int i;
-};
-
-/*
+/**
  *  TITLEBAR
+ *
+ *  Title bar child window that is positioned on windows.
  */
 
 class TITLEBAR : public WN
@@ -358,7 +381,7 @@ private:
     TF tf;
 };
 
-/*
+/**
  *  TOOLBAR
  * 
  *  A toolbar, which is just an inert window that holds other controls
@@ -377,7 +400,7 @@ public:
     virtual SZ SzRequestLayout(const RC& rc) const override;
 };
 
-/*
+/**
  *  SEL
  * 
  *  An individual control in a selector option group
@@ -413,10 +436,6 @@ protected:
     string sImage;
 };
 
-/*
- *  A group of selector options
- */
-
 class CMDSELECTOR : public ICMD
 {
 public:
@@ -431,6 +450,12 @@ private:
     VSEL& vsel;
     SEL& sel;
 };
+
+/**
+ *  VSEL
+ * 
+ *  A collection of individual selector items
+ */
 
 class VSEL : public CTL
 {
@@ -454,8 +479,10 @@ protected:
     int ipselSel;
 };
 
-/*
- *  EDIT control
+/**
+ *  EDIT 
+ *
+ *  Edit control
  */
 
 class EDIT : public CTL

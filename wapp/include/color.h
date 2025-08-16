@@ -8,10 +8,11 @@
 
 #include "framework.h"
 
-/*
- *  CO class
+/**
+ *  CO 
  *  
- *  A wrapper on the Direct2D ColorF class
+ *  A wrapper class on the Direct2D ColorF class with convenience
+ *  features added.
  */
 
 class CO : public D2D1_COLOR_F
@@ -132,10 +133,10 @@ public:
     }
 };
 
-/*
- *  HSV color
- *
- *  Hue, saturation, and value.
+/**
+ *  HSV 
+ * 
+ *  Hue, saturation, and value color.
  *
  *  Hue is in degrees, from 0 to 360
  *  Saturation is a percentage, from 0.0 to 1.0
@@ -246,7 +247,7 @@ inline constexpr float hueMagenta = 300;
  *  Blending colors
  */
 
-/*
+/**
  *  CompBlend
  * 
  *  Blends two color components, with gamma-correction

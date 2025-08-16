@@ -10,17 +10,20 @@
 
 #include "framework.h"
 
-/*
- *  SZ class
+/** \class SZ
+ *  \brief a size on the screen
  * 
- *  A size, which represents a height and width.
+ *  A floating point size class wrapper on the Direct2D D2D1_SIZE_F, which represents 
+ *  a height and width. Includes numerous convenience features.
  */
 
 class SZ : public D2D1_SIZE_F
 {
 public:
+
+    /** Default constructor leaves size uninitialized */
     SZ(void) 
-    {    // leave uninitialized
+    {
     }
 
     SZ(const D2D1_SIZE_F& sz) 
@@ -145,10 +148,12 @@ public:
     }
 };
 
-/*
- *  PT class
+/** \class PT
+ *  \brief a floating point point on the screen.
  * 
- *  A pointon the screen
+ *  A floating point point wrapper class around the Direct2D D2D1_POINT_2F, 
+ *  representing a position on the screen. Includes numerous convenience 
+ *  features.
  */
 
 class PT : public D2D1_POINT_2F
@@ -312,8 +317,8 @@ public:
     }
 };
 
-/*
- *  pAD - padding used for layout
+/** \class PAD
+ *  \brief Padding used for layout
  */
 
 class PAD : public D2D1_RECT_F
@@ -349,16 +354,17 @@ public:
     }
 };
 
-/*
- *  RC rectangle class
+/** \class RC
+ *  \brief A rectangle class on the screen
  * 
- *  Wrapper on the Direct2D floating point coordinate rectangle with numerous 
- *  convenience operations added.
+ *  THis is a wrapper class on the Direct2D floating point coordinate rectangle with 
+ *  numerous convenience operations added.
  */
 
 class RC : public D2D1_RECT_F
 {
 public:
+
     RC(void) 
     {  // leave uninitialized
     }
@@ -928,19 +934,24 @@ public:
     }
 };
 
-/*
- *  ELL class
+/** \class ELL
+ *  \brief An ellipse class on the screen
  * 
- *  An ellipse
+ *  A wrapper on the Direct2D D2D1_ELLIPSE ellipse structure, with 
+ *  convenience features added.
  */
 
 class ELL : public D2D1_ELLIPSE
 {
 public:
+    
+    /** The default ellipse is uninitialized */
     ELL(void) 
     {
     }
 
+    /** Constructs an ellipse with the given center and radii. Note that
+     *  the sz.height and sz.width are radii, not diameters.*/
     ELL(const PT& ptCenter, const SZ& szRadius) 
     {
         point.x = ptCenter.x;
@@ -949,6 +960,7 @@ public:
         radiusY = szRadius.height;
     }
 
+    /** Constructs an circular ellipse object with the given radius */
     ELL(const PT& ptCenter, float dxyRadius) 
     {
         point.x = ptCenter.x;
@@ -956,6 +968,7 @@ public:
         radiusX = radiusY = dxyRadius;
     }
 
+    /** Constructs an ellipse with the given bounding box. */
     ELL(const RC& rcBounds) 
     {
         point.x = rcBounds.xCenter();
@@ -964,6 +977,7 @@ public:
         radiusY = rcBounds.dyHeight() / 2;
     }
 
+    /** Offets the ellipse by dx and dy. Returns self. */
     ELL& Offset(float dx, float dy) 
     {
         point.x += dx;
@@ -971,11 +985,13 @@ public:
         return *this;
     }
 
+    /** Offsets the ellipse by the point. Returns self.*/
     ELL& Offset(const PT& pt) 
     {
         return Offset(pt.x, pt.y);
     }
 
+    /** Returns a new ellipse offset by a point. */
     ELL EllOffset(const PT& pt) const 
     {
         ELL ell = *this;
@@ -983,6 +999,13 @@ public:
         return ell;
     }
 
+    /** 
+     *  Increases the size of the ellipse in all directions by the height and 
+     *  width of the size. Note that the top and bottom are both moved by
+     *  sz.height, and left and right are both moved by the sz.width.
+     * 
+     *  Returns a reference to the ellipse. 
+     */
     ELL& Inflate(const SZ& sz) 
     {
         radiusX += sz.width;

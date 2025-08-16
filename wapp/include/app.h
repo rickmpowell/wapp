@@ -1,17 +1,18 @@
 #pragma once
 
-/*
- *  app.h
+/**
+ *  @file       app.h
+ *  @brief      The base WAPP application classes.
+ *  
+ *  @details    The foundational parts of a non-graphical Windows 
+ *              application, and the base classes for easing access to
+ *              Windows components. These are not typically used 
+ *              directly by clients of WAPP, but are implementation
+ *              helpers for other parts of the WAPP framework.
+ *  
+ *  @author     Richard Powell
  * 
- *  The base APP application classes.
- * 
- *  APP      Base Windows instance, with no window 
- *  WND      The lowest level window, 
- *  WNDMAIN  A top-level application window
- * 
- *  These elements are not usually used directly by applications. They are
- *  only necessary for specialty situations, or for the implementation of
- *  the WAPP classes themselves. 
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "framework.h"
@@ -19,16 +20,19 @@
 #include "err.h"
 #include "coord.h"
 
-/*
- *  Run
+/** 
+ *  \brief The WAPP's application's entry point
  * 
- *  Applications must define the application entry point
+ *  This function must be provided by the WAPP application, andis the main app
+ *  entry point. The app should create it's WAPP object and enter its message
+ *  pump, where it will execute until the applicaiton is terminated.
  */
 
 int Run(const string& sCmdLine, int sw);
 
-/*
- *  APP
+/** 
+ *  \class APP
+ *  \brief The base application class.
  * 
  *  The app represents the instance of the Windows application, without a window
  *  attached to it. It basically corresponds to a Windows instance, which means
@@ -60,10 +64,9 @@ public:
     HINSTANCE hinst;
 };
 
-/*
- *  CURS class
- * 
- *  A mouse cursor
+/** 
+ *  \class CURS
+ *  \brief A mouse cursor wrapper class
  */
 
 class CURS
@@ -83,10 +86,14 @@ private:
     HCURSOR hcursor;
 };
 
-/*
- *  WND class
+/** 
+ *  \class WND
+ *  \brief A tight wrapper class on a Windows HWND
  * 
- *  Window class that is basically a tight wrapper on the Windows HWND. 
+ *  This is a low-functionality wrapper class that really only provides a C++
+ *  like interfafce to the Windows HWND. We generally only work with one HWND
+ *  in every application, the top-level container window. The WN functionality
+ *  should be used within the top-level window.
  */
 
 class WND
@@ -143,10 +150,11 @@ public:
     HWND hwnd;
 };
 
-/*
- *  WNDMAIN 
- * 
- *  variation on the WND class with extra stuff to make it streamlined for
+/** 
+ *  \class WNDMAIN
+ *  \brief A top-level HWND.
+ *
+ *  A variation on the WND class with extra stuff to make it streamlined for
  *  using as a top-level window. The WAPP class uses one of these for its top
  *  level window.
  */
@@ -177,8 +185,9 @@ public:
  *  resource_ptr can ever point to the object at any time.
  */
 
-/*
- *  resource_ptr
+/** 
+ *  \class resource_ptr
+ *  \brief a managed pointer to a resource object in the application's resource fork.
  * 
  *  A pointer to a resource object in the application's resource fork. Uses
  *  similar semantics to unique_ptr.
@@ -293,8 +302,9 @@ private:
     unsigned cbData;
 };
 
-/*
- *  global_ptr
+/** 
+ *  \class global_ptr
+ *  \brief A managed pointer to a memory object allocated with GlobalAlloc.
  * 
  *  Holds a global allocated Windows handle, similar semantics to unique_ptr.
  *  By default, this wrapper keeps the underlying global memory object

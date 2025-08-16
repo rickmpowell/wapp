@@ -1,15 +1,15 @@
 
-/* 
- *  app.cpp
+/**
+ *  @file       app.cpp
+ *  @brief      implementaiton of low level application and window classes
  * 
- *  Implementation of the lowest level application and window classes for 
- *  the WAPP library. 
+ *  @details    Implementation of the lowest level application and window 
+ *              classes for the WAPP library. including the main program
+ *              entry point, the simplest Win32 application class (windowless
+ *              but supports resources). We also have the basic WND wrapper
+ *              class, which is a light wrapper around the Windows HWND.
  * 
- *  This is the main program entry point, the simplest Win32 application
- *  APP class (windowless, but supports resources). We also have the basic
- *  WND wrapper class, which is a light wrapper around the Windows HWND.
- * 
- *  Copyright (c) 2025 by Richard Powell.
+ *  @copyright  Copyright (c) 2025 by Richard Powell.
  */
 
 #include "wapp.h"
@@ -20,10 +20,12 @@
 #pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "windowscodecs.lib")
 
-/*
- *  wWinMain
- *
- *  The main application entry point
+/**
+ *  \brief The main application entry point
+ * 
+ *  For Win32 graphical desktop applications, this is the main program entry
+ *  point. We simply use it to dispatch off to the main WAPP application
+ *  Run function.
  */
 
 int APIENTRY wWinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hinstPrev, _In_ LPWSTR wsCmd, _In_ int sw)
@@ -40,12 +42,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hinstPrev, _In_ L
     }
 }
 
-/*
- *  APP
+/**  
+ *  \class APP
  * 
  *  The base application handles COM initialization, Direct2D initialization, and provides
  *  basic access to the application via the instance handle. The instance handle is how
  *  resources are accessed. 
+ */
+
+/**
+ *  Constructor simply keeps track of the application module handle and initializes
+ *  the COM sub-system. Throws an exception on failures, which should not happen in
+ *  a properly configured Win32 system.
  */
 
 APP::APP() : 
@@ -59,16 +67,23 @@ APP::~APP()
     CoUninitialize();
 }
 
-/*
- *  Resrouce loaders
+/**
+ *  Loads a string, using the stringtable resource ID, from the application's 
+ *  resource fork.
  */
 
 string APP::SLoad(unsigned rss) const
 {
+    /* TODO: should we throw an exception if not found? */
     wchar_t sz[1024];
     ::LoadStringW(hinst, rss, sz, size(sz));
     return SFromWs(wstring_view(sz));
 }
+
+/**
+ *  Loads a string, using the ICON resource ID, from the application's 
+ *  resource fork. Throws an exception if not found.
+ */
 
 HICON APP::HiconLoad(unsigned rsi) const
 {
@@ -78,12 +93,21 @@ HICON APP::HiconLoad(unsigned rsi) const
     return hicon;
 }
 
+/**
+ *  Loads a default system icon
+ */
+
 HICON APP::HiconDef(LPCWSTR rsi) const
 {
     HICON hicon = ::LoadIconW(NULL, rsi);
     assert(hicon != NULL);
     return hicon;
 }
+
+/**
+ *  Loads a CURSOR resource givena numeric cursor ID from the application's
+ *  resource fork.
+ */
 
 HCURSOR APP::HcursorLoad(unsigned rsc) const
 {
@@ -93,6 +117,10 @@ HCURSOR APP::HcursorLoad(unsigned rsc) const
     return hcursor;
 }
 
+/**
+ *  Loads a default system icon
+ */
+
 HCURSOR APP::HcursorDef(LPCWSTR rsc) const
 {
     HCURSOR hcursor = ::LoadCursorW(NULL, rsc);
@@ -100,13 +128,18 @@ HCURSOR APP::HcursorDef(LPCWSTR rsc) const
     return hcursor;
 }
 
+/**
+ *  Given an accelerator table ID, returns an accelerator table from the
+ *  application's resource fork.
+ */
+
 HACCEL APP::HaccelLoad(unsigned rsa) const
 {
     return ::LoadAcceleratorsW(hinst, MAKEINTRESOURCEW(rsa));
 }
 
-/*
- *  WND class
+/**
+ *  \class WND
  * 
  *  A light wrapper around the Windows HWND. Windows HWNDs must be registered
  *  and then created, so the initialization of this thing is a little odd.
@@ -122,13 +155,12 @@ WND::~WND()
         DestroyWnd();
 }
 
-/*
- *  WND::WcexRegister
- *
- *  Creates a WNDCLASSEX structure for registering a Windows HWND class. This does not 
- *  completely fill a valid WNDCLASSEXW, it only fill some of the boilerplate stuff 
- *  that we need for the WN class to work. Other WN derived classes should call this 
- *  helper fucntion and then fill additional fields for the particular window type.
+/**
+ *  Creates a WNDCLASSEX structure for registering a Windows HWND class. 
+ *  This does completely fill a valid WNDCLASSEXW, it only fill some of the 
+ *  boilerplate stuff that we need for the WN class to work. Other WN derived 
+ *  classes should call this helper fucntion and then fill additional fields 
+ *  for the particular window type.
  */
 
 WNDCLASSEXW WND::WcexRegister(void) const
@@ -140,12 +172,10 @@ WNDCLASSEXW WND::WcexRegister(void) const
    return wcex;
 }
 
-/*
- *  WND::Register
- * 
- *  Registers a Windows window class using the structure wcex. Fill in the wcex using the
- *  appropriate static WcexRegister functions. The WN::WcexRegister fills in the criticla 
- *  parts for interfacing with the WN class.
+/**
+ *  Registers a Windows window class using the structure wcex. Fill in the wcex 
+ *  using the appropriate static WcexRegister functions. The WN::WcexRegister 
+ *  fills in the criticla parts for interfacing with the WN class.
  */
 
 LPCWSTR WND::Register(const WNDCLASSEXW& wcex)
@@ -156,6 +186,10 @@ LPCWSTR WND::Register(const WNDCLASSEXW& wcex)
     return MAKEINTRESOURCEW(atom);
 }
 
+/**
+ *  Creates a Windows' Window using title, window style, and in the given 
+ *  position and of the given size.
+ */
 void WND::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
 {
     POINT point = (POINT)pt;
@@ -169,6 +203,10 @@ void WND::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
         throw ERRLAST();
 }
 
+/**
+ *  Destroys a Windows window.
+ */
+
 void WND::DestroyWnd(void)
 {
     ::DestroyWindow(hwnd);
@@ -176,15 +214,28 @@ void WND::DestroyWnd(void)
     hwnd = NULL;
 }
 
+/**
+ *  Shows/hides the Windows window.
+ */
+
 void WND::ShowWnd(int sw)
 {
     ::ShowWindow(hwnd, sw);
 }
 
+/**
+ *  Minimizes (makes an icon) the Windows window.
+ */
+
 void WND::Minimize(void)
 {
     ::CloseWindow(hwnd);
 }
+
+/**
+ *  The WndProc for WAPP HWND windows. This simply dispatches all the window
+ *  messages into the appropriate virtual function in the WND class.
+ */
 
 LRESULT CALLBACK WND::WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
 {
@@ -358,8 +409,6 @@ void WND::OnInitMenuPopup(HMENU hmenu)
 }
 
 /*
- *  WNDMAIN
- *  
  *  The main window of an application
  */
 
@@ -367,9 +416,7 @@ WNDMAIN::WNDMAIN(APP& app) : WND(app)
 {
 }
 
-/*
- *  WNDMAIN::WcexRegister
- *
+/**
  *  Returns the WNDCLASSEX for registering a main top-level window. Takes a menu
  *  and icon resource ids.
  */
@@ -385,9 +432,7 @@ WNDCLASSEXW WNDMAIN::WcexRegister(const wchar_t* wsClass, unsigned rsm, unsigned
     return wcex;
 }
 
-/*
- *  WNDMAIN::SRegister
- *
+/**
  *  Ensures the window class for this window is registered, and returns a string that can
  *  be sent to ::CreateWindow to creat an actual Windows HWND.
  */

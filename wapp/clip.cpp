@@ -7,8 +7,8 @@
 
 #include "wapp.h"
 
-/*
- *  CLIP class
+/**
+ *  CLIP
  * 
  *  Simplified clipboard object
  */
@@ -37,7 +37,7 @@ public:
     }
 };
 
-/*
+/**
  *  iclipbuffer
  * 
  *  The buffer implementation for streaming from the Windows clipboard.
@@ -69,8 +69,10 @@ int iclipbuffer::underflow(void)
     return traits_type::to_int_type(ch);
 }
 
-/*
+/**
  *  oclipstream
+ * 
+ *  Clipboard output stream
  */
 
 oclipbuffer::oclipbuffer(IWAPP& iwappOwn, UINT cfOut) : iwapp(iwappOwn), cf(cfOut)
