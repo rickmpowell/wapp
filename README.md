@@ -8,6 +8,6 @@ WAPP uses DirectX for its rendering and is 64-bit only.
 ## To create a new project
 1. Install WAPP template to the "C:\Users\[YourUserName]\Documents\Visual Studio [Version]\Templates\ProjectTemplates" directory.
 2. Add a New Project to the WAPP solution. Choose the WAPP template to create a bare-bones application.
-1. Add WAPP include and library directories to compiler and linker options
+3. Add WAPP include and library directories to compiler and linker options
 ## Documentation
-Documentation of the public API is a Microsoft Windows document "WAPP Windows Application Framework.docx" in the doc directory of the project.
+Complete documentation is available at https://rickmpowell.github.io/wapp/
