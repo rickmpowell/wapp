@@ -105,7 +105,7 @@ $(document).ready(function(){initNavTree('d8/df6/ctl_8cpp_source.html','../../')
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment"> *  Controls</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;wapp.h&quot;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;<a class="code" href="../../d2/d48/wapp_8h.html">wapp.h</a>&quot;</span></div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">/*</span></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment"> *  Base control</span></div>
@@ -194,7 +194,7 @@ $(document).ready(function(){initNavTree('d8/df6/ctl_8cpp_source.html','../../')
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    cdsCur = CDS::None;</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <span class="keywordflow">if</span> (RcInterior().FContainsPt(pt)) {</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        <span class="keywordflow">if</span> (pcmd)</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>            iwapp.FExecuteCmd(*pcmd);</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>            iwapp.<a class="code hl_function" href="../../d9/d15/classIWAPP.html#a8986518db8a102cf26965c305e7b4fab">FExecuteCmd</a>(*pcmd);</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        cdsCur = CDS::Hover;</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    }</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    Redraw();</div>
@@ -261,7 +261,7 @@ $(document).ready(function(){initNavTree('d8/df6/ctl_8cpp_source.html','../../')
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span><a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a> CTL::RcContent(<span class="keywordtype">void</span>)<span class="keyword"> const</span></div>
 <div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span><span class="keyword"></span>{</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordflow">return</span> RcInterior().Unpad(pad+border);</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordflow">return</span> RcInterior().<a class="code hl_function" href="../../d2/d9b/classRC.html#a7e465311a4d47b1aea2b330ea63e3a18">Unpad</a>(pad+border);</div>
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>}</div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span> </div>
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span><span class="comment">/*</span></div>
@@ -636,7 +636,7 @@ $(document).ready(function(){initNavTree('d8/df6/ctl_8cpp_source.html','../../')
 <div class="line"><a id="l00536" name="l00536"></a><span class="lineno">  536</span>{</div>
 <div class="line"><a id="l00537" name="l00537"></a><span class="lineno">  537</span>    (void)rcUpdate;</div>
 <div class="line"><a id="l00538" name="l00538"></a><span class="lineno">  538</span> </div>
-<div class="line"><a id="l00539" name="l00539"></a><span class="lineno">  539</span>    <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a> rc = RcInterior().Unpad(<a class="code hl_class" href="../../d5/d9a/classPAD.html">PAD</a>(12, 4));</div>
+<div class="line"><a id="l00539" name="l00539"></a><span class="lineno">  539</span>    <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a> rc = RcInterior().<a class="code hl_function" href="../../d2/d9b/classRC.html#a7e465311a4d47b1aea2b330ea63e3a18">Unpad</a>(<a class="code hl_class" href="../../d5/d9a/classPAD.html">PAD</a>(12, 4));</div>
 <div class="line"><a id="l00540" name="l00540"></a><span class="lineno">  540</span>    DrawS(sTitle, tf, rc);</div>
 <div class="line"><a id="l00541" name="l00541"></a><span class="lineno">  541</span>}</div>
 <div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span> </div>
@@ -777,7 +777,7 @@ $(document).ready(function(){initNavTree('d8/df6/ctl_8cpp_source.html','../../')
 <div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> ipsel = 0; ipsel &lt; vpsel.size(); ipsel++)</div>
 <div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span>        vpsel[ipsel]-&gt;SetSelected(ipsel == iselNew);</div>
 <div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>    ipselSel = iselNew;</div>
-<div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>    iwapp.FExecuteCmd(*pcmd);</div>
+<div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>    iwapp.<a class="code hl_function" href="../../d9/d15/classIWAPP.html#a8986518db8a102cf26965c305e7b4fab">FExecuteCmd</a>(*pcmd);</div>
 <div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>}</div>
 <div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span> </div>
 <div class="line"><a id="l00683" name="l00683"></a><span class="lineno">  683</span><span class="keywordtype">void</span> VSEL::Select(<span class="keywordtype">SEL</span>&amp; sel)</div>
@@ -1015,7 +1015,7 @@ $(document).ready(function(){initNavTree('d8/df6/ctl_8cpp_source.html','../../')
 <div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span> </div>
 <div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span>    FillRc(rc, coWhite);</div>
 <div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span>    DrawRc(rc, coBlack, 1);</div>
-<div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span>    rc.Unpad(<a class="code hl_class" href="../../d5/d9a/classPAD.html">PAD</a>(8, 2));</div>
+<div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span>    rc.<a class="code hl_function" href="../../d2/d9b/classRC.html#a7e465311a4d47b1aea2b330ea63e3a18">Unpad</a>(<a class="code hl_class" href="../../d5/d9a/classPAD.html">PAD</a>(8, 2));</div>
 <div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span>    DrawSCenterY(sText, tf, rc, coBlack);</div>
 <div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span>}</div>
 <div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span> </div>
@@ -1039,27 +1039,30 @@ $(document).ready(function(){initNavTree('d8/df6/ctl_8cpp_source.html','../../')
 <div class="line"><a id="l00939" name="l00939"></a><span class="lineno">  939</span>{</div>
 <div class="line"><a id="l00940" name="l00940"></a><span class="lineno">  940</span>    sText = sNew;</div>
 <div class="line"><a id="l00941" name="l00941"></a><span class="lineno">  941</span>}</div>
-<div class="ttc" id="aclassBTNNEXT_html"><div class="ttname"><a href="../../da/d8e/classBTNNEXT.html">BTNNEXT</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00235">ctl.h:236</a></div></div>
-<div class="ttc" id="aclassBTN_html"><div class="ttname"><a href="../../d6/d95/classBTN.html">BTN</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00178">ctl.h:179</a></div></div>
-<div class="ttc" id="aclassCHK_html"><div class="ttname"><a href="../../da/dec/classCHK.html">CHK</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00271">ctl.h:272</a></div></div>
-<div class="ttc" id="aclassCMDCHK_html"><div class="ttname"><a href="../../df/dc3/classCMDCHK.html">CMDCHK</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00291">ctl.h:292</a></div></div>
+<div class="ttc" id="aclassBTNNEXT_html"><div class="ttname"><a href="../../da/d8e/classBTNNEXT.html">BTNNEXT</a></div><div class="ttdoc">A next button, just a little arrow pointing to the right.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00238">ctl.h:239</a></div></div>
+<div class="ttc" id="aclassBTN_html"><div class="ttname"><a href="../../d6/d95/classBTN.html">BTN</a></div><div class="ttdoc">Base class for buttons, which can be clicked on to launch commands.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00184">ctl.h:185</a></div></div>
+<div class="ttc" id="aclassCHK_html"><div class="ttname"><a href="../../da/dec/classCHK.html">CHK</a></div><div class="ttdoc">Checkbox control.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00272">ctl.h:273</a></div></div>
+<div class="ttc" id="aclassCMDCHK_html"><div class="ttname"><a href="../../df/dc3/classCMDCHK.html">CMDCHK</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00292">ctl.h:293</a></div></div>
 <div class="ttc" id="aclassCMDCYCLENEXT_html"><div class="ttname"><a href="../../d1/d32/classCMDCYCLENEXT.html">CMDCYCLENEXT</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00333">ctl.h:334</a></div></div>
 <div class="ttc" id="aclassCMDCYCLEPREV_html"><div class="ttname"><a href="../../db/dcf/classCMDCYCLEPREV.html">CMDCYCLEPREV</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00347">ctl.h:348</a></div></div>
-<div class="ttc" id="aclassCMDSELECTOR_html"><div class="ttname"><a href="../../d7/d46/classCMDSELECTOR.html">CMDSELECTOR</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00439">ctl.h:440</a></div></div>
-<div class="ttc" id="aclassCO_html"><div class="ttname"><a href="../../d8/d5a/classCO.html">CO</a></div><div class="ttdef"><b>Definition</b> <a href="../../da/dec/color_8h_source.html#l00018">color.h:19</a></div></div>
-<div class="ttc" id="aclassCTL_html"><div class="ttname"><a href="../../d8/dea/classCTL.html">CTL</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00031">ctl.h:32</a></div></div>
-<div class="ttc" id="aclassCYCLE_html"><div class="ttname"><a href="../../df/df4/classCYCLE.html">CYCLE</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00311">ctl.h:312</a></div></div>
-<div class="ttc" id="aclassICMD_html"><div class="ttname"><a href="../../d1/d45/classICMD.html">ICMD</a></div><div class="ttdef"><b>Definition</b> <a href="../../dd/d9f/cmd_8h_source.html#l00042">cmd.h:43</a></div></div>
-<div class="ttc" id="aclassLEN_html"><div class="ttname"><a href="../../df/df1/classLEN.html">LEN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d8d/len_8h_source.html#l00022">len.h:23</a></div></div>
-<div class="ttc" id="aclassPAD_html"><div class="ttname"><a href="../../d5/d9a/classPAD.html">PAD</a></div><div class="ttdoc">Padding used for layout.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00324">coord.h:325</a></div></div>
-<div class="ttc" id="aclassPT_html"><div class="ttname"><a href="../../dc/d71/classPT.html">PT</a></div><div class="ttdoc">a floating point point on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00159">coord.h:160</a></div></div>
-<div class="ttc" id="aclassRC_html"><div class="ttname"><a href="../../d2/d9b/classRC.html">RC</a></div><div class="ttdoc">A rectangle class on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00364">coord.h:365</a></div></div>
-<div class="ttc" id="aclassSEL_html"><div class="ttname"><a href="../../dd/d29/classSEL.html">SEL</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00409">ctl.h:410</a></div></div>
-<div class="ttc" id="aclassSTATIC_html"><div class="ttname"><a href="../../d4/dc5/classSTATIC.html">STATIC</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00095">ctl.h:96</a></div></div>
-<div class="ttc" id="aclassSZ_html"><div class="ttname"><a href="../../db/dfa/classSZ.html">SZ</a></div><div class="ttdoc">a size on the screen</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00020">coord.h:21</a></div></div>
-<div class="ttc" id="aclassTF_html"><div class="ttname"><a href="../../d9/d78/classTF.html">TF</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/dcc/dc_8h_source.html#l00049">dc.h:50</a></div></div>
-<div class="ttc" id="aclassVSEL_html"><div class="ttname"><a href="../../d8/d91/classVSEL.html">VSEL</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00460">ctl.h:461</a></div></div>
-<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00036">wn.h:37</a></div></div>
+<div class="ttc" id="aclassCMDSELECTOR_html"><div class="ttname"><a href="../../d7/d46/classCMDSELECTOR.html">CMDSELECTOR</a></div><div class="ttdoc">Command that notifies when a selector is chosen.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00439">ctl.h:440</a></div></div>
+<div class="ttc" id="aclassCO_html"><div class="ttname"><a href="../../d8/d5a/classCO.html">CO</a></div><div class="ttdoc">A simple RGB color.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dec/color_8h_source.html#l00028">color.h:29</a></div></div>
+<div class="ttc" id="aclassCTL_html"><div class="ttname"><a href="../../d8/dea/classCTL.html">CTL</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00040">ctl.h:41</a></div></div>
+<div class="ttc" id="aclassCYCLE_html"><div class="ttname"><a href="../../df/df4/classCYCLE.html">CYCLE</a></div><div class="ttdoc">A control with an up and down button to cycle through options.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00311">ctl.h:312</a></div></div>
+<div class="ttc" id="aclassICMD_html"><div class="ttname"><a href="../../d1/d45/classICMD.html">ICMD</a></div><div class="ttdef"><b>Definition</b> <a href="../../dd/d9f/cmd_8h_source.html#l00049">cmd.h:50</a></div></div>
+<div class="ttc" id="aclassIWAPP_html_a8986518db8a102cf26965c305e7b4fab"><div class="ttname"><a href="../../d9/d15/classIWAPP.html#a8986518db8a102cf26965c305e7b4fab">IWAPP::FExecuteCmd</a></div><div class="ttdeci">bool FExecuteCmd(const ICMD &amp;icmd)</div><div class="ttdoc">Dispatches the command through the event system.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00018">cmd.cpp:18</a></div></div>
+<div class="ttc" id="aclassLEN_html"><div class="ttname"><a href="../../df/df1/classLEN.html">LEN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d8d/len_8h_source.html#l00028">len.h:29</a></div></div>
+<div class="ttc" id="aclassPAD_html"><div class="ttname"><a href="../../d5/d9a/classPAD.html">PAD</a></div><div class="ttdoc">Padding used for layout.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00332">coord.h:333</a></div></div>
+<div class="ttc" id="aclassPT_html"><div class="ttname"><a href="../../dc/d71/classPT.html">PT</a></div><div class="ttdoc">a floating point point on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00166">coord.h:167</a></div></div>
+<div class="ttc" id="aclassRC_html"><div class="ttname"><a href="../../d2/d9b/classRC.html">RC</a></div><div class="ttdoc">A rectangle class on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00373">coord.h:374</a></div></div>
+<div class="ttc" id="aclassRC_html_a7e465311a4d47b1aea2b330ea63e3a18"><div class="ttname"><a href="../../d2/d9b/classRC.html#a7e465311a4d47b1aea2b330ea63e3a18">RC::Unpad</a></div><div class="ttdeci">RC &amp; Unpad(const PAD &amp;pad)</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00920">coord.h:920</a></div></div>
+<div class="ttc" id="aclassSEL_html"><div class="ttname"><a href="../../dd/d29/classSEL.html">SEL</a></div><div class="ttdoc">An individual control in a selector option group.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00404">ctl.h:405</a></div></div>
+<div class="ttc" id="aclassSTATIC_html"><div class="ttname"><a href="../../d4/dc5/classSTATIC.html">STATIC</a></div><div class="ttdoc">Base class for no-UI static controls.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00103">ctl.h:104</a></div></div>
+<div class="ttc" id="aclassSZ_html"><div class="ttname"><a href="../../db/dfa/classSZ.html">SZ</a></div><div class="ttdoc">a size on the screen</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00026">coord.h:27</a></div></div>
+<div class="ttc" id="aclassTF_html"><div class="ttname"><a href="../../d9/d78/classTF.html">TF</a></div><div class="ttdef"><b>Definition</b> <a href="../../de/dcc/dc_8h_source.html#l00057">dc.h:58</a></div></div>
+<div class="ttc" id="aclassVSEL_html"><div class="ttname"><a href="../../d8/d91/classVSEL.html">VSEL</a></div><div class="ttdoc">A collection of individual selector items.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00459">ctl.h:460</a></div></div>
+<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00041">wn.h:42</a></div></div>
+<div class="ttc" id="awapp_8h_html"><div class="ttname"><a href="../../d2/d48/wapp_8h.html">wapp.h</a></div><div class="ttdoc">Windows Application.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

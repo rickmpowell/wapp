@@ -96,11 +96,16 @@ $(document).ready(function(){initNavTree('d7/d0b/classCLIP.html','../../'); init
   <div class="headertitle"><div class="title">CLIP Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Simplified clipboard wrapper.  
+ <a href="../../d7/d0b/classCLIP.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:af89ae6fcef42e3564138ce5d90948881" id="r_af89ae6fcef42e3564138ce5d90948881"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d0b/classCLIP.html#af89ae6fcef42e3564138ce5d90948881">CLIP</a> (HWND hwnd)</td></tr>
 <tr class="separator:af89ae6fcef42e3564138ce5d90948881"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3647ef7990b57f75b38e145a7624894" id="r_ab3647ef7990b57f75b38e145a7624894"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d0b/classCLIP.html#ab3647ef7990b57f75b38e145a7624894">~CLIP</a> ()</td></tr>
+<tr class="separator:ab3647ef7990b57f75b38e145a7624894"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad75f48847d2cbedb57b064046b6ee0c4" id="r_ad75f48847d2cbedb57b064046b6ee0c4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d0b/classCLIP.html#ad75f48847d2cbedb57b064046b6ee0c4">Empty</a> (void)</td></tr>
 <tr class="separator:ad75f48847d2cbedb57b064046b6ee0c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a73236440f4a150f6db351cd3c499c6" id="r_a7a73236440f4a150f6db351cd3c499c6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d0b/classCLIP.html#a7a73236440f4a150f6db351cd3c499c6">SetData</a> (UINT cf, HGLOBAL h)</td></tr>
@@ -109,10 +114,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:aca0faac2c72034be1a7e7a9d268430c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="../../d7/d0b/classCLIP.html">CLIP</a></p>
-<p>Simplified clipboard object </p>
+<div class="textblock"><p>Simplified clipboard wrapper. </p>
+<p>Automatically closes the clipboard when we leave scope, throws exceptions on errors. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/def/clip_8cpp_source.html#l00016">16</a> of file <a class="el" href="../../de/def/clip_8cpp_source.html">clip.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/def/clip_8cpp_source.html#l00024">24</a> of file <a class="el" href="../../de/def/clip_8cpp_source.html">clip.cpp</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="af89ae6fcef42e3564138ce5d90948881" name="af89ae6fcef42e3564138ce5d90948881"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af89ae6fcef42e3564138ce5d90948881">&#9670;&#160;</a></span>CLIP()</h2>
@@ -137,8 +142,9 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Opens the clipboard and takes ownership for the HWND </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/def/clip_8cpp_source.html#l00019">19</a> of file <a class="el" href="../../de/def/clip_8cpp_source.html">clip.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/def/clip_8cpp_source.html#l00030">30</a> of file <a class="el" href="../../de/def/clip_8cpp_source.html">clip.cpp</a>.</p>
 
 </div>
 </div>
@@ -164,8 +170,9 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Closes the clipboard </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/def/clip_8cpp_source.html#l00023">23</a> of file <a class="el" href="../../de/def/clip_8cpp_source.html">clip.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/def/clip_8cpp_source.html#l00037">37</a> of file <a class="el" href="../../de/def/clip_8cpp_source.html">clip.cpp</a>.</p>
 
 </div>
 </div>
@@ -193,8 +200,9 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Empties the clipboard </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/def/clip_8cpp_source.html#l00027">27</a> of file <a class="el" href="../../de/def/clip_8cpp_source.html">clip.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/def/clip_8cpp_source.html#l00044">44</a> of file <a class="el" href="../../de/def/clip_8cpp_source.html">clip.cpp</a>.</p>
 
 </div>
 </div>
@@ -221,8 +229,9 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Gets the global handle of the data in the clipboared </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/def/clip_8cpp_source.html#l00035">35</a> of file <a class="el" href="../../de/def/clip_8cpp_source.html">clip.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/def/clip_8cpp_source.html#l00058">58</a> of file <a class="el" href="../../de/def/clip_8cpp_source.html">clip.cpp</a>.</p>
 
 </div>
 </div>
@@ -259,8 +268,9 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Sets the clipboard's data to the data in the global handle </p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/def/clip_8cpp_source.html#l00031">31</a> of file <a class="el" href="../../de/def/clip_8cpp_source.html">clip.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/def/clip_8cpp_source.html#l00051">51</a> of file <a class="el" href="../../de/def/clip_8cpp_source.html">clip.cpp</a>.</p>
 
 </div>
 </div>

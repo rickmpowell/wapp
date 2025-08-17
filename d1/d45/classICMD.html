@@ -108,11 +108,11 @@ Inheritance diagram for ICMD:</div>
 <area href="../../d2/d23/classCMD.html" alt="CMD&lt; CMDABOUT, IWAPP &gt;" shape="rect" coords="194,56,378,80"/>
 <area href="../../d2/d23/classCMD.html" alt="CMD&lt; CMDEXIT, IWAPP &gt;" shape="rect" coords="194,112,378,136"/>
 <area href="../../d2/d23/classCMD.html" alt="CMD&lt; CMDOK, IWAPP &gt;" shape="rect" coords="194,168,378,192"/>
-<area href="../../d2/d23/classCMD.html" alt="CMD&lt; D, WAPP &gt;" shape="rect" coords="194,224,378,248"/>
+<area href="../../d2/d23/classCMD.html" title="Command base class." alt="CMD&lt; D, WAPP &gt;" shape="rect" coords="194,224,378,248"/>
 <area href="../../df/dc3/classCMDCHK.html" alt="CMDCHK" shape="rect" coords="194,280,378,304"/>
 <area href="../../d1/d32/classCMDCYCLENEXT.html" alt="CMDCYCLENEXT" shape="rect" coords="194,336,378,360"/>
 <area href="../../db/dcf/classCMDCYCLEPREV.html" alt="CMDCYCLEPREV" shape="rect" coords="194,392,378,416"/>
-<area href="../../d7/d46/classCMDSELECTOR.html" alt="CMDSELECTOR" shape="rect" coords="194,448,378,472"/>
+<area href="../../d7/d46/classCMDSELECTOR.html" title="Command that notifies when a selector is chosen." alt="CMDSELECTOR" shape="rect" coords="194,448,378,472"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -127,8 +127,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a10b86dc2bab96b5b670dde9b64a45229" id="r_a10b86dc2bab96b5b670dde9b64a45229"><td class="memItemLeft" align="right" valign="top"><a id="a10b86dc2bab96b5b670dde9b64a45229" name="a10b86dc2bab96b5b670dde9b64a45229"></a>
 virtual <a class="el" href="../../d1/d45/classICMD.html">ICMD</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>clone</b> (void) const =0</td></tr>
 <tr class="separator:a10b86dc2bab96b5b670dde9b64a45229"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7845066d715c24973052863798e72efb" id="r_a7845066d715c24973052863798e72efb"><td class="memItemLeft" align="right" valign="top"><a id="a7845066d715c24973052863798e72efb" name="a7845066d715c24973052863798e72efb"></a>
-virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>Execute</b> (void)=0</td></tr>
+<tr class="memitem:a7845066d715c24973052863798e72efb" id="r_a7845066d715c24973052863798e72efb"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d45/classICMD.html#a7845066d715c24973052863798e72efb">Execute</a> (void)=0</td></tr>
 <tr class="separator:a7845066d715c24973052863798e72efb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af75fcda7859cd6d68661d23bdc0c973a" id="r_af75fcda7859cd6d68661d23bdc0c973a"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d45/classICMD.html#af75fcda7859cd6d68661d23bdc0c973a">Undo</a> (void)</td></tr>
 <tr class="separator:af75fcda7859cd6d68661d23bdc0c973a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -156,11 +155,10 @@ Protected Types</h2></td></tr>
 <tr class="separator:aa3ee0418d2fa4847fc49e8718a577cc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><a class="el" href="../../d1/d45/classICMD.html">ICMD</a></p>
-<p>The actual command object. These objects live inside various UI elements within the application, and are cloned in order to execute them. This allows the command objects to be moved into an undo stack to implement undo/redo. </p><pre class="fragment">wapp.FExecuteCmd(pcmd);
-</pre><p> In order for for Invoke to work, the command object's copy constructor must duplicate everything necessary to execute the command in its current state, and any undo state must be saved inside the <a class="el" href="../../d2/d23/classCMD.html">CMD</a> for an undo to work. </p>
+<div class="textblock"><p>The actual command object. These objects live inside various UI elements within the application, and are cloned in order to execute them. This allows the command objects to be moved into an undo stack to implement undo/redo. </p><pre class="fragment">wapp.FExecuteCmd(pcmd);
+</pre><p> In order for for Invoke to work, the command object's copy constructor must duplicate everything necessary to execute the command in its current state, and any undo state must be saved inside the <a class="el" href="../../d2/d23/classCMD.html" title="Command base class.">CMD</a> for an undo to work. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d9f/cmd_8h_source.html#l00042">42</a> of file <a class="el" href="../../dd/d9f/cmd_8h_source.html">cmd.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d9f/cmd_8h_source.html#l00049">49</a> of file <a class="el" href="../../dd/d9f/cmd_8h_source.html">cmd.h</a>.</p>
 </div><h2 class="groupheader">Member Enumeration Documentation</h2>
 <a id="aa3ee0418d2fa4847fc49e8718a577cc7" name="aa3ee0418d2fa4847fc49e8718a577cc7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa3ee0418d2fa4847fc49e8718a577cc7">&#9670;&#160;</a></span>CMS</h2>
@@ -182,7 +180,7 @@ Protected Types</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d9f/cmd_8h_source.html#l00046">46</a> of file <a class="el" href="../../dd/d9f/cmd_8h_source.html">cmd.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d9f/cmd_8h_source.html#l00053">53</a> of file <a class="el" href="../../dd/d9f/cmd_8h_source.html">cmd.h</a>.</p>
 
 </div>
 </div>
@@ -211,11 +209,39 @@ Protected Types</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/d9f/cmd_8h_source.html#l00054">54</a> of file <a class="el" href="../../dd/d9f/cmd_8h_source.html">cmd.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/d9f/cmd_8h_source.html#l00061">61</a> of file <a class="el" href="../../dd/d9f/cmd_8h_source.html">cmd.h</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a7845066d715c24973052863798e72efb" name="a7845066d715c24973052863798e72efb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7845066d715c24973052863798e72efb">&#9670;&#160;</a></span>Execute()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int ICMD::Execute </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="../../d3/dd1/classCMDABOUT.html#adfdc0eb9821e9bb61a20cffd3e57ee19">CMDABOUT</a>, and <a class="el" href="../../d1/d92/classCMDEXIT.html#a34474ac6c6b7065e55e28c1a53920f0e">CMDEXIT</a>.</p>
+
+</div>
+</div>
 <a id="a35ba11732a4d8f5453382ecff8527fc4" name="a35ba11732a4d8f5453382ecff8527fc4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a35ba11732a4d8f5453382ecff8527fc4">&#9670;&#160;</a></span>FChecked()</h2>
 
@@ -240,7 +266,7 @@ Protected Types</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00258">258</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00299">299</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
 
 </div>
 </div>
@@ -268,7 +294,7 @@ Protected Types</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00253">253</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00294">294</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
 
 </div>
 </div>
@@ -306,7 +332,7 @@ Protected Types</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00270">270</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00311">311</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
 
 </div>
 </div>
@@ -334,7 +360,7 @@ Protected Types</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00278">278</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00319">319</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
 
 </div>
 </div>
@@ -362,7 +388,7 @@ Protected Types</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00263">263</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00304">304</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
 
 </div>
 </div>
@@ -389,8 +415,9 @@ Protected Types</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Returns true if the command is undoable. To implement undo, you must override this function and return true. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00244">244</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00285">285</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
 
 </div>
 </div>
@@ -417,8 +444,9 @@ Protected Types</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The default redo command. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00239">239</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00275">275</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
 
 </div>
 </div>
@@ -445,8 +473,9 @@ Protected Types</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The undo command by default simply redoes the execute part of the command. This is rarely the right thing to do, but it does happen to work on toggle-like commands. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00234">234</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00266">266</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
 
 </div>
 </div>

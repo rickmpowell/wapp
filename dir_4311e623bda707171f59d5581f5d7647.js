@@ -2,8 +2,8 @@ var dir_4311e623bda707171f59d5581f5d7647 =
 [
     [ "include", "dir_ea4ccc50dbaecaa75baeb11461b19eec.html", "dir_ea4ccc50dbaecaa75baeb11461b19eec" ],
     [ "app.cpp", "d5/df2/app_8cpp.html", "d5/df2/app_8cpp" ],
-    [ "clip.cpp", "de/def/clip_8cpp_source.html", null ],
-    [ "cmd.cpp", "db/d71/cmd_8cpp_source.html", null ],
+    [ "clip.cpp", "de/def/clip_8cpp.html", "de/def/clip_8cpp" ],
+    [ "cmd.cpp", "db/d71/cmd_8cpp.html", null ],
     [ "ctl.cpp", "d8/df6/ctl_8cpp_source.html", null ],
     [ "dc.cpp", "df/d9d/dc_8cpp_source.html", null ],
     [ "dlg.cpp", "d4/d52/dlg_8cpp_source.html", null ],

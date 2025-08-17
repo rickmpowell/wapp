@@ -105,8 +105,8 @@ $(document).ready(function(){initNavTree('d6/d1a/wapp_8cpp_source.html','../../'
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment"> *  The WAPP class, the base of all applications</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;wapp.h&quot;</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;id.h&quot;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;<a class="code" href="../../d2/d48/wapp_8h.html">wapp.h</a>&quot;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;<a class="code" href="../../df/db9/id_8h.html">id.h</a>&quot;</span></div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="keyword">const</span> <a class="code hl_class" href="../../d7/d24/classERR.html">ERR</a> errNone = <a class="code hl_class" href="../../d7/d24/classERR.html">ERR</a>(S_OK);</div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keyword">const</span> <a class="code hl_class" href="../../d7/d24/classERR.html">ERR</a> errFail = <a class="code hl_class" href="../../d7/d24/classERR.html">ERR</a>(E_FAIL);</div>
@@ -210,7 +210,7 @@ $(document).ready(function(){initNavTree('d6/d1a/wapp_8cpp_source.html','../../'
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    fVisible = (ws &amp; WS_VISIBLE) != 0;</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    WNDMAIN::CreateWnd(sTitle, ws, pt, sz);</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keywordflow">if</span> (GetMenu(hwnd) != NULL)</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>        RegisterMenuCmds();</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>        <a class="code hl_function" href="../../d9/d15/classIWAPP.html#ad5e449b3021efa240b7f90f270b0a6ec">RegisterMenuCmds</a>();</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>}</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keywordtype">void</span> IWAPP::CreateWnd(<span class="keywordtype">int</span> rssTitle, <span class="keywordtype">int</span> ws, <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a> pt, <a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a> sz)</div>
@@ -286,12 +286,12 @@ $(document).ready(function(){initNavTree('d6/d1a/wapp_8cpp_source.html','../../'
 <div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span> </div>
 <div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span><span class="keywordtype">int</span> IWAPP::OnCommand(<span class="keywordtype">int</span> cmd)</div>
 <div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>{</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordflow">return</span> FExecuteMenuCmd(cmd);</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="../../d9/d15/classIWAPP.html#acb2fc51eed0e261230f97bdf875759c8">FExecuteMenuCmd</a>(cmd);</div>
 <div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>}</div>
 <div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span><span class="keywordtype">void</span> IWAPP::OnInitMenuPopup(HMENU hmenu)</div>
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>{</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    InitPopupMenuCmds(hmenu);</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <a class="code hl_function" href="../../d9/d15/classIWAPP.html#ab0d00379b88687aa0054321a3cee446f">InitPopupMenuCmds</a>(hmenu);</div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>}</div>
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span><span class="keywordtype">void</span> IWAPP::OnKeyDown(<span class="keywordtype">int</span> vk)</div>
@@ -494,16 +494,21 @@ $(document).ready(function(){initNavTree('d6/d1a/wapp_8cpp_source.html','../../'
 <div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>}</div>
 <div class="ttc" id="aclassAPP_html"><div class="ttname"><a href="../../d5/d9b/classAPP.html">APP</a></div><div class="ttdoc">The base application class.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d39/app_8h_source.html#l00044">app.h:45</a></div></div>
 <div class="ttc" id="aclassAPP_html_a3c47fb3334ad8733ead1b0f279b378a5"><div class="ttname"><a href="../../d5/d9b/classAPP.html#a3c47fb3334ad8733ead1b0f279b378a5">APP::SLoad</a></div><div class="ttdeci">string SLoad(unsigned rss) const</div><div class="ttdef"><b>Definition</b> <a href="../../d5/df2/app_8cpp_source.html#l00075">app.cpp:75</a></div></div>
-<div class="ttc" id="aclassERR_html"><div class="ttname"><a href="../../d7/d24/classERR.html">ERR</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d40/err_8h_source.html#l00021">err.h:22</a></div></div>
-<div class="ttc" id="aclassEVD_html"><div class="ttname"><a href="../../d2/ded/classEVD.html">EVD</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/d55/ev_8h_source.html#l00023">ev.h:24</a></div></div>
-<div class="ttc" id="aclassFILTERMSG_html"><div class="ttname"><a href="../../d9/d14/classFILTERMSG.html">FILTERMSG</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d48/wapp_8h_source.html#l00148">wapp.h:149</a></div></div>
-<div class="ttc" id="aclassIWAPP_html"><div class="ttname"><a href="../../d9/d15/classIWAPP.html">IWAPP</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d48/wapp_8h_source.html#l00036">wapp.h:37</a></div></div>
-<div class="ttc" id="aclassPT_html"><div class="ttname"><a href="../../dc/d71/classPT.html">PT</a></div><div class="ttdoc">a floating point point on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00159">coord.h:160</a></div></div>
-<div class="ttc" id="aclassRC_html"><div class="ttname"><a href="../../d2/d9b/classRC.html">RC</a></div><div class="ttdoc">A rectangle class on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00364">coord.h:365</a></div></div>
-<div class="ttc" id="aclassSZ_html"><div class="ttname"><a href="../../db/dfa/classSZ.html">SZ</a></div><div class="ttdoc">a size on the screen</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00020">coord.h:21</a></div></div>
+<div class="ttc" id="aclassERR_html"><div class="ttname"><a href="../../d7/d24/classERR.html">ERR</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d40/err_8h_source.html#l00029">err.h:30</a></div></div>
+<div class="ttc" id="aclassEVD_html"><div class="ttname"><a href="../../d2/ded/classEVD.html">EVD</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/d55/ev_8h_source.html#l00028">ev.h:29</a></div></div>
+<div class="ttc" id="aclassFILTERMSG_html"><div class="ttname"><a href="../../d9/d14/classFILTERMSG.html">FILTERMSG</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d48/wapp_8h_source.html#l00150">wapp.h:151</a></div></div>
+<div class="ttc" id="aclassIWAPP_html"><div class="ttname"><a href="../../d9/d15/classIWAPP.html">IWAPP</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d48/wapp_8h_source.html#l00038">wapp.h:39</a></div></div>
+<div class="ttc" id="aclassIWAPP_html_ab0d00379b88687aa0054321a3cee446f"><div class="ttname"><a href="../../d9/d15/classIWAPP.html#ab0d00379b88687aa0054321a3cee446f">IWAPP::InitPopupMenuCmds</a></div><div class="ttdeci">void InitPopupMenuCmds(HMENU hmenu)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00194">cmd.cpp:194</a></div></div>
+<div class="ttc" id="aclassIWAPP_html_acb2fc51eed0e261230f97bdf875759c8"><div class="ttname"><a href="../../d9/d15/classIWAPP.html#acb2fc51eed0e261230f97bdf875759c8">IWAPP::FExecuteMenuCmd</a></div><div class="ttdeci">bool FExecuteMenuCmd(int cmd)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00077">cmd.cpp:77</a></div></div>
+<div class="ttc" id="aclassIWAPP_html_ad5e449b3021efa240b7f90f270b0a6ec"><div class="ttname"><a href="../../d9/d15/classIWAPP.html#ad5e449b3021efa240b7f90f270b0a6ec">IWAPP::RegisterMenuCmds</a></div><div class="ttdeci">virtual void RegisterMenuCmds(void)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00170">cmd.cpp:170</a></div></div>
+<div class="ttc" id="aclassPT_html"><div class="ttname"><a href="../../dc/d71/classPT.html">PT</a></div><div class="ttdoc">a floating point point on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00166">coord.h:167</a></div></div>
+<div class="ttc" id="aclassRC_html"><div class="ttname"><a href="../../d2/d9b/classRC.html">RC</a></div><div class="ttdoc">A rectangle class on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00373">coord.h:374</a></div></div>
+<div class="ttc" id="aclassSZ_html"><div class="ttname"><a href="../../db/dfa/classSZ.html">SZ</a></div><div class="ttdoc">a size on the screen</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00026">coord.h:27</a></div></div>
 <div class="ttc" id="aclassWNDMAIN_html"><div class="ttname"><a href="../../d3/def/classWNDMAIN.html">WNDMAIN</a></div><div class="ttdoc">A top-level HWND.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d39/app_8h_source.html#l00162">app.h:163</a></div></div>
 <div class="ttc" id="aclassWND_html_aca28b2935bf969c0626e6c9c2dc81c6f"><div class="ttname"><a href="../../d7/d6d/classWND.html#aca28b2935bf969c0626e6c9c2dc81c6f">WND::ShowWnd</a></div><div class="ttdeci">void ShowWnd(int sw=SW_SHOW)</div><div class="ttdef"><b>Definition</b> <a href="../../d5/df2/app_8cpp_source.html#l00221">app.cpp:221</a></div></div>
-<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00036">wn.h:37</a></div></div>
+<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00041">wn.h:42</a></div></div>
+<div class="ttc" id="aid_8h_html"><div class="ttname"><a href="../../df/db9/id_8h.html">id.h</a></div><div class="ttdoc">Resource ids.</div></div>
+<div class="ttc" id="awapp_8h_html"><div class="ttname"><a href="../../d2/d48/wapp_8h.html">wapp.h</a></div><div class="ttdoc">Windows Application.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

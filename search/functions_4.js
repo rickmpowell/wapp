@@ -1,8 +1,11 @@
 var searchData=
 [
-  ['haccelload_0',['HaccelLoad',['../d5/d9b/classAPP.html#a483be3580be73e260ee4e57a948cbce0',1,'APP']]],
-  ['hcursordef_1',['HcursorDef',['../d5/d9b/classAPP.html#ad8e6dfa370e3e2652c5463a0c108832e',1,'APP']]],
-  ['hcursorload_2',['HcursorLoad',['../d5/d9b/classAPP.html#a6eb92ab2fa6ec8cd6dba7cd37a4571e4',1,'APP']]],
-  ['hicondef_3',['HiconDef',['../d5/d9b/classAPP.html#a403ad292ed81086e249c3720da54e1c9',1,'APP']]],
-  ['hiconload_4',['HiconLoad',['../d5/d9b/classAPP.html#afcad10b392ea24d5858f506d9632cfa2',1,'APP']]]
+  ['fexecutecmd_0',['fexecutecmd',['../d2/ded/classEVD.html#af38ca53e5a38db2eda7b402c553a77f6',1,'EVD::FExecuteCmd()'],['../d9/d15/classIWAPP.html#a8986518db8a102cf26965c305e7b4fab',1,'IWAPP::FExecuteCmd(const ICMD &amp;icmd)']]],
+  ['fexecutemenucmd_1',['FExecuteMenuCmd',['../d9/d15/classIWAPP.html#acb2fc51eed0e261230f97bdf875759c8',1,'IWAPP']]],
+  ['fredocmd_2',['fredocmd',['../d2/ded/classEVD.html#abd4c7027e43101a8f4c037426c927eb1',1,'EVD::FRedoCmd()'],['../d9/d15/classIWAPP.html#a78d370714c603ddc944351fd61e3e0b9',1,'IWAPP::FRedoCmd()']]],
+  ['ftopredocmd_3',['ftopredocmd',['../d2/ded/classEVD.html#aea797aa981249c4c6c4d4cfd680525c1',1,'EVD::FTopRedoCmd()'],['../d9/d15/classIWAPP.html#a0c93cb3623df87ad7658c1a3398396d2',1,'IWAPP::FTopRedoCmd()']]],
+  ['ftopundocmd_4',['ftopundocmd',['../d2/ded/classEVD.html#af8e1015a4c895e281328196556339f50',1,'EVD::FTopUndoCmd()'],['../d9/d15/classIWAPP.html#aa4b25305d280fb15c5238e24f664a6e7',1,'IWAPP::FTopUndoCmd()']]],
+  ['fundoable_5',['FUndoable',['../d1/d45/classICMD.html#a5801aea44f02d3abe1f3c9b60d3ca385',1,'ICMD']]],
+  ['fundocmd_6',['fundocmd',['../d2/ded/classEVD.html#a2d4978cc06116a463260e53a7fa8e440',1,'EVD::FUndoCmd()'],['../d9/d15/classIWAPP.html#a4e353db51a32087752aa5a04bccbac22',1,'IWAPP::FUndoCmd(void)']]],
+  ['fverifymenucmdsregistered_7',['FVerifyMenuCmdsRegistered',['../d9/d15/classIWAPP.html#ad231244fd9f482bdf5160eab84455679',1,'IWAPP']]]
 ];

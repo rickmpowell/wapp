@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['showwnd_0',['ShowWnd',['../d7/d6d/classWND.html#aca28b2935bf969c0626e6c9c2dc81c6f',1,'WND']]],
-  ['sload_1',['SLoad',['../d5/d9b/classAPP.html#a3c47fb3334ad8733ead1b0f279b378a5',1,'APP']]],
-  ['sregister_2',['SRegister',['../d3/def/classWNDMAIN.html#a252e11276102074d5d7c74698e9c2c3a',1,'WNDMAIN']]],
-  ['sz_3',['SZ',['../db/dfa/classSZ.html#aa7df2ca902939639328a76dcdb43c637',1,'SZ']]]
+  ['offset_0',['offset',['../de/d00/classELL.html#af697a145b40ef57b1e85154b6226956d',1,'ELL::Offset(float dx, float dy)'],['../de/d00/classELL.html#a388ac7ab534848eb639f220ace841bc8',1,'ELL::Offset(const PT &amp;pt)']]],
+  ['operator_20rect_1',['operator RECT',['../d2/d9b/classRC.html#a399b6c9ebdf94204cd6bcafeb4bd5e81',1,'RC']]]
 ];

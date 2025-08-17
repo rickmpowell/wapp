@@ -98,6 +98,8 @@ $(document).ready(function(){initNavTree('d8/dea/classCTL.html','../../'); initR
   <div class="headertitle"><div class="title">CTL Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for CTL:</div>
 <div class="dyncontent">
@@ -107,21 +109,21 @@ Inheritance diagram for CTL:</div>
 <area href="../../db/dd4/classWN.html" alt="WN" shape="rect" coords="432,112,518,136"/>
 <area href="../../d5/d13/classDCS.html" alt="DCS" shape="rect" coords="432,56,518,80"/>
 <area href="../../dc/d10/classDC.html" alt="DC" shape="rect" coords="432,0,518,24"/>
-<area href="../../d6/d95/classBTN.html" alt="BTN" shape="rect" coords="144,224,230,248"/>
-<area href="../../da/dec/classCHK.html" alt="CHK" shape="rect" coords="240,224,326,248"/>
-<area href="../../df/df4/classCYCLE.html" alt="CYCLE" shape="rect" coords="336,224,422,248"/>
-<area href="../../d6/dc4/classEDIT.html" alt="EDIT" shape="rect" coords="432,224,518,248"/>
-<area href="../../d4/dc5/classSTATIC.html" alt="STATIC" shape="rect" coords="528,224,614,248"/>
-<area href="../../d2/da1/classSTATICICON.html" alt="STATICICON" shape="rect" coords="624,224,710,248"/>
-<area href="../../d8/d91/classVSEL.html" alt="VSEL" shape="rect" coords="720,224,806,248"/>
-<area href="../../d0/d52/classBTNCLOSE.html" alt="BTNCLOSE" shape="rect" coords="0,280,86,304"/>
-<area href="../../da/d8e/classBTNNEXT.html" alt="BTNNEXT" shape="rect" coords="96,280,182,304"/>
-<area href="../../d8/d37/classBTNS.html" alt="BTNS" shape="rect" coords="192,280,278,304"/>
-<area href="../../dd/d29/classSEL.html" alt="SEL" shape="rect" coords="288,280,374,304"/>
-<area href="../../d5/d4e/classSTATICL.html" alt="STATICL" shape="rect" coords="432,280,518,304"/>
-<area href="../../d4/db7/classSTATICR.html" alt="STATICR" shape="rect" coords="528,280,614,304"/>
+<area href="../../d6/d95/classBTN.html" title="Base class for buttons, which can be clicked on to launch commands." alt="BTN" shape="rect" coords="144,224,230,248"/>
+<area href="../../da/dec/classCHK.html" title="Checkbox control." alt="CHK" shape="rect" coords="240,224,326,248"/>
+<area href="../../df/df4/classCYCLE.html" title="A control with an up and down button to cycle through options." alt="CYCLE" shape="rect" coords="336,224,422,248"/>
+<area href="../../d6/dc4/classEDIT.html" title="Edit control." alt="EDIT" shape="rect" coords="432,224,518,248"/>
+<area href="../../d4/dc5/classSTATIC.html" title="Base class for no-UI static controls." alt="STATIC" shape="rect" coords="528,224,614,248"/>
+<area href="../../d2/da1/classSTATICICON.html" title="Static icon control." alt="STATICICON" shape="rect" coords="624,224,710,248"/>
+<area href="../../d8/d91/classVSEL.html" title="A collection of individual selector items." alt="VSEL" shape="rect" coords="720,224,806,248"/>
+<area href="../../d0/d52/classBTNCLOSE.html" title="A close button for use in titlebars and dialogs." alt="BTNCLOSE" shape="rect" coords="0,280,86,304"/>
+<area href="../../da/d8e/classBTNNEXT.html" title="A next button, just a little arrow pointing to the right." alt="BTNNEXT" shape="rect" coords="96,280,182,304"/>
+<area href="../../d8/d37/classBTNS.html" title="Button with a line of text for its image." alt="BTNS" shape="rect" coords="192,280,278,304"/>
+<area href="../../dd/d29/classSEL.html" title="An individual control in a selector option group." alt="SEL" shape="rect" coords="288,280,374,304"/>
+<area href="../../d5/d4e/classSTATICL.html" title="Static text control, left aligned." alt="STATICL" shape="rect" coords="432,280,518,304"/>
+<area href="../../d4/db7/classSTATICR.html" title="Static text control, right aligned." alt="STATICR" shape="rect" coords="528,280,614,304"/>
 <area href="../../d0/dd0/classTITLEDLG.html" alt="TITLEDLG" shape="rect" coords="624,280,710,304"/>
-<area href="../../de/db6/classBTNPREV.html" alt="BTNPREV" shape="rect" coords="96,336,182,360"/>
+<area href="../../de/db6/classBTNPREV.html" title="A previous button, just a little arrow pointing to the left." alt="BTNPREV" shape="rect" coords="96,336,182,360"/>
 <area href="../../df/d72/classBTNOK.html" alt="BTNOK" shape="rect" coords="192,336,278,360"/>
 <area href="../../d6/d3b/classSELS.html" alt="SELS" shape="rect" coords="288,336,374,360"/>
 <area href="../../d9/d87/classINSTRUCT.html" alt="INSTRUCT" shape="rect" coords="432,336,518,360"/>
@@ -396,8 +398,10 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:a7afdd2cfdc49161b0887466c39adcaea inherit pub_static_attribs_classDCS"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00031">31</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
+<div class="textblock"><p>The base class used for all controls, which just implements common functionality.</p>
+<p>TODO: every <a class="el" href="../../d8/dea/classCTL.html">CTL</a> creates a font. There must be a more efficient way. TODO: need to formalize how labels work and layout </p>
+
+<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00040">40</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
 </div><h2 class="groupheader">Member Enumeration Documentation</h2>
 <a id="ab10e8636e42a39cf1da5815453099abe" name="ab10e8636e42a39cf1da5815453099abe"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab10e8636e42a39cf1da5815453099abe">&#9670;&#160;</a></span>CDS</h2>
@@ -419,7 +423,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00073">73</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00082">82</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
 
 </div>
 </div>
@@ -1065,7 +1069,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00048">48</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00057">57</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
 
 </div>
 </div>
@@ -1103,7 +1107,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00047">47</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00056">56</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
 
 </div>
 </div>
@@ -1131,7 +1135,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00046">46</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00055">55</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
 
 </div>
 </div>
@@ -1268,7 +1272,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00083">83</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00092">92</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
 
 </div>
 </div>
@@ -1292,7 +1296,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00086">86</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00095">95</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
 
 </div>
 </div>
@@ -1316,7 +1320,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00085">85</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00094">94</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
 
 </div>
 </div>
@@ -1340,7 +1344,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00084">84</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00093">93</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
 
 </div>
 </div>
@@ -1364,7 +1368,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00082">82</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00091">91</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
 
 </div>
 </div>
@@ -1388,7 +1392,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00070">70</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00079">79</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
 
 </div>
 </div>
@@ -1412,7 +1416,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00071">71</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00080">80</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
 
 </div>
 </div>
@@ -1436,7 +1440,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00081">81</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d9c/ctl_8h_source.html#l00090">90</a> of file <a class="el" href="../../dc/d9c/ctl_8h_source.html">ctl.h</a>.</p>
 
 </div>
 </div>

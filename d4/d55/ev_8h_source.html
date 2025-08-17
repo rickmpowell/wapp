@@ -98,93 +98,91 @@ $(document).ready(function(){initNavTree('d4/d55/ev_8h_source.html','../../'); i
   <div class="headertitle"><div class="title">ev.h</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
+<a href="../../d4/d55/ev_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span> </div>
-<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment"> *  ev.h</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment"> * </span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment"> *  Event processing and dispatch. Central location for collectinmg and</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment"> *  dispatching events to the correct handlers. Can be replaced at runtime</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment"> *  to handle things like modal dialogs.</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment"> * </span></div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment"> *  Includes command and custom notifications.</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &quot;framework.h&quot;</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;wn.h&quot;</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &quot;cmd.h&quot;</span></div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment"> *  EVD</span></div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment"> * </span></div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment"> *  Event dispatch</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="foldopen" id="foldopen00023" data-start="{" data-end="};">
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno"><a class="line" href="../../d2/ded/classEVD.html">   23</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d2/ded/classEVD.html">EVD</a></div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>{</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <a class="code hl_class" href="../../d2/ded/classEVD.html">EVD</a>(<a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>&amp; wnOwner);</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../d2/ded/classEVD.html">~EVD</a>();</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <span class="keywordtype">void</span> DestroyedWn(<a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwn);  <span class="comment">// notification that a window was destroyed</span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <span class="comment">/* message pump loop */</span></div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    </div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <span class="keyword">virtual</span> <span class="keywordtype">int</span> MsgPump(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> EnterPump(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keyword">virtual</span> <span class="keywordtype">int</span> QuitPump(MSG&amp; msg);</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FGetMsg(MSG&amp; msg);</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FPeekMsg(MSG&amp; msg);</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FQuitPump(MSG&amp; msg) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> ProcessMsg(MSG&amp; msg);</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FIdle(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="comment">/* raw mouse input */</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> MouseMove(<span class="keyword">const</span> <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>&amp; ptg, <span class="keywordtype">int</span> mk);</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> MouseDown(<span class="keyword">const</span> <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>&amp; ptg, <span class="keywordtype">int</span> mk);</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> MouseUp(<span class="keyword">const</span> <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>&amp; ptg, <span class="keywordtype">int</span> mk);</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> MouseWheel(<span class="keyword">const</span> <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>&amp; ptg, <span class="keywordtype">int</span> mk);</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a> PtgMouse(<span class="keywordtype">void</span>) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keywordtype">bool</span> FDragging(<span class="keyword">const</span> <a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwn) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordtype">void</span> SetDrag(<a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwn, <span class="keyword">const</span> <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>&amp; ptg, <span class="keywordtype">unsigned</span> mk);</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keywordtype">void</span> SetHover(<a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwn, <span class="keyword">const</span> <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>&amp; ptg);</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="comment">/* raw keyboard input */</span></div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetFocus(<a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwn);</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FKeyDown(<span class="keywordtype">int</span> vk);</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#include &quot;<a class="code" href="../../d6/d29/framework_8h.html">framework.h</a>&quot;</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#include &quot;<a class="code" href="../../d2/da3/wn_8h.html">wn.h</a>&quot;</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;<a class="code" href="../../dd/d9f/cmd_8h.html">cmd.h</a>&quot;</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="comment">/*</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment"> *  EVD</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment"> * </span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment"> *  Event dispatch</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="foldopen" id="foldopen00028" data-start="{" data-end="};">
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="../../d2/ded/classEVD.html">   28</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d2/ded/classEVD.html">EVD</a></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>{</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <a class="code hl_class" href="../../d2/ded/classEVD.html">EVD</a>(<a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>&amp; wnOwner);</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../d2/ded/classEVD.html">~EVD</a>();</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="keywordtype">void</span> DestroyedWn(<a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwn);  <span class="comment">// notification that a window was destroyed</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="comment">/* message pump loop */</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    </div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keyword">virtual</span> <span class="keywordtype">int</span> MsgPump(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> EnterPump(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keyword">virtual</span> <span class="keywordtype">int</span> QuitPump(MSG&amp; msg);</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FGetMsg(MSG&amp; msg);</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FPeekMsg(MSG&amp; msg);</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FQuitPump(MSG&amp; msg) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> ProcessMsg(MSG&amp; msg);</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FIdle(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="comment">/* raw mouse input */</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> MouseMove(<span class="keyword">const</span> <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>&amp; ptg, <span class="keywordtype">int</span> mk);</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> MouseDown(<span class="keyword">const</span> <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>&amp; ptg, <span class="keywordtype">int</span> mk);</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> MouseUp(<span class="keyword">const</span> <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>&amp; ptg, <span class="keywordtype">int</span> mk);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> MouseWheel(<span class="keyword">const</span> <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>&amp; ptg, <span class="keywordtype">int</span> mk);</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    </div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a> PtgMouse(<span class="keywordtype">void</span>) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordtype">bool</span> FDragging(<span class="keyword">const</span> <a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwn) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">void</span> SetDrag(<a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwn, <span class="keyword">const</span> <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>&amp; ptg, <span class="keywordtype">unsigned</span> mk);</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">void</span> SetHover(<a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwn, <span class="keyword">const</span> <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>&amp; ptg);</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="comment">/* command dispatch */</span></div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordtype">bool</span> FExecuteCmd(<span class="keyword">const</span> <a class="code hl_class" href="../../d1/d45/classICMD.html">ICMD</a>&amp; icmd);</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">bool</span> FUndoCmd(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordtype">bool</span> FRedoCmd(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="keywordtype">bool</span> FTopUndoCmd(<a class="code hl_class" href="../../d1/d45/classICMD.html">ICMD</a>*&amp; pcmd);</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordtype">bool</span> FTopRedoCmd(<a class="code hl_class" href="../../d1/d45/classICMD.html">ICMD</a>*&amp; pcmd);</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>&amp; wnOwner;</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwnFocus;</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwnDrag;</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwnHover;</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    vector&lt;unique_ptr&lt;ICMD&gt;&gt; vpcmdUndo;</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    vector&lt;unique_ptr&lt;ICMD&gt;&gt; vpcmdRedo;</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>};</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="comment">/* raw keyboard input */</span></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetFocus(<a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwn);</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FKeyDown(<span class="keywordtype">int</span> vk);</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="comment">/* command dispatch */</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="../../d2/ded/classEVD.html#af38ca53e5a38db2eda7b402c553a77f6">FExecuteCmd</a>(<span class="keyword">const</span> <a class="code hl_class" href="../../d1/d45/classICMD.html">ICMD</a>&amp; icmd);</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="../../d2/ded/classEVD.html#a2d4978cc06116a463260e53a7fa8e440">FUndoCmd</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="../../d2/ded/classEVD.html#abd4c7027e43101a8f4c037426c927eb1">FRedoCmd</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="../../d2/ded/classEVD.html#af8e1015a4c895e281328196556339f50">FTopUndoCmd</a>(<a class="code hl_class" href="../../d1/d45/classICMD.html">ICMD</a>*&amp; pcmd);</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="../../d2/ded/classEVD.html#aea797aa981249c4c6c4d4cfd680525c1">FTopRedoCmd</a>(<a class="code hl_class" href="../../d1/d45/classICMD.html">ICMD</a>*&amp; pcmd);</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>&amp; wnOwner;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwnFocus;</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwnDrag;</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>* pwnHover;</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    vector&lt;unique_ptr&lt;ICMD&gt;&gt; vpcmdUndo;</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    vector&lt;unique_ptr&lt;ICMD&gt;&gt; vpcmdRedo;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>};</div>
 </div>
-<div class="ttc" id="aclassEVD_html"><div class="ttname"><a href="../../d2/ded/classEVD.html">EVD</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/d55/ev_8h_source.html#l00023">ev.h:24</a></div></div>
-<div class="ttc" id="aclassICMD_html"><div class="ttname"><a href="../../d1/d45/classICMD.html">ICMD</a></div><div class="ttdef"><b>Definition</b> <a href="../../dd/d9f/cmd_8h_source.html#l00042">cmd.h:43</a></div></div>
-<div class="ttc" id="aclassPT_html"><div class="ttname"><a href="../../dc/d71/classPT.html">PT</a></div><div class="ttdoc">a floating point point on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00159">coord.h:160</a></div></div>
-<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00036">wn.h:37</a></div></div>
+<div class="ttc" id="aclassEVD_html"><div class="ttname"><a href="../../d2/ded/classEVD.html">EVD</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/d55/ev_8h_source.html#l00028">ev.h:29</a></div></div>
+<div class="ttc" id="aclassEVD_html_a2d4978cc06116a463260e53a7fa8e440"><div class="ttname"><a href="../../d2/ded/classEVD.html#a2d4978cc06116a463260e53a7fa8e440">EVD::FUndoCmd</a></div><div class="ttdeci">bool FUndoCmd(void)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00107">cmd.cpp:107</a></div></div>
+<div class="ttc" id="aclassEVD_html_abd4c7027e43101a8f4c037426c927eb1"><div class="ttname"><a href="../../d2/ded/classEVD.html#abd4c7027e43101a8f4c037426c927eb1">EVD::FRedoCmd</a></div><div class="ttdeci">bool FRedoCmd(void)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00124">cmd.cpp:124</a></div></div>
+<div class="ttc" id="aclassEVD_html_aea797aa981249c4c6c4d4cfd680525c1"><div class="ttname"><a href="../../d2/ded/classEVD.html#aea797aa981249c4c6c4d4cfd680525c1">EVD::FTopRedoCmd</a></div><div class="ttdeci">bool FTopRedoCmd(ICMD *&amp;pcmd)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00156">cmd.cpp:156</a></div></div>
+<div class="ttc" id="aclassEVD_html_af38ca53e5a38db2eda7b402c553a77f6"><div class="ttname"><a href="../../d2/ded/classEVD.html#af38ca53e5a38db2eda7b402c553a77f6">EVD::FExecuteCmd</a></div><div class="ttdeci">bool FExecuteCmd(const ICMD &amp;icmd)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00090">cmd.cpp:90</a></div></div>
+<div class="ttc" id="aclassEVD_html_af8e1015a4c895e281328196556339f50"><div class="ttname"><a href="../../d2/ded/classEVD.html#af8e1015a4c895e281328196556339f50">EVD::FTopUndoCmd</a></div><div class="ttdeci">bool FTopUndoCmd(ICMD *&amp;pcmd)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00142">cmd.cpp:142</a></div></div>
+<div class="ttc" id="aclassICMD_html"><div class="ttname"><a href="../../d1/d45/classICMD.html">ICMD</a></div><div class="ttdef"><b>Definition</b> <a href="../../dd/d9f/cmd_8h_source.html#l00049">cmd.h:50</a></div></div>
+<div class="ttc" id="aclassPT_html"><div class="ttname"><a href="../../dc/d71/classPT.html">PT</a></div><div class="ttdoc">a floating point point on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00166">coord.h:167</a></div></div>
+<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00041">wn.h:42</a></div></div>
+<div class="ttc" id="acmd_8h_html"><div class="ttname"><a href="../../dd/d9f/cmd_8h.html">cmd.h</a></div><div class="ttdoc">Commands.</div></div>
+<div class="ttc" id="aframework_8h_html"><div class="ttname"><a href="../../d6/d29/framework_8h.html">framework.h</a></div><div class="ttdoc">System and standard library headers.</div></div>
+<div class="ttc" id="awn_8h_html"><div class="ttname"><a href="../../d2/da3/wn_8h.html">wn.h</a></div><div class="ttdoc">Windows.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="../../dir_4311e623bda707171f59d5581f5d7647.html">wapp</a></li><li class="navelem"><a class="el" href="../../dir_ea4ccc50dbaecaa75baeb11461b19eec.html">include</a></li><li class="navelem"><b>ev.h</b></li>
+    <li class="navelem"><a class="el" href="../../dir_4311e623bda707171f59d5581f5d7647.html">wapp</a></li><li class="navelem"><a class="el" href="../../dir_ea4ccc50dbaecaa75baeb11461b19eec.html">include</a></li><li class="navelem"><a class="el" href="../../d4/d55/ev_8h.html">ev.h</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

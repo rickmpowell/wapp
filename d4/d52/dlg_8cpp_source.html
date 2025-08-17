@@ -138,8 +138,8 @@ $(document).ready(function(){initNavTree('d4/d52/dlg_8cpp_source.html','../../')
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="comment"> *      ExtractData - moves the data from the dialog into the app object</span></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="preprocessor">#include &quot;wapp.h&quot;</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#include &quot;id.h&quot;</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="preprocessor">#include &quot;<a class="code" href="../../d2/d48/wapp_8h.html">wapp.h</a>&quot;</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#include &quot;<a class="code" href="../../df/db9/id_8h.html">id.h</a>&quot;</span></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="comment">/*</span></div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="comment"> *  Dialogs</span></div>
@@ -260,12 +260,12 @@ $(document).ready(function(){initNavTree('d4/d52/dlg_8cpp_source.html','../../')
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span> </div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    <span class="keywordflow">case</span> VK_RETURN:</div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>        pcmd = make_unique&lt;CMDOK&gt;(*<span class="keyword">this</span>);</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>        iwapp.FExecuteCmd(*pcmd);</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>        iwapp.<a class="code hl_function" href="../../d9/d15/classIWAPP.html#a8986518db8a102cf26965c305e7b4fab">FExecuteCmd</a>(*pcmd);</div>
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span> </div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keywordflow">case</span> VK_ESCAPE:</div>
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>        pcmd = make_unique&lt;CMDCANCEL&gt;(*<span class="keyword">this</span>);</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>        iwapp.FExecuteCmd(*pcmd);</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>        iwapp.<a class="code hl_function" href="../../d9/d15/classIWAPP.html#a8986518db8a102cf26965c305e7b4fab">FExecuteCmd</a>(*pcmd);</div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>        <span class="keywordflow">return</span> <span class="keyword">true</span>;;</div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keywordflow">default</span>:</div>
@@ -539,23 +539,26 @@ $(document).ready(function(){initNavTree('d4/d52/dlg_8cpp_source.html','../../')
 <div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span>{</div>
 <div class="line"><a id="l00440" name="l00440"></a><span class="lineno">  440</span>    DrawSCenter(sLabel, tf, rcLabel, coYellow);</div>
 <div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span>}</div>
-<div class="ttc" id="aclassCMDCANCEL_html"><div class="ttname"><a href="../../de/d80/classCMDCANCEL.html">CMDCANCEL</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00189">dlg.h:190</a></div></div>
-<div class="ttc" id="aclassCO_html"><div class="ttname"><a href="../../d8/d5a/classCO.html">CO</a></div><div class="ttdef"><b>Definition</b> <a href="../../da/dec/color_8h_source.html#l00018">color.h:19</a></div></div>
-<div class="ttc" id="aclassDLGFILEOPEN_html"><div class="ttname"><a href="../../d9/d7d/classDLGFILEOPEN.html">DLGFILEOPEN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00097">dlg.h:98</a></div></div>
-<div class="ttc" id="aclassDLGFILE_html"><div class="ttname"><a href="../../d5/d73/classDLGFILE.html">DLGFILE</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00082">dlg.h:83</a></div></div>
-<div class="ttc" id="aclassDLG_html"><div class="ttname"><a href="../../d1/d5a/classDLG.html">DLG</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00029">dlg.h:30</a></div></div>
-<div class="ttc" id="aclassEVD_html"><div class="ttname"><a href="../../d2/ded/classEVD.html">EVD</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/d55/ev_8h_source.html#l00023">ev.h:24</a></div></div>
-<div class="ttc" id="aclassIWAPP_html"><div class="ttname"><a href="../../d9/d15/classIWAPP.html">IWAPP</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d48/wapp_8h_source.html#l00036">wapp.h:37</a></div></div>
-<div class="ttc" id="aclassLENDLG_html"><div class="ttname"><a href="../../dd/d05/classLENDLG.html">LENDLG</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d8d/len_8h_source.html#l00067">len.h:68</a></div></div>
-<div class="ttc" id="aclassLEN_html"><div class="ttname"><a href="../../df/df1/classLEN.html">LEN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d8d/len_8h_source.html#l00022">len.h:23</a></div></div>
-<div class="ttc" id="aclassPAD_html"><div class="ttname"><a href="../../d5/d9a/classPAD.html">PAD</a></div><div class="ttdoc">Padding used for layout.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00324">coord.h:325</a></div></div>
-<div class="ttc" id="aclassRC_html"><div class="ttname"><a href="../../d2/d9b/classRC.html">RC</a></div><div class="ttdoc">A rectangle class on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00364">coord.h:365</a></div></div>
-<div class="ttc" id="aclassSTATICL_html"><div class="ttname"><a href="../../d5/d4e/classSTATICL.html">STATICL</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00124">ctl.h:125</a></div></div>
-<div class="ttc" id="aclassSTATIC_html"><div class="ttname"><a href="../../d4/dc5/classSTATIC.html">STATIC</a></div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00095">ctl.h:96</a></div></div>
-<div class="ttc" id="aclassSZ_html"><div class="ttname"><a href="../../db/dfa/classSZ.html">SZ</a></div><div class="ttdoc">a size on the screen</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00020">coord.h:21</a></div></div>
-<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00036">wn.h:37</a></div></div>
+<div class="ttc" id="aclassCMDCANCEL_html"><div class="ttname"><a href="../../de/d80/classCMDCANCEL.html">CMDCANCEL</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00198">dlg.h:199</a></div></div>
+<div class="ttc" id="aclassCO_html"><div class="ttname"><a href="../../d8/d5a/classCO.html">CO</a></div><div class="ttdoc">A simple RGB color.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dec/color_8h_source.html#l00028">color.h:29</a></div></div>
+<div class="ttc" id="aclassDLGFILEOPEN_html"><div class="ttname"><a href="../../d9/d7d/classDLGFILEOPEN.html">DLGFILEOPEN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00106">dlg.h:107</a></div></div>
+<div class="ttc" id="aclassDLGFILE_html"><div class="ttname"><a href="../../d5/d73/classDLGFILE.html">DLGFILE</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00091">dlg.h:92</a></div></div>
+<div class="ttc" id="aclassDLG_html"><div class="ttname"><a href="../../d1/d5a/classDLG.html">DLG</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00038">dlg.h:39</a></div></div>
+<div class="ttc" id="aclassEVD_html"><div class="ttname"><a href="../../d2/ded/classEVD.html">EVD</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/d55/ev_8h_source.html#l00028">ev.h:29</a></div></div>
+<div class="ttc" id="aclassIWAPP_html"><div class="ttname"><a href="../../d9/d15/classIWAPP.html">IWAPP</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d48/wapp_8h_source.html#l00038">wapp.h:39</a></div></div>
+<div class="ttc" id="aclassIWAPP_html_a8986518db8a102cf26965c305e7b4fab"><div class="ttname"><a href="../../d9/d15/classIWAPP.html#a8986518db8a102cf26965c305e7b4fab">IWAPP::FExecuteCmd</a></div><div class="ttdeci">bool FExecuteCmd(const ICMD &amp;icmd)</div><div class="ttdoc">Dispatches the command through the event system.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00018">cmd.cpp:18</a></div></div>
+<div class="ttc" id="aclassLENDLG_html"><div class="ttname"><a href="../../dd/d05/classLENDLG.html">LENDLG</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d8d/len_8h_source.html#l00073">len.h:74</a></div></div>
+<div class="ttc" id="aclassLEN_html"><div class="ttname"><a href="../../df/df1/classLEN.html">LEN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d8d/len_8h_source.html#l00028">len.h:29</a></div></div>
+<div class="ttc" id="aclassPAD_html"><div class="ttname"><a href="../../d5/d9a/classPAD.html">PAD</a></div><div class="ttdoc">Padding used for layout.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00332">coord.h:333</a></div></div>
+<div class="ttc" id="aclassRC_html"><div class="ttname"><a href="../../d2/d9b/classRC.html">RC</a></div><div class="ttdoc">A rectangle class on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00373">coord.h:374</a></div></div>
+<div class="ttc" id="aclassSTATICL_html"><div class="ttname"><a href="../../d5/d4e/classSTATICL.html">STATICL</a></div><div class="ttdoc">Static text control, left aligned.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00131">ctl.h:132</a></div></div>
+<div class="ttc" id="aclassSTATIC_html"><div class="ttname"><a href="../../d4/dc5/classSTATIC.html">STATIC</a></div><div class="ttdoc">Base class for no-UI static controls.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00103">ctl.h:104</a></div></div>
+<div class="ttc" id="aclassSZ_html"><div class="ttname"><a href="../../db/dfa/classSZ.html">SZ</a></div><div class="ttdoc">a size on the screen</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00026">coord.h:27</a></div></div>
+<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00041">wn.h:42</a></div></div>
 <div class="ttc" id="aclassglobal__ptr_html"><div class="ttname"><a href="../../d5/dd3/classglobal__ptr.html">global_ptr</a></div><div class="ttdoc">A managed pointer to a memory object allocated with GlobalAlloc.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d39/app_8h_source.html#l00320">app.h:321</a></div></div>
-<div class="ttc" id="astructOFN_html"><div class="ttname"><a href="../../df/daa/structOFN.html">OFN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00064">dlg.h:65</a></div></div>
+<div class="ttc" id="aid_8h_html"><div class="ttname"><a href="../../df/db9/id_8h.html">id.h</a></div><div class="ttdoc">Resource ids.</div></div>
+<div class="ttc" id="astructOFN_html"><div class="ttname"><a href="../../df/daa/structOFN.html">OFN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00073">dlg.h:74</a></div></div>
+<div class="ttc" id="awapp_8h_html"><div class="ttname"><a href="../../d2/d48/wapp_8h.html">wapp.h</a></div><div class="ttdoc">Windows Application.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
