@@ -1,14 +1,23 @@
+name: Build and deploy WAPP documentation
+
+on:
+  push:
+    branches:
+      - master
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: doc
+
     steps:
       - uses: actions/checkout@v3
 
       - name: Install Doxygen
-        run: sudo apt-get install doxygen graphviz -y
+        run: sudo apt-get install doxygen -y
 
       - name: Generate HTML Docs
         run: doxygen wapp.dox
