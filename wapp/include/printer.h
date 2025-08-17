@@ -1,9 +1,17 @@
 #pragma once
 
-/*
- *  printer.h
- * 
- *  The printer DC classes. Polymorphic with the DCS class.
+/**
+ *  @file       printer.h
+ *  @brief      Printer drawing context
+ *
+ *  @details    A very limited implementation of the DC that goes to the
+ *              printer. Uses GDI for the underlying graphics instead of 
+ *              DirectX, and so is not especially compatible with the normal
+ *              screen DC.
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "dc.h"

@@ -30,7 +30,7 @@ GAME::GAME(const string& fenStart, shared_ptr<PL> pplWhite, shared_ptr<PL> pplBl
 
 void GAME::AddListener(LGAME* plgame)
 {
-    vplgame.push_back(plgame);
+    setplgame.insert(plgame);
 }
 
 void GAME::MakeMv(MV mv)
@@ -48,31 +48,31 @@ void GAME::UndoMv(void)
 
 void GAME::NotifyBdChanged(void)
 {
-    for (LGAME* plgame : vplgame)
+    for (LGAME* plgame : setplgame)
         plgame->BdChanged();
 }
 
 void GAME::NotifyShowMv(MV mv, bool fAnimate)
 {
-    for (LGAME* plgame : vplgame)
+    for (LGAME* plgame : setplgame)
         plgame->ShowMv(mv, fAnimate);
 }
 
 void GAME::NotifyEnableUI(bool fEnable)
 {
-    for (LGAME* plgame : vplgame)
+    for (LGAME* plgame : setplgame)
         plgame->EnableUI(fEnable);
 }
 
 void GAME::NotifyPlChanged(void)
 {
-    for (LGAME* plgame : vplgame)
+    for (LGAME* plgame : setplgame)
         plgame->PlChanged();
 }
 
 void GAME::NotifyGsChanged(void)
 {
-    for (LGAME* plgame : vplgame)
+    for (LGAME* plgame : setplgame)
         plgame->GsChanged();
 }
 

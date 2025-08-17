@@ -1,9 +1,18 @@
 #pragma once
 
-/*
- *  dlg.h
- * 
- *  Dialog boxes
+/**
+ *  @file       dlg.h
+ *  @brief      Dialog boxes
+ *
+ *  @details    These are standard dialog boxes, which typically contain
+ *              controls. We also include wrappers for standard system
+ *              dialog boxes, like file pickers and the standard printer,
+ *              and an about dialog. We also have a few dialog specific
+ *              controls.
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "app.h"

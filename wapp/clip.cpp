@@ -1,44 +1,67 @@
 
-/*
- *  clip.cpp
+/**
+ *  @file       clip.cpp
+ *  @brief      Interface to the Windows clipboard
  *
- *  Simplified interface with the Windows clipboard.
+ *  @details    Access to the Windows clipboard actually requires an 
+ *              HWND to claim ownership, so this is a bit unsatisfactory,
+ *              but it's basically just an input and output stream that
+ *              reads/writes to the CF_TEXT format Windows clipboard.
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell.
  */
 
 #include "wapp.h"
 
-/**
- *  CLIP
+/** 
+ *  \class CLIP
+ *  \brief Simplified clipboard wrapper
  * 
- *  Simplified clipboard object
+ *  Automatically closes the clipboard when we leave scope, throws exceptions
+ *  on errors.
  */
 
 class CLIP
 {
 public:
+    /** 
+     *  Opens the clipboard and takes ownership for the HWND 
+     */
     CLIP(HWND hwnd) {
         ThrowError(::OpenClipboard(hwnd) ? S_OK : (HRESULT)::GetLastError());
     }
 
+    /** 
+     *  Closes the clipboard 
+     */
     ~CLIP() {
         ::CloseClipboard();
     }
 
+    /** 
+     *  Empties the clipboard 
+     */
     void Empty(void) {
         ThrowError(::EmptyClipboard() ? S_OK : (HRESULT)::GetLastError());
     }
 
+    /** 
+     *  Sets the clipboard's data to the data in the global handle 
+     */
     bool SetData(UINT cf, HGLOBAL h) {
         return ::SetClipboardData(cf, h) != NULL;
     }
 
+    /** 
+     *  Gets the global handle of the data in the clipboared 
+     */
     HGLOBAL GetData(UINT cf) {
         return ::GetClipboardData(cf);
     }
 };
 
-/**
- *  iclipbuffer
+/** 
+ *  \class iclipbuffer
  * 
  *  The buffer implementation for streaming from the Windows clipboard.
  *  
@@ -69,10 +92,9 @@ int iclipbuffer::underflow(void)
     return traits_type::to_int_type(ch);
 }
 
-/**
- *  oclipstream
- * 
- *  Clipboard output stream
+/** 
+ *  \class oclipbuffer
+ *  \brief Clipboard output buffer
  */
 
 oclipbuffer::oclipbuffer(IWAPP& iwappOwn, UINT cfOut) : iwapp(iwappOwn), cf(cfOut)

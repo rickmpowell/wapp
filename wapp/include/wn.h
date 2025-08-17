@@ -1,20 +1,25 @@
 #pragma once
 
-/*
- *  wn.h
- * 
- *  The WN class is a rectangular area on the screen. They are arranged in
- *  a tree structure, parent/child, with the top-level root representing the 
- *  client area of a Windows' HWND.
- * 
- *  The implementation takes advantage of the way Direct2D updates on a
- *  Windows screen, with all drawing done off-screen and then swapped to the
- *  screen at the end. This allows for flicker-free drawing in sub-optimal
- *  updates.
- * 
- *  These objects do not have a user interface associated with them, it is
- *  purely visible. To process mouse of keyboard input, multi-inherit this
- *  with the various input type classes, or the UI class.
+/**
+ *  @file       wn.h
+ *  @brief      Windows
+ *
+ *  @details    A rectangular area on the screen, arrranged in a parent-
+ *              child tree structure. The top-level root represents the client
+ *              area of the Windows HWND.
+ *
+ *              The implementation takes advantage of the way Direct2D updates 
+ *              on a Windows screen, with all drawing done off-screen and then 
+ *              swapped to the screen at the end. This allows for flicker-free 
+ *              drawing in sub-optimal updates.
+ *
+ *              These objects do not have a user interface associated with them, 
+ *              it is purely visible. To process mouse of keyboard input, 
+ *              multi-inherit this with the various input type classes.
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "dc.h"

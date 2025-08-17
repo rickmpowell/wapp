@@ -1,11 +1,19 @@
 #pragma once
 
-/*
- *  err.h
- * 
- *  Errors. These can be thrown during an exception which can then be used
- *  to display an error message. 
+/**
+ *  @file       err.h
+ *  @brief      Errors
+ *
+ *  @details    These are standard error classes that can be thrown as 
+ *              exceptions and contain enough information to display a
+ *              error message where the exception id caught.
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
+
+
 
 #include "framework.h"
 

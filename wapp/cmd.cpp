@@ -1,41 +1,62 @@
 
-/*
- *  cmd.cpp
- * 
- *  Various command implementation and dispatch, including interface to
- *  the Windows menu system.
+/**
+ *  @file       cmd.cpp
+ *  @brief      Commands and command dispatch
+ *
+ *  @details    Including implementation of a minimal CMD. Also 
+ *              helpers for attaching commands to menus
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell.
  */
 
 #include "wapp.h"
+
+/**
+ *  \brief Dispatches the command through the event system.
+ */
 
 bool IWAPP::FExecuteCmd(const ICMD& icmd)
 {
     return vpevd.back()->FExecuteCmd(icmd);
 }
 
+/**
+ *  \brief Dispatches an undo command through the event system.
+ */
+
 bool IWAPP::FUndoCmd(void)
 {
     return vpevd.back()->FUndoCmd();
 }
+
+/**
+ *  \brief Dispatches a redo command through the event system.
+ */
 
 bool IWAPP::FRedoCmd(void)
 {
     return vpevd.back()->FRedoCmd();
 }
 
+/**
+ *  \brief Returns the top command form the undo stack
+ */
+
 bool IWAPP::FTopUndoCmd(ICMD*& pcmd)
 {
     return vpevd.back()->FTopUndoCmd(pcmd);
 }
+
+/**
+ *  \brief Returns the top command from the redo stack
+ */
 
 bool IWAPP::FTopRedoCmd(ICMD*& pcmd)
 {
     return vpevd.back()->FTopRedoCmd(pcmd);
 }
 
-/*
- *  IWAPP::RegisterMenuCmd
- * 
+/***
  *  Commands that attach to top-level window menus must be registered at startup.
  *  Ownership of the command pointer will be taken by the WAPP. Every menuitem
  *  in a Windows menu resource should have a command registered for it by this
@@ -48,9 +69,7 @@ void IWAPP::RegisterMenuCmd(int cmd, ICMD* picmd)
     mpcmdpicmdMenu[cmd] = unique_ptr<ICMD>(picmd);
 }
 
-/*
- *  IWAPP::FExecuteMenuCmd
- * 
+/**
  *  Takes the id from the WM_COMMAND message sent by Windows, looks up the
  *  command that it is attached to, and executes it.
  */
@@ -63,10 +82,9 @@ bool IWAPP::FExecuteMenuCmd(int cmd)
     return FExecuteCmd(*it->second);
 }
 
-/*
- *  EVD::FExecuteCmd
- * 
- *  Takes the command and executes it.
+/**
+ *  Takes the command and executes it. Maintains an undo stack. The
+ *  commands must be cloneable.
  */
 
 bool EVD::FExecuteCmd(const ICMD& icmd)
@@ -82,6 +100,10 @@ bool EVD::FExecuteCmd(const ICMD& icmd)
     return fResult;
 }
 
+/**
+ *  Execute the current undo command from the undo stack.
+ */
+
 bool EVD::FUndoCmd(void)
 {
     if (vpcmdUndo.size() == 0)
@@ -94,6 +116,10 @@ bool EVD::FUndoCmd(void)
 
     return fResult;
 }
+
+/**
+ *  Executes the current redo command from the undo stack
+ */
 
 bool EVD::FRedoCmd(void)
 {
@@ -108,6 +134,11 @@ bool EVD::FRedoCmd(void)
     return fResult;
 }
 
+/**
+ *  Returns the top undo command from the undo stack. Returns false if
+ *  there is no undoable command.
+ */
+
 bool EVD::FTopUndoCmd(ICMD*& pcmd)
 {
     pcmd = nullptr;
@@ -116,6 +147,11 @@ bool EVD::FTopUndoCmd(ICMD*& pcmd)
     pcmd = vpcmdUndo.back().get();
     return true;
 }
+
+/**
+ *  Returns the redo command from current redo stack. Returns false if
+ *  there is no redoable command.
+ */
 
 bool EVD::FTopRedoCmd(ICMD*& pcmd)
 {
@@ -126,9 +162,7 @@ bool EVD::FTopRedoCmd(ICMD*& pcmd)
     return true;
 }
 
-/*
- *  IWAPP::RegisterMenuCmds
- * 
+/**
  *  Applications should override this function to register their menu
  *  commands with WAPP.
  */
@@ -137,9 +171,7 @@ void IWAPP::RegisterMenuCmds(void)
 {
 }
 
-/*
- *  IWAPP::InitMenuCmds
- * 
+/**
  *  Overide this to impleeent menu commands that change dynamically with
  *  program state.
  * 
@@ -155,9 +187,7 @@ void IWAPP::InitMenuCmds(void)
         InitMenuCmd(hmenu, it->first, it->second);
 }
 
-/*
- *  IWAPP::InitPopupMenuCmds
- * 
+/**
  *  When a popup menu is about to drop down, initialize all the menu items.
  */
 
@@ -173,9 +203,7 @@ void IWAPP::InitPopupMenuCmds(HMENU hmenu)
     }
 }
 
-/*
- *  IWAPP::InitMenuCmd
- * 
+/**
  *  Initializes a specific menu command in the menus prior to it dropping
  *  down. Asks the attached command if it wants to s enable, check, or 
  *  change the text of the menu item.
@@ -198,9 +226,7 @@ void IWAPP::InitMenuCmd(HMENU hmenu, int cmd, const unique_ptr<ICMD>& pcmd)
     ::SetMenuItemInfoW(hmenu, (UINT)cmd, false, &mi);
 }
 
-/*
- *  IWAPP::FVerifyMenuCmdsRegistered
- *
+/**
  *  This is a debug check to be used in your menu registration code that you
  *  can use in an assert to verify that you correctly registered all the
  *  menu items in your Windows menus.
@@ -231,15 +257,30 @@ bool IWAPP::FVerifySubMenuCmdsRegistered(HMENU hmenu) const
  *  Base CMD implementation. These are mostly dummy stubs 
  */
 
+/**
+ *  The undo command by default simply redoes the execute part of the
+ *  command. This is rarely the right thing to do, but it does happen
+ *  to work on toggle-like commands.
+ */
+
 int ICMD::Undo(void)
 {
     return Execute();
 }
 
+/**
+ *  The default redo command.
+ */
+
 int ICMD::Redo(void)
 {
     return Execute();
 }
+
+/**
+ *  Returns true if the command is undoable. To implement undo, you must
+ *  override this function and return true.
+ */
 
 bool ICMD::FUndoable(void) const
 {
@@ -282,9 +323,7 @@ int ICMD::FRunDlg(DLG& dlg)
     return 1;
 }
 
-/*
- *  CMDABOUT
- *
+/**
  *  The About menu command
  */
 
@@ -293,6 +332,12 @@ CMDABOUT::CMDABOUT(IWAPP& wapp) :
 {
 }
 
+/**
+ *  Executing the about command just brings up a standard dialog. The
+ *  About dialog just pulls standard string and icon resources out of the
+ *  resource fork.
+ */
+
 int CMDABOUT::Execute(void)
 {
     DLGABOUT dlg(wapp);
@@ -300,9 +345,7 @@ int CMDABOUT::Execute(void)
     return 1;
 }
 
-/*
- *  CMDEXIT
- *
+/**
  *  The Exit menu command
  */
 
@@ -310,6 +353,11 @@ CMDEXIT::CMDEXIT(IWAPP& wapp) :
     CMD(wapp) 
 {
 }
+
+/**
+ *  Executing the exit command destroys the main top-level window of the 
+ *  application, which should trigger a shutdown of the entire application.
+ */
 
 int CMDEXIT::Execute(void)
 {

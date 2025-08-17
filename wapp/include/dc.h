@@ -1,9 +1,17 @@
 #pragma once
 
-/*
- *  dc.h
- * 
- *  Drawing context 
+/**
+ *  @file       dc.h
+ *  @brief      Drawing context
+ *
+ *  @details    This represents the surface that we actually draw on. We
+ *              draw with brushes, text faces, and bitmaps. Some of these
+ *              items are device-dependent, so they may need to be recreated
+ *              at runtime. 
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "coord.h"

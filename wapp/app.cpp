@@ -1,7 +1,7 @@
 
 /**
  *  @file       app.cpp
- *  @brief      implementaiton of low level application and window classes
+ *  @brief      Low level application and window classes
  * 
  *  @details    Implementation of the lowest level application and window 
  *              classes for the WAPP library. including the main program

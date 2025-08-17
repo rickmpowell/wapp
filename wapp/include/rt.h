@@ -1,12 +1,18 @@
 #pragma once
 
-/*
- *  rt.h
- * 
- *  Reder target definitions. This code provides alternate implementations of
- *  the Direct2D interface to the HWND client area. Different versions of Windows
- *  have different best practices for this.
+/**
+ *  @file       rt.h
+ *  @brief      Render target
+ *
+ *  @details    This code provides alternate implementations of the Direct2D 
+ *              interface to the HWND client area. Different versions of 
+ *              Windows have different best practices for this.
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
+
 
 #include "framework.h"
 #include "coord.h"

@@ -1,30 +1,37 @@
 #pragma once
 
-/*
- *  cmd.h
+/**
+ *  @file       cmd.h
+ *  @brief      Commands
+ *
+ *  @details    We provide a general mechanism for generating and executing
+ *              user interface commands. Commands correspond to the operations
+ *              initiated by menus or bnuttons, but can be generalized to
+ *              originate from just about any source.
  * 
- *  We provide a mechanism for generating and executing user interface
- *  commands. Commands correspond to the operations initiated by menus or
- *  buttons, but can be generalized to come from just about any source.
+ *              The process we encourage to to instantiate a command objectg,
+ *              which derives from the ICMD interface, and register it with
+ *              a UI element. When the UI element triggers an event, the 
+ *              command will be invoked by passit into WAPP::FExecuteCmd,
+ *              which, in the simplest applications, will simply execute the
+ *              command. For applications that support more advanced UI
+ *              features, FExecuteCmd can be overriden to implement things
+ *              like a command recorder, or an undo stack.
  * 
- *  The process we encourage is to instantiate a command object, which 
- *  derives from the ICMD interface, and register it with a UI element.
- *  When the UI element triggers a event, the cmmand will be invoked by
- *  passing it into IWAPP::FExecuteCmd, which, in the simplest applications, 
- *  will simply execute the command. FOr applications that support more
- *  advanced UI features, FExecuteCmd can be overridden to implement things
- *  like a command recorder, or an undo stack. 
- * 
- *  Command objects also include standard interfaces to provide enable and
- *  disable state, menu text, and tooltip text.
+ *              The command interface also includes support for things like
+ *              enable/disable state, menu text, and tooltip text.
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "framework.h"
 class WAPP;
 class DLG;
 
-/**
- *  ICMD
+/** 
+ *  \class ICMD
  * 
  *  The actual command object. These objects live inside various UI elements
  *  within the application, and are cloned in order to execute them. This 
@@ -71,10 +78,9 @@ public:
     virtual int FRunDlg(DLG& dlg);
 };
 
-/**
- *  CMD
- *
- *  command base class
+/** 
+ *  \class CMD
+ *  \brief Command base class.
  *
  *  Keeps some standard information around that is useful for all the commands
  *  in the applciation. 
@@ -115,9 +121,8 @@ public:
 };
 
 /**
- *  menuiterator
- * 
- *  A Windows menu enumerator
+ *  \class menuiterator
+ *  \brief A Windows HMENU enumerator
  */
 
 #pragma pack(1)
@@ -199,9 +204,8 @@ private:
 #pragma pack()
 
 /**
- *  MENU
- * 
- *  A wrapper cloass around the Windows HMENU
+ *  \class MENU
+ *  \brief A wrapper cloass around the Windows HMENU
  */
 
 #pragma pack(1)
@@ -237,9 +241,8 @@ private:
  */
 
 /**
- *  CMDABOUT
- *
- *  The About menu command
+ *  \class CMDABOUT
+ *  \brief The About menu command
  */
 
 class CMDABOUT : public CMD<CMDABOUT, IWAPP>
@@ -250,9 +253,8 @@ public:
 };
 
 /**
- *  CMDEXIT
- *
- *  The Exit menu command
+ *  \class CMDEXIT
+ *  \brief The Exit menu command
  */
 
 class CMDEXIT : public CMD<CMDEXIT, IWAPP>

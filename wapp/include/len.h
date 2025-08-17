@@ -1,9 +1,15 @@
 #pragma once
 
-/*
- *  len.h
- * 
- *  Layout engine
+/**
+ *  @file       len.h
+ *  @brief      Layout engine
+ *
+ *  @details    A rudimentary and experimental layout engine for aiding in the
+ *              automatic layout of dialog boxes.
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "dlg.h"

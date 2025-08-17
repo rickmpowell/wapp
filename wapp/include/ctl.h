@@ -1,9 +1,18 @@
 #pragma once
 
-/*
- *  ctl.h
- * 
- *  Definitions for standard control UI elements.
+/**
+ *  @file       ctl.h
+ *  @brief      Controls
+ *
+ *  @details    These are standard controls that typically live within dialog 
+ *              boxes, but they may also be used in other contexts. Includes
+ *              buttons, static items, checkboxes, titlebars, edit controls,
+ *              selection groups, and a cycler. We also have a toolbar for 
+ *              containing controls.
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "wn.h"
@@ -12,8 +21,8 @@
 class VSEL;
 class CYCLE;
 
-/**
- *  CTL 
+/** 
+ *  \class CTL
  *
  *  The base class used for all controls, which just implements common functionality.
  * 
@@ -87,9 +96,8 @@ protected:
 };
 
 /**
- *  STATIC
- * 
- *  Base class for no-UI static controls
+ *  \class STATIC
+ *  \brief Base class for no-UI static controls
  */
 
 class STATIC : public CTL
@@ -116,9 +124,8 @@ protected:
 };
 
 /**
- *  STATICL
- * 
- *  Static text control, left aligned.
+ *  \class STATICL
+ *  \brief Static text control, left aligned.
  */
 
 class STATICL : public STATIC
@@ -133,9 +140,8 @@ public:
 };
 
 /**
- *  STATICR
- * 
- *  Static text control, right aligned
+ *  \class STATICR
+ *  \brief Static text control, right aligned
  */
 
 class STATICR : public STATIC
@@ -150,8 +156,7 @@ public:
 
 /**
  *  STATICICON
- * 
- *  Static icon control
+ *  \brief Static icon control
  */
 
 class STATICICON : public CTL
@@ -169,7 +174,8 @@ private:
 };
 
 /**
- *  BTN
+ *  \class BTN
+ *  \brief Base class for buttons, which can be clicked on to launch commands.
  *
  *  The simple button control. Buttons are square UI elements that interact with the mous 
  *  eevents, and launch a command when pressed.
@@ -188,9 +194,8 @@ public:
 };
 
 /**
- *  BTNS
- * 
- *  Button with a line of text for its image
+ *  \class BTNS
+ *  \brief Button with a line of text for its image
  */
 
 class BTNS : public BTN
@@ -209,9 +214,8 @@ protected:
  };
 
 /**
- *  BTNCLOSE
- * 
- *  A close button for use in titlebars and dialogs
+ *  \class BTNCLOSE
+ *  \brief A close button for use in titlebars and dialogs
  */
 
 class BTNCLOSE : public BTN
@@ -227,9 +231,8 @@ public:
 };
 
 /**
- *  BTNNEXT
- * 
- *  A next button, just a little arrow pointing to the right
+ *  \class BTNNEXT
+ *  \brief A next button, just a little arrow pointing to the right
  */
 
 class BTNNEXT : public BTN
@@ -246,9 +249,8 @@ public:
 };
 
 /**
- *  BTNPREV
- * 
- *  A previous button, just a little arrow pointing to the left
+ *  \class BTNPREV
+ *  \brief A previous button, just a little arrow pointing to the left
  */
 
 class BTNPREV : public BTNNEXT
@@ -261,9 +263,8 @@ public:
 };
 
 /**
- *  CHK
- * 
- *  Checkbox control
+ *  \class CHK
+ *  \brief Checkbox control
  */
 
 class CHK;
@@ -303,9 +304,8 @@ private:
 };
 
 /**
- *  CYCLE
- * 
- *  A control with an up and down button to cycle through options
+ *  \class CYCLE
+ *  \brief A control with an up and down button to cycle through options
  */
 
 class CYCLE : public CTL
@@ -358,11 +358,9 @@ private:
     CYCLE& cycle;
 };
 
-
 /**
- *  TITLEBAR
- *
- *  Title bar child window that is positioned on windows.
+ *  \class TITLEBAR
+ *  \brief Title bar child window that is positioned on windows.
  */
 
 class TITLEBAR : public WN
@@ -382,10 +380,8 @@ private:
 };
 
 /**
- *  TOOLBAR
- * 
- *  A toolbar, which is just an inert window that holds other controls
- *  and mainly exists to streamline layout
+ *  \class TOOLBAR
+ *  \brief A toolbar, which is just an inert window that holds other controls
  */
 
 class TOOLBAR : public WN
@@ -401,9 +397,8 @@ public:
 };
 
 /**
- *  SEL
- * 
- *  An individual control in a selector option group
+ *  \class SEL
+ *  \brief An individual control in a selector option group
  */
 
 class SEL : public BTN
@@ -436,6 +431,11 @@ protected:
     string sImage;
 };
 
+/**
+ *  \class CMDSELECTOR
+ *  \brief Command that notifies when a selector is chosen.
+ */
+
 class CMDSELECTOR : public ICMD
 {
 public:
@@ -452,9 +452,8 @@ private:
 };
 
 /**
- *  VSEL
- * 
- *  A collection of individual selector items
+ *  \class VSEL
+ *  \brief A collection of individual selector items
  */
 
 class VSEL : public CTL
@@ -480,9 +479,10 @@ protected:
 };
 
 /**
- *  EDIT 
- *
- *  Edit control
+ *  \class EDIT 
+ *  \brief Edit control
+ * 
+ *  This control is not currently implemented. 
  */
 
 class EDIT : public CTL

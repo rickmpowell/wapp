@@ -1,16 +1,26 @@
 #pragma once
 
-/*
- *  color.h 
+/**
+ *  @file       color.h
+ *  @brief      Colors
+ *
+ *  @details    This is just a light-weight wrapper around the DirectX
+ *              D2D1_COLOR_F type. We include several standard color 
+ *              definitions, and common operations on colors that should make
+ *              it easier to modify colors to get interesting variants based
+ *              on an original color.
  * 
- *  Just a bunch of convenient colors.
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "framework.h"
 
-/**
- *  CO 
- *  
+/** 
+ *  \class CO
+ *  \brief A simple RGB color
+ * 
  *  A wrapper class on the Direct2D ColorF class with convenience
  *  features added.
  */
@@ -134,10 +144,9 @@ public:
 };
 
 /**
- *  HSV 
+ *  \class HSV
+ *  \brief A hue, saturation, and value color
  * 
- *  Hue, saturation, and value color.
- *
  *  Hue is in degrees, from 0 to 360
  *  Saturation is a percentage, from 0.0 to 1.0
  *  Value is a percentage, from 0.0 to 1.0
@@ -243,14 +252,8 @@ inline constexpr float hueCyan = 180;
 inline constexpr float hueBlue = 240;
 inline constexpr float hueMagenta = 300;
 
-/*
- *  Blending colors
- */
-
 /**
- *  CompBlend
- * 
- *  Blends two color components, with gamma-correction
+ *  \brief Blends two color components, with gamma-correction
  *
  *  Note that this is just an approximation. We round the standard gamma
  *  correction from 2.2 to 2, which simplifies the math. The actual gamma

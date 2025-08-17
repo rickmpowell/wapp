@@ -1,9 +1,18 @@
 #pragma once
 
-/*
- *  framework.h
+/**
+ *  @file       framework.h
+ *  @brief      System and standard library headers
  *
- *  Standard includes for what we use in the Windows API and the runtime 
+ *  @details    All the standard C and C++ runtime library headers, and the
+ *              Windows system includes. 
+ *
+ *              We should eventually move some of these includes to where
+ *              they are actually used.
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 /* Core Windows */
@@ -49,6 +58,7 @@
 #include <map>
 #include <stack>
 #include <queue>
+#include <unordered_set>
 #include <variant>
 #include <functional>
 #include <algorithm>

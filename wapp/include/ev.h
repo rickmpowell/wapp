@@ -1,13 +1,18 @@
 #pragma once
 
-/*
- *  ev.h
+/**
+ *  @file       ev.h
+ *  @brief      Event processing and dispatch
+ *
+ *  @details    Central location for collecting and dispatching events to the
+ *              correct handlers. Can be replaced to handle things like modal
+ *              dialogs.
  * 
- *  Event processing and dispatch. Central location for collectinmg and
- *  dispatching events to the correct handlers. Can be replaced at runtime
- *  to handle things like modal dialogs.
- * 
- *  Includes command and custom notifications.
+ *              Includes command and custom notifications.
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "framework.h"

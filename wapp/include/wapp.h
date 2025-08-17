@@ -1,13 +1,15 @@
 #pragma once
 
-/*
- *  wapp.h
- * 
- *  WAPP is a C++ library for creating a native Windows desktop application. It uses
- *  Direct2D for its rendering engine and provides a handful of standard systems for
- *  streamlining application development.
- * 
- *  Copyright (c) 2025 by Richard Powell.
+/**
+ *  @file       wapp.h
+ *  @brief      Windows Application
+ *
+ *  @details    The main graphical windows application class. Creates a top-level
+ *              window.
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #pragma warning(disable: 4514)
@@ -23,8 +25,8 @@ class ICMD;
 class WAPP;
 class FILTERMSG;
 
- /*
-  *  IWAPP
+ /**
+  *  \class IWAPP
   *
   *  The base windows application, which is a combination of the application and the top-level
   *  main window. This should be sufficient for a vast majority of all Windows applications.
@@ -179,10 +181,9 @@ private:
  *  Some Direct2D guard classes
  */
 
-/*
- *  GUARDTFALIGNMENT
- *
- *  Temporarily set and restore the text alignment in the text format.
+/**
+ *  \class GUARDTFALIGNMENT
+ *  \brief Temporarily set and restore the text alignment in the text format.
  */
 
 class GUARDTFALIGNMENT
@@ -206,9 +207,8 @@ private:
 };
 
 /*
- *  DCS transform
- * 
- *  Temporarily set and restore the coordinate transform matrix in the DC.
+ *  \class GUARDDCTRANSFORM
+ *  \brief Temporarily set and restore the coordinate transform matrix in the DC.
  */
 
 struct GUARDDCTRANSFORM
@@ -231,10 +231,9 @@ private:
     D2D1_MATRIX_3X2_F matrixSav;
 };
 
-/*
- *  DC antialias mode
- * 
- *  Temporarily save and restore the antialiasing mode in the DC.
+/**
+ *  \class GUARDDCA
+ *  \brief Temporarily save and restore the antialiasing mode in the DC.
  */
 
 struct GUARDDCAA

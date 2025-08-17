@@ -1,4 +1,17 @@
 
+/**
+ *  @file       id.h
+ *  @brief      Resource ids
+ *
+ *  @details    We suggest applications use standard resource ids for some
+ *              resources, so we can have shared code find strings and other
+                resources without having a callback..
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
+ */
+
 /*
  *  id.h
  * 

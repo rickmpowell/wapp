@@ -1,10 +1,17 @@
 #pragma once
 
-/*
- *  util.h
- * 
- *  Some handy utilities.
+/**
+ *  @file       util.h
+ *  @brief      Utilities
+ *
+ *  @details    Just some handy little helper functions for a variety of random
+ *              tasks.
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
+
 
 #include "framework.h"
 
@@ -26,15 +33,20 @@ inline const char* SFromU8(const char8_t* s)
     return reinterpret_cast<const char*>(s);
 }
 
-/*
- *  inrange
+/**
+ *  Tells if a value is inside the range, inclusive.
  */
 
 template <typename T>
 bool inrange(const T& t, const T& tFirst, const T& tLast) 
 {
+    assert(tsFirst <= tsLast);
     return t >= tFirst && t <= tLast;
 }
+
+/**
+ *  searches for an item within an array
+ */
 
 template<typename T, std::size_t ct>
 constexpr size_t index_of(const array<T, ct>& at, const T& t)
@@ -51,18 +63,26 @@ constexpr size_t index_of(const array<T, ct>& at, const T& t)
 #define IfDebug(wDebug, wNoDebug) (wNoDebug)
 #endif
 
+/**
+ *  The current timein high resolution clock ticks
+ */
+
 inline TP TpNow(void)
 {
     return chrono::high_resolution_clock::now();
 }
+
+/**
+ *  The current time in system clock ticks
+ */
 
 inline TPS TpsNow(void)
 {
     return chrono::system_clock::now();
 }
 
-/*
- *  linestream class
+/**
+ *  \class linestream
  *
  *  A utility class that reads text files as a sequence of lines. Handles
  *  UTF-16, UTF-8, and regular ASCII files. Permits a push operation that

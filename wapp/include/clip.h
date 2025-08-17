@@ -1,10 +1,15 @@
 #pragma once
 
-/*
- *  clip.h
- * 
- *  Clipboard abstractions. Provides istream and ostream variants
- *  for receiving and rendering clipboard text.
+/**
+ *  @file       clip.h
+ *  @brief      Clipboard
+ *
+ *  @details    Clipboard abstractions. Provides istram and ostream
+ *              variants for receiving and rendering clipboard text
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "framework.h"
@@ -13,11 +18,9 @@
 #include <streambuf>
 class IWAPP;
 
-/**
- *  iclipstream
- * 
- *  An istream compatible input stream that interacts with CF_TEXT
- *  format clipboards
+/** 
+ *  \class iclipbuffer
+ *  \brief input stream buffer for accessing clipboard text 
  */
 
 class iclipbuffer : public streambuf
@@ -31,6 +34,14 @@ protected:
     unsigned ichClip = 0;
     char* achClip = nullptr;
 };
+
+/** 
+ *  \class iclipstream
+ *  \brief stream interface for accessign clipboard text
+ *
+ *  An istream compatible input stream that interacts with CF_TEXT
+ *  format Windows clipboard.
+ */
 
 #pragma pack(1)
 class iclipstream : public istream
@@ -46,10 +57,9 @@ private:
 };
 #pragma pack()
 
-/**
- *  oclipstream
- * 
- *  Stream that writes text to the clipboard.
+/** 
+ *  \class oclipbuffer
+ *  \brief output buffer for writing text to the clipboard
  */
 
 #pragma pack(1)
@@ -68,6 +78,14 @@ private:
     UINT cf;
  };
 #pragma pack()
+
+/** 
+ *  \class oclipstream
+ *  \brief stream interface for writing text to the clipboard
+ *
+ *  An ostream compatible interface for writing CF_TEXT to the Windows
+ *  clipboard.
+ */
 
 #pragma pack(1)
 class oclipstream : public ostream

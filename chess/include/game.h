@@ -187,7 +187,7 @@ public:
     map<string, vector<VAREPD>> mpkeyvar; // EPD/PGN file properties
 
 private:
-    vector<LGAME*> vplgame; // listeners who get notified on changes
+    unordered_set<LGAME*> setplgame; // listeners who get notified on changes
     TPS tpsStart;   // start time of the game
 };
 

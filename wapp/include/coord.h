@@ -1,16 +1,22 @@
 #pragma once
 
-/*
- *  coord.h
- * 
- *  Coordinate system definitions.
- * 
- *  The graphical coordinate system is the Direct2D convention, using floats.
+/**
+ *  @file       coord.h
+ *  @brief      Screen coordinates
+ *
+ *  @details    The DirectX graphics coordinate system uses floating point values.
+ *              We include numerous convenience functions for the various points,
+ *              sizes, rectangles, and other related classes.
+ *
+ *  @author     Richard Powell
+ *
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "framework.h"
 
-/** \class SZ
+/** 
+ *  \class SZ
  *  \brief a size on the screen
  * 
  *  A floating point size class wrapper on the Direct2D D2D1_SIZE_F, which represents 
@@ -148,7 +154,8 @@ public:
     }
 };
 
-/** \class PT
+/** 
+ *  \class PT
  *  \brief a floating point point on the screen.
  * 
  *  A floating point point wrapper class around the Direct2D D2D1_POINT_2F, 
@@ -317,7 +324,8 @@ public:
     }
 };
 
-/** \class PAD
+/** 
+ *  \class PAD
  *  \brief Padding used for layout
  */
 
@@ -354,7 +362,8 @@ public:
     }
 };
 
-/** \class RC
+/** 
+ *  \class RC
  *  \brief A rectangle class on the screen
  * 
  *  THis is a wrapper class on the Direct2D floating point coordinate rectangle with 
@@ -694,9 +703,7 @@ public:
 
     RC RcTileRight(float dxMargin = 0) const
     {
-        RC rc(*this);
-        rc.TileRight(dxMargin);
-        return rc;
+        return RC(*this).TileRight(dxMargin);
     }
 
     RC& TileLeft(float dxMargin = 0)
@@ -706,9 +713,7 @@ public:
 
     RC RcTileLeft(float dxMargin = 0) const
     {
-        RC rc(*this);
-        rc.TileLeft(dxMargin);
-        return rc;
+        return RC(*this).TileLeft(dxMargin);
     }
 
     RC& TileDown(float dyMargin = 0)
@@ -718,9 +723,7 @@ public:
 
     RC RcTileDown(float dyMargin = 0) const
     {
-        RC rc(*this);
-        rc.TileDown(dyMargin);
-        return rc;
+        return RC(*this).TileDown(dyMargin);
     }
 
     RC& TileUp(float dyMargin = 0)
@@ -730,9 +733,7 @@ public:
 
     RC RcTileUp(float dyMargin = 0) const
     {
-        RC rc(*this);
-        rc.TileUp(dyMargin);
-        return rc;
+        return RC(*this).TileUp(dyMargin);
     }
 
     RC& ShiftLeft(float dx)
@@ -766,9 +767,7 @@ public:
 
     RC RcSetSz(const SZ& sz) const 
     {
-        RC rc(*this);
-        rc.SetSz(sz);
-        return rc;
+        return RC(*this).SetSz(sz);
     }
 
     RC& SetWidth(float dx)
@@ -785,16 +784,12 @@ public:
 
     RC RcSetWidth(float dx) const
     {
-        RC rc(*this);
-        rc.right = rc.left + dx;
-        return rc;
+        return RC(*this).SetWidth(dx);
     }
 
     RC RcSetHeight(float dy) const
     {
-        RC rc(*this);
-        rc.bottom = rc.top + dy;
-        return rc;
+        return RC(*this).SetHeight(dy);
     }
 
     operator int() const 
@@ -905,6 +900,10 @@ public:
         return true;
     }
 
+    /**
+     *  Adds padding to a rectangle on all four sides.
+     */
+
     RC& Pad(const PAD& pad) 
     {
         left -= pad.left;
@@ -914,6 +913,10 @@ public:
         return *this;
     }
 
+    /**
+     *  Removes padding from the rectangle from all four sides.
+     */
+
     RC& Unpad(const PAD& pad) 
     {
         left += pad.left;
@@ -922,7 +925,12 @@ public:
         bottom -= pad.bottom;
         return *this;
     }
-    
+
+    /**
+     *  Casting to a Windows RECT must round to pixel boundaries, so we need
+     *  to round larger in all directions.
+     */
+
     operator RECT() const 
     {
         RECT rect = {
@@ -934,7 +942,8 @@ public:
     }
 };
 
-/** \class ELL
+/** 
+ *  \class ELL
  *  \brief An ellipse class on the screen
  * 
  *  A wrapper on the Direct2D D2D1_ELLIPSE ellipse structure, with 
@@ -945,13 +954,19 @@ class ELL : public D2D1_ELLIPSE
 {
 public:
     
-    /** The default ellipse is uninitialized */
+    /** 
+     *  The default ellipse is uninitialized 
+     */
+    
     ELL(void) 
     {
     }
 
-    /** Constructs an ellipse with the given center and radii. Note that
-     *  the sz.height and sz.width are radii, not diameters.*/
+    /** 
+     *  Constructs an ellipse with the given center and radii. Note that
+     *  the sz.height and sz.width are radii, not diameters.
+     */
+    
     ELL(const PT& ptCenter, const SZ& szRadius) 
     {
         point.x = ptCenter.x;
@@ -960,7 +975,10 @@ public:
         radiusY = szRadius.height;
     }
 
-    /** Constructs an circular ellipse object with the given radius */
+    /** 
+     *  Constructs an circular ellipse object with the given radius 
+     */
+    
     ELL(const PT& ptCenter, float dxyRadius) 
     {
         point.x = ptCenter.x;
@@ -968,7 +986,10 @@ public:
         radiusX = radiusY = dxyRadius;
     }
 
-    /** Constructs an ellipse with the given bounding box. */
+    /** 
+     *  Constructs an ellipse with the given bounding box. 
+     */
+    
     ELL(const RC& rcBounds) 
     {
         point.x = rcBounds.xCenter();
@@ -977,7 +998,10 @@ public:
         radiusY = rcBounds.dyHeight() / 2;
     }
 
-    /** Offets the ellipse by dx and dy. Returns self. */
+    /** 
+     *  Offets the ellipse by dx and dy. Returns self. 
+     */
+    
     ELL& Offset(float dx, float dy) 
     {
         point.x += dx;
@@ -985,13 +1009,19 @@ public:
         return *this;
     }
 
-    /** Offsets the ellipse by the point. Returns self.*/
+    /** 
+     *  Offsets the ellipse by the point. Returns self.
+     */
+    
     ELL& Offset(const PT& pt) 
     {
         return Offset(pt.x, pt.y);
     }
 
-    /** Returns a new ellipse offset by a point. */
+    /** 
+     *  Returns a new ellipse offset by a point. 
+     */
+    
     ELL EllOffset(const PT& pt) const 
     {
         ELL ell = *this;
@@ -1006,6 +1036,7 @@ public:
      * 
      *  Returns a reference to the ellipse. 
      */
+    
     ELL& Inflate(const SZ& sz) 
     {
         radiusX += sz.width;
