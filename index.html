@@ -96,21 +96,31 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <div class="textblock"><p><a class="anchor" id="md__2home_2runner_2work_2wapp_2wapp_2README"></a></p>
 <h1><a class="anchor" id="autotoc_md1"></a>
 What it is</h1>
-<p>An objected-oriented C++ implementation of an application framework for targetting Microsoft Windows desktop applications. Includes sample applications, including a relatively functional chess program and engine. Functionality is only added as-needed when required by sample applications, so implementations are sometimes not fully fleshed out. <br  />
- </p>
+<p>An objected-oriented C++ implementation of an application framework for targetting Microsoft Windows desktop applications. Includes sample applications, including a relatively functional chess program and engine. Functionality to WAPP is only added as-needed when required by sample applications, so implementations are sometimes not fully fleshed out. Graphical output uses modern DirectX graphics and should take advantage of modern graphics drivers and hardware. </p>
 <h1><a class="anchor" id="autotoc_md2"></a>
 Requirements</h1>
-<p>WAPP itself is a Windows-only static link library and header files. Released as a Visual Studio solution (.sln) that contains multiple sample applications as sub-projects, along with the core WAPP library build. Active development happens on Microsoft Windows 11 Pro 24H2 with Microsoft Visual Studio Community 2022. We primarily use the MSVC compiler, but have also tested with clang. We've only tested 64-bit builds, but only the Chess sample application requires 64-bit. WAPP uses DirectX for its rendering and is 64-bit only. </p>
+<p>WAPP itself is a Windows-only static link library and header files. Released as a Visual Studio solution (.sln) that contains multiple sample applications as sub-projects, along with the core WAPP library build. Active development happens on Microsoft Windows 11 Pro 24H2 with Microsoft Visual Studio Community 2022. We primarily use the MSVC compiler, but have also tested with clang. WAPP uses DirectX for its rendering and is 64-bit only. </p>
 <h1><a class="anchor" id="autotoc_md3"></a>
 To create a new project</h1>
-<ol type="1">
+<p>(WARNING! This does not currently work)</p><ol type="1">
 <li>Install WAPP template to the "C:\Users\[YourUserName]\Documents\Visual Studio [Version]\Templates\ProjectTemplates" directory.</li>
 <li>Add a New Project to the WAPP solution. Choose the WAPP template to create a bare-bones application.</li>
-<li>Add WAPP include and library directories to compiler and linker options </li>
+<li>Add WAPP include and library directories to compiler and linker options</li>
 </ol>
 <h1><a class="anchor" id="autotoc_md4"></a>
 Documentation</h1>
-<p>Complete documentation is available at <a href="https://rickmpowell.github.io/wapp/">https://rickmpowell.github.io/wapp/</a> </p>
+<p>Complete API and data structure documentation for WAPP is available at <a href="https://rickmpowell.github.io/wapp/">https://rickmpowell.github.io/wapp/</a> </p>
+<h1><a class="anchor" id="autotoc_md5"></a>
+Functionality</h1>
+<ol type="1">
+<li>Window manager built on top of high speed DirectX graphics</li>
+<li>Dialog manager with layout engine</li>
+<li>Numerous standard controls</li>
+<li>Command dispatch system with support for Undo/Redo</li>
+<li>Numerous convenience wrapper classes</li>
+<li>Full UTF-8 string support</li>
+<li>User input event dispatch system </li>
+</ol>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->
