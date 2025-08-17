@@ -1,10 +1,9 @@
 name: Build WAPP library and Samples
 
 on:
-  workflow_dispatch: 
-#  push:
-#    branches:
-#      - master
+  push:
+    branches:
+      - master
 
 jobs:
   build:
