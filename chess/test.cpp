@@ -530,6 +530,7 @@ void WAPP::RunPerftSuite(void)
 	chrono::microseconds usTotal = chrono::microseconds(0);
 	int64_t cmvTotal = 0;
 
+	wnlog.levelLog++;
 	for (int iperft = 0; iperft < size(aperft); iperft++) {
 		if (!RunOnePerftTest(aperft[iperft].sTitle,
 							 aperft[iperft].fen,
@@ -537,6 +538,7 @@ void WAPP::RunPerftSuite(void)
 							 usTotal, cmvTotal))
 			break;
 	}
+	wnlog.levelLog--;
 
 	float sp = 1000.0f * (float)cmvTotal / (float)usTotal.count();
 	wnlog << "Average Speed: " << (int)round(sp) << " moves/ms" << endl;

@@ -300,7 +300,7 @@ void PAPER::SetPaper(int ipaper, const RC& rcPaper, const SETPPR& set)
      */
 
     /* our goal layout */
-    const int cchLine = 92;
+    const int cchLine = 84;
     const int cchLineNumbers = set.fLineNumbers ? (4+2) : 0;
     const float dxyBorder = 1;
     float dxStaple = 0.5f * rcPaper.dxWidth() / 11.0f;

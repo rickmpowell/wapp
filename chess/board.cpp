@@ -1,15 +1,26 @@
 
-/*
- *  board.cpp
+/**
+ *  @file       board.cpp
+ *  @brief      The internal chess board 
+ *  
+ *  @details    This is a 10x8 mailbox chess board. With a secondary data
+ *              structure to quickly locate pieces within the mailbox.
+ *              This file includes make and undo move, and a few other
+ *              utilitiy operations. Zobrist hashing is also included
+ *              here.
+ *  
+ *  @author     Richard Powell
  * 
- *  Implements the chess board
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "chess.h"
 #include "resource.h"
 
-const char fenStartPos[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-const char fenEmpty[] = "8/8/8/8/8/8/8/8 w - - 0 1";
+const char fenStartPos[] = 
+           "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+const char fenEmpty[] = 
+           "8/8/8/8/8/8/8/8 w - - 0 1";
 
 /*
  *  BD class - the basic chess board
@@ -103,8 +114,8 @@ void BD::MakeMv(const MV& mv) noexcept
             /* after the king moves, no castling is allowed */
             ClearCs(csKing|csQueen, cpcToMove);
             /* castle moves have the from/to of the king part of the move */
-            /* Note Chess960 castle can potentially swap king and rook, so order of 
-               emptying/placing is important */
+            /* Note Chess960 castle can potentially swap king and rook, so 
+               order of emptying/placing is important */
             int raBack = RaBack(cpcToMove);
             int fiRookFrom, fiRookTo;
             if (mv.csMove & csQueen) {
@@ -172,6 +183,8 @@ PlaceMovePiece:
 
 void BD::UndoMv(void) noexcept
 {
+    int fiRookFrom, fiRookTo;
+
     MVU mvu(vmvuGame.back());
     vmvuGame.pop_back();
 
@@ -186,51 +199,43 @@ void BD::UndoMv(void) noexcept
         cpbdMove.cpt = cptPawn;
 
     if (mvu.cpTake != cpEmpty) {
+        /* undo captures */
+        int icpTake = IcpUnused(~cpcToMove, cpt(mvu.cpTake));
+        SQ sqTake = mvu.sqTo;
+        CPBD cpbdTake = CPBD(mvu.cpTake, icpTake);
         if (mvu.sqTo == mvu.sqEnPassantSav) {
-            SQ sqTake = mvu.sqTo;
-            int icpTake = IcpUnused(~cpcToMove, cpt(mvu.cpTake));
             sqTake += cpcToMove == cpcWhite ? -8 : 8;
-            (*this)[sqTake] = CPBD(mvu.cpTake, icpTake);
             (*this)[mvu.sqTo] = CPBD(cpEmpty, 0);
-            (*this)[mvu.sqFrom] = cpbdMove;
-            aicpbd[cpcToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
-            aicpbd[~cpcToMove][icpTake] = IcpbdFromSq(sqTake);
         }
-        else {
-            int icpTake = IcpUnused(~cpcToMove, cpt(mvu.cpTake));
-            (*this)[mvu.sqTo] = CPBD(mvu.cpTake, icpTake);
-            (*this)[mvu.sqFrom] = cpbdMove;
-            aicpbd[cpcToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
-            aicpbd[~cpcToMove][icpTake] = IcpbdFromSq(mvu.sqTo);
-        }
+        (*this)[sqTake] = cpbdTake;
+        aicpbd[~cpcToMove][icpTake] = IcpbdFromSq(sqTake);
     }
     else if (mvu.csMove & csKing) {
-        int raBack = RaBack(cpcToMove);
-        int icpRook = (*this)(fiF, raBack).icp;
-        CPBD cpbdRook = acpbd[aicpbd[cpcToMove][icpRook]];
-        (*this)[mvu.sqTo] = CPBD(cpEmpty, 0);
-        (*this)(fiF, raBack) = CPBD(cpEmpty, 0);
-        (*this)(fiKingRook, raBack) = cpbdRook;
-        (*this)[mvu.sqFrom] = cpbdMove;
-        aicpbd[cpcToMove][icpRook] = IcpbdFromSq(fiKingRook, raBack);
-        aicpbd[cpcToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
+        /* undo king-side castle */
+        fiRookFrom = fiKingRook;
+        fiRookTo = fiF;
+        goto UndoCastle;
     }
     else if (mvu.csMove & csQueen) {
+        /* undo queen-side castle */
+        fiRookFrom = fiQueenRook;
+        fiRookTo = fiD;
+UndoCastle:
         int raBack = RaBack(cpcToMove);
-        int icpRook = (*this)(fiD, raBack).icp;
+        int icpRook = (*this)(fiRookTo, raBack).icp;
         CPBD cpbdRook = acpbd[aicpbd[cpcToMove][icpRook]];
         (*this)[mvu.sqTo] = CPBD(cpEmpty, 0);
-        (*this)(fiD, raBack) = CPBD(cpEmpty, 0);
-        (*this)(fiQueenRook, raBack) = cpbdRook;
-        (*this)[mvu.sqFrom] = cpbdMove;
-        aicpbd[cpcToMove][icpRook] = IcpbdFromSq(fiQueenRook, raBack);
-        aicpbd[cpcToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
+        (*this)(fiRookTo, raBack) = CPBD(cpEmpty, 0);
+        (*this)(fiRookFrom, raBack) = cpbdRook;
+        aicpbd[cpcToMove][icpRook] = IcpbdFromSq(fiRookFrom, raBack);
     }
     else {
+        /* undo simple move */
         (*this)[mvu.sqTo] = CPBD(cpEmpty, 0);
-        (*this)[mvu.sqFrom] = cpbdMove;
-        aicpbd[cpcToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
     }
+
+    (*this)[mvu.sqFrom] = cpbdMove;
+    aicpbd[cpcToMove][cpbdMove.icp] = IcpbdFromSq(mvu.sqFrom);
 
     Validate();
 }
@@ -295,8 +300,8 @@ bool BD::FDrawRepeat(int cbdDraw) const noexcept
 /*
  *   BD::FDrawDead
  *
- *   Returns true if we're in a board state where no one can force checkmate on the
- *   other player.
+ *   Returns true if we're in a board state where no one can force checkmate 
+ *   on the other player.
  */
 
 bool BD::FDrawDead(void) const noexcept
@@ -384,8 +389,9 @@ HA GENHA::haToMove;
 
 GENHA::GENHA(void)
 {
-    /* WARNING! - the order of these initializations is critical to making Polyglot book
-       lookup work. These loops are carefully ordered. Don't change it! */
+    /* WARNING! - the order of these initializations is critical to making 
+       Polyglot lookup work. These loops are carefully ordered. Don't change 
+       it! */
 
     ahaPiece[0][0] = 0;
     for (CPT cpt = cptPawn; cpt <= cptKing; ++cpt)
@@ -437,12 +443,13 @@ HA GENHA::HaFromBd(const BD& bd) const
 
     ha ^= ahaCastle[bd.csCur];
 
-    /* en passant state - note that this is not compatible with Polyglot book format,
-       which only counts en passant if there is an opposite color pawn adjacent to
-       the double-pushed pawn; for strict 3-position repetition draws, we should not
-       only check if the pawns are there, but also that they can legally capture the
-       pawn (i.e., the pawn isn't pinned); we do neither Polyglot nor legal capture
-       tests because they would slow down MakeMv's incremental Zobrist update */
+    /* en passant state - note that this is not compatible with Polyglot book 
+       format, which only counts en passant if there is an opposite color 
+       pawn adjacent to the double-pushed pawn; for strict 3-position 
+       repetition draws, we should not only check if the pawns are there, but 
+       also that they can legally capture the pawn (i.e., the pawn isn't 
+       pinned); we do neither Polyglot nor legal capture tests because they 
+       would slow down MakeMv's incremental Zobrist update */
 
     if (bd.sqEnPassant != sqNil)
         ha ^= ahaEnPassant[fi(bd.sqEnPassant)];
