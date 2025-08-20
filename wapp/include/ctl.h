@@ -21,13 +21,12 @@
 class VSEL;
 class CYCLE;
 
-/** 
- *  @class CTL
- *
- *  The base class used for all controls, which just implements common functionality.
+/**
+ *  @enum CTLL
+ *  @brief CTL layout hints
  * 
- *  TODO: every CTL creates a font. There must be a more efficient way.
- *  TODO: need to formalize how labels work and layout 
+ *  These are barely sufficient for reel layout, and they should be replaced
+ *  by a more sophisticated system.
  */
 
 enum class CTLL
@@ -36,6 +35,17 @@ enum class CTLL
     SizeToContent,
     SizeToFit
 };
+
+/**
+ *  @class CTL
+ *  @brief Base class for all controls
+ *
+ *  Implements a lot of common functionality, including labels, command 
+ *  dispatch, a font interface, anda layout interface
+ * 
+ *  TODO: every CTL creates a font. There must be a more efficient way.
+ *  TODO: need to formalize how labels work and layout 
+ */
 
 class CTL : public WN
 {
@@ -289,6 +299,11 @@ private:
     bool f = false;
 };
 
+/**
+ *  @class CMDCHK
+ *  @brief The command sent by clicking on a checkbox
+ */
+
 class CMDCHK : public ICMD
 {
 public:
@@ -330,6 +345,11 @@ private:
     int i;
 };
 
+/**
+ *  @class CMDCYCLENEXT
+ *  @brief The command sent by the cycle control on the next arrow
+ */
+
 class CMDCYCLENEXT : public ICMD
 {
 public:
@@ -343,6 +363,11 @@ public:
 private:
     CYCLE& cycle;
 };
+
+/**
+ *  @class CMDCYCLEPREV
+ *  @brief The command sent by the cycle control on the previous arrow
+ */
 
 class CMDCYCLEPREV : public ICMD
 {
@@ -416,6 +441,11 @@ public:
 protected:
     bool fSelected;
 };
+
+/**
+ *  @class SELS
+ *  @brief A selector that simplyh displays its string as its contents
+ */
 
 class SELS : public SEL
 {

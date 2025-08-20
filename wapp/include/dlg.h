@@ -29,10 +29,9 @@ inline constexpr char sFontSymbol[] = "Segoe UI Symbol";
 inline constexpr float dxyDlgPadding = 48;
 inline constexpr float dxyDlgGutter = 24;
 
-/*
- *  DLG class
- *
- *  Dialog box wrapper
+/**
+ *  @class DLG
+ *  @brief Dialog box window
  */
 
 class DLG : public WN, public EVD
@@ -62,12 +61,13 @@ protected:
     int val;
 };
 
-/*
- *  DLGFILEOPEN
+/**
+ *  @struct OFN
+ *  @brief Wrapper class around OPENFILENAME structure
  * 
- *  Weird little wrapper that brings up the standard Windows open dialog. 
- *
- *  TODO: we can probably make this a lot more compatible with the DLG
+ *  The OPENFILENAME structure includes several allocated string buffers that
+ *  are frankly, a pain in the ass to deal with. So we do a simplified 
+ *  interface here.
  */
 
 struct OFN
@@ -88,6 +88,11 @@ public:
     unique_ptr<wchar_t[]> wsDirectory;
 };
 
+/**
+ *  @class DLGFILE
+ *  @brief Base class for standard file dialogs
+ */
+
 class DLGFILE : public DLG
 {
 public:
@@ -103,12 +108,24 @@ public:
     filesystem::path file;
 };
 
+/**
+ *  @class DLGFILEOPEN
+ *  @brief Dialog wrapper for standard Windows open dialog
+ *
+ *  TODO: we can probably make this a lot more compatible with the DLG
+ */
+
 class DLGFILEOPEN : public DLGFILE
 {
 public:
     DLGFILEOPEN(IWAPP& wapp);
     virtual bool FRun(void) override;
 };
+
+/**
+ *  @class DLGFILEOPENMULTI
+ *  @brief Open file dialog that permits a multi-selection file
+ */
 
 class DLGFILEOPENMULTI : public DLGFILEOPEN
 {
@@ -120,6 +137,11 @@ public:
     vector<filesystem::path> vfile;
 };
 
+/**
+ *  @class DLGFILESAVE
+ *  @brief Standard Windows File Save dialog
+ */
+
 class DLGFILESAVE : public DLGFILE
 {
 public:
@@ -127,8 +149,9 @@ public:
     virtual bool FRun(void) override;
 };
 
-/*
- *  DLGPRINT
+/**
+ *  @class DLGPRINT
+ *  @brief The Windows standard Print dialog
  */
 
 class DLGPRINT : public DLG
@@ -140,8 +163,9 @@ public:
     HDC hdc = NULL; // the printer DC
 };
 
-/*
- *  DLGFOLDER
+/**
+ *  @class DLGFOLDER
+ *  @brief The Windows standard directory picker dialog
  */
 
 class DLGFOLDER : public DLG
@@ -153,10 +177,9 @@ public:
     filesystem::path folder;
 };
 
-/*
- *  CMDOK
- *
- *  OK buytton in dialogs.
+/**
+ *  @class CMDOK
+ *  @brief OK buytton in dialogs.
  */
 
 class CMDOK : public CMD<CMDOK, IWAPP>
@@ -186,10 +209,9 @@ protected:
     int val;
 };
 
-/*
- *  CMDCANCEL
- *
- *  Clicking the cancel button in the titlebar of dialogs
+/**
+ *  @class CMDCANCEL
+ *  @brief Clicking the cancel button in the titlebar of dialogs
  *
  *  TODO: we need to figure out a way to derive from CMD in a way where we
  *  aren't required to reimplement clone.
@@ -212,6 +234,11 @@ public:
     }
 };
 
+/**
+ *  @class BTNOK
+ *  @brief Standard OK button for dialog boxes
+ */
+
 class BTNOK : public BTNS
 {
 public:
@@ -222,10 +249,9 @@ public:
     }
 };
 
-/*
- *  TITLEDLG
- * 
- *  Dialog title
+/**
+ *  @class TITLEDLG
+ *  @brief Dialog title
  */
 
 class TITLEDLG : public STATIC
@@ -242,10 +268,9 @@ private:
     BTNCLOSE btnclose;
 };
 
-/*
- *  INSTRUCT
- * 
- *  A static instrution control
+/**
+ *  @class INSTRUCT
+ *  @brief A static instrution control
  */
 
 class INSTRUCT : public STATICL
@@ -257,11 +282,11 @@ public:
     virtual void DrawLabel(const RC& rcLabel) override;
 };
 
-/*
- *  DLGABOUT
- *
- *  Simple about dialog that pulls information from standard resources.
- *  to display the dialog.
+/**
+ *  @class DLGABOUT
+ *  @brief A simple standard About dialog.
+ * 
+ *  Pulls information from standard resources to display the dialog.
  */
 
 class DLGABOUT : public DLG

@@ -23,10 +23,9 @@ class TF;
 class BMP;
 class IWAPP;
 
-/*
- *  BR class
- *
- *  The brush, a tight wrapper on the Direct2D brush.
+/**
+ *  @class BR
+ *  @brief The brush, a tight wrapper on the Direct2D brush.
  */
 
 class BR
@@ -48,15 +47,20 @@ public:
     bool operator ! () const;
 };
 
-/*
- *  TF class
- *
- *  The textface, a tight wrapper on the Direct2D/DWrite TextFormat.
+/**
+ *  @class TF
+ *  @brief The textface, a tight wrapper on the Direct2D/DWrite TextFormat.
  */
 
 class TF
 {
 public:
+
+    /**
+     *  @enum WEIGHT
+     *  @brief The font weight to use
+     */
+
     enum class WEIGHT
     {
         Normal = 0,
@@ -64,6 +68,12 @@ public:
         Bold,
         Max
     };
+    
+    /**
+     *  @enum STYLE
+     *  @brief The font style to use
+     */
+
     enum class STYLE
     {
         Normal = 0,
@@ -91,8 +101,9 @@ public:
     void SetWidth(DC& dc, float dxWidth);
 };
 
-/*
- *  Bitmap class
+/**
+ *  @class BMP
+ *  @brief The base bitmap class
  */
 
 class BMP
@@ -119,6 +130,11 @@ public:
     bool operator ! () const;
 };
 
+/**
+ *  @class PNG
+ *  @brief The PNG format bitmap class
+ */
+
 class PNG : public BMP
 {
 public:
@@ -128,10 +144,9 @@ public:
     void reset(DCS& dcs, int rspng);
 };
 
-/*
- *  GEOM class
- * 
- *  A geometry
+/**
+ *  @class GEOM
+ *  @brief A geometry, or a polygon
  */
 
 class GEOM
@@ -153,12 +168,15 @@ protected:
     com_ptr<ID2D1PathGeometry> pgeometry;
 };
 
-/*
- *  Device dependent drawing objects that must be rebuilt on device or size changes. 
- *  These items register themselves with our RT class so they will automatically be 
+/**
+ *  @class DDDO
+ *  @brief Device-dependent drawing objects.
+ * 
+ *  Device dependent must be rebuilt on device or size changes. These items 
+ *  register themselves with our RT class so they will automatically be 
  *  purged and rebuilt when the screen changes happen.
  * 
- *  They require maintining enough information to rebuild themselves. 
+ *  They objects require maintining enough information to rebuild themselves. 
  */
 
 class DDDO
@@ -169,6 +187,13 @@ public:
     virtual void rebuild(IWAPP& iwapp);
     virtual void purge(void);
 };
+
+/**
+ *  @class PNGX
+ *  @brief Device dependent PNG bitmap
+ * 
+ *  Automatically registers itself an drebuilds itself on screen changes.
+ */
 
 class PNGX : public PNG, public DDDO
 {
@@ -183,6 +208,13 @@ private:
     int rspng;
 };
 
+/**
+ *  BRX class
+ *  @brief Device dependent brush
+ *
+ *  Automatically registers itself and rebuilds itself on screen changes. 
+ */
+
 class BRX : public BR, public DDDO
 {
 public:
@@ -196,8 +228,9 @@ private:
     CO co;
 };
 
-/*
- *  FM - font metrics
+/**
+ *  @struct FM
+ *  @brief Font metrics
  */
 
 struct FM
@@ -209,11 +242,15 @@ struct FM
     float dyXHeight;
 };
 
-/*
- *  Drawing context class
+/**
+ *  @class DC
+ *  @brief Drawing context
  * 
  *  This is the base class for drawing operations. Defines the common
- *  interface for printing and screen drawing.
+ *  interface for printing and screen drawing. We don't currently have much 
+ *  use for printing, so this only supports the drawing options we  need for 
+ *  printing support. If printing support grows, more methods must be made 
+ *  virtual in this base class.
  */
 
 class DC
@@ -246,8 +283,12 @@ public:
     virtual FM FmFromTf(const TF& tf) const = 0;
 };
 
-/*
- *  The screen DC class, uses DirectX
+/**
+ *  @class DCS
+ *  @brief The screen DC class, uses DirectX
+ * 
+ *  This is the base screen DC through which all screen drawing goes through.
+ *  This implementation uses Direct2D and DirectWrite for most of its output.
  */
 
 class DCS : public DC

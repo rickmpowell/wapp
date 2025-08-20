@@ -25,15 +25,16 @@ class ICMD;
 class WAPP;
 class FILTERMSG;
 
- /**
-  *  @class IWAPP
-  *
-  *  The base windows application, which is a combination of the application and the top-level
-  *  main window. This should be sufficient for a vast majority of all Windows applications.
-  *
-  *  The WAPP is a combination object, which contains the application, the top-level main
-  *  window, and the drawing context.
-  */
+/**
+ *  @class IWAPP
+ *  @brief The Windows Application.
+ * 
+ *  A combination of the application and the top-level main window. This 
+ *  should be sufficient for a vast majority of all Windows applications.
+ *
+ *  The WAPP is a combination object, which contains the application, the 
+ *  top-level main window, and the drawing context.
+ */
 
 class IWAPP : public APP, public WNDMAIN, public WN, public EVD
 {
@@ -140,8 +141,9 @@ private:
     vector<unique_ptr<FILTERMSG>> vpfm;
 };
 
-/*
- *  Message filters
+/**
+ *  @class FILTERMSG
+ *  @brief Message filters
  *
  *  Our message pump has an option to pre-filter messages, intercepting them before they get
  *  sent off to the regular Windows dispatching system. This is how we implement
@@ -154,11 +156,11 @@ public:
     virtual bool FFilterMsg(MSG& msg) = 0;
 };
 
-/*
- *  FILTERMSGACCEL
- *
- *  Message filter for Windows keyboard accelerator tables, which are loaded from resource
- *  files.
+/**
+ *  @class FILTERMSGACCEL
+ *  @brief Message filter for Windows keyboard accelerator tables
+ * 
+ *  Accelerator tables are loaded from resource files.
  */
 
 class FILTERMSGACCEL : public FILTERMSG
@@ -176,10 +178,6 @@ private:
 #include "len.h"
 #include "clip.h"
 #include "printer.h"
-
-/*
- *  Some Direct2D guard classes
- */
 
 /**
  *  @class GUARDTFALIGNMENT
@@ -206,7 +204,7 @@ private:
     DWRITE_TEXT_ALIGNMENT taSav;
 };
 
-/*
+/**
  *  @class GUARDDCTRANSFORM
  *  @brief Temporarily set and restore the coordinate transform matrix in the DC.
  */
