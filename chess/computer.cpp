@@ -421,7 +421,7 @@ void VMV::siterator::InitEvEnum(void) noexcept
     case EVENUM::PV:    /* principle variation should be in the transposition table */
     {
         XTEV* pxtev = ppl->xt.Find(*pbd, 1, 1);
-        if (pxtev != nullptr && ((EVT)pxtev->evt == EVT::Equal || (EVT)pxtev->evt == EVT::Higher)) {
+        if (pxtev != nullptr && ((TEV)pxtev->tev == TEV::Equal || (TEV)pxtev->tev == TEV::Higher)) {
             for (MV* pmv = pmvCur; pmv < pmvMac; pmv++)
                 if (*pmv == pxtev->Mv()) {
                     pmv->ev = pxtev->Ev(1);
@@ -560,16 +560,16 @@ bool PLCOMPUTER::FLookupXt(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
         return false;
 
     /* adjust the value based on alpha-beta interval */
-    switch ((EVT)pxtev->evt) {
-    case EVT::Equal:
+    switch ((TEV)pxtev->tev) {
+    case TEV::Equal:
         mvBest.ev = pxtev->Ev(d);
         break;
-    case EVT::Higher:
+    case TEV::Higher:
         if (pxtev->Ev(d) < ab.evBeta)
             return false;
         mvBest.ev = ab.evBeta;
         break;
-    case EVT::Lower:
+    case TEV::Lower:
         if (pxtev->Ev(d) > ab.evAlpha)
             return false;
         mvBest.ev = ab.evAlpha;
@@ -602,10 +602,10 @@ XTEV* PLCOMPUTER::SaveXt(BD &bd, const MV& mvBest, AB ab, int d, int dLim) noexc
     assert(evBest > -evInfinity && evBest < evInfinity);
 
     if (evBest <= ab.evAlpha)
-        return xt.Save(bd, EVT::Lower, evBest, mvBest, d, dLim);
+        return xt.Save(bd, TEV::Lower, evBest, mvBest, d, dLim);
     if (evBest >= ab.evBeta)
-        return xt.Save(bd, EVT::Higher, evBest, mvBest, d, dLim);
-    return xt.Save(bd, EVT::Equal, evBest, mvBest, d, dLim);
+        return xt.Save(bd, TEV::Higher, evBest, mvBest, d, dLim);
+    return xt.Save(bd, TEV::Equal, evBest, mvBest, d, dLim);
 }
 
 /*
@@ -614,7 +614,7 @@ XTEV* PLCOMPUTER::SaveXt(BD &bd, const MV& mvBest, AB ab, int d, int dLim) noexc
  *  Transpositiont table entries
  */
 
-void XTEV::Save(HA ha, EVT evt, EV ev, const MV& mvBest, int d, int dLim) noexcept
+void XTEV::Save(HA ha, TEV tev, EV ev, const MV& mvBest, int d, int dLim) noexcept
 {
     if (FEvIsMate(ev))
         ev += d;
@@ -622,7 +622,7 @@ void XTEV::Save(HA ha, EVT evt, EV ev, const MV& mvBest, int d, int dLim) noexce
         ev -= d;
 
     this->ha = ha;
-    this->evt = static_cast<int8_t>(evt);
+    this->tev = static_cast<int8_t>(tev);
     this->evBiased = ev;
     this->dd = dLim - d;
     this->mvBest.sqFrom = mvBest.sqFrom;
@@ -654,14 +654,14 @@ XTEV* XT::Find(const BD& bd, int d, int dLim) noexcept
     return nullptr;
 }
 
-XTEV* XT::Save(const BD& bd, EVT evt, EV ev, const MV& mvBest, int d, int dLim) noexcept
+XTEV* XT::Save(const BD& bd, TEV tev, EV ev, const MV& mvBest, int d, int dLim) noexcept
 {
     XTEV& xtev = (*this)[bd];
 
     /* very primitive replacement strategy */
     if (dLim - d >= xtev.dd) {
-        if (evt == EVT::Higher || evt == EVT::Equal || (int8_t)evt >= xtev.evt)
-            xtev.Save(bd.ha, evt, ev, mvBest, d, dLim);
+        if (tev == TEV::Higher || tev == TEV::Equal || (int8_t)tev >= xtev.tev)
+            xtev.Save(bd.ha, tev, ev, mvBest, d, dLim);
         return &xtev;
     }
 

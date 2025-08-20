@@ -12,7 +12,7 @@
 #include "wapp.h"
 
 /**
- *  \brief Dispatches the command through the event system.
+ *  @brief Dispatches the command through the event system.
  */
 
 bool IWAPP::FExecuteCmd(const ICMD& icmd)
@@ -21,7 +21,7 @@ bool IWAPP::FExecuteCmd(const ICMD& icmd)
 }
 
 /**
- *  \brief Dispatches an undo command through the event system.
+ *  @brief Dispatches an undo command through the event system.
  */
 
 bool IWAPP::FUndoCmd(void)
@@ -30,7 +30,7 @@ bool IWAPP::FUndoCmd(void)
 }
 
 /**
- *  \brief Dispatches a redo command through the event system.
+ *  @brief Dispatches a redo command through the event system.
  */
 
 bool IWAPP::FRedoCmd(void)
@@ -39,7 +39,7 @@ bool IWAPP::FRedoCmd(void)
 }
 
 /**
- *  \brief Returns the top command form the undo stack
+ *  @brief Returns the top command form the undo stack
  */
 
 bool IWAPP::FTopUndoCmd(ICMD*& pcmd)
@@ -48,7 +48,7 @@ bool IWAPP::FTopUndoCmd(ICMD*& pcmd)
 }
 
 /**
- *  \brief Returns the top command from the redo stack
+ *  @brief Returns the top command from the redo stack
  */
 
 bool IWAPP::FTopRedoCmd(ICMD*& pcmd)

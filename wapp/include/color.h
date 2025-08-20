@@ -18,8 +18,8 @@
 #include "framework.h"
 
 /** 
- *  \class CO
- *  \brief A simple RGB color
+ *  @class CO
+ *  @brief A simple RGB color
  * 
  *  A wrapper class on the Direct2D ColorF class with convenience
  *  features added.
@@ -144,8 +144,8 @@ public:
 };
 
 /**
- *  \class HSV
- *  \brief A hue, saturation, and value color
+ *  @class HSV
+ *  @brief A hue, saturation, and value color
  * 
  *  Hue is in degrees, from 0 to 360
  *  Saturation is a percentage, from 0.0 to 1.0
@@ -253,7 +253,7 @@ inline constexpr float hueBlue = 240;
 inline constexpr float hueMagenta = 300;
 
 /**
- *  \brief Blends two color components, with gamma-correction
+ *  @brief Blends two color components, with gamma-correction
  *
  *  Note that this is just an approximation. We round the standard gamma
  *  correction from 2.2 to 2, which simplifies the math. The actual gamma

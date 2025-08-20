@@ -16,8 +16,8 @@
 #include "framework.h"
 
 /** 
- *  \class SZ
- *  \brief a size on the screen
+ *  @class SZ
+ *  @brief a size on the screen
  * 
  *  A floating point size class wrapper on the Direct2D D2D1_SIZE_F, which represents 
  *  a height and width. Includes numerous convenience features.
@@ -155,8 +155,8 @@ public:
 };
 
 /** 
- *  \class PT
- *  \brief a floating point point on the screen.
+ *  @class PT
+ *  @brief a floating point point on the screen.
  * 
  *  A floating point point wrapper class around the Direct2D D2D1_POINT_2F, 
  *  representing a position on the screen. Includes numerous convenience 
@@ -325,8 +325,8 @@ public:
 };
 
 /** 
- *  \class PAD
- *  \brief Padding used for layout
+ *  @class PAD
+ *  @brief Padding used for layout
  */
 
 class PAD : public D2D1_RECT_F
@@ -363,8 +363,8 @@ public:
 };
 
 /** 
- *  \class RC
- *  \brief A rectangle class on the screen
+ *  @class RC
+ *  @brief A rectangle class on the screen
  * 
  *  THis is a wrapper class on the Direct2D floating point coordinate rectangle with 
  *  numerous convenience operations added.
@@ -943,8 +943,8 @@ public:
 };
 
 /** 
- *  \class ELL
- *  \brief An ellipse class on the screen
+ *  @class ELL
+ *  @brief An ellipse class on the screen
  * 
  *  A wrapper on the Direct2D D2D1_ELLIPSE ellipse structure, with 
  *  convenience features added.

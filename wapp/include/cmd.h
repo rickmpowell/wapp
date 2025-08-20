@@ -31,7 +31,7 @@ class WAPP;
 class DLG;
 
 /** 
- *  \class ICMD
+ *  @class ICMD
  * 
  *  The actual command object. These objects live inside various UI elements
  *  within the application, and are cloned in order to execute them. This 
@@ -79,8 +79,8 @@ public:
 };
 
 /** 
- *  \class CMD
- *  \brief Command base class.
+ *  @class CMD
+ *  @brief Command base class.
  *
  *  Keeps some standard information around that is useful for all the commands
  *  in the applciation. 
@@ -121,8 +121,8 @@ public:
 };
 
 /**
- *  \class menuiterator
- *  \brief A Windows HMENU enumerator
+ *  @class menuiterator
+ *  @brief A Windows HMENU enumerator
  */
 
 #pragma pack(1)
@@ -204,8 +204,8 @@ private:
 #pragma pack()
 
 /**
- *  \class MENU
- *  \brief A wrapper cloass around the Windows HMENU
+ *  @class MENU
+ *  @brief A wrapper cloass around the Windows HMENU
  */
 
 #pragma pack(1)
@@ -241,8 +241,8 @@ private:
  */
 
 /**
- *  \class CMDABOUT
- *  \brief The About menu command
+ *  @class CMDABOUT
+ *  @brief The About menu command
  */
 
 class CMDABOUT : public CMD<CMDABOUT, IWAPP>
@@ -253,8 +253,8 @@ public:
 };
 
 /**
- *  \class CMDEXIT
- *  \brief The Exit menu command
+ *  @class CMDEXIT
+ *  @brief The Exit menu command
  */
 
 class CMDEXIT : public CMD<CMDEXIT, IWAPP>

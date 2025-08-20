@@ -1,18 +1,26 @@
 #pragma once
 
-/*
- *  chess.h 
+/**
+ *  @file       chess.h
+ *  @brief      WAPP sample chess application
  * 
- *  Our APP sample application, which is a stripped down chess game.
+ *  @details    Top-level include file for the WAPP sample chess app.
+ *              Defines the base application class and various WN classes
+ *              used in the app's UI.
+ * 
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "wapp.h"
 #include "game.h"
 class CMDMAKEMOVE;
 
-/*
- *  Time control section. Time control for the game
- *  is just an array/vector of these things.
+/**
+ *  @struct TMS
+ *  @brief Time control section. 
+ *
+ *  Time control for the game is just an array/vector of these things.
  */
 
 struct TMS
@@ -21,6 +29,14 @@ struct TMS
     int minTotal;
     int secMoveInc;
 };
+
+/**
+ *  @class WNPC
+ *  @brief A piece sub-window
+ * 
+ *  Displays a list of pieces, for example, when needed for choosing pawn
+ *  promotion.
+ */
 
 class WNPC : public WN
 {
@@ -33,11 +49,11 @@ public:
     static PNGX pngPieces;
 };
 
-/*
- *  WNBD
+/**
+ *  @class WNBD
+ *  @brief A static board display.
  * 
- *  The static display of a board in a window. This board scales to the size
- *  and includes more detail at larger sizes.
+ *  This board scales to the size and includes more detail at larger sizes.
  */
 
 class WNBD : public WNPC, public LGAME
@@ -80,10 +96,9 @@ protected:
     RC RcPiecesFromCp(CP cp) const;
 };
 
-/*
- *  WNPROMOTE
- * 
- *  The promotion picker window
+/**
+ *  @class WNPROMOTE
+ *  @brief The promotion picker window
  */
 
 class WNPROMOTE : public WNPC, public EVD
@@ -110,11 +125,12 @@ private:
     bool fQuit = false;
 };
 
-/*
- *  WNBOARD
+/**
+ *  @class WNBOARD
+ *  @brief The chess board UI
  *
- *  The board UI element on the screen, which includes a mouse interface
- *  to the board. 
+ *  The board UI element on the screen, which includes a mouse interface to 
+ *  the board. 
  */
 
 class WNBOARD : public WNBD
@@ -175,10 +191,9 @@ private:
 #include "newgame.h"
 #include "movelist.h"
 
-/*
- *  WAPP
- * 
- *  The sample windows chess application class
+/**
+ *  @class WAPP
+ *  @brief The sample windows chess application class
  */
 
 class WAPP : public IWAPP, public LGAME

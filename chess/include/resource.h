@@ -1,3 +1,16 @@
+
+/**
+ *  @file       resource.h
+ *  @brief      Resource IDs 
+ *
+ *  @details    We use integer resource IDs for everything. This must be done
+ *              with #define because the resource compiler doesn't support
+ *              more sophisticated types.
+ * 
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
+ */
+
 #include "id.h"
 
 #pragma warning(push)

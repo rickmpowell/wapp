@@ -1,20 +1,24 @@
 #pragma once
 
-/*
- *  board.h
+/**
+ *  @file       board.h
+ *  @brief      Internal board representation
  * 
- *  Definitions for chess boards. This includes types for piece colors, piece types,
- *  the pieces, square names, game state, and the board itself.
+ *  @details    This is a 10x8 mailbox chess board, but also lower level
+ *              definitions for piece colors, piece types, squares, game
+ *              state, andthe board itself.
+ *  
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "framework.h"
 class BD;
 class PLCOMPUTER;
 
-/*
- *  CPC
- *
- *  Color of Chess Piece
+/**
+ *  @enum CPC
+ *  @brief Color of Chess Piece
  */
 
 enum CPC : uint8_t
@@ -59,10 +63,9 @@ inline CPC operator -- (CPC& cpc, int) noexcept
 
 string to_string(CPC cpc);
 
-/*
- *  TCP
- *
- *  Type of a chess piece
+/**
+ *  @enum TCP
+ *  @brief Type of a chess piece
  */
 
 enum CPT : uint8_t
@@ -90,8 +93,9 @@ inline CPT operator ++ (CPT& cpt, int) noexcept
     return cptT;
 }
 
-/*
- *  Simple CP chess piece type.
+/**
+ *  @typedef CP
+ *  @brief Simple CP chess piece type.
  *
  *  Represents a chess piece, either black or white.
  */
@@ -130,10 +134,9 @@ constexpr CP cpEmpty = Cp(cpcEmpty, cptNone);;
 constexpr CP cpInvalid = Cp(cpcInvalid, cptMax);
 constexpr CP cpMax = 16;
 
-/*
- *  CPBD structure
- * 
- *  THe computer piece as represented in the board.
+/**
+ *  @struct CPBD
+ *  @brief The computer piece as represented in the board.
  */
 
 struct CPBD
@@ -185,8 +188,9 @@ struct CPBD
     }
 };
 
-/*
- *  SQ square type
+/**
+ *  @typedef SQ
+ *  @brief a chess square
  *
  *  A chess board square, which is represnted by a rank and file. Fits in a
  *  single byte. An invalid square is represented as the top two bits set.
@@ -348,7 +352,9 @@ constexpr inline int RaPawns(CPC cpc) noexcept
 static_assert(RaPawns(cpcWhite) == raWhitePawns);
 static_assert(RaPawns(cpcBlack) == raBlackPawns);
 
-/*
+/**
+ *  @enum CS
+ * 
  *  Castle state. These are or-ed together to make a 4-bit description of
  *  what castles are still legal. These values are carefully assigned to 
  *  make it easy for movegen to compute mnasks without branching.
@@ -431,16 +437,16 @@ inline int IcpbdFromSq(int fi, int ra) noexcept
     return Icpbd(fi, ra);
 }
 
-/*
- *  HA type
- * 
- *  board hash - 64-bit Zobrist hashing.
+/**
+ *  @typedef HA
+ *  @brief board hash - 64-bit Zobrist hashing.
  */
 
 typedef uint64_t HA;
 
-/*
- *  GENHA class
+/**
+ *  @class GENHA
+ *  @brief Helper class for generating Zobrist hashes  
  *
  *  Generate game board hashing. This uses Zobrist hashing, which creates a large
  *  bit-array for each possible individual square state on the board. The hash is
@@ -458,9 +464,7 @@ public:
     HA HaPolyglotFromBd(const BD& bd) const;
     bool FEnPassantPolyglot(const BD& bd) const;
 
-    /*
-     *  TogglePiece
-     *
+    /**
      *  Toggles the square in the hash at the given square.
      */
 
@@ -469,9 +473,7 @@ public:
         ha ^= ahaPiece[sq][cp];
     }
 
-    /*
-     *  ToggleToMove
-     *
+    /**
      *  Toggles the player to move in the hash.
      */
 
@@ -480,9 +482,7 @@ public:
         ha ^= haToMove;
     }
 
-    /*
-     *  ToggleCastle
-     *
+    /**
      *  Toggles the castle state in the hash
      */
 
@@ -491,9 +491,7 @@ public:
         ha ^= ahaCastle[cs];
     }
 
-    /*
-     *  ToggleEnPassant
-     *
+    /**
      *  Toggles the en passant state in the hash
      */
 
@@ -516,10 +514,9 @@ private:
 extern GENHA genha;
 HA HaRandom(void);
 
-/*
- *  EV type
- * 
- *  Evaluation
+/**
+ *  @typedef EV
+ *  @brief Board evaluation
  */
 
 typedef int16_t EV;
@@ -556,11 +553,11 @@ inline int DFromEvMate(EV ev) noexcept
 
 string to_string(EV ev);
 
-/*
- *  EVENUM
+/**
+ *  @enum EVENUM
  * 
- *  This is a enumeration state, in order from most likely to cause
- *  an alpha-beta cut.
+ *  This is an evaluation enumeration state, in order from most likely to 
+ *  cause an alpha-beta cut.
  */
 
 enum class EVENUM
@@ -583,10 +580,9 @@ inline EVENUM& operator ++ (EVENUM& evenum) noexcept
 
 string to_string(EVENUM evenum) noexcept;
 
-/*
- *  MV class
- * 
- *  The chess move on the board. 
+/**
+ *  @class MV
+ *  @brief The chess move on the board. 
  */
 
 class MV
@@ -656,10 +652,9 @@ public:
 
 string to_string(const MV& mv) noexcept;
 
-/*
- *  MVU
- * 
- *  Move with undo information to take back a MakeMv
+/**
+ *  @class MVU
+ *  @brief Move with undo information to take back a MakeMv
  */
 
 class MVU : public MV
@@ -677,8 +672,9 @@ public:
 
 inline const MV mvNil;
 
-/*
- *  VMV - Move list type.
+/**
+ *  @class VMV
+ *  @brief Move list.
  * 
  *  This has the same interface as vector, but is highly-optimized for chess
  *  piece list. Assumes there are fewer than 256 moves per positin, which should
@@ -777,10 +773,9 @@ private:
     int16_t imvMac = 0;
 };
 
-/*
- *  BD class
- * 
- *  And the actual game board class. 
+/**
+ *  @class BD
+ *  @brief the game board class. 
  * 
  *  Represents most of the current game state, including what piece is in each
  *  square, castle state, an en passant state.
@@ -923,7 +918,7 @@ public:
 
 extern const int mpcptphase[cptMax];
 
-/*
+/**
  *  Move undo constructor
  */
 
@@ -936,4 +931,3 @@ MVU::MVU(MV mv, const BD& bd) :
     haSav(bd.ha)
 {
 }
-

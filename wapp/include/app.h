@@ -21,7 +21,7 @@
 #include "coord.h"
 
 /** 
- *  \brief The WAPP's application's entry point
+ *  @brief The WAPP's application's entry point
  * 
  *  This function must be provided by the WAPP application, andis the main app
  *  entry point. The app should create it's WAPP object and enter its message
@@ -31,8 +31,8 @@
 int Run(const string& sCmdLine, int sw);
 
 /** 
- *  \class APP
- *  \brief The base application class.
+ *  @class APP
+ *  @brief The base application class.
  * 
  *  The app represents the instance of the Windows application, without a window
  *  attached to it. It basically corresponds to a Windows instance, which means
@@ -65,8 +65,8 @@ public:
 };
 
 /** 
- *  \class CURS
- *  \brief A mouse cursor wrapper class
+ *  @class CURS
+ *  @brief A mouse cursor wrapper class
  */
 
 class CURS
@@ -87,8 +87,8 @@ private:
 };
 
 /** 
- *  \class WND
- *  \brief A tight wrapper class on a Windows HWND
+ *  @class WND
+ *  @brief A tight wrapper class on a Windows HWND
  * 
  *  This is a low-functionality wrapper class that really only provides a C++
  *  like interfafce to the Windows HWND. We generally only work with one HWND
@@ -151,8 +151,8 @@ public:
 };
 
 /** 
- *  \class WNDMAIN
- *  \brief A top-level HWND.
+ *  @class WNDMAIN
+ *  @brief A top-level HWND.
  *
  *  A variation on the WND class with extra stuff to make it streamlined for
  *  using as a top-level window. The WAPP class uses one of these for its top
@@ -186,8 +186,8 @@ public:
  */
 
 /** 
- *  \class resource_ptr
- *  \brief a managed pointer to a resource object in the application's resource fork.
+ *  @class resource_ptr
+ *  @brief a managed pointer to a resource object in the application's resource fork.
  * 
  *  A pointer to a resource object in the application's resource fork. Uses
  *  similar semantics to unique_ptr.
@@ -303,8 +303,8 @@ private:
 };
 
 /** 
- *  \class global_ptr
- *  \brief A managed pointer to a memory object allocated with GlobalAlloc.
+ *  @class global_ptr
+ *  @brief A managed pointer to a memory object allocated with GlobalAlloc.
  * 
  *  Holds a global allocated Windows handle, similar semantics to unique_ptr.
  *  By default, this wrapper keeps the underlying global memory object

@@ -21,7 +21,7 @@
 #pragma comment(lib, "windowscodecs.lib")
 
 /**
- *  \brief The main application entry point
+ *  @brief The main application entry point
  * 
  *  For Win32 graphical desktop applications, this is the main program entry
  *  point. We simply use it to dispatch off to the main WAPP application
@@ -43,7 +43,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hinstPrev, _In_ L
 }
 
 /**  
- *  \class APP
+ *  @class APP
  * 
  *  The base application handles COM initialization, Direct2D initialization, and provides
  *  basic access to the application via the instance handle. The instance handle is how
@@ -139,7 +139,7 @@ HACCEL APP::HaccelLoad(unsigned rsa) const
 }
 
 /**
- *  \class WND
+ *  @class WND
  * 
  *  A light wrapper around the Windows HWND. Windows HWNDs must be registered
  *  and then created, so the initialization of this thing is a little odd.

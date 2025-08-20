@@ -1,15 +1,18 @@
-/*
- *  main.cpp
+
+/**
+ *  @file       main.cpp
+ *  @brief      Top-level application stuff for the chess sample application
  * 
- *  Main top-level application stuff for chess sample application.
+ *  @details    The WAPP object and basic commands for the chess app.
+ * 
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "chess.h"
 #include "resource.h"
 
-/*  
- *  Run
- *
+/**
  *  The main application entry point, with command line argument and initial
  *  window visibility state
  */
@@ -19,9 +22,7 @@ int Run(const string& sCmdLine, int sw)
     return WAPP(sCmdLine, sw).MsgPump();
 }
 
-/*
- *  WAPP
- * 
+/**
  *  The WAPP class for the Sample WAPP chess demonstration.
  */
 
@@ -41,9 +42,7 @@ WAPP::WAPP(const string& wsCmdLine, int sw) :
     Show();
 }
 
-/*
- *  WAPP::CoBack
- * 
+/**
  *  Background color of the main window.
  */
 
@@ -52,9 +51,7 @@ CO WAPP::CoBack(void) const
     return HSV(hueOrange, 0.15f, 0.25f);
 }
 
-/*
- *  WAPP::Layout
- * 
+/**
  *  Computes the location of the board on the screen.
  */
 
@@ -108,16 +105,11 @@ void WAPP::BdChanged(void)
     game.RenderPgn(os);
 }
 
-/*
- *  Application Commands
- */
-
-/*
- *  CMDNEWGAME - starts a new game
+/**
+ *  @class CMDNEWGAME
+ *  @brief Starts a new game
  * 
- *  Prompts with the new game dialog. 
- *  
- *  Undoable.
+ *  Prompts with the New Game dialog. Undoable.
  */
 
 CMD_DECLARE(CMDNEWGAME)
@@ -166,10 +158,9 @@ private:
     GAME gameUndo;
 };
 
-/*
- *  CMDOPENFILE
- * 
- *  Opens a PGN file
+/**
+ *  @class CMDOPENFILE
+ *  @brief Opens a PGN file
  */
 
 CMD_DECLARE(CMDOPENFILE)

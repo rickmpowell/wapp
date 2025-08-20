@@ -200,10 +200,9 @@ SZ WNCLOCK::SzRequestLayout(const RC& rcWithin) const
     return SZ(rcWithin.dxWidth(), 72);
 }
 
-/*
- *  WNGS
- * 
- *  Game state.
+/**
+ *  @class WNGS
+ *  @brief Game state.
  */
 
 WNGS::WNGS(WNML& wnml, GAME& game) :
@@ -233,6 +232,7 @@ void WNGS::Draw(const RC& rcUpdate)
     switch (game.gs) {
     case GS::GameOver:
     {
+        /* TODO: move to resources */
         string sResult, sScore;
         if (game.gr == GR::WhiteWon) {
             sResult = "White Wins";
@@ -264,7 +264,6 @@ void WNGS::Draw(const RC& rcUpdate)
         DrawSCenterXY("Ready", tfResult, rc);
         break;
     }
-    
 }
 
 SZ WNGS::SzRequestLayout(const RC& rcWithin) const

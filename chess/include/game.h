@@ -1,9 +1,15 @@
 #pragma once
 
-/*
- *  game.h
+/**
+ *  @file       game.h
+ *  @brief      Chess game
+ *  
+ *  @details    The chess game include the board along with additional
+ *              game state and various controls for driving an actual
+ *              game.
  * 
- *  The chess game.
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "framework.h"
@@ -13,23 +19,28 @@
 class WAPP;
 class LGAME;
 
-/*
- *  VAREPD
+/**
+ *  @typedef VAREPD
+ *  @brief The variant value of an EPD opcode. 
  * 
- *  The variant value of an EPD opcode. 
+ *  These are typically values read in by various file formats, like PGN or
+ *  EPD. Many of them only make sense in a very specific context, so we 
+ *  often just leave them as a raw type to be interpreted when needed.
  */
 
 using VAREPD = variant < int64_t, uint64_t, double, string >;
 
-/*
- *  MATY    
- *
- *  MAtch TYpe
+/**
+ *  @enum TMA
+ *  @brief Match type
  * 
- *  If playing a series of games, how games are structured
+ *  If playing a series of games, like a tournament, how games are structured.
+ *  In the future, this should be replaced by a more complete tournament 
+ *  driver, but for now, it's the minimum functionality we need to make the
+ *  new game dialog box behave in a useful way.
  */
 
-enum class MATY
+enum class TMA
 {
     None = 0,
     Random1ThenAlt,
@@ -37,10 +48,9 @@ enum class MATY
     Alt
 };
 
-/*
- *  GS
- * 
- *  Game state
+/**
+ *  @enum GS
+ *  @brief Game state
  */
 
 enum class GS
@@ -51,10 +61,9 @@ enum class GS
     GameOver
 };
 
-/*
- *  GR
- * 
- *  Game result
+/**
+ *  @enum GR
+ *  @brief Game result
  */
 
 enum class GR
@@ -66,8 +75,9 @@ enum class GR
     Abandon
 };
 
-/*
- *  Game Win type
+/**
+ *  @enum GWT
+ *  @brief Game Win type
  */
 
 enum class GWT
@@ -78,8 +88,9 @@ enum class GWT
     Resignation
 };
 
-/*
- *  Game Draw type
+/**
+ *  @enum GDT
+ *  @brief Game Draw type
  */
 
 enum class GDT
@@ -93,8 +104,9 @@ enum class GDT
     Agreement
 };
 
-/*
- *  GAME class
+/**
+ *  @class GAME
+ *  @brief The chess game
  */
 
 class GAME
@@ -181,7 +193,7 @@ public:
 
     string sEvent = "Unrated Casual Game";
     string sSite = "WAPP Chess Program";
-    MATY maty = MATY::Random1ThenAlt;
+    TMA tma = TMA::Random1ThenAlt;
     int cgaPlayed = 0;  // number of games played between the players
 
     map<string, vector<VAREPD>> mpkeyvar; // EPD/PGN file properties
@@ -191,21 +203,24 @@ private:
     TPS tpsStart;   // start time of the game
 };
 
-/*
- *  Game listener. Everyone registered as a listener will receive a notification
- *  when something in the game changes.
+/**
+ *  @class LGAME
+ *  @brief Game listener
+ * 
+ *  Everyone registered as a listener will receive a notification when 
+ *  something in the game changes.
  * 
  *  This is currently very simple, but I think we need more complexity when
- *  we implement a character-based UCI, and this simplifies some of our graphical 
- *  updates too, hence the weirdness here for now.
+ *  we implement a character-based UCI, and this simplifies some of our 
+ *  graphical updates too, hence the weirdness here for now.
  */
 
 class LGAME
 {
 public:
-    virtual void BdChanged(void) {}   /* sent *after* the board has changed */
-    virtual void ShowMv(MV mv, bool fAnimate) {}  /* sent *before* a move has been made */
-    virtual void EnableUI(bool fEnable) {}    /* sent to enable/disable the move UI */
-    virtual void PlChanged(void) {}  /* sent when the players change */
-    virtual void GsChanged(void) {} /* sent when game state changes */
+    virtual void BdChanged(void) {}   /** sent *after* the board has changed */
+    virtual void ShowMv(MV mv, bool fAnimate) {}  /** sent *before* a move has been made */
+    virtual void EnableUI(bool fEnable) {}    /** sent to enable/disable the move UI */
+    virtual void PlChanged(void) {}  /** sent when the players change */
+    virtual void GsChanged(void) {} /** sent when game state changes */
 };

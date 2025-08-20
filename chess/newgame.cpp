@@ -15,10 +15,9 @@ constexpr float valueDlgBackLight = 0.5f;
 
 constexpr char8_t sIconSettings[] = u8"\u2699";
 
-/*
- &  CMDPLAYER 
- *
- *  Selecting a player in the player boxes
+/**
+ *  @class CMDPLAYER 
+ *  @brief Selecting a player in the player boxes
  */
 
 class CMDPLAYER : public CMD<CMDPLAYER, WAPP>
@@ -38,10 +37,9 @@ private:
     VSELPLAYER& vsel;
 };
 
-/*
- *  CMDSWAP
- * 
- *  Swaps black and white players in the new game dialog
+/**
+ *  @class CMDSWAP
+ *  @brief Swaps black and white players in the New Game dialog
  */
 
 class CMDSWAP : public CMD<CMDSWAP, WAPP>
@@ -62,10 +60,9 @@ protected:
     DLGNEWGAME& dlg;
 };
 
-/*
- *  CMDRANDOM
- * 
- *  Toggles between random and non-random side picker in new game dialog
+/**
+ *  @class CMDRANDOM
+ *  @brief Toggles between random and non-random side picker in new game dialog
  */
 
 class CMDRANDOM : public CMD<CMDRANDOM, WAPP>
@@ -91,10 +88,9 @@ protected:
     DLGNEWGAME& dlg;
 };
 
-/*
- *  CMDGAMESETTINGS
- * 
- *  Brings up the game settings dialog box from the new game dialog
+/**
+ *  @class CMDGAMESETTINGS
+ *  @brief Brings up the game settings dialog box from the new game dialog
  */
 
 class CMDGAMESETTINGS : public CMD<CMDGAMESETTINGS, WAPP>
@@ -116,6 +112,11 @@ public:
 protected:
     DLGNEWGAME& dlg;
 };
+
+/**
+ *  @class CMDCUSTOMTIME
+ *  @brief Brings up the custom time control dialog from the New Game dialog
+ */
 
 class CMDCUSTOMTIME : public CMD<CMDCUSTOMTIME, WAPP>
 {
@@ -173,10 +174,9 @@ public:
     }
 };
 
-/*
- *  CMDTIME
- * 
- *  Forces the time control options to relayout
+/**
+ *  @class CMDTIME
+ *  @brief Forces the time control options to relayout
  */
 
 class CMDTIME : public CMD<CMDTIME, WAPP>
@@ -193,10 +193,9 @@ protected:
     DLGNEWGAME& dlg;
 };
 
-/*
- *  CMDLEVEL
- * 
- *  Command notification for changing the level in the AI player
+/**
+ *  @class CMDLEVEL
+ *  @brief Command notification for changing the level in the AI player
  */
 
 class CMDLEVEL : public CMD<CMDLEVEL, WAPP>
@@ -212,6 +211,11 @@ public:
 protected:
     VSELPLAYER& vsel;
 };
+
+/**
+ *  @class CMDAISETTINGS
+ *  @brief Brings up the AI settings dialog from the New Game dialog
+ */
 
 class CMDAISETTINGS : public CMD<CMDAISETTINGS, WAPP>
 {
@@ -235,13 +239,11 @@ protected:
     VSELPLAYER& vsel;
 };
 
-/*
- *  NEWGAME dialog
- *
- *  The start new game panel
- */
-
 constexpr float dxyBtnSwap = 36;
+
+/**
+ *  @brief The New Game dialog
+ */
 
 DLGNEWGAME::DLGNEWGAME(WN& wnParent, GAME& game) :
     DLG(wnParent),
@@ -271,10 +273,9 @@ DLGNEWGAME::DLGNEWGAME(WN& wnParent, GAME& game) :
     Init(game);
 }
 
-/*
- *  DLGNEWGAME::Init
- * 
- *  Initializes the data in the dialog box with the default values taken from the game
+/**
+ *  Initializes the data in the dialog box with the default values taken 
+ *  from the game
  */
 
 void DLGNEWGAME::Init(GAME& game)
@@ -283,11 +284,11 @@ void DLGNEWGAME::Init(GAME& game)
 
     CPC cpcLeft = cpcWhite;
     CPC cpcRight = cpcBlack;
-    if (game.maty == MATY::Random)
+    if (game.tma == TMA::Random)
         vselLeft.ngcc = vselRight.ngcc = NGCC::Random;
-    else if (game.maty == MATY::Alt)
+    else if (game.tma == TMA::Alt)
         swap(cpcLeft, cpcRight);
-    else if (game.maty == MATY::Random1ThenAlt) {
+    else if (game.tma == TMA::Random1ThenAlt) {
         if (game.cgaPlayed == 0)
             vselLeft.ngcc = vselRight.ngcc = NGCC::Random;
         else
@@ -316,18 +317,18 @@ void DLGNEWGAME::Extract(GAME& game)
     /* pull out player data and assign them to the right colors */
 
     if (vselLeft.ngcc == NGCC::Random) {
-        if (game.maty != MATY::Random)
-            game.maty = MATY::Random1ThenAlt;
-        else if (game.maty != MATY::Random1ThenAlt)
-            game.maty = MATY::Random;
+        if (game.tma != TMA::Random)
+            game.tma = TMA::Random1ThenAlt;
+        else if (game.tma != TMA::Random1ThenAlt)
+            game.tma = TMA::Random;
         ExtractPlayer(game, vselLeft);
         ExtractPlayer(game, vselRight);
         if (Wapp(iwapp).rand() & 1)
             swap(game.appl[cpcWhite], game.appl[cpcBlack]);
     }
     else {
-        if (game.maty != MATY::Random1ThenAlt)
-            game.maty = MATY::Alt;
+        if (game.tma != TMA::Random1ThenAlt)
+            game.tma = TMA::Alt;
         ExtractPlayer(game, vselLeft);
         if (ExtractPlayer(game, vselRight) != cpcBlack)
             swap(game.appl[cpcWhite], game.appl[cpcBlack]);
@@ -402,12 +403,12 @@ void DLGNEWGAME::Validate(void)
  *  VSELPLAYER
  */
 
-SELPLAYER::SELPLAYER(VSEL& vsel, const string& sIcon) :
+VSELPLAYER::SELPLAYER::SELPLAYER(VSEL& vsel, const string& sIcon) :
     SELS(vsel, sIcon)
 {
 }
 
-CO SELPLAYER::CoText(void) const
+CO VSELPLAYER::SELPLAYER::CoText(void) const
 {
     CO co(pwnParent->CoText());
     if (cdsCur == CDS::Hover || cdsCur == CDS::Execute)
@@ -415,7 +416,7 @@ CO SELPLAYER::CoText(void) const
     return co;
 }
 
-CO SELPLAYER::CoBack(void) const
+CO VSELPLAYER::SELPLAYER::CoBack(void) const
 {
     CO co(pwnParent->CoBack());
     if (cdsCur == CDS::Hover || cdsCur == CDS::Execute)
@@ -503,9 +504,7 @@ SZ VSELPLAYER::SzRequestLayout(const RC& rcWithin) const
     return SZ((rc.dxWidth() - 2*dxyDlgPadding - dxyBtnSwap - 2*dxyDlgGutter) / 2, 196);
 }
 
-/*
- *  VSELPLAYER::Validate
- * 
+/**
  *  Validates the playeer data for validity, and throws an exception
  *  if somethingis wrong.
  */
@@ -558,14 +557,14 @@ void VSELPLAYER::SetData(const DATAPLAYER& dataplayer)
 const float dxyLevelBorder = 2;
 const float dxyLevelPadding = 1;
 
-SELLEVEL::SELLEVEL(VSEL& vsel, int lvl) :
+VSELLEVEL::SELLEVEL::SELLEVEL(VSEL& vsel, int lvl) :
     SELS(vsel, to_string(lvl))
 {
     SetPadding(PAD(dxyLevelPadding)); 
     SetBorder(PAD(dxyLevelBorder));
 }
 
-CO SELLEVEL::CoText(void) const
+CO VSELLEVEL::SELLEVEL::CoText(void) const
 {
     CO co(pwnParent->CoText());
     if (cdsCur == CDS::Hover || cdsCur == CDS::Execute)
@@ -573,7 +572,7 @@ CO SELLEVEL::CoText(void) const
     return co;
 }
 
-CO SELLEVEL::CoBack(void) const
+CO VSELLEVEL::SELLEVEL::CoBack(void) const
 {
     CO co(pwnParent->CoBack());
     if (cdsCur == CDS::Hover || cdsCur == CDS::Execute)
@@ -581,13 +580,13 @@ CO SELLEVEL::CoBack(void) const
     return co;
 }
 
-void SELLEVEL::Draw(const RC& rcUpdate)
+void VSELLEVEL::SELLEVEL::Draw(const RC& rcUpdate)
 {
     VSEL* pvsel = static_cast<VSEL*>(pwnParent);
     DrawSCenterXY(sImage, pvsel->TfGet(), RcInterior());  // use RcInterior instead of RcContent becuase string "10" may not fit
 }
 
-SZ SELLEVEL::SzRequestLayout(const RC& rcWithin) const
+SZ VSELLEVEL::SELLEVEL::SzRequestLayout(const RC& rcWithin) const
 {
     VSEL* pvsel = static_cast<VSEL*>(pwnParent);
     SZ sz(SzFromS(sImage, pvsel->TfGet()));

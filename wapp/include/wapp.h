@@ -26,7 +26,7 @@ class WAPP;
 class FILTERMSG;
 
  /**
-  *  \class IWAPP
+  *  @class IWAPP
   *
   *  The base windows application, which is a combination of the application and the top-level
   *  main window. This should be sufficient for a vast majority of all Windows applications.
@@ -182,8 +182,8 @@ private:
  */
 
 /**
- *  \class GUARDTFALIGNMENT
- *  \brief Temporarily set and restore the text alignment in the text format.
+ *  @class GUARDTFALIGNMENT
+ *  @brief Temporarily set and restore the text alignment in the text format.
  */
 
 class GUARDTFALIGNMENT
@@ -207,8 +207,8 @@ private:
 };
 
 /*
- *  \class GUARDDCTRANSFORM
- *  \brief Temporarily set and restore the coordinate transform matrix in the DC.
+ *  @class GUARDDCTRANSFORM
+ *  @brief Temporarily set and restore the coordinate transform matrix in the DC.
  */
 
 struct GUARDDCTRANSFORM
@@ -232,8 +232,8 @@ private:
 };
 
 /**
- *  \class GUARDDCA
- *  \brief Temporarily save and restore the antialiasing mode in the DC.
+ *  @class GUARDDCA
+ *  @brief Temporarily save and restore the antialiasing mode in the DC.
  */
 
 struct GUARDDCAA

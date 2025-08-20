@@ -1,8 +1,11 @@
+#pragma once
 
-/*
- *  psqt.h
+/**
+ *  @file       psqt.h
+ *  @brief      These are piece square tables.
  * 
- *  These are PeSTO tables.
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "player.h"

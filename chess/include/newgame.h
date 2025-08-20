@@ -1,18 +1,23 @@
 #pragma once
 
-/*
- *  newgame.h
+/**
+ *  @file       newgame.h
+ *  @brief      The New Game dialog box
  * 
- *  The New Game panel.
+ *  @detils     The New Game dialog is a complicated dialog with a lot
+ *              options and variations.
+ * 
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "wapp.h"
-
 class DLGNEWGAME;
 class VSELTIME;
 
-/*
- *  Interface to the dialog
+/**
+ *  @enum NGCC
+ *  @brief New Game Color
  */
 
 enum class NGCC
@@ -23,6 +28,14 @@ enum class NGCC
     Random = 2,
 };
 
+/**
+ *  @struct DATAPLAYER
+ *  @brief Information about the player in the new game dialog
+ *
+ *  This is an interchange format used to communicate the New Game options
+ *  back to the main application.
+ */
+
 struct DATAPLAYER
 {
     bool fModified = false;
@@ -32,25 +45,34 @@ struct DATAPLAYER
     string sNameHuman;
 };
 
-/*
- *  VSELLEVEL
- * 
- *  The level selection list for AI players
+/**
+ *  @class VSELLEVEL
+ *  @brief The collection or selectors for AI players in New Game dialog
  */
-
-class SELLEVEL : public SELS
-{
-public:
-    SELLEVEL(VSEL& vselParent, int lvl);
-
-    virtual CO CoText(void) const override;
-    virtual CO CoBack(void) const override;
-    virtual void Draw(const RC& rcUpdate) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
-};
 
 class VSELLEVEL : public VSEL
 {
+public:
+
+    /**
+     *  @class SELLEVEL
+     *  @brief The level selector for AI players in New Game dialog
+     *
+     *  The individual selectors in the level selection list. Represents a single
+     *  AI level (1-10).
+     */
+
+    class SELLEVEL : public SELS
+    {
+    public:
+        SELLEVEL(VSEL& vselParent, int lvl);
+
+        virtual CO CoText(void) const override;
+        virtual CO CoBack(void) const override;
+        virtual void Draw(const RC& rcUpdate) override;
+        virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    };
+
     friend class SELLEVEL;
 
 public:
@@ -60,23 +82,32 @@ public:
     virtual void Layout(void) override;
 };
 
-/*
- *  VSELPLAYER
+/**
+ *  @class VSELPLAYER
+ *  @brief The full individual player picker in the New Game dialog
  * 
- *  A player box in the New Game dialog
+ *  Chooses between either a human or AI player, and prompts with additional
+ *  options depending on the type of player chosen.
  */
-
-class SELPLAYER: public SELS
-{
-public:
-    SELPLAYER(VSEL& vselParent, const string& sIcon);
-    virtual CO CoText(void) const override;
-    virtual CO CoBack(void) const override;
-};
 
 class VSELPLAYER : public VSEL
 {
 public:
+
+    /**
+     *  @class SELPLAYER
+     *  @brief A selector for the player in the New Game dialog
+     *
+     *  Will be either the computer or a human player.
+     */
+    class SELPLAYER : public SELS
+    {
+    public:
+        SELPLAYER(VSEL& vselParent, const string& sIcon);
+        virtual CO CoText(void) const override;
+        virtual CO CoBack(void) const override;
+    };
+
     VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CPC cpc, NGCC ngcc);
 
     virtual CO CoBack(void) const override;
@@ -100,10 +131,14 @@ private:
     BTNS btnAISettings;
 };
 
-/*
- *  SELTIME
+/**
+ *  @class SELTIME
+ *  @brief Time control option in the New Game chooser.
  * 
- *  Time control option in the New Game chooser.
+ *  Base class for an individual time control button in the time control 
+ *  selection list. Most will have cyclers to choose specific time controls
+ *  of a time control class, but there is also the custom time control
+ *  options.
  */
 
 class SELTIME : public SEL
@@ -123,6 +158,11 @@ private:
     TF tfLabel;
 };
 
+/**
+ *  @class SELTIMECYCLE
+ *  @brief The cycling time control button
+ */
+
 class SELTIMECYCLE : public SELTIME
 {
 public:
@@ -141,6 +181,11 @@ private:
     int itmsCur;
 };
 
+/**
+ *  @class SELTIMECUSTOM
+ *  @brief The custom time control button
+ */
+
 class SELTIMECUSTOM : public SELTIME
 {
 public:
@@ -152,6 +197,11 @@ public:
 private:
     BTNS btn;
 };
+
+/**
+ *  @class VSELTIME
+ *  @brief THe collection of SELTIME selectors
+ */
 
 class VSELTIME : public VSEL
 {
@@ -171,10 +221,11 @@ private:
     SELTIMECUSTOM selCustom;
 };
 
-/*
- *  BTNRANDOM
+/**
+ *  @class BTNRANDOM
+ *  @brief A "choose random color" button 
  * 
- *  Our random chess side color toggle button. We just do some custom drawing here
+ *  Our random chess side color toggle button. We just do some custom drawing here.
  */
 
 class BTNRANDOM : public BTNS
@@ -189,10 +240,9 @@ public:
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
 };
 
-/*
- *  DLGNEWGAME
- *
- *  The New Game panel
+/**
+ *  @class DLGNEWGAME
+ *  @brief The New Game dialog
  */
 
 class DLGNEWGAME : public DLG
@@ -229,8 +279,9 @@ public:
     const float dyNewGameDlg = 640;
 };
 
-/*
- *  AI settings dialog
+/**
+ *  @class DLGAISETTINGS
+ *  @brief The AI settings dialog
  */
 
 class DLGAISETTINGS : public DLG
@@ -246,8 +297,9 @@ private:
     BTNOK btnok;
 };
 
-/*
- *  Gmae settings dialog
+/**
+ *  @class DLGGAMESETTINGS
+ *  @brief Gmae settings dialog
  */
 
 class DLGGAMESETTINGS : public DLG
@@ -263,8 +315,9 @@ private:
     BTNOK btnok;
 };
 
-/*
- *  Custom time control dialog
+/**
+ *  @class DLGTIMESETTINGS
+ *  @brief Custom time control dialog
  */
 
 class DLGTIMESETTINGS : public DLG

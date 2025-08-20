@@ -1,7 +1,13 @@
 #pragma once
 
-/*
- *  player.h
+/**
+ *  @file       player.h
+ *  @brief      The chess game player
+ * 
+ *  @details    Defines the interface to the player of the chess game
+ * 
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "framework.h"
@@ -10,10 +16,9 @@ class WAPP;
 class GAME;
 class WNBOARD;
 
-/*
- *  PL class
- * 
- *  The base player class
+/**
+ *  @class PL
+ *  @brief The base player class
  */
 
 class PL
@@ -29,10 +34,9 @@ public:
 public:
 };
 
-/*
- *  PLHUMAN
- * 
- *  A human player
+/**
+ *  @class PLHUMAN
+ *  @brief A human chess player
  */
 
 class PLHUMAN : public PL

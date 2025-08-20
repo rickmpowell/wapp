@@ -1,18 +1,23 @@
 #pragma once
 
-/*
- *  movelist.h
- *
- *  our move list window
+/**
+ *  @file       movelist.h
+ *  @brief      The move list window
+ * 
+ *  @details    The move list window contains information on the two players,
+ *              the current clock state, the current game state, and the
+ *              list of moves made so far.
+ * 
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "wapp.h"
 class WNML;
 
-/*
- *  WNPLAYER
- *
- *  Player information.
+/**
+ *  @class WNPLAYER
+ *  @brief Player information window
  */
 
 class WNPLAYER : public CTL
@@ -31,10 +36,9 @@ private:
     CPC cpc;
 };
 
-/*
- *  WNCLOCK 
- * 
- *  The game clock, which displays the current time for each player.
+/**
+ *  @class WNCLOCK 
+ *  @brief The game clock window, per player.
  */
 
 class WNCLOCK : public CTL
@@ -53,10 +57,9 @@ private:
     CPC cpc;
 };
 
-/*
- *  WNGS
- *
- *  Game state information.
+/**
+ *  @class WNGS
+ *  @brief Game state window
  */
 
 class WNGS : public CTL
@@ -73,11 +76,12 @@ private:
     GAME& game;
 };
 
-/*
- *  WNML
+/**
+ *  @class WNML
+ *  @brief Top level move list owner.
  *
- *  The move list window. Displays the player names, clocks, game status,
- *  and the actual move list.
+ *  Owns the player name, clock, game statu sub-windows, along with the
+ *  actual scrollable move list.
  */
 
 class WNML : public WN, public SCROLLLNFIXED, public LGAME

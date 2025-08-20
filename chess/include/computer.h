@@ -1,21 +1,25 @@
 #pragma once
 
-/*
- *  computer.h
+/**
+ *  @file       computer.h
+ *  @brief      The computer AI player
  * 
- *  Definitons for the Computer AI player
+ *  @details    The definiitions for a chess AI using alpha-beta pruning
+ *              search and static board evaluation.
+ *
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "player.h"
 #include "psqt.h"
 
-/*
- *  AB
- *
- *  alpha-beta window
+/**
+ *  @class AB
+ *  @brief Alpha-beta window
  */
 
-struct AB
+class AB
 {
 public:
     AB(EV evAlpha, EV evBeta) noexcept :
@@ -60,23 +64,21 @@ inline AB AbAspiration(EV ev, EV dev) noexcept
 
 string to_string(AB ab);
 
-/*
- *  XT
- *
- *  Transposition table
+/**
+ *  @enum TEV
+ *  @brief The transpositiont able evaluation types
  */
 
-enum class EVT {
+enum class TEV {
     Null = 0,
     Lower = 1,
     Higher = 2,
     Equal = 3
 };
 
-/*
- *  XTEV class
- *
- *  THe individual transposition table entry
+/**
+ *  @class XTEV
+ *  @brief The individual transposition table entry
  */
 
 #pragma pack(push, 1)
@@ -87,7 +89,7 @@ class XTEV
 
 public:
     XTEV(void) noexcept {}
-    void Save(HA ha, EVT evt, EV ev, const MV& mv, int d, int dLim) noexcept;
+    void Save(HA ha, TEV tev, EV ev, const MV& mv, int d, int dLim) noexcept;
     void GetMv(MV& mv) const noexcept;
 
     EV Ev(int d) const noexcept
@@ -108,7 +110,7 @@ public:
 public:
     HA ha;          // full hash
     uint8_t dd;     // depth
-    uint8_t evt;    // evaluation type (high, low, exact)
+    uint8_t tev;    // evaluation type (high, low, exact)
     EV evBiased;          // evaluation
     struct {
         SQ sqFrom, sqTo;
@@ -118,13 +120,18 @@ public:
 };
 #pragma pack(pop)
 
+/**
+ *  @class XT
+ *  @brief Transposition table
+ */
+
 class XT
 {
 public:
     XT(void) {}
     void SetSize(uint32_t cb);
     void Init(void);
-    XTEV* Save(const BD& bd, EVT evt, EV ev, const MV& mv, int d, int dLim) noexcept;
+    XTEV* Save(const BD& bd, TEV tev, EV ev, const MV& mv, int d, int dLim) noexcept;
     XTEV* Find(const BD& bd, int d, int dLim) noexcept;
     XTEV& operator [] (const BD& bd) noexcept { return axtev[bd.ha & (cxtev - 1)]; }
 
@@ -133,16 +140,20 @@ private:
     XTEV* axtev = nullptr;
 };
 
-/*
- *  PLCOMPUTER
- *
- *  A computer player
+/**
+ *  @class SETAI
+ *  @brief AI settings
  */
 
 struct SETAI
 {
     int level;
 };
+
+/**
+ *  @class PLCOMPUTER
+ *  @brief A computer player
+ */
 
 class PLCOMPUTER : public PL
 {
@@ -169,7 +180,6 @@ public:
     bool FPrune(AB& ab, const MV& mv, MV& mvBest, int& dLim) noexcept;
     bool FPrune(AB& ab, const MV& mv) noexcept;
     bool FPrune(AB& ab, const MV& mv, MV& mvBest) noexcept;
-
 
     inline bool FInterrupt(void) noexcept
     {
@@ -228,5 +238,3 @@ public:
 public:
     SETAI set;
 };
-
-#pragma once

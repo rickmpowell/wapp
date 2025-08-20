@@ -14,8 +14,8 @@
 #include "wapp.h"
 
 /** 
- *  \class CLIP
- *  \brief Simplified clipboard wrapper
+ *  @class CLIP
+ *  @brief Simplified clipboard wrapper
  * 
  *  Automatically closes the clipboard when we leave scope, throws exceptions
  *  on errors.
@@ -61,7 +61,7 @@ public:
 };
 
 /** 
- *  \class iclipbuffer
+ *  @class iclipbuffer
  * 
  *  The buffer implementation for streaming from the Windows clipboard.
  *  
@@ -93,8 +93,8 @@ int iclipbuffer::underflow(void)
 }
 
 /** 
- *  \class oclipbuffer
- *  \brief Clipboard output buffer
+ *  @class oclipbuffer
+ *  @brief Clipboard output buffer
  */
 
 oclipbuffer::oclipbuffer(IWAPP& iwappOwn, UINT cfOut) : iwapp(iwappOwn), cf(cfOut)

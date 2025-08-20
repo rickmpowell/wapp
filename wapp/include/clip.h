@@ -19,8 +19,8 @@
 class IWAPP;
 
 /** 
- *  \class iclipbuffer
- *  \brief input stream buffer for accessing clipboard text 
+ *  @class iclipbuffer
+ *  @brief input stream buffer for accessing clipboard text 
  */
 
 class iclipbuffer : public streambuf
@@ -36,8 +36,8 @@ protected:
 };
 
 /** 
- *  \class iclipstream
- *  \brief stream interface for accessign clipboard text
+ *  @class iclipstream
+ *  @brief stream interface for accessign clipboard text
  *
  *  An istream compatible input stream that interacts with CF_TEXT
  *  format Windows clipboard.
@@ -58,8 +58,8 @@ private:
 #pragma pack()
 
 /** 
- *  \class oclipbuffer
- *  \brief output buffer for writing text to the clipboard
+ *  @class oclipbuffer
+ *  @brief output buffer for writing text to the clipboard
  */
 
 #pragma pack(1)
@@ -80,8 +80,8 @@ private:
 #pragma pack()
 
 /** 
- *  \class oclipstream
- *  \brief stream interface for writing text to the clipboard
+ *  @class oclipstream
+ *  @brief stream interface for writing text to the clipboard
  *
  *  An ostream compatible interface for writing CF_TEXT to the Windows
  *  clipboard.

@@ -1,7 +1,14 @@
 #pragma once
 
-/*
- *  test.h
+/**
+ *  @file       test.h
+ *  @brief      The Test commands and logging window
+ * 
+ *  @details    The workers for performing our various test harness commands,
+ *              along with the logging window.
+ * 
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "wapp.h"
@@ -9,10 +16,9 @@ class WNLOG;
 class DLGPERFT;
 class VSELPERFT;
 
-/*
- *  TOOLBARLOG
- * 
- *  Toolbar ont he test window
+/**
+ *  @class TOOLBARLOG
+ *  @brief Toolbar on the test/log window
  */
 
 class TOOLBARLOG : public TOOLBAR
@@ -27,10 +33,9 @@ private:
     BTNS btnClear;
 };
 
-/*
- *  WNLOG
- *
- *  Test window, which is currently just displaying a scrollable log
+/**
+ *  @enum TPERF
+ *  @brief Types of perft tests
  */
 
 enum class TPERFT {
@@ -40,6 +45,14 @@ enum class TPERFT {
     Bulk,
     Hash
 };
+
+/**
+ *  @class WNLOG
+ *  @brief Test/log window
+ *
+ *  Mainly an window that displays the chess log information, which is where
+ *  the AI and the various tets display their results.
+ */
 
 class WNLOG : public WNSTREAM, public SCROLLLNFIXED
 {
@@ -84,28 +97,34 @@ private:
 
 extern bool fValidate;
 
-/*
- *  perft dialog
+/**
+ *  @class VSELPERFT
+ *  @brief The collection of perft selectors.
  */
-
-class SELPERFT : public SELS
-{
-public:
-    SELPERFT(VSEL& vsel, int rss) : SELS(vsel, vsel.iwapp.SLoad(rss))
-    {
-        SetLayout(CTLL::SizeToFit);
-        SetBorder(4);
-        SetPadding(8);
-    }
-
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override
-    {
-        return SZ(150, 48);
-    }
-};
 
 class VSELPERFT : public VSEL
 {
+public:
+    /**
+     *  @class SELPERFT
+     *  @brief Selector in the perft test picker
+     */
+    class SELPERFT : public SELS
+    {
+    public:
+        SELPERFT(VSEL& vsel, int rss) : SELS(vsel, vsel.iwapp.SLoad(rss))
+        {
+            SetLayout(CTLL::SizeToFit);
+            SetBorder(4);
+            SetPadding(8);
+        }
+
+        virtual SZ SzRequestLayout(const RC& rcWithin) const override
+        {
+            return SZ(150, 48);
+        }
+    };
+
 public:
     VSELPERFT(DLGPERFT& dlg, ICMD* pcmd);
     
@@ -118,6 +137,11 @@ private:
     SELPERFT selBulk;
     SELPERFT selHash;
 };
+
+/**
+ *  @class DLGPERFT
+ *  @brief The perft dialog box.
+ */
 
 class DLGPERFT : public DLG
 {

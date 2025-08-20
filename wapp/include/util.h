@@ -82,7 +82,7 @@ inline TPS TpsNow(void)
 }
 
 /**
- *  \class linestream
+ *  @class linestream
  *
  *  A utility class that reads text files as a sequence of lines. Handles
  *  UTF-16, UTF-8, and regular ASCII files. Permits a push operation that

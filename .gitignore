@@ -178,7 +178,7 @@ DocProject/Help/html
 
 # doxygen generated documentation
 doc/html/
-dox/latex/
+doc/latex/
 
 # Click-Once directory
 publish/
