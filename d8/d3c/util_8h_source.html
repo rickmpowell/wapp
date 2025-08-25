@@ -124,7 +124,7 @@ $(document).ready(function(){initNavTree('d8/d3c/util_8h_source.html','../../');
 <div class="foldopen" id="foldopen00041" data-start="{" data-end="}">
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="../../d8/d3c/util_8h.html#a2f82654da6be6d57b554bbf26065dd49">   41</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="../../d8/d3c/util_8h.html#a2f82654da6be6d57b554bbf26065dd49">inrange</a>(<span class="keyword">const</span> T&amp; t, <span class="keyword">const</span> T&amp; tFirst, <span class="keyword">const</span> T&amp; tLast) </div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>{</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    assert(tsFirst &lt;= tsLast);</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    assert(tFirst &lt;= tLast);</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="keywordflow">return</span> t &gt;= tFirst &amp;&amp; t &lt;= tLast;</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>}</div>
 </div>
@@ -149,14 +149,14 @@ $(document).ready(function(){initNavTree('d8/d3c/util_8h_source.html','../../');
 <div class="foldopen" id="foldopen00070" data-start="{" data-end="}">
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno"><a class="line" href="../../d8/d3c/util_8h.html#adf749cc20679f4bf6fcb4324ad695338">   70</a></span><span class="keyword">inline</span> TP <a class="code hl_function" href="../../d8/d3c/util_8h.html#adf749cc20679f4bf6fcb4324ad695338">TpNow</a>(<span class="keywordtype">void</span>)</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>{</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keywordflow">return</span> chrono::high_resolution_clock::now();</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keywordflow">return</span> high_resolution_clock::now();</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>}</div>
 </div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
 <div class="foldopen" id="foldopen00079" data-start="{" data-end="}">
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno"><a class="line" href="../../d8/d3c/util_8h.html#ab8b217d557530386036d4a33094a00b5">   79</a></span><span class="keyword">inline</span> TPS <a class="code hl_function" href="../../d8/d3c/util_8h.html#ab8b217d557530386036d4a33094a00b5">TpsNow</a>(<span class="keywordtype">void</span>)</div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>{</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keywordflow">return</span> chrono::system_clock::now();</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keywordflow">return</span> system_clock::now();</div>
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>}</div>
 </div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
