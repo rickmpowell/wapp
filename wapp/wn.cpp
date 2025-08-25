@@ -118,6 +118,8 @@ void WN::Show(bool fShow)
 
 bool WN::FVisible(void) const
 {
+    if (iwapp.fMinimized)
+        return false;
     for (const WN* pwn = this; pwn != nullptr; pwn = pwn->pwnParent)
         if (!pwn->fVisible)
             return false;
@@ -389,9 +391,7 @@ bool WN::FKeyDown(int vk)
     return false;
 }
 
-/*
- *  WNSTREAM
- * 
+/**
  *  This is a little bit weird, but this is a WN that accepts an ostream. Lines
  *  are passed along to ReceiveStream where they can be processed and potenmtially 
  *  drawn.

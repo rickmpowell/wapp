@@ -131,6 +131,7 @@ public:
     virtual void OnDisplayChange(void);
     virtual void OnShow(bool fShow);
     virtual void OnSize(const SZ& sz);
+    virtual void OnMinimize(bool fMinimize);
     virtual void OnMouseMove(const PT& ptg, unsigned mk);
     virtual void OnMouseDown(const PT& ptg, unsigned mk);
     virtual void OnMouseUp(const PT& ptg, unsigned mk);

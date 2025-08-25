@@ -78,6 +78,7 @@ public:
     virtual void OnDisplayChange(void) override;
     virtual void OnShow(bool fShow) override;
     virtual void OnSize(const SZ& sz) override;
+    virtual void OnMinimize(bool fMinimize) override;
     virtual void OnPaint(void) override;
     virtual void OnMouseMove(const PT& ptg, unsigned mk) override;
     virtual void OnMouseDown(const PT& ptg, unsigned mk) override;
@@ -139,6 +140,8 @@ private:
     map<int, unique_ptr<ICMD>> mpcmdpicmdMenu;
     vector<EVD*> vpevd;
     vector<unique_ptr<FILTERMSG>> vpfm;
+
+    bool fMinimized = false;
 };
 
 /**

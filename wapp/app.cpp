@@ -266,6 +266,14 @@ LRESULT CALLBACK WND::WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
         return 0;
 
     case WM_SIZE:
+        switch (wParam) {
+        case SIZE_MINIMIZED:
+        case SIZE_RESTORED:
+            pwnd->OnMinimize(wParam == SIZE_MINIMIZED);
+            break;
+        default:
+            break;
+        }
         pwnd->OnSize(SZ(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
         InvalidateRect(hwnd, NULL, FALSE);
         break;
@@ -354,6 +362,10 @@ void WND::OnShow(bool fShow)
 void WND::OnSize(const SZ& sz)
 {
     (void)sz;
+}
+
+void WND::OnMinimize(bool fMinimize)
+{
 }
 
 void WND::OnPaint(void)
