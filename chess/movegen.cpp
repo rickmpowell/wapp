@@ -478,6 +478,8 @@ string to_string(EV ev)
 {
     if (ev == 0)
         return "0";
+    if (FEvIsInterrupt(ev))
+        return "[Int]";
     string s(ev < 0 ? "-" : "+");
     ev = abs(ev);
     if (ev == evInfinity)

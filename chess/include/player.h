@@ -15,6 +15,7 @@
 class WAPP;
 class GAME;
 class WNBOARD;
+class TMAN;
 
 /**
  *  @class PL
@@ -29,7 +30,7 @@ public:
     virtual bool FIsHuman(void) const = 0;
     virtual string SName(void) const = 0;
 
-    virtual void RequestMv(WAPP& wapp, GAME& game) = 0;
+    virtual void RequestMv(WAPP& wapp, GAME& game, const TMAN& tman) = 0;
 
 public:
 };
@@ -47,9 +48,8 @@ public:
     virtual bool FIsHuman(void) const override;
     virtual string SName(void) const override;
     void SetName(string_view sName);
-    virtual void RequestMv(WAPP& wapp, GAME& game) override;
+    virtual void RequestMv(WAPP& wapp, GAME& game, const TMAN& tman) override;
 
 private:
     string sName;
 };
-

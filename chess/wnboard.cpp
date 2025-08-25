@@ -63,11 +63,11 @@ void WNBD::ShowMv(MV mv, bool fAnimate)
     RC rcTo = RcFromSq(mv.sqTo);
     PT dpt = rcTo.ptTopLeft() - rcFrom.ptTopLeft();
 
-    constexpr chrono::milliseconds dtmTotal(200);
-    auto tpStart = chrono::high_resolution_clock::now();
+    constexpr milliseconds dtmTotal(200);
+    auto tpStart = high_resolution_clock::now();
 
     while (1) {
-        chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tpStart;
+        duration<float> dtm = high_resolution_clock::now() - tpStart;
         if (dtm >= dtmTotal)
             break;
         RC rc = rcFrom + dpt * (float)(dtm / dtmTotal);
@@ -516,14 +516,14 @@ void WNBOARD::FlipCpc(void)
     /* animate the turning over a 1/2 second time period */
 
     float angleEnd = -180;
-    constexpr chrono::milliseconds dtmTotal(900);
-    auto tpStart = chrono::high_resolution_clock::now();
+    constexpr milliseconds dtmTotal(900);
+    auto tpStart = high_resolution_clock::now();
 
     while (angleDraw > angleEnd) {
         Redraw();
-        chrono::duration<float> dtm = chrono::high_resolution_clock::now() - tpStart;
+        duration<float> dtm = high_resolution_clock::now() - tpStart;
         angleDraw = angleEnd * dtm / dtmTotal;
-        // this_thread::sleep_for(chrono::milliseconds(8));
+        // this_thread::sleep_for(milliseconds(8));
     }
 
     angleDraw = 0;

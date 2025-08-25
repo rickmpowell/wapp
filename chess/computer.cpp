@@ -41,27 +41,27 @@ void PLCOMPUTER::SetLevel(int level)
     set.level = level;
 }
 
-void PLCOMPUTER::RequestMv(WAPP& wapp, GAME& game)
+void PLCOMPUTER::RequestMv(WAPP& wapp, GAME& game, const TMAN& tman)
 {
     pwnlog = &wapp.wnlog;
-    MV mv = MvBest(game.bd);
+    MV mv = MvBest(game.bd, tman);
     unique_ptr<CMDMAKEMOVE> pcmdMakeMove = make_unique<CMDMAKEMOVE>(wapp);
     pcmdMakeMove->SetMv(mv);
     pcmdMakeMove->SetAnimate(true);
     wapp.PostCmd(*pcmdMakeMove);
 }
 
-/*
- *  PLCOMPUTER::MvBestTest
+/**
+ *  @brief Stub entry pont for testing the AI
  * 
- *  Little stub for testing the AI, which just sets up the logging system before
- *  finding the best move.
+ *  Just sets up the logging system before doing the full search to find
+ *  the best move.
  */
 
-MV PLCOMPUTER::MvBestTest(WAPP& wapp, GAME& game)
+MV PLCOMPUTER::MvBestTest(WAPP& wapp, GAME& game, const TMAN& tman)
 {
     pwnlog = &wapp.wnlog;
-    return MvBest(game.bd);
+    return MvBest(game.bd, tman);
 }
 
 /*
@@ -76,7 +76,7 @@ MV PLCOMPUTER::MvBestTest(WAPP& wapp, GAME& game)
  *  in the search.
  */
 
-static MV mpdmvBrk[] = { //MV()
+static MV mpdmvBrk[] = { MV(),
      MV(sqA2, sqB1), MV(sqD2, sqH2), MV(sqB1, sqC1), MV(sqH2, sqB2), MV(sqC1, sqD1) };
 static MV mpdmvCur[256];
 
@@ -154,7 +154,7 @@ BRK brk;
  *  different processing.
  */
 
-MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
+MV PLCOMPUTER::MvBest(BD& bdGame, const TMAN& tman) noexcept
 {
     /* prepare for search */
     InitStats();
@@ -162,6 +162,7 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
     xt.Init();
     InitKillers();
     InitHistory();
+    InitTimeMan(tman);
     brk.Init();
 
     /* generate all possible legal moves */
@@ -171,8 +172,9 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
     cmvMoveGen += vmv.size();
 
     *pwnlog << bd.FenRender() << endl << indent;
-    MV mvBest;
-    int dMax = set.level + 2, dLim = 2;
+    MV mvBestAll(vmv[0]), mvBest;
+    dSearchMax = tman.odMax.value();
+    int dLim = 2;
     AB abAspiration(-evInfinity, evInfinity);
 
     do {    /* iterative deepening/aspiration window loop */
@@ -185,32 +187,47 @@ MV PLCOMPUTER::MvBest(BD& bdGame) noexcept
             bd.MakeMv(*pmv);
             pmv->ev = -EvSearch(bd, -ab, 1, dLim);
             bd.UndoMv();
-            if (FPrune(ab, *pmv, mvBest, dMax)) {
-                dLim = min(dLim, dMax);
+            if (FPrune(ab, *pmv, mvBest, dSearchMax)) {
                 SaveKiller(bd, *pmv);
+                AddHistory(bd, *pmv, 1, dLim);
+                dLim = min(dLim, dMax);
                 brk.LogMvEnd(*pmv, "cut");
                 break;
             }
             brk.LogMvEnd(*pmv);
         }
-        if (mvBest.ev > -evInfinity)
-            SaveXt(bd, mvBest, abAspiration, 0, dLim);
-        brk.LogDepthEnd(mvBest, "best");
-    } while (FDeepen(bd, mvBest, abAspiration, dLim, dMax));
+        if (FEvIsInterrupt(mvBest.ev))
+            brk.LogDepthEnd(mvBest, "interrupt");
+        else {
+            if (mvBest.ev > -evInfinity)
+                SaveXt(bd, mvBest, abAspiration, 0, dLim);
+            brk.LogDepthEnd(mvBest, "best");
+        }
+    } while (!FEvIsInterrupt(mvBest.ev) &&
+             FDeepen(bd, mvBestAll, mvBest, abAspiration, dLim));
 
-    TP tpEnd = TpNow();
-    *pwnlog << outdent << "best " << to_string(mvBest) << endl;
-    LogStats(tpEnd);
+   *pwnlog << outdent << "best " << to_string(mvBestAll) << endl;
+    LogStats(TpNow());
 
-    return mvBest;
+    mvBestAll.ev = 0;
+    if (tint == TINT::Halt) {
+        mvBestAll = mvNil;
+        mvBestAll.ev = evInterrupt;
+    }
+    else if (tint == TINT::MoveAndPause)
+        mvBestAll.ev = evInterrupt;
+
+    return mvBestAll;
 }
 
-/*
- *  EvSearch
+/**
+ *  @brief Recursive alpha-beta search
  * 
- *  Basic recursive move search, finds the evaluation of the
- *  best move on the board with dLim as the depth to search, d the
- *  current depth, and ab the alpha-beta window
+ *  Basic recursive move search, finds the evaluation of the best move on the 
+ *  board with dLim as the depth to search, d the current depth, and ab the 
+ *  alpha-beta window
+ * 
+ *  @returns the evaluation of the bd from the pov of the side to move
  */
 
 EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
@@ -220,57 +237,95 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
     if (d >= dLim)
         return EvQuiescent(bd, ab, d);
 
-    FInterrupt();
+    /* check for interrupts */
+    if (FInterrupt())
+        return evInterrupt;
     cmvSearch++;
 
+    /* check for draws */
     if (bd.FGameDrawn(2)) {
         brk.LogEnd(evDraw, "draw");
         return evDraw;
     }
 
+    /* check transposition table */
     MV mvBest(-evInfinity);
     if (FLookupXt(bd, mvBest, ab, d, dLim)) {
         brk.LogEnd(mvBest.ev, "xt");
         return mvBest.ev;
     }
 
+    /* generate legal moves */
     AB abInit(ab);
     VMV vmv;
     bd.MoveGenPseudo(vmv);
     cmvMoveGen += vmv.size();
     int cmvLegal = 0;
 
-    for (VMV::siterator pmv = vmv.sbegin(*this, bd); pmv != vmv.send(); ++pmv) {
+    /* try first move with full povided ab window */
+    VMV::siterator pmv = vmv.sbegin(*this, bd);
+    for (;; ++pmv) {
+        if (pmv == vmv.send())
+            goto Done;
+        if (bd.FMakeMvLegal(*pmv))
+            break;
+    } 
+    brk.Check(d, *pmv);
+    cmvLegal++;
+    brk.LogMvStart(*pmv, ab);
+    pmv->ev = -EvSearch(bd, -ab, d + 1, dLim);
+    bd.UndoMv();
+    if (FPrune(ab, *pmv, mvBest, dLim)) {
+        SaveKiller(bd, *pmv);
+        AddHistory(bd, *pmv, d, dLim);
+        SaveXt(bd, *pmv, ab, d, dLim);
+        brk.LogMvEnd(*pmv, "cut");
+        return pmv->ev;
+    }
+    brk.LogMvEnd(*pmv);
+    ++pmv;
+
+    for ( ; pmv != vmv.send(); ++pmv) {
+        
+        /* make the move, make sure it's legal */
         brk.Check(d, *pmv);
         if (!bd.FMakeMvLegal(*pmv))
             continue;
         cmvLegal++;
         brk.LogMvStart(*pmv, ab);
-        pmv->ev = -EvSearch(bd, -ab, d+1, dLim);
+        pmv->ev = -EvSearch(bd, -ab.AbNull(), d + 1, dLim);
+        if (!ab.FIsBelow(pmv->ev) && !ab.FIsNull())
+            pmv->ev = -EvSearch(bd, -ab, d+1, dLim);
         bd.UndoMv();
+        
+        /* check for cuts and track killers and history */
         if (FPrune(ab, *pmv, mvBest, dLim)) {
             SaveKiller(bd, *pmv);
-            brk.LogMvEnd(*pmv, "cut");
+            AddHistory(bd, *pmv, d, dLim);
             SaveXt(bd, *pmv, ab, d, dLim);
+            brk.LogMvEnd(*pmv, "cut");
             return pmv->ev;
         }
         brk.LogMvEnd(*pmv);
     }
 
+Done:
     if (cmvLegal == 0) {
+        /* if no legal moves, we have a checkmate or stalemate */
         mvBest = MV(fInCheck ? -EvMate(d) : evDraw);
-        brk.LogEnd(mvBest.ev, "no moves");
         SaveXt(bd, mvBest, AB(-evInfinity, evInfinity), d, dLim);
-        return mvBest.ev;
+        brk.LogEnd(mvBest.ev, "no moves");
+    }
+    else {
+        SaveXt(bd, mvBest, abInit, d, dLim);
+        brk.LogEnd(mvBest.ev, "best");
     }
 
-    brk.LogEnd(mvBest.ev, "best");
-    SaveXt(bd, mvBest, abInit, d, dLim);
     return mvBest.ev;
 }
 
-/*
- *  EvQuiescent
+/**
+ *  @brief recursive quiescent search
  * 
  *  A common problem with chess search is trying to get a static evaluation
  *  of the board when there's a lot of shit going on. If there are a lot of 
@@ -283,6 +338,9 @@ EV PLCOMPUTER::EvSearch(BD& bd, AB ab, int d, int dLim) noexcept
 
 EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
 {
+    if (FInterrupt())
+        return evInterrupt;
+
     MV mvBest(EvStatic(bd));
     if (FPrune(ab, mvBest)) {
         //brk.LogEnd(mvBest.ev, "eval", "cut");
@@ -290,7 +348,6 @@ EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
     }
     //brk.LogEnd(mvBest.ev, "eval");
 
-    FInterrupt();
     cmvQSearch++;
 
     bool fInCheck = bd.FInCheck(bd.cpcToMove);
@@ -309,7 +366,6 @@ EV PLCOMPUTER::EvQuiescent(BD& bd, AB ab, int d) noexcept
         bd.UndoMv();
         if (FPrune(ab, *pmv, mvBest)) {
             //brk.LogMvEnd(*pmv, "cut");
-            SaveKiller(bd, *pmv);
             return pmv->ev;
         }
         //brk.LogMvEnd(*pmv, "");
@@ -468,12 +524,18 @@ void VMV::siterator::InitEvEnum(void) noexcept
     }
 }
 
-bool PLCOMPUTER::FPrune(AB& ab, const MV& mv, int& dLim) noexcept
+bool PLCOMPUTER::FPrune(AB& ab, MV& mv, int& dLim) noexcept
 {
+    if (FEvIsInterrupt(mv.ev)) {
+        mv.ev = evInterrupt;
+        return true;
+    }
     assert(ab.evAlpha <= ab.evBeta);
     if (mv.ev > ab.evAlpha) {
-        if (FEvIsMate(mv.ev))
+        if (FEvIsMate(mv.ev)) {
             dLim = min(dLim, DFromEvMate(mv.ev));
+            assert(dLim > 0);
+        }
         if (mv.ev >= ab.evBeta) {   // cut?
             ab.evAlpha = ab.evBeta;
             return true;
@@ -483,16 +545,21 @@ bool PLCOMPUTER::FPrune(AB& ab, const MV& mv, int& dLim) noexcept
     return false;
 }
 
-bool PLCOMPUTER::FPrune(AB& ab, const MV& mv, MV& mvBest, int& dLim) noexcept
+bool PLCOMPUTER::FPrune(AB& ab, MV& mv, MV& mvBest, int& dLim) noexcept
 {
     assert(ab.evAlpha <= ab.evBeta);
+    bool fPrune = FPrune(ab, mv, dLim);
     if (mv.ev > mvBest.ev)
         mvBest = mv;
-    return FPrune(ab, mv, dLim);
+    return fPrune;
 }
 
-bool PLCOMPUTER::FPrune(AB& ab, const MV& mv) noexcept
+bool PLCOMPUTER::FPrune(AB& ab, MV& mv) noexcept
 {
+    if (FEvIsInterrupt(mv.ev)) {
+        mv.ev = evInterrupt;
+        return true;
+    }
     assert(ab.evAlpha <= ab.evBeta);
     if (mv.ev > ab.evAlpha) {
         ab.evAlpha = mv.ev;
@@ -504,22 +571,20 @@ bool PLCOMPUTER::FPrune(AB& ab, const MV& mv) noexcept
     return false;
 }
 
-bool PLCOMPUTER::FPrune(AB& ab, const MV& mv, MV& mvBest) noexcept
+bool PLCOMPUTER::FPrune(AB& ab, MV& mv, MV& mvBest) noexcept
 {
     assert(ab.evAlpha <= ab.evBeta);
+    bool fPrune = FPrune(ab, mv);
     if (mv.ev > mvBest.ev)
         mvBest = mv;
-    return FPrune(ab, mv);
+    return fPrune;
 }
 
-
-/*
- *  PLCOMPUTER::FDeepen
- * 
- *  Iterative deepening and aspiration window, used at root search.
+/**
+ *  @brief Iterative deepening and aspiration window, used at root search.
  */
 
-bool PLCOMPUTER::FDeepen(BD& bd, MV mvBest, AB& ab, int& d, int dMax) noexcept
+bool PLCOMPUTER::FDeepen(BD& bd, MV& mvBestAll, MV mvBest, AB& ab, int& d) noexcept
 {
     /* If the search failed with a narrow a-b window, widen the window up some
        and try again */
@@ -532,12 +597,13 @@ bool PLCOMPUTER::FDeepen(BD& bd, MV mvBest, AB& ab, int& d, int dMax) noexcept
         /* we found a move - go deeper in the next pass, but use a tight
            a-b window (the aspiration window optimization) at first in hopes
            we'll get lots of pruning */
+        mvBestAll = mvBest;
         if (FEvIsMate(mvBest.ev))
             return false;
         ab = AbAspiration(mvBest.ev, 10);
         d += 1;
     }
-    return d < dMax;
+    return d < dSearchMax;
 }
 
 /*
@@ -593,10 +659,8 @@ bool PLCOMPUTER::FLookupXt(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
 
 XTEV* PLCOMPUTER::SaveXt(BD &bd, const MV& mvBest, AB ab, int d, int dLim) noexcept
 {
-    /*
     if (FEvIsInterrupt(mvBest.ev))
         return nullptr;
-    */
 
     EV evBest = mvBest.ev;
     assert(evBest > -evInfinity && evBest < evInfinity);
@@ -616,6 +680,7 @@ XTEV* PLCOMPUTER::SaveXt(BD &bd, const MV& mvBest, AB ab, int d, int dLim) noexc
 
 void XTEV::Save(HA ha, TEV tev, EV ev, const MV& mvBest, int d, int dLim) noexcept
 {
+    assert(!FEvIsInterrupt(ev));
     if (FEvIsMate(ev))
         ev += d;
     else if (FEvIsMate(-ev))
@@ -685,9 +750,7 @@ void XT::Init(void)
     memset(axtev, 0, sizeof(XTEV) * cxtev);
 }
 
-/*
- *  PLCOMPUTER::EvStatic
- *
+/**
  *  Evaluates the board from the point of view of the player next to move.
  */
 
@@ -696,17 +759,17 @@ EV PLCOMPUTER::EvStatic(BD& bd) noexcept
     cmvEval++;
     EV ev = 0;
     ev += EvFromPsqt(bd);
+    ev += EvKingSafety(bd);
+    ev += EvPawnStructure(bd);
+
     /* tempo adjustment causes alternating depth eval oscillation that messes 
        with the aspiration window optimization */
     // ev += evTempo;  
     return ev;
 }
 
-/*
- *  PLCOMPUTER:EvFromPsqt
- *
- *  Returns the piece value table board evaluation for the side with
- *  the move.
+/**
+ *  Returns the piece value table board evaluation for the side with the move.
  */
 
 EV PLCOMPUTER::EvFromPsqt(const BD& bd) const noexcept
@@ -733,9 +796,7 @@ EV PLCOMPUTER::EvFromPsqt(const BD& bd) const noexcept
                          mpcpcevEnd[bd.cpcToMove] - mpcpcevEnd[~bd.cpcToMove], phaseEndFirst);
 }
 
-/*
- *  PLCOMPUTER::InitPsts
- *
+/**
  *  Initializes the piece value weight tables for the different phases of the
  *  game. We may build these tables on the fly in the future, but for now
  *  we waste a little time at beginning of search, but it's not a big deal.
@@ -745,6 +806,16 @@ void PLCOMPUTER::InitPsts(void) noexcept
 {
     InitPsqt(mpcptevMid, mpcptsqdevMid, mpcpsqevMid);
     InitPsqt(mpcptevEnd, mpcptsqdevEnd, mpcpsqevEnd);
+}
+
+EV PLCOMPUTER::EvKingSafety(BD& bd) noexcept
+{
+    return 0;
+}
+
+EV PLCOMPUTER::EvPawnStructure(BD& bd) noexcept
+{
+    return 0;
 }
 
 /*
@@ -796,7 +867,7 @@ void PLCOMPUTER::InitKillers(void) noexcept
 
 void PLCOMPUTER::SaveKiller(BD& bd, const MV& mv) noexcept
 {
-    if (bd.FMvIsCapture(mv) || mv.cptPromote)
+    if (bd.FMvIsCapture(mv) || mv.cptPromote || FEvIsInterrupt(mv.ev))
         return;
     int imvLim = (int)bd.vmvuGame.size() + 1;
     if (imvLim >= 256 || mv == amvKillers[imvLim][0])
@@ -838,7 +909,7 @@ void PLCOMPUTER::InitHistory(void) noexcept
 
 void PLCOMPUTER::AddHistory(BD& bd, const MV& mv, int d, int dLim) noexcept
 {
-    if (bd.FMvIsCapture(mv) || mv.cptPromote)
+    if (bd.FMvIsCapture(mv) || mv.cptPromote || FEvIsInterrupt(mv.ev))
         return;
     int& csqHistory = mpcpsqcHistory[bd[mv.sqFrom].cp()][mv.sqTo];
     csqHistory += (dLim - d) * (dLim - d);
@@ -855,7 +926,7 @@ void PLCOMPUTER::AddHistory(BD& bd, const MV& mv, int d, int dLim) noexcept
 
 void PLCOMPUTER::SubtractHistory(BD& bd, const MV& mv) noexcept
 {
-    if (bd.FMvIsCapture(mv) || mv.cptPromote)
+    if (bd.FMvIsCapture(mv) || mv.cptPromote || FEvIsInterrupt(mv.ev))
         return;
     int& csqHistory = mpcpsqcHistory[bd[mv.sqFrom].cp()][mv.sqTo];
     if (csqHistory > 0)
@@ -910,7 +981,58 @@ EV PLCOMPUTER::EvAttackDefend(BD& bd, const MV& mvPrev) const noexcept
 }
 
 /*
- *  search statistics
+ *  Time management 
+ */
+
+/**
+ *  @brief Initializes search for the requested time management
+ */
+
+void PLCOMPUTER::InitTimeMan(const TMAN& tman)
+{
+    tpSearchStart = TpNow();
+    assert(tman.odtpTotal.has_value());
+    tpSearchEnd = tpSearchStart + tman.odtpTotal.value() - 10ms;
+
+    dSearchMax = tman.odMax.has_value() ? tman.odMax.value() : 100;
+
+    tint = TINT::Thinking;
+}
+
+/*
+ *  @brief Lets the system work for a bit
+ *
+ *  TODO: This is nowhere near sophisticated enough, and we'll almost certainly
+ *  crash due to UI re-entrancy during AI search.
+ */
+
+bool PLCOMPUTER::FDoYield(void) noexcept
+{
+    TP tp = TpNow();
+    if (tp > tpSearchEnd) {
+        tint = TINT::MoveAndContinue;
+        return true;
+    }
+
+    MSG msg;
+    while (::PeekMessageW(&msg, nullptr, 0, 0, PM_NOREMOVE | PM_NOYIELD)) {
+        if (msg.message == WM_QUIT) {
+            tint = TINT::Halt;
+            return true;
+        }
+        ::PeekMessageW(&msg, msg.hwnd, msg.message, msg.message, PM_REMOVE);
+        if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE) {
+            tint = TINT::MoveAndPause;
+            return true;
+        }
+        ::TranslateMessage(&msg);
+        ::DispatchMessageW(&msg);
+    }
+    return false;
+}
+
+/*
+ *  Search statistics
  */
 
 void PLCOMPUTER::InitStats(void) noexcept
@@ -919,13 +1041,12 @@ void PLCOMPUTER::InitStats(void) noexcept
     cmvSearch = 0;
     cmvQSearch = 0;
     cmvEval = 0;
-    tpStart = TpNow();
 }
 
 void PLCOMPUTER::LogStats(TP tpEnd) noexcept
 {
-    chrono::duration dtp = tpEnd - tpStart;
-    chrono::microseconds us = duration_cast<chrono::microseconds>(dtp);
+    duration dtp = tpEnd - tpSearchStart;
+    microseconds us = duration_cast<microseconds>(dtp);
     *pwnlog << "Moves generated: " 
             << dec << cmvMoveGen << endl;
     int64_t cmvTotal = cmvSearch + cmvQSearch;
@@ -939,25 +1060,9 @@ void PLCOMPUTER::LogStats(TP tpEnd) noexcept
             << endl;
     *pwnlog << "Eval nodes: " 
             << dec << cmvEval << endl;
-}
-
-/*
- *  PLCOMPUTER::DoYield
- * 
- *  Lets the system work for a bit
- * 
- *  TODO: This is nowhere near sophisticated enough, and we'll almost certainly
- *  crash due to UI re-entrancy during AI search.
- */
-
-void PLCOMPUTER::DoYield(void) noexcept
-{
-    MSG msg;
-    while (::PeekMessageW(&msg, nullptr, 0, 0, PM_NOREMOVE | PM_NOYIELD)) {
-        ::PeekMessageW(&msg, msg.hwnd, msg.message, msg.message, PM_REMOVE);
-        ::TranslateMessage(&msg);
-        ::DispatchMessageW(&msg);
-    }
+    *pwnlog << "Time: "
+            << fixed << setprecision(2) << ((float)us.count() / 1000000.0f) << " sec"
+            << endl;
 }
 
 string to_string(AB ab)

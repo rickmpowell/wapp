@@ -224,9 +224,7 @@ void TOOLBARLOG::Layout(void)
 	btnClear.SetBounds(rc);
 }
 
-/*
- *  WNAPP::RunPerft
- * 
+/**
  *  Runs the perft test.
  */
 
@@ -244,7 +242,7 @@ void WAPP::RunPerft(void)
 		for (int d = 1; d <= wnlog.dPerft; d++) {
 			TP tpStart = TpNow();
 			int64_t cmv = wnlog.tperft == TPERFT::Perft ? game.bd.CmvPerft(d) : game.bd.CmvBulk(d);
-			chrono::duration<float> dtm = TpNow() - tpStart;
+			duration<float> dtm = TpNow() - tpStart;
 			wnlog << (wnlog.tperft == TPERFT::Perft ? "Perft" : "Bulk") << " " 
 				  << dec << d << ": " 
 				  << cmv << endl;
@@ -290,6 +288,10 @@ void WAPP::RunPerft(void)
     wnboard.Enable(true);
 }
 
+/**
+ *	Tests that we're generating board hash values correctly
+ */
+
 bool WAPP::FRunHash(BD& bd, int d)
 {
 	if (d == 0)
@@ -321,10 +323,12 @@ bool WAPP::FRunHash(BD& bd, int d)
 }
 
 
-/*
- *  WAPP::RunPerftSuite
+/**
+ *  @brief Runs a suite of perft tests, our ultimate movegen/make/undo test.
  * 
- *  Runs a suite of perft tests, our ultimate movegen/make/undo test.
+ *	This is our big test to make sure our underlying chess move generator,
+ *	and move makers are working correctly. Correctness is vital for these
+ *	functions, so we test it extensively.
  * 
  *	TODO: I bet these counts could be converted into an EPD parameter
  */
@@ -527,7 +531,7 @@ void WAPP::RunPerftSuite(void)
 {
 	wnlog.clear();
 
-	chrono::microseconds usTotal = chrono::microseconds(0);
+	microseconds usTotal = microseconds(0);
 	int64_t cmvTotal = 0;
 
 	wnlog.levelLog++;
@@ -553,7 +557,7 @@ void WAPP::RunPerftSuite(void)
  */
 
 bool WAPP::RunOnePerftTest(const char tag[], const char fen[], const int64_t mpdcmv[], 
-						   chrono::microseconds& usTotal, int64_t& cmvTotal)
+						   microseconds& usTotal, int64_t& cmvTotal)
 {
 	BD bd(fen);
 
@@ -581,8 +585,8 @@ bool WAPP::RunOnePerftTest(const char tag[], const char fen[], const int64_t mpd
 		TP tpEnd = TpNow();
 
 		/* display the results */
-		chrono::duration dtp = tpEnd - tpStart;
-		chrono::microseconds us = duration_cast<chrono::microseconds>(dtp);
+		duration dtp = tpEnd - tpStart;
+		microseconds us = duration_cast<microseconds>(dtp);
 		float sp = 1000.0f * (float)cmvActual / (float)us.count();
 		wnlog << "Actual: " << cmvActual << endl;
 		wnlog << "Speed: " << (int)round(sp) << " moves/ms" << endl;
@@ -652,8 +656,13 @@ void WAPP::RunPolyglotTest(void)
 
 void WAPP::RunAITest(filesystem::path folder, const vector<filesystem::path>& vfile)
 {
+	/* time management to use for test */
+	TMAN tman;
+	tman.odtpTotal = duration_cast<milliseconds>(5s);
+	tman.odMax = 30;
+
 	/* install AI players */
-	SETAI set = { 7 };
+	SETAI set = { 10 };
 	game.appl[cpcWhite] = make_shared<PLCOMPUTER>(set);
 	game.appl[cpcBlack] = make_shared<PLCOMPUTER>(set);
 	game.NotifyPlChanged();
@@ -695,11 +704,14 @@ void WAPP::RunAITest(filesystem::path folder, const vector<filesystem::path>& vf
 			/* get what the AI thinks is the best move */
 			wnlog.levelLog += 2;
 			PLCOMPUTER* ppl = static_cast<PLCOMPUTER*>(game.appl[game.bd.cpcToMove].get());
-			MV mvAct = ppl->MvBestTest(*this, game);
+			MV mvAct = ppl->MvBestTest(*this, game, tman);
 			wnlog.levelLog -= 2;
 
 			/* log rseults */
 			wnlog << outdent;
+			if (FEvIsInterrupt(mvAct.ev))
+				break;
+
 			cTotal++;
 			bool fSuccess = false;
 			if (game.mpkeyvar.find("bm") != game.mpkeyvar.end()) {
@@ -726,6 +738,10 @@ void WAPP::RunAIProfile(void)
 {
 	string fen("r1bq1rk1/ppp2ppp/2n2n2/3pp3/3P4/2P1PN2/PP3PPP/RNBQ1RK1 w - - 0 7");
 	//string fen("rnbqkbnr/pppp1ppp/8/4p3/3P4/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 3");
+	TMAN tman;
+	tman.odtpTotal = duration_cast<milliseconds>(15s);
+	tman.odMax = 30;
+
 	/* install AI players */
 	SETAI set = { 8 };
 	game.appl[cpcWhite] = make_shared<PLCOMPUTER>(set);
@@ -736,12 +752,12 @@ void WAPP::RunAIProfile(void)
 	PLCOMPUTER* ppl = static_cast<PLCOMPUTER*>(game.appl[game.bd.cpcToMove].get());
 	wnlog.levelLog = 0;
 	TP tpStart = TpNow();
-	MV mvAct = ppl->MvBestTest(*this, game);
+	MV mvAct = ppl->MvBestTest(*this, game, tman);
 	TP tpEnd = TpNow();	
 	wnlog.levelLog = 2;
 
-	chrono::duration dtp = tpEnd - tpStart;
-	chrono::milliseconds ms = duration_cast<chrono::milliseconds>(dtp);
+	duration dtp = tpEnd - tpStart;
+	milliseconds ms = duration_cast<milliseconds>(dtp);
 	wnlog << ms << endl;
 }
 

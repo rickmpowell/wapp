@@ -316,7 +316,7 @@ void GAME::InitFromEpd(istream& is)
             throw ERRAPP(rssErrEpdFullMoveNumber);
         bd.SetFullMoveNumber(cmv);
         ReadEpdOpCodes(is, "");
-        }
+    }
     else {
         ReadEpdOpCodes(is, s);
     }
@@ -912,7 +912,7 @@ string GAME::SResult(void) const
 
 string GAME::SPgnDate(TPS tps) const
 {
-    time_t time = std::chrono::system_clock::to_time_t(tps);
+    time_t time = system_clock::to_time_t(tps);
     struct tm stm;
     localtime_s(&stm, &time);
     return to_string(stm.tm_year+1900) + "." + to_string(stm.tm_mon+1) + "." + to_string(stm.tm_mday);
@@ -934,8 +934,10 @@ void GAME::RenderPgnMoveList(ostream& os) const
     linebreakbuf buf(os, 80);
     ostream osLineBreak(&buf);
 
-    BD bdT(fenStartPos);
-    for (int imv = 0; imv < bd.vmvuGame.size(); imv++) {
+    BD bdT(fenFirst);
+    if (imvFirst % 2 == 1)
+        osLineBreak << (imvFirst / 2 + 1) << "... ";
+    for (int imv = imvFirst ; imv < bd.vmvuGame.size(); imv++) {
         if (imv % 2 == 0)
             osLineBreak << (imv/2 + 1) << ". ";
         osLineBreak << bdT.SDecodeMvu(bd.vmvuGame[imv]) << " ";

@@ -27,7 +27,7 @@ bool PLHUMAN::FIsHuman(void) const
     return true;
 }
 
-void PLHUMAN::RequestMv(WAPP& wapp, GAME& game)
+void PLHUMAN::RequestMv(WAPP& wapp, GAME& game, const TMAN& tman)
 {
     game.NotifyEnableUI(true);
 }

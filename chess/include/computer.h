@@ -53,6 +53,31 @@ public:
         assert(evAlpha <= evBeta);
     }
 
+    AB AbNull(void) const noexcept
+    {
+        return AB(evAlpha, evAlpha + 1);
+    }
+
+    bool FIsNull(void) const noexcept
+    {
+        return evAlpha + 1 == evBeta;
+    }
+
+    bool FIsBelow(EV ev) const noexcept 
+    {
+        return ev <= evAlpha; 
+    }
+    
+    bool FIsAbove(EV ev) const noexcept 
+    {
+        return ev >= evBeta; 
+    }
+
+    bool FIncludes(EV ev) const noexcept 
+    {
+        return ev > evAlpha && ev < evBeta; 
+    }
+
     EV evAlpha;
     EV evBeta;
 };
@@ -167,29 +192,41 @@ public:
     int Level(void) const;
     void SetLevel(int level);
 
-    virtual void RequestMv(WAPP& wapp, GAME& game) override;
-    MV MvBestTest(WAPP& wapp, GAME& game);
+    virtual void RequestMv(WAPP& wapp, GAME& game, const TMAN& tman) override;
+    MV MvBestTest(WAPP& wapp, GAME& game, const TMAN& tman);
 
     /* basic alpha-beta search */
 
-    MV MvBest(BD& bd) noexcept;
+    MV MvBest(BD& bd, const TMAN& tman) noexcept;
     EV EvSearch(BD& bd, AB ab, int d, int dLim) noexcept;
     EV EvQuiescent(BD& bd, AB ab, int d) noexcept;
-    bool FDeepen(BD& bd, MV mvBest, AB& ab, int& d, int dMax) noexcept;
-    bool FPrune(AB& ab, const MV& mv, int& dLim) noexcept;
-    bool FPrune(AB& ab, const MV& mv, MV& mvBest, int& dLim) noexcept;
-    bool FPrune(AB& ab, const MV& mv) noexcept;
-    bool FPrune(AB& ab, const MV& mv, MV& mvBest) noexcept;
+    bool FDeepen(BD& bd, MV& mvBestAll, MV mvBest, AB& ab, int& d) noexcept;
+    bool FPrune(AB& ab, MV& mv, int& dLim) noexcept;
+    bool FPrune(AB& ab, MV& mv, MV& mvBest, int& dLim) noexcept;
+    bool FPrune(AB& ab, MV& mv) noexcept;
+    bool FPrune(AB& ab, MV& mv, MV& mvBest) noexcept;
 
+    /* time management */
+
+    void InitTimeMan(const TMAN& tman);
     inline bool FInterrupt(void) noexcept
     {
         static const uint16_t cYieldFreq = 16384U;
         static uint32_t cYieldEllapsed = 0;
         if (++cYieldEllapsed % cYieldFreq == 0)
-            DoYield();
+            return FDoYield();
         return false;
     }
-    void DoYield(void) noexcept;
+    bool FDoYield(void) noexcept;
+    TP tpSearchStart;
+    TP tpSearchEnd;
+    int dSearchMax;
+    enum class TINT {   /** type of interruption */
+        Thinking = 0,
+        MoveAndPause,
+        MoveAndContinue,
+        Halt
+    } tint;
 
     /* static board evaluation */
 
@@ -199,6 +236,8 @@ public:
     void InitPsts(void) noexcept;
     EV mpcpsqevMid[cpMax][sqMax];
     EV mpcpsqevEnd[cpMax][sqMax];
+    EV EvKingSafety(BD& bd) noexcept;
+    EV EvPawnStructure(BD& bd) noexcept;
 
     /* transposition table */
 

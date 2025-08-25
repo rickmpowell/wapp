@@ -217,7 +217,7 @@ public:
     bool FRunHash(BD& bd, int d);
     void RunPerftSuite(void);
     bool RunOnePerftTest(const char tag[], const char fen[], const int64_t mpdcmv[],  
-                         chrono::microseconds& dtpTotal, int64_t& cmvTotal);
+                         microseconds& dtpTotal, int64_t& cmvTotal);
     void RunPolyglotTest(void);
     void RunAITest(filesystem::path folder, const vector<filesystem::path>& vfile);
     void RunAIProfile(void);

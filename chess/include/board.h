@@ -529,12 +529,8 @@ constexpr EV evMate = evInfinity - 1;           /* checkmates are given evals of
 constexpr EV evMateMin = evMate - dMax;
 constexpr EV evTempo = 20;                      /* evaluation of a single move advantage */
 constexpr EV evDraw = 0;                        /* evaluation of a draw */
-constexpr EV evTimedOut = evInfinity + 1;
-constexpr EV evCanceled = evTimedOut + 1;
-constexpr EV evStopped = evCanceled + 1;
-constexpr EV evMax = evCanceled + 1;
+constexpr EV evInterrupt = 16384-1;               /* special interrupt value, larger than evMate */
 constexpr EV evBias = evInfinity;               /* used to bias evaluations for saving as an unsigned */
-static_assert(evMax <= 16384);					/* there is code that asssumes EV stores in 15 bits */
 
 inline EV EvMate(int d) noexcept
 {
@@ -549,6 +545,11 @@ inline bool FEvIsMate(EV ev) noexcept
 inline int DFromEvMate(EV ev) noexcept
 {
     return evMate - ev;
+}
+
+inline bool FEvIsInterrupt(EV ev) noexcept
+{
+    return abs(ev) >= evInterrupt;
 }
 
 string to_string(EV ev);

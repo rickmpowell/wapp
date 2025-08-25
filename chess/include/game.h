@@ -20,6 +20,67 @@ class WAPP;
 class LGAME;
 
 /**
+ *  @class TC
+ *  @brief Time control section
+ *
+ *  This is a single bit of a time control, which is basically the amount of
+ *  time a player has to make the given number of moves, with an optional
+ *  increment per move.
+ */
+
+class TC
+{
+public:
+    milliseconds dtpTotal;
+    milliseconds dtpInc;
+    int cmv;
+};
+
+/**
+ *  @class TMAN
+ *  @brief Time management settings
+ *
+ *  Defines the various options the player gets for managing the time spent
+ *  thinking about a move. Most of these are taken from the UCI go command
+ *  and only make sense for AI players. But it provides basic clock information
+ *  for a human player, too.
+ * 
+ *  We don't do a good job handling every combination of these time management
+ *  options options, but they don't arise in real life, so it shouldn't be a 
+ *  big deal.
+ */
+
+class TMAN
+{
+public:
+    optional<milliseconds> mpcpcodtp[cpcMax];    // time on each color's clock
+    optional<milliseconds> mpcpcodtpInc[cpcMax]; // time increment
+    optional <int> ocmvExpire;                   // moves to get done in the given clock interval
+    optional<int> odMax;
+    optional<uint64_t> ocmvSearch;
+    optional<int> odMate;
+    optional<milliseconds> odtpTotal;
+};
+
+/**
+ *  @class TCG
+ *  @brief The time control for a game.
+ *
+ *  The most general purpose is white and black having separate time controls,
+ *  although this flexibility is buried pretty deep in game options.
+ *  Tournament time controls often have multiple sections during the game, for
+ *  example, the first 40 moves must be made in 2 hours, and the next 20 in
+ *  one hour.
+ */
+
+class TCG
+{
+public:
+    vector<TC> vtcWhite;
+    vector<TC> tvcBlack;
+};
+
+/**
  *  @typedef VAREPD
  *  @brief The variant value of an EPD opcode. 
  * 
@@ -137,6 +198,10 @@ public:
 
     void MakeMv(MV mv);
     void UndoMv(void);
+
+    /* Time and clock maanagement */
+
+    TMAN TmanCompute(void) const;
 
     /* FEN reading */
 

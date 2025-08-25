@@ -57,7 +57,6 @@ CO WAPP::CoBack(void) const
 
 void WAPP::Layout(void)
 {
-    /* TODO: use layout engine */
     RC rc(RcInterior());
     float dxyWindow = roundf(min(rc.dxWidth(), rc.dyHeight()));
     float dxyMargin = roundf(max(dxyWindow*wMarginPerWindow, dxyMarginMax));
@@ -281,13 +280,22 @@ CMDEXECUTE(CMDPROFILEAI)
 
 int CMDMAKEMOVE::Execute(void) 
 {
-    if (!wapp.game.FIsPlaying())
+    if (FEvIsInterrupt(mv.ev))
+        wapp.game.Pause();
+    else if (!wapp.game.FIsPlaying())
         wapp.game.Start();
-    wapp.game.NotifyEnableUI(false);
-    wapp.game.NotifyShowMv(mv, fAnimate);
-    wapp.game.MakeMv(mv);
-    unique_ptr<CMDREQUESTMOVE> pcmdRequest = make_unique<CMDREQUESTMOVE>(wapp);
-    wapp.PostCmd(*pcmdRequest);
+
+    if (!mv.fIsNil()) {
+        wapp.game.NotifyEnableUI(false);
+        wapp.game.NotifyShowMv(mv, fAnimate);
+        wapp.game.MakeMv(mv);
+    }
+
+    if (wapp.game.FIsPlaying()) {
+        unique_ptr<CMDREQUESTMOVE> pcmdRequest = make_unique<CMDREQUESTMOVE>(wapp);
+        wapp.PostCmd(*pcmdRequest);
+    }
+
     return 1;
 }
 

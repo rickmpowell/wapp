@@ -160,5 +160,23 @@ void GAME::RequestMv(WAPP& wapp)
         End(gr);
         return;
     }
-    appl[bd.cpcToMove]->RequestMv(wapp, *this);
+    appl[bd.cpcToMove]->RequestMv(wapp, *this, TmanCompute());
+}
+
+/**
+ *  @brief Clock information for the next player to move
+ */
+
+TMAN GAME::TmanCompute(void) const
+{
+    /* TODO: use a real clock and time management here */
+    TMAN tman;
+    tman.mpcpcodtp[cpcWhite] = duration_cast<milliseconds>(5min);
+    tman.mpcpcodtp[cpcBlack] = duration_cast<milliseconds>(5min);
+    tman.mpcpcodtpInc[cpcWhite] = duration_cast<milliseconds>(10s);
+    tman.mpcpcodtpInc[cpcBlack] = duration_cast<milliseconds>(10s);
+
+    tman.odtpTotal = duration_cast<milliseconds>(10s);
+    tman.odMax = 30;
+    return tman;
 }
