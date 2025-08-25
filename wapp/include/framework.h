@@ -79,9 +79,11 @@
 using namespace std;
 using namespace D2D1;
 using namespace Microsoft::WRL;
+using namespace std::chrono;
+using namespace std::chrono_literals;
 
 template <typename T>
 using com_ptr = ComPtr<T>;
 
-typedef chrono::time_point<chrono::high_resolution_clock> TP;
-typedef chrono::time_point<chrono::system_clock> TPS;
+typedef time_point<high_resolution_clock> TP;
+typedef time_point<system_clock> TPS;

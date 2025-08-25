@@ -40,7 +40,7 @@ inline const char* SFromU8(const char8_t* s)
 template <typename T>
 bool inrange(const T& t, const T& tFirst, const T& tLast) 
 {
-    assert(tsFirst <= tsLast);
+    assert(tFirst <= tLast);
     return t >= tFirst && t <= tLast;
 }
 
@@ -69,7 +69,7 @@ constexpr size_t index_of(const array<T, ct>& at, const T& t)
 
 inline TP TpNow(void)
 {
-    return chrono::high_resolution_clock::now();
+    return high_resolution_clock::now();
 }
 
 /**
@@ -78,7 +78,7 @@ inline TP TpNow(void)
 
 inline TPS TpsNow(void)
 {
-    return chrono::system_clock::now();
+    return system_clock::now();
 }
 
 /**
