@@ -1,7 +1,7 @@
 var dc_8h =
 [
     [ "BR", "dd/d4f/classBR.html", null ],
-    [ "TF", "d9/d78/classTF.html", null ],
+    [ "TF", "d9/d78/classTF.html", "d9/d78/classTF" ],
     [ "BMP", "d1/dc3/classBMP.html", null ],
     [ "PNG", "db/d35/classPNG.html", null ],
     [ "GEOM", "d3/db7/classGEOM.html", null ],

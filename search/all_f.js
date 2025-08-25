@@ -13,5 +13,6 @@ var searchData=
   ['staticicon_10',['STATICICON',['../d2/da1/classSTATICICON.html',1,'']]],
   ['staticl_11',['STATICL',['../d5/d4e/classSTATICL.html',1,'']]],
   ['staticr_12',['STATICR',['../d4/db7/classSTATICR.html',1,'']]],
-  ['sz_13',['sz',['../db/dfa/classSZ.html',1,'SZ'],['../db/dfa/classSZ.html#aa7df2ca902939639328a76dcdb43c637',1,'SZ::SZ()']]]
+  ['style_13',['STYLE',['../d9/d78/classTF.html#a8778fd3769fd93aa2dcd4ae078f89735',1,'TF']]],
+  ['sz_14',['sz',['../db/dfa/classSZ.html',1,'SZ'],['../db/dfa/classSZ.html#aa7df2ca902939639328a76dcdb43c637',1,'SZ::SZ()']]]
 ];

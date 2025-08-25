@@ -86,7 +86,7 @@ var annotated_dup =
     [ "STATICL", "d5/d4e/classSTATICL.html", null ],
     [ "STATICR", "d4/db7/classSTATICR.html", null ],
     [ "SZ", "db/dfa/classSZ.html", "db/dfa/classSZ" ],
-    [ "TF", "d9/d78/classTF.html", null ],
+    [ "TF", "d9/d78/classTF.html", "d9/d78/classTF" ],
     [ "TITLEBAR", "d6/d2e/classTITLEBAR.html", null ],
     [ "TITLEDLG", "d0/dd0/classTITLEDLG.html", null ],
     [ "TOOLBAR", "d6/dea/classTOOLBAR.html", null ],

@@ -99,6 +99,9 @@ $(document).ready(function(){initNavTree('d9/d15/classIWAPP.html','../../'); ini
 </div><!--header-->
 <div class="contents">
 
+<p>The Windows Application.  
+ <a href="../../d9/d15/classIWAPP.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for IWAPP:</div>
@@ -111,8 +114,8 @@ Inheritance diagram for IWAPP:</div>
 <area href="../../db/dd4/classWN.html" alt="WN" shape="rect" coords="166,112,239,136"/>
 <area href="../../d2/ded/classEVD.html" alt="EVD" shape="rect" coords="249,112,322,136"/>
 <area href="../../d7/d6d/classWND.html" title="A tight wrapper class on a Windows HWND." alt="WND" shape="rect" coords="83,56,156,80"/>
-<area href="../../d5/d13/classDCS.html" alt="DCS" shape="rect" coords="166,56,239,80"/>
-<area href="../../dc/d10/classDC.html" alt="DC" shape="rect" coords="166,0,239,24"/>
+<area href="../../d5/d13/classDCS.html" title="The screen DC class, uses DirectX." alt="DCS" shape="rect" coords="166,56,239,80"/>
+<area href="../../dc/d10/classDC.html" title="Drawing context." alt="DC" shape="rect" coords="166,0,239,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -348,7 +351,7 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a8c88a25a6f61790ddb8cb5793becd832 inherit pub_methods_classDCS"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af53997998edcd79612b738d2a6740de3 inherit pub_methods_classDCS" id="r_af53997998edcd79612b738d2a6740de3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../dc/d71/classPT.html">PT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d13/classDCS.html#af53997998edcd79612b738d2a6740de3">PtFromWnPt</a> (const <a class="el" href="../../dc/d71/classPT.html">PT</a> &amp;pt, const <a class="el" href="../../d5/d13/classDCS.html">DCS</a> &amp;dcs) const</td></tr>
 <tr class="separator:af53997998edcd79612b738d2a6740de3 inherit pub_methods_classDCS"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:addbb0e04c28c0c84d4d92b2a598c50c5 inherit pub_methods_classDCS" id="r_addbb0e04c28c0c84d4d92b2a598c50c5"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d13/classDCS.html#addbb0e04c28c0c84d4d92b2a598c50c5">SetFont</a> (<a class="el" href="../../d9/d78/classTF.html">TF</a> &amp;tf, const string &amp;sFace, float dyHeight, TF::WEIGHT weight, TF::STYLE style) override</td></tr>
+<tr class="memitem:addbb0e04c28c0c84d4d92b2a598c50c5 inherit pub_methods_classDCS" id="r_addbb0e04c28c0c84d4d92b2a598c50c5"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d13/classDCS.html#addbb0e04c28c0c84d4d92b2a598c50c5">SetFont</a> (<a class="el" href="../../d9/d78/classTF.html">TF</a> &amp;tf, const string &amp;sFace, float dyHeight, <a class="el" href="../../d9/d78/classTF.html#ae8437bdddcb45325e886932fbd1ff68b">TF::WEIGHT</a> weight, <a class="el" href="../../d9/d78/classTF.html#a8778fd3769fd93aa2dcd4ae078f89735">TF::STYLE</a> style) override</td></tr>
 <tr class="separator:addbb0e04c28c0c84d4d92b2a598c50c5 inherit pub_methods_classDCS"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ab10d9b5d1d80531a06bdb0ac893e30 inherit pub_methods_classDCS" id="r_a6ab10d9b5d1d80531a06bdb0ac893e30"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d13/classDCS.html#a6ab10d9b5d1d80531a06bdb0ac893e30">SetFontHeight</a> (<a class="el" href="../../d9/d78/classTF.html">TF</a> &amp;tf, float dyHeight) override</td></tr>
 <tr class="separator:a6ab10d9b5d1d80531a06bdb0ac893e30 inherit pub_methods_classDCS"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -520,10 +523,11 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:aa24ea4dc4f9e2905759802caf99e7c41 inherit pro_attribs_classDCS"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The base windows application, which is a combination of the application and the top-level main window. This should be sufficient for a vast majority of all Windows applications.</p>
+<div class="textblock"><p>The Windows Application. </p>
+<p>A combination of the application and the top-level main window. This should be sufficient for a vast majority of all Windows applications.</p>
 <p>The WAPP is a combination object, which contains the application, the top-level main window, and the drawing context. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00038">38</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00039">39</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a06465d19cef552b05b4126f710510801" name="a06465d19cef552b05b4126f710510801"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a06465d19cef552b05b4126f710510801">&#9670;&#160;</a></span>IWAPP()</h2>
@@ -1919,7 +1923,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00040">40</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00041">41</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 
 </div>
 </div>
@@ -1936,7 +1940,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00062">62</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00063">63</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 
 </div>
 </div>
@@ -1952,7 +1956,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00055">55</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00056">56</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 
 </div>
 </div>
@@ -1968,7 +1972,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00056">56</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00057">57</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 
 </div>
 </div>
@@ -1984,7 +1988,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00057">57</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00058">58</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 
 </div>
 </div>
@@ -2000,7 +2004,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00061">61</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00062">62</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 
 </div>
 </div>
