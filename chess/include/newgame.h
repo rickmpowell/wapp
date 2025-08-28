@@ -12,6 +12,7 @@
  */
 
 #include "wapp.h"
+#include "game.h"
 class DLGNEWGAME;
 class VSELTIME;
 
@@ -150,9 +151,10 @@ public:
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
     virtual void DrawLabel(const RC& rcLabel) override;
-    virtual void Layout(void) override;
     virtual SZ SzLabel(void) const override;
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual bool FChoose(const VTC& vtc);
+    virtual VTC DataGet(void) const;
 
 private:
     TF tfLabel;
@@ -166,19 +168,21 @@ private:
 class SELTIMECYCLE : public SELTIME
 {
 public:
-    SELTIMECYCLE(VSELTIME& vsel, const vector<TMS>& vtms, int rssLabel);
+    SELTIMECYCLE(VSELTIME& vsel, const vector<VTC>& vvtc, int rssLabel);
 
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
 
     void Next(void);
     void Prev(void);
+    virtual bool FChoose(const VTC& vtc) override;
+    virtual VTC DataGet(void) const override;
 
 private:
     BTNNEXT btnnext;
     BTNPREV btnprev;
-    vector<TMS> vtms;
-    int itmsCur;
+    vector<VTC> vvtc;
+    int ivtcCur;
 };
 
 /**
@@ -193,6 +197,9 @@ public:
 
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
+
+    virtual bool FChoose(const VTC& vtc) override;
+    virtual VTC DataGet(void) const override;
 
 private:
     BTNS btn;
@@ -212,6 +219,8 @@ public:
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
     
     virtual void Validate(void) override;
+    virtual void SetData(const VTC& vtc);
+    virtual VTC DataGet(void) const;
 
 private:
     SELTIMECYCLE selBullet;
@@ -260,6 +269,7 @@ public:
 private:
     void InitPlayer(VSELPLAYER& vsel, PL* ppl, CPC cpc);
     CPC ExtractPlayer(GAME& game, VSELPLAYER& vsel);
+    void ExtractTimeControls(GAME& game);
 
 public:
     TITLEDLG title;
