@@ -31,10 +31,134 @@ class LGAME;
 class TC
 {
 public:
+    TC(milliseconds dtpTotal, milliseconds dtpInc, int dnmv=nmvInfinite) :
+        dtpTotal(dtpTotal),
+        dtpInc(dtpInc),
+        dnmv(dnmv)
+    {
+    }
+
+    bool operator == (const TC& tc) const
+    {
+        return dtpTotal == tc.dtpTotal &&
+               dtpInc == tc.dtpInc &&
+               dnmv == tc.dnmv;
+    }
+
+    bool operator != (const TC& tc) const
+    {
+        return !(*this == tc);
+    }
+
+public:
     milliseconds dtpTotal;
     milliseconds dtpInc;
-    int cmv;
+    int dnmv;
 };
+
+/**
+ *  @class VTC
+ *  @brief The full time control description
+ */
+
+class VTC
+{
+public:
+    VTC(void)
+    {
+    }
+
+    VTC(const TC& tc)
+    {
+        mpcpcvtc[cpcWhite].emplace_back(tc);
+        mpcpcvtc[cpcBlack].emplace_back(tc);
+    }
+
+    VTC(const TC& tc1, const TC& tc2)
+    {
+        mpcpcvtc[cpcWhite].emplace_back(tc1);
+        mpcpcvtc[cpcBlack].emplace_back(tc1);
+        mpcpcvtc[cpcWhite].emplace_back(tc2);
+        mpcpcvtc[cpcBlack].emplace_back(tc2);
+    }
+
+    VTC(const TC& tc1, const TC& tc2, const TC& tc3)
+    {
+        mpcpcvtc[cpcWhite].emplace_back(tc1);
+        mpcpcvtc[cpcBlack].emplace_back(tc1);
+        mpcpcvtc[cpcWhite].emplace_back(tc2);
+        mpcpcvtc[cpcBlack].emplace_back(tc2);
+        mpcpcvtc[cpcWhite].emplace_back(tc3);
+        mpcpcvtc[cpcBlack].emplace_back(tc3);
+    }
+
+    const TC& operator() (int itc, CPC cpc) const
+    {
+        return mpcpcvtc[cpc][itc];
+    }
+
+    int ItcFromNmv(int nmvFind, CPC cpc) const
+    {
+        int nmv = 0;
+        for (int itc = 0; itc < mpcpcvtc[cpc].size(); itc++) {
+            nmv += mpcpcvtc[cpc][itc].dnmv;
+            if (nmvFind <= nmv)
+                return itc;
+        }
+        assert(false);
+        return (int)(mpcpcvtc[cpc].size() - 1);
+    }
+    
+    int NmvLast(int nmvFind, CPC cpc) const
+    {
+        int nmv = 0;
+        for (int itc = 0; itc < mpcpcvtc[cpc].size(); itc++) {
+            nmv += mpcpcvtc[cpc][itc].dnmv;
+            if (nmvFind <= nmv)
+                return nmv;
+        }
+        assert(false);
+        return nmvInfinite;
+    }
+
+    const TC& TcFromNmv(int nmv, CPC cpc) const
+    {
+        return (*this)(ItcFromNmv(nmv, cpc), cpc);
+    }
+
+    milliseconds DtpInc(int nmv, CPC cpc) const
+    {
+        int nmvLast = 0;
+        milliseconds dtp;
+        int itc;
+        for (itc = 0; ; itc++) {
+            dtp = mpcpcvtc[cpc][itc].dtpInc;
+            nmvLast += mpcpcvtc[cpc][itc].dnmv;
+            if (nmv <= nmvLast)
+                break;
+        }
+
+        if (nmv == nmvLast)
+            dtp += (*this)(itc + 1, cpc).dtpTotal;
+        return dtp;
+    }
+
+    bool operator == (const VTC& vtc) const
+    {
+        for (CPC cpc = cpcWhite; cpc < cpcMax; ++cpc) {
+            if (mpcpcvtc[cpc].size() != vtc.mpcpcvtc[cpc].size())
+                return false;
+            for (int itc = 0; itc < mpcpcvtc[cpc].size(); ++itc)
+                if (mpcpcvtc[cpc][itc] != vtc.mpcpcvtc[cpc][itc])
+                    return false;
+        }
+        return true;
+    }
+
+    array<vector<TC>, cpcMax> mpcpcvtc;
+};
+
+string to_string(const TC tc);
 
 /**
  *  @class TMAN
@@ -60,24 +184,6 @@ public:
     optional<uint64_t> ocmvSearch;
     optional<int> odMate;
     optional<milliseconds> odtpTotal;
-};
-
-/**
- *  @class TCG
- *  @brief The time control for a game.
- *
- *  The most general purpose is white and black having separate time controls,
- *  although this flexibility is buried pretty deep in game options.
- *  Tournament time controls often have multiple sections during the game, for
- *  example, the first 40 moves must be made in 2 hours, and the next 20 in
- *  one hour.
- */
-
-class TCG
-{
-public:
-    vector<TC> vtcWhite;
-    vector<TC> tvcBlack;
 };
 
 /**
@@ -133,7 +239,7 @@ enum class GR
     WhiteWon,
     BlackWon,
     Draw,
-    Abandon
+    Abandoned
 };
 
 /**
@@ -183,6 +289,7 @@ public:
     void NotifyEnableUI(bool fEnable);
     void NotifyPlChanged(void);
     void NotifyGsChanged(void);
+    void NotifyClockChanged(void);
 
     /* game control */
 
@@ -194,9 +301,12 @@ public:
     void Resume(void);
     bool FIsPlaying(void) const;
     bool FGameOver(GR& gr) const;
+    bool FTimeExpired(CPC cpc) const;
     void RequestMv(WAPP& wapp);
+    void Flag(WAPP& wapp, CPC cpc);
+    int NmvCur(void) const;
 
-    void MakeMv(MV mv);
+    void MakeMv(MV mv, bool fAnimate);
     void UndoMv(void);
 
     /* Time and clock maanagement */
@@ -260,8 +370,22 @@ public:
     string sSite = "WAPP Chess Program";
     TMA tma = TMA::Random1ThenAlt;
     int cgaPlayed = 0;  // number of games played between the players
+    VTC vtc;    // time control
 
     map<string, vector<VAREPD>> mpkeyvar; // EPD/PGN file properties
+
+    /* clock */
+    
+    milliseconds mpcpcdtpClock[cpcMax];
+    milliseconds dtpMoveCur;    // banked time used in the current move
+    optional<TP> otpMoveStart; // time at the last time we banked the time
+
+    void InitClock(void);
+    void UpdateClock(void);
+    milliseconds DtpMove(void) const;
+    void StartMoveTimer(void);
+    void PauseMoveTimer(void);
+    void ResumeMoveTimer(void);
 
 private:
     unordered_set<LGAME*> setplgame; // listeners who get notified on changes
@@ -288,4 +412,5 @@ public:
     virtual void EnableUI(bool fEnable) {}    /** sent to enable/disable the move UI */
     virtual void PlChanged(void) {}  /** sent when the players change */
     virtual void GsChanged(void) {} /** sent when game state changes */
+    virtual void ClockChanged(void) {}
 };

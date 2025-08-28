@@ -31,6 +31,7 @@ public:
     virtual string SName(void) const = 0;
 
     virtual void RequestMv(WAPP& wapp, GAME& game, const TMAN& tman) = 0;
+    virtual void Interrupt(WAPP& wapp, GAME& game) = 0;
 
 public:
 };
@@ -49,6 +50,7 @@ public:
     virtual string SName(void) const override;
     void SetName(string_view sName);
     virtual void RequestMv(WAPP& wapp, GAME& game, const TMAN& tman) override;
+    virtual void Interrupt(WAPP& wapp, GAME& game) override;
 
 private:
     string sName;
