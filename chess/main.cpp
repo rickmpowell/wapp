@@ -122,7 +122,7 @@ public:
         if (!FRunDlg(dlg))
             return 0;
         gameUndo = wapp.game;
-        wapp.game.End(GR::Abandon);
+        wapp.game.End(GR::Abandoned);
         dlg.Extract(wapp.game);
         wapp.game.cgaPlayed++;
         wapp.game.Start();
@@ -180,7 +180,7 @@ public:
         if (!dlg.FRun())
             return 0;
         gameUndo = wapp.game;
-        wapp.game.End(GR::Abandon);
+        wapp.game.End(GR::Abandoned);
         ifstream is(dlg.file);
         try {
             wapp.game.InitFromPgn(is);
@@ -259,7 +259,7 @@ CMDEXECUTE(CMDTESTAI)
     dlg.extDefault = "epd";
     if (!dlg.FRun())
         return 0;
-    wapp.game.End(GR::Abandon);
+    wapp.game.End(GR::Abandoned);
     wapp.RunAITest(dlg.folder, dlg.vfile);
     return 1;
 }
@@ -280,16 +280,7 @@ CMDEXECUTE(CMDPROFILEAI)
 
 int CMDMAKEMOVE::Execute(void) 
 {
-    if (FEvIsInterrupt(mv.ev))
-        wapp.game.Pause();
-    else if (!wapp.game.FIsPlaying())
-        wapp.game.Start();
-
-    if (!mv.fIsNil()) {
-        wapp.game.NotifyEnableUI(false);
-        wapp.game.NotifyShowMv(mv, fAnimate);
-        wapp.game.MakeMv(mv);
-    }
+    wapp.game.MakeMv(mv, fAnimate);
 
     if (wapp.game.FIsPlaying()) {
         unique_ptr<CMDREQUESTMOVE> pcmdRequest = make_unique<CMDREQUESTMOVE>(wapp);

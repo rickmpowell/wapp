@@ -125,11 +125,11 @@ public:
             return TkBracketedComment();
         if (ch == '"')
             return TkQuotedString();
-        if (inrange((char)ch, '1', '9')) {
+        if (FInRange((char)ch, '1', '9')) {
             is.unget();
             return TkNumber();
         }
-        if (inrange((char)ch, 'a', 'z') || inrange((char)ch, 'A', 'Z') || ch == '_') {
+        if (FInRange((char)ch, 'a', 'z') || FInRange((char)ch, 'A', 'Z') || ch == '_') {
             is.unget();
             return TkIdentifier();
         }
@@ -223,7 +223,7 @@ public:
 
         for (;;) {
             ch = getch();
-            if (!inrange((char)ch, '0', '9')) {
+            if (!FInRange((char)ch, '0', '9')) {
                 is.unget();
                 break;
             }
@@ -252,7 +252,7 @@ public:
         
         for (;;) {
             ch = getch();
-            if (inrange((char)ch, '0', '9')) {
+            if (FInRange((char)ch, '0', '9')) {
                 u = u * 10 + ch - '0';
                 cchDigit++;
             }
@@ -285,8 +285,8 @@ public:
             ch = getch();
             if (ch == EOF)
                 break;
-            if (inrange((char)ch, 'a', 'z') || inrange((char)ch, 'A', 'Z') ||
-                inrange((char)ch, '0', '9') || ch == '_')
+            if (FInRange((char)ch, 'a', 'z') || FInRange((char)ch, 'A', 'Z') ||
+                FInRange((char)ch, '0', '9') || ch == '_')
                 s.push_back(ch);
             else {
                 is.unget();
@@ -339,7 +339,7 @@ public:
             return TkBracketedComment();
         if (ch == '"')
             return TkQuotedString();
-        if (inrange((char)ch, 'a', 'z') || inrange((char)ch, 'A', 'Z') || ch == '_') {
+        if (FInRange((char)ch, 'a', 'z') || FInRange((char)ch, 'A', 'Z') || ch == '_') {
             is.unget();
             return TkIdentifier();
         }
@@ -379,7 +379,7 @@ public:
             is.unget();
             return TkIntegerOrResult();
         }
-        if (inrange((char)ch, '1', '9')) {
+        if (FInRange((char)ch, '1', '9')) {
             is.unget();
             return TkInteger();
         }
@@ -438,7 +438,7 @@ public:
             return tkDraw{};
         uint64_t u = 0;
         for (int ich = 0; ich < s.size(); ich++) {
-            if (!inrange(s[ich], '0', '9'))
+            if (!FInRange(s[ich], '0', '9'))
                 throw;
             u = u * 10 + s[ich] - '0';
         }
