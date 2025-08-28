@@ -51,10 +51,23 @@ public:
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
     virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    
+    bool FRunning(void) const;
+    virtual void Tick(TIMER& timer) override;
+    TIMER timer;
+
+private:
+    void DrawTime(const string& s, const RC& rc, bool fDrawColons);
+    void DrawTc(int itc, TF& tf, const RC& rc, bool fActive);
 
 private:
     GAME& game;
     CPC cpc;
+
+    float dxOne;
+    float dxTwo;
+    float dxColon;
+    float dyClock;
 };
 
 /**
@@ -100,6 +113,7 @@ public:
     virtual void PlChanged(void) override;
     virtual void BdChanged(void) override;
     virtual void GsChanged(void) override;
+    virtual void ClockChanged(void) override;
 
 private:
     virtual float DyLine(void) const;
