@@ -51,6 +51,13 @@ void PLCOMPUTER::RequestMv(WAPP& wapp, GAME& game, const TMAN& tman)
     wapp.PostCmd(*pcmdMakeMove);
 }
 
+void PLCOMPUTER::Interrupt(WAPP& wapp, GAME& game)
+{
+    fInterruptSearch = true;
+}
+
+
+
 /**
  *  @brief Stub entry pont for testing the AI
  * 
@@ -162,8 +169,9 @@ MV PLCOMPUTER::MvBest(BD& bdGame, const TMAN& tman) noexcept
     xt.Init();
     InitKillers();
     InitHistory();
-    InitTimeMan(tman);
+    InitTimeMan(bdGame, tman);
     brk.Init();
+    fInterruptSearch = false;
 
     /* generate all possible legal moves */
     BD bd(bdGame);
@@ -173,7 +181,7 @@ MV PLCOMPUTER::MvBest(BD& bdGame, const TMAN& tman) noexcept
 
     *pwnlog << bd.FenRender() << endl << indent;
     MV mvBestAll(vmv[0]), mvBest;
-    dSearchMax = tman.odMax.value();
+    dSearchMax = tman.odMax.has_value() ? tman.odMax.value() : 100;
     int dLim = 2;
     AB abAspiration(-evInfinity, evInfinity);
 
@@ -206,8 +214,9 @@ MV PLCOMPUTER::MvBest(BD& bdGame, const TMAN& tman) noexcept
     } while (!FEvIsInterrupt(mvBest.ev) &&
              FDeepen(bd, mvBestAll, mvBest, abAspiration, dLim));
 
-   *pwnlog << outdent << "best " << to_string(mvBestAll) << endl;
+    *pwnlog << outdent << "best " << to_string(mvBestAll) << endl;
     LogStats(TpNow());
+    *pwnlog << endl;
 
     mvBestAll.ev = 0;
     if (tint == TINT::Halt) {
@@ -988,15 +997,38 @@ EV PLCOMPUTER::EvAttackDefend(BD& bd, const MV& mvPrev) const noexcept
  *  @brief Initializes search for the requested time management
  */
 
-void PLCOMPUTER::InitTimeMan(const TMAN& tman)
+void PLCOMPUTER::InitTimeMan(const BD& bdGame, const TMAN& tman) noexcept
 {
     tpSearchStart = TpNow();
-    assert(tman.odtpTotal.has_value());
-    tpSearchEnd = tpSearchStart + tman.odtpTotal.value() - 10ms;
+    if (tman.odtpTotal.has_value()) {
+        tpSearchEnd = tpSearchStart + tman.odtpTotal.value();
+    }
+    else if (tman.mpcpcodtp[bdGame.cpcToMove].has_value()) {
+        milliseconds dtpFlag = tman.mpcpcodtp[bdGame.cpcToMove].value();
+        milliseconds dtpInc = tman.mpcpcodtpInc[bdGame.cpcToMove].value();
+        /* estimate number of moves left in the game */
+        int dnmv = (int)((float)(EvMaterialTotal(bdGame) - 200) / (7800 - 200) * (60 - 10) + 10);
+        if (tman.ocmvExpire.has_value())
+            dnmv = min(dnmv, tman.ocmvExpire.value());
+        milliseconds dtp = dtpFlag / dnmv + dtpInc;
+        tpSearchEnd = tpSearchStart + min(dtp, dtpFlag);
+        *pwnlog << "Target time: " 
+                << duration_cast<milliseconds>(tpSearchEnd - tpSearchStart).count() << "ms"
+                << endl;
+    }
+    tpSearchEnd -= 100ms;
 
     dSearchMax = tman.odMax.has_value() ? tman.odMax.value() : 100;
 
     tint = TINT::Thinking;
+}
+
+EV PLCOMPUTER::EvMaterialTotal(const BD& bd) const noexcept
+{
+    EV ev = 0;
+    for (CPC cpc = cpcWhite; cpc < cpcMax; cpc++)
+        ev += bd.EvMaterial(cpc);
+    return ev;
 }
 
 /*
@@ -1008,6 +1040,11 @@ void PLCOMPUTER::InitTimeMan(const TMAN& tman)
 
 bool PLCOMPUTER::FDoYield(void) noexcept
 {
+    if (fInterruptSearch) {
+        tint = TINT::Halt;
+        return true;
+    }
+
     TP tp = TpNow();
     if (tp > tpSearchEnd) {
         tint = TINT::MoveAndContinue;
@@ -1025,8 +1062,13 @@ bool PLCOMPUTER::FDoYield(void) noexcept
             tint = TINT::MoveAndPause;
             return true;
         }
-        ::TranslateMessage(&msg);
-        ::DispatchMessageW(&msg);
+
+        if (msg.message == WM_TIMER)
+            stimer.Tick((int)msg.wParam);
+        else {
+            ::TranslateMessage(&msg);
+            ::DispatchMessageW(&msg);
+        }
     }
     return false;
 }

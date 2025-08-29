@@ -85,6 +85,7 @@ public:
     virtual void OnMouseUp(const PT& ptg, unsigned mk) override;
     virtual void OnMouseWheel(const PT& ptg, int dwheel) override;
     virtual void OnKeyDown(int vk) override;
+    virtual void OnTimer(int tid) override;
     virtual int OnCommand(int cmd) override;
     //virtual void OnInitMenu(void) override;
     virtual void OnInitMenuPopup(HMENU hmenu) override;
@@ -180,6 +181,7 @@ private:
 #include "dlg.h"
 #include "len.h"
 #include "clip.h"
+#include "timer.h"
 #include "printer.h"
 
 /**

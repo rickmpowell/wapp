@@ -103,6 +103,7 @@
     <ClInclude Include="include\len.h" />
     <ClInclude Include="include\printer.h" />
     <ClInclude Include="include\rt.h" />
+    <ClInclude Include="include\timer.h" />
     <ClInclude Include="include\util.h" />
     <ClInclude Include="include\wapp.h" />
     <ClInclude Include="include\wn.h" />
@@ -119,6 +120,7 @@
     <ClCompile Include="printer.cpp" />
     <ClCompile Include="rt.cpp" />
     <ClCompile Include="scroll.cpp" />
+    <ClCompile Include="timer.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="wapp.cpp" />
     <ClCompile Include="wn.cpp" />

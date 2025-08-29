@@ -185,7 +185,8 @@ public:
     CMDTIME(DLGNEWGAME& dlg) : CMD(Wapp(dlg.iwapp)), dlg(dlg) {}
 
     virtual int Execute(void) override {
-        dlg.vseltime.Layout();
+        if (dlg.FVisible())
+            dlg.vseltime.Relayout();
         return 1;
     }
 
@@ -298,7 +299,7 @@ void DLGNEWGAME::Init(GAME& game)
     InitPlayer(vselLeft, game.appl[cpcLeft].get(), cpcLeft);
     InitPlayer(vselRight, game.appl[cpcRight].get(), cpcRight);
 
-    /* TODO: initialize the time control */
+    vseltime.SetData(game.vtc);
 }
 
 void DLGNEWGAME::InitPlayer(VSELPLAYER& vsel, PL* ppl, CPC cpc)
@@ -334,7 +335,8 @@ void DLGNEWGAME::Extract(GAME& game)
             swap(game.appl[cpcWhite], game.appl[cpcBlack]);
     }
 
-    /* TODO: initialize the time control */
+    ExtractTimeControls(game);
+    
     /* TODO: Iniitalize game options */
 
     if (val == 1)   /* OK button sets start pos, resume button leavs it */
@@ -359,6 +361,12 @@ CPC DLGNEWGAME::ExtractPlayer(GAME& game, VSELPLAYER& vsel)
     }
 
     return dataplayer.cpc;
+}
+
+void DLGNEWGAME::ExtractTimeControls(GAME& game)
+{
+    game.vtc = vseltime.DataGet();
+    game.InitClock();
 }
 
 void DLGNEWGAME::Layout(void)
@@ -522,7 +530,7 @@ void VSELPLAYER::Validate(void)
             throw ERRAPP(rssErrProvideHumanName, sPlayer);
         break;
     case 1:
-        if (!inrange(vsellevel.GetSelectorCur(), 0, 9))
+        if (!FInRange(vsellevel.GetSelectorCur(), 0, 9))
             throw ERRAPP(rssErrChooseAILevel, sPlayer);
         break;
     default:
@@ -673,16 +681,21 @@ void SELTIME::Draw(const RC& rcUpdate)
     DrawLabel(rc);
 }
 
-void SELTIME::Layout(void)
-{
-    SetFont(sFontUI, 32);
-}
-
 SZ SELTIME::SzRequestLayout(const RC& rcWithin) const
 {
     int csel = 5;
     RC rc(pwnParent->RcInterior());
-    return SZ((rc.dxWidth() - 12*(csel-1)) / csel, rc.dyHeight());
+    return SZ((rc.dxWidth() - 12 * (csel - 1)) / csel, rc.dyHeight());
+}
+
+bool SELTIME::FChoose(const VTC& vtc)
+{
+    return false;
+}
+
+VTC SELTIME::DataGet(void) const
+{
+    return VTC(TC(10min, 5s));
 }
 
 /*
@@ -712,16 +725,27 @@ void SELTIMECUSTOM::Layout(void)
     btn.Show(fSelected);
 }
 
+bool SELTIMECUSTOM::FChoose(const VTC& vtcChoose)
+{
+    /* TODO: set customt time format */
+    return true;
+}
+
+VTC SELTIMECUSTOM::DataGet(void) const
+{
+    return VTC(TC(10min, 5s));
+}
+
 /*
  *  SELTIMECYCLE
  */
 
-SELTIMECYCLE::SELTIMECYCLE(VSELTIME& vsel, const vector<TMS>& vtms, int rssLabel) :
+SELTIMECYCLE::SELTIMECYCLE(VSELTIME& vsel, const vector<VTC>& vvtc, int rssLabel) :
     SELTIME(vsel, rssLabel),
     btnnext(*this, new CMDTIMENEXT(Wapp(vsel.iwapp), *this), false),
     btnprev(*this, new CMDTIMEPREV(Wapp(vsel.iwapp), *this), false),
-    vtms(vtms),
-    itmsCur(0)
+    vvtc(vvtc),
+    ivtcCur(0)
 {
 }
 
@@ -730,8 +754,13 @@ void SELTIMECYCLE::Draw(const RC& rcUpdate)
     SELTIME::Draw(rcUpdate);
     RC rc(RcContent());
     rc.top += 26;
-    string s = to_string(vtms[itmsCur].minTotal) + "+" + to_string(vtms[itmsCur].secMoveInc);
-    DrawSCenter(s, tf, rc);
+    rc.bottom -= 10;
+    const TC& tc = vvtc[ivtcCur].TcFromNmv(0, cpcWhite);
+    string s = to_string(tc); 
+    SetFont(sFontUI, 32);
+    if (SzFromS(s, tf).width > rc.dxWidth())
+        SetFont(sFontUI, 20);
+    DrawSCenterXY(s, tf, rc);
 }
 
 void SELTIMECYCLE::Layout(void)
@@ -747,14 +776,30 @@ void SELTIMECYCLE::Layout(void)
 
 void SELTIMECYCLE::Next(void)
 {
-    itmsCur = (itmsCur + 1) % static_cast<int>(vtms.size());
+    ivtcCur = (ivtcCur + 1) % static_cast<int>(vvtc.size());
     Redraw();
 }
 
 void SELTIMECYCLE::Prev(void)
 {
-    itmsCur = (itmsCur - 1 + static_cast<int>(vtms.size())) % static_cast<int>(vtms.size());
+    ivtcCur = (ivtcCur - 1 + static_cast<int>(vvtc.size())) % static_cast<int>(vvtc.size());
     Redraw();
+}
+
+bool SELTIMECYCLE::FChoose(const VTC& vtcChoose)
+{
+    for (int ivtc = 0; ivtc < vvtc.size(); ++ivtc) {
+        if (vvtc[ivtc] == vtcChoose) {
+            ivtcCur = ivtc;
+            return true;
+        }
+    }
+    return false;
+}
+
+VTC SELTIMECYCLE::DataGet(void) const
+{
+    return vvtc[ivtcCur];
 }
 
 /*
@@ -763,17 +808,23 @@ void SELTIMECYCLE::Prev(void)
  *  THe new dialog's game time control list
  */
 
-vector<TMS> vtmsBullet = { {-1,1,0}, {-1,1,1}, { -1,2,1 } };
-vector<TMS> vtmsBlitz = { {-1,3,0}, {-1,3,2}, {-1,5,0} };
-vector<TMS> vtmsRapid = { {-1,10,0}, {-1,10,5}, {-1,15,10} };
-vector<TMS> vtmsClassical = { {-1,30,0}, {-1,30,20} };
+vector<VTC> vvtcBullet = { TC(1min,0s), TC(1min,1s), TC(2min,1s) };
+vector<VTC> vvtcBlitz = { TC(3min,0s), TC(3min,2s), TC(5min,0s) };
+vector<VTC> vvtcRapid = { TC(10min,0s), TC(10min,5s), TC(15min,10s) };
+vector<VTC> vvtcClassical = { 
+    TC(30min,0s), 
+    TC(30min,20s), 
+    VTC(TC(90min,30s,40),TC(30min,30s)),
+    VTC(TC(120min,0s,40),TC(60min,0s,20),TC(15min,30s)),
+    VTC(TC(120min,0s,40),TC(60min,0s))
+};
 
 VSELTIME::VSELTIME(DLGNEWGAME& dlg, ICMD* pcmd) :
     VSEL(dlg, pcmd),
-    selBullet(*this, vtmsBullet, rssTimeBullet),          // 1+0, 2+1
-    selBlitz(*this, vtmsBlitz, rssTimeBlitz),            // 3+0, 3+2, 5+0
-    selRapid(*this, vtmsRapid, rssTimeRapid),           // 10+0, 10+5, 15+10
-    selClassical(*this, vtmsClassical, rssTimeClassical),  // 30+0, 30+20
+    selBullet(*this, vvtcBullet, rssTimeBullet),          // 1+0, 2+1
+    selBlitz(*this, vvtcBlitz, rssTimeBlitz),            // 3+0, 3+2, 5+0
+    selRapid(*this, vvtcRapid, rssTimeRapid),           // 10+0, 10+5, 15+10
+    selClassical(*this, vvtcClassical, rssTimeClassical),  // 30+0, 30+20
     selCustom(*this, rssTimeCustom)
 {
 }
@@ -792,6 +843,30 @@ SZ VSELTIME::SzRequestLayout(const RC& rcWithin) const
 
 void VSELTIME::Validate(void)
 {
+}
+
+void VSELTIME::SetData(const VTC& vtc)
+{
+    /* TODO: this doesn't handle any multi-stage time controls */
+    /* let's go find a match for this time control */
+    if (selBullet.FChoose(vtc))
+        Select(selBullet);
+    else if (selBlitz.FChoose(vtc))
+        Select(selBlitz);
+    else if (selRapid.FChoose(vtc))
+        Select(selRapid);
+    else if (selClassical.FChoose(vtc))
+        Select(selClassical);
+    else
+        /* TODO: set custom time control value */
+        Select(selCustom);
+}
+
+VTC VSELTIME::DataGet(void) const
+{
+    int isel = GetSelectorCur();
+    SELTIME* psel = static_cast<SELTIME*>(vpsel[isel]);
+    return psel->DataGet();
 }
 
 /*

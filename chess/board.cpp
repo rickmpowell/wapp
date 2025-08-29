@@ -333,6 +333,40 @@ bool BD::FDrawDead(void) const noexcept
     return false;
 }
 
+bool BD::FSufficientMaterial(CPC cpc) const noexcept
+{
+    int cpcMinor = 0;
+    for (int icp = 0; icp < icpMax; icp++) {
+        int icpbd = aicpbd[cpc][icp];
+        if (icpbd == -1)
+            continue;
+        switch (acpbd[icpbd].cpt) {
+        case cptKing:
+            break;
+        case cptPawn:
+        case cptRook:
+        case cptQueen:
+            return true;
+        default:
+            cpcMinor++;
+            break;
+        }
+    }
+    return cpcMinor > 1;
+}
+
+EV BD::EvMaterial(CPC cpc) const noexcept
+{
+    static EV mpcptev[cptMax] = { 0, 100, 300, 300, 500, 900, 250 };
+    EV ev = 0;
+    for (int icp = 0; icp < icpMax; ++icp) {
+        int icpbd = aicpbd[cpc][icp];
+        if (icpbd != -1)
+            ev += mpcptev[acpbd[icpbd].cpt];
+    }
+    return ev;
+}
+
 /*
  *  BD::Validate
  * 

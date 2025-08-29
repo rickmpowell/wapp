@@ -215,6 +215,19 @@ void WND::DestroyWnd(void)
 }
 
 /**
+ *  @brief Forces a window to draw.
+ * 
+ *  We must be aggressive about this because we're using a DirectX back
+ *  buffer for out updates, and we need the WM_PAINT to be forced through
+ *  so we have a non-dirty back buffer. 
+ */
+
+void WND::UpdateWnd(void)
+{
+    ::UpdateWindow(hwnd);
+}
+
+/**
  *  Shows/hides the Windows window.
  */
 
@@ -317,6 +330,10 @@ LRESULT CALLBACK WND::WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
         pwnd->OnKeyDown((int)wParam);
         return 0;
 
+    case WM_TIMER:
+        pwnd->OnTimer((int)wParam);
+        return 0;
+
     case WM_COMMAND:
         if (pwnd->OnCommand(LOWORD(wParam)))
             return 0;
@@ -402,6 +419,10 @@ void WND::OnMouseWheel(const PT& pt, int dwheel)
 void WND::OnKeyDown(int vk)
 {
     (void)vk;
+}
+
+void WND::OnTimer(int tid)
+{
 }
 
 int WND::OnCommand(int cmd)

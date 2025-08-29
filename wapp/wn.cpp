@@ -391,6 +391,14 @@ bool WN::FKeyDown(int vk)
     return false;
 }
 
+/*
+ *  Timers
+ */
+
+void WN::Tick(TIMER& timer)
+{
+}
+
 /**
  *  This is a little bit weird, but this is a WN that accepts an ostream. Lines
  *  are passed along to ReceiveStream where they can be processed and potenmtially 

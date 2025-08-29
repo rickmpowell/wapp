@@ -63,6 +63,7 @@
 #include <functional>
 #include <algorithm>
 #include <iterator>
+#include <ranges>
 #include <memory>
 #include <format>
 #include <numbers>

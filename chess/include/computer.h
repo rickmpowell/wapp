@@ -193,6 +193,7 @@ public:
     void SetLevel(int level);
 
     virtual void RequestMv(WAPP& wapp, GAME& game, const TMAN& tman) override;
+    virtual void Interrupt(WAPP& wapp, GAME& game) override;
     MV MvBestTest(WAPP& wapp, GAME& game, const TMAN& tman);
 
     /* basic alpha-beta search */
@@ -208,7 +209,9 @@ public:
 
     /* time management */
 
-    void InitTimeMan(const TMAN& tman);
+    void InitTimeMan(const BD& bdGame, const TMAN& tman) noexcept;
+    EV EvMaterialTotal(const BD& bd) const noexcept;
+
     inline bool FInterrupt(void) noexcept
     {
         static const uint16_t cYieldFreq = 16384U;
@@ -227,6 +230,7 @@ public:
         MoveAndContinue,
         Halt
     } tint;
+    bool fInterruptSearch = false;
 
     /* static board evaluation */
 

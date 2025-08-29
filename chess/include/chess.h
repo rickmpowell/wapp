@@ -17,20 +17,6 @@
 class CMDMAKEMOVE;
 
 /**
- *  @struct TMS
- *  @brief Time control section. 
- *
- *  Time control for the game is just an array/vector of these things.
- */
-
-struct TMS
-{
-    int dmvTotal;   // -1 for the remainder of the game
-    int minTotal;
-    int secMoveInc;
-};
-
-/**
  *  @class WNPC
  *  @brief A piece sub-window
  * 

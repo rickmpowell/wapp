@@ -774,6 +774,14 @@ private:
     int16_t imvMac = 0;
 };
 
+/*
+ *  nmv is a move number, starts at 1, and is the same as the number written
+ *  in a move list. So both black and white will have the same move number for
+ *  a pair of moves.
+ */
+
+constexpr int nmvInfinite = 2048;   
+
 /**
  *  @class BD
  *  @brief the game board class. 
@@ -849,6 +857,7 @@ public:
     bool FGameDrawn(int cbd) const noexcept;
     bool FDrawRepeat(int cbdDraw) const noexcept;
     bool FDrawDead(void) const noexcept;
+    bool FSufficientMaterial(CPC cpc) const noexcept;
 
     /* FEN reading and writing */
 
@@ -869,6 +878,8 @@ public:
 
     int64_t CmvPerft(int d);
     int64_t CmvBulk(int d);
+
+    EV EvMaterial(CPC cpc) const noexcept;
 
 private:
     void RemoveChecks(VMV& vmv) const noexcept;

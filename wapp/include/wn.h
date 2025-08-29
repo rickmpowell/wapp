@@ -23,6 +23,7 @@
  */
 
 #include "dc.h"
+class TIMER;
 
 /*
  *  WN class
@@ -99,6 +100,10 @@ public:
     /* keyboard */
 
     virtual bool FKeyDown(int vk);
+
+    /* timers */
+
+    virtual void Tick(TIMER& timer);
 
 protected:
     WN* pwnParent;  // will be nullptr at root
