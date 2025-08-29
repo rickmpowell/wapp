@@ -174,8 +174,8 @@ void BD::InitFromFenShared(istream& is)
     if (sEnPassant == "-")
         sqEnPassant = sqNil;
     else if (sEnPassant.length() == 2 &&
-             inrange(sEnPassant[0], 'a', 'h') &&
-             inrange(sEnPassant[1], '1', '8')) {
+             FInRange(sEnPassant[0], 'a', 'h') &&
+             FInRange(sEnPassant[1], '1', '8')) {
         /* TODO: should we test for valid en passant square? They should only be
            in ranks '3' or '6' */
         sqEnPassant = Sq(sEnPassant[0] - 'a', sEnPassant[1] - '1');
@@ -366,10 +366,10 @@ bool GAME::FValidEpdOp(const string& op) const
     if (op.size() == 0)
         return false;
     for (char ch : op) {
-        if (!inrange(ch, '0', '9') && !inrange(ch, 'a', 'z') && !inrange(ch, 'A', 'Z') && ch != '_')
+        if (!FInRange(ch, '0', '9') && !FInRange(ch, 'a', 'z') && !FInRange(ch, 'A', 'Z') && ch != '_')
             return false;
     }
-    return inrange(op[0], 'a', 'z') || inrange(op[0], 'A', 'Z');
+    return FInRange(op[0], 'a', 'z') || FInRange(op[0], 'A', 'Z');
 }
 
 /*
@@ -409,7 +409,7 @@ bool GAME::FReadEpdOpValue(istream& is, const string& op)
         }
         AddKey(op, sVal);
     }
-    else if (inrange(ch, '1', '9')) {
+    else if (FInRange(ch, '1', '9')) {
         iVal = ch = '0';
         goto ParseNum;
     }
@@ -542,7 +542,7 @@ MV BD::MvParseSan(string_view s) const
         if (ich >= s.size())
             throw ERRAPP(rssErrParseMoveGeneric);
         size_t cptT = sParseBoard.find(s[ich]);
-        if (cptT != string::npos && inrange((CPT)cptT, cptPawn, cptKing)) {
+        if (cptT != string::npos && FInRange((CPT)cptT, cptPawn, cptKing)) {
             cpt = (CPT)cptT;
             ich++;
         }
@@ -551,14 +551,14 @@ MV BD::MvParseSan(string_view s) const
     /* handle disambiguation rank and file */
     if (ich + 1 >= s.size())
         throw ERRAPP(rssErrParseMoveGeneric);
-    if (inrange(s[ich], '1', '8'))
+    if (FInRange(s[ich], '1', '8'))
         raDisambig = s[ich++] - '1';
-    else if (inrange(s[ich], 'a', 'h')) {
-        if (s[ich + 1] == 'x' || s[ich + 1] == '-' || inrange(s[ich + 1], 'a', 'h'))
+    else if (FInRange(s[ich], 'a', 'h')) {
+        if (s[ich + 1] == 'x' || s[ich + 1] == '-' || FInRange(s[ich + 1], 'a', 'h'))
             fiDisambig = s[ich++] - 'a';
-        else if (inrange(s[ich + 1], '1', '8') && 
+        else if (FInRange(s[ich + 1], '1', '8') && 
                  ich + 2 < s.size() && 
-                 (s[ich + 2] == 'x' || s[ich + 2] == '-' || inrange(s[ich + 2], 'a', 'h'))) {
+                 (s[ich + 2] == 'x' || s[ich + 2] == '-' || FInRange(s[ich + 2], 'a', 'h'))) {
             fiDisambig = s[ich++] - 'a';
             raDisambig = s[ich++] - '1';
         }
@@ -572,7 +572,7 @@ MV BD::MvParseSan(string_view s) const
     /* destination square */
     if (ich + 1 >= s.size())
         throw ERRAPP(rssErrParseMoveDestination);
-    if (!inrange(s[ich], 'a', 'h') || !inrange(s[ich + 1], '1', '8'))
+    if (!FInRange(s[ich], 'a', 'h') || !FInRange(s[ich + 1], '1', '8'))
         throw ERRAPP(rssErrParseMoveDestination);
     sqTo = Sq(s[ich] - 'a', s[ich + 1] - '1');
     ich += 2;
@@ -582,7 +582,7 @@ MV BD::MvParseSan(string_view s) const
         if (++ich >= s.size())
             throw ERRAPP(rssErrParseMovePromote);
         size_t cptT = sParseBoard.find(s[ich]);
-        if (cptT == string::npos || !inrange((CPT)cptT, cptKnight, cptQueen))
+        if (cptT == string::npos || !FInRange((CPT)cptT, cptKnight, cptQueen))
             throw ERRAPP(rssErrParseMovePromote);
         cptPromote = (CPT)cptT;
         ich++;
