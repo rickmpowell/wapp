@@ -31,3 +31,11 @@ void PLHUMAN::RequestMv(WAPP& wapp, GAME& game, const TMAN& tman)
 {
     game.NotifyEnableUI(true);
 }
+
+void PLHUMAN::Interrupt(WAPP& wapp, GAME& game)
+{
+    MV mv;
+    unique_ptr<CMDMAKEMOVE> pcmdMakeMove = make_unique<CMDMAKEMOVE>(wapp);
+    pcmdMakeMove->SetMv(mv);
+    wapp.PostCmd(*pcmdMakeMove);
+}
