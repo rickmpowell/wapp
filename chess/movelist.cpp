@@ -8,6 +8,10 @@
 
 #include "chess.h"
 
+
+string_view sFontClock = "Verdana";
+
+
 WNML::WNML(WN& wnParent, GAME& game) :
     WN(wnParent),
     SCROLLLNFIXED((WN&)*this),
@@ -45,7 +49,7 @@ void WNML::Layout(void)
     SetView(len.RcLayout());
 
     tf.SetHeight(*this, 15);
-    dyLine = SzFromS("Rg1xRh8+ e.p.", tf).height + 2 * 2;
+    dyLine = SzFromS("Rg1xh8=Q+", tf).height + 2 * 2;
     dxMoveNum = SzFromS("999", tf).width;
 }
 
@@ -93,7 +97,7 @@ void WNML::DrawLine(const RC& rcLine, int li)
 
 float WNML::DyLine(void) const
 {
-    return dyLine;
+    return dyLine;  
 }
 
 void WNML::PlChanged(void)
@@ -113,6 +117,16 @@ void WNML::GsChanged(void)
 {
     Relayout();
     Redraw();
+}
+
+void WNML::ClockChanged(void)
+{
+    awnclock[0].timer.Stop();
+    awnclock[1].timer.Stop();
+    if (game.gs == GS::Playing)
+        awnclock[~game.bd.cpcToMove].timer.Start();
+    awnclock[0].Redraw();
+    awnclock[1].Redraw();
 }
 
 /*
@@ -162,6 +176,7 @@ SZ WNPLAYER::SzRequestLayout(const RC& rcWithin) const
 
 WNCLOCK::WNCLOCK(WNML& wnml, GAME& game, CPC cpc) :
     CTL(wnml, nullptr),
+    timer(*this, 10ms),
     game(game),
     cpc(cpc)
 {
@@ -174,30 +189,118 @@ CO WNCLOCK::CoBack(void) const
 
 CO WNCLOCK::CoText(void) const
 {
-    return CO(0.5f, 0.9f, 1.0f);
-    // coClockWarningText(0.9f, 0.2f, 0.2f);
+    milliseconds dtp = game.mpcpcdtpClock[cpc] - game.DtpMove();
+    if (dtp <= 20s)
+        return CO(0.9f, 0.2f, 0.2f);
+    else    
+        return CO(0.5f, 0.9f, 1.0f);
 }
 
 void WNCLOCK::Draw(const RC& rcUpdate)
 {
-    // Draw the clock for the player
-    DrawSCenter("0:00.0", tf, RcInterior());
-
-    TF tfControls(*this, "Segoe UI", 12, TF::WEIGHT::Bold, TF::STYLE::Italic);
     RC rc(RcInterior());
-    rc.top = rc.bottom - 16;
-    Line(rc.ptTopLeft(), rc.ptTopRight(), CoText(), 1.5f);
-    DrawSCenterXY("Time controls NYI", tfControls, rc);
+    milliseconds dtp = game.mpcpcdtpClock[cpc];
+    if (FRunning())
+        dtp -= game.DtpMove();
+    if (dtp <= 0ms) {
+        static PT apt[] = { {0, 0}, {0, 4}, {1, 3}, {2, 4}, {2, 0} };
+        GEOM geom(*this, apt, size(apt));
+        FillGeom(geom, PT(rc.right - 27, rc.top), SZ(6), 0, CoText());
+        dtp = 0ms;
+    }
+
+    /* draw clock */
+    RC rcClock = rc;
+    rcClock.bottom -= 16;
+    hours hr = duration_cast<hours>(dtp);
+    minutes min = duration_cast<minutes>(dtp % hours(1));
+    seconds sec = duration_cast<seconds>(dtp % minutes(1));
+    int tenths = (dtp.count() / 100) % 10;
+    string sTime;
+    if (dtp >= 1h)
+        sTime = format("{}:{:02}:{:02}", hr.count(), min.count(), sec.count());
+    else if (dtp >= 1min)
+        sTime = format("{}:{:02}", min.count(), sec.count());
+    else
+        sTime = format("{}:{:02}.{:01}", min.count(), sec.count(), tenths);
+    DrawTime(sTime, rcClock, !FRunning() || FInRange(tenths, 0, 4));
+    
+    /* show the time controls */
+    rc.top = rcClock.bottom;
+    int ctc = (int)game.vtc.mpcpcvtc[cpc].size();
+    float dx = rc.dxWidth() / ctc;
+    rc.right = rc.left + dx;
+    TF tfTc(*this, string(sFontClock), 12);
+    if (ctc == 1)
+        rc.left = rc.right - rc.dxWidth() / 3;
+    int itcSel = game.vtc.ItcFromNmv(game.NmvCur(), cpc);
+    DrawTc(0, tfTc, rc, itcSel == 0);
+    for (int itc = 1; itc < ctc; itc++) {
+        rc.Offset(dx, 0);
+        DrawTc(itc, tfTc, rc, itcSel == itc);
+    }
+}
+
+void WNCLOCK::DrawTc(int itc, TF& tfTc, const RC& rc, bool fActive)
+{
+    TC tc = game.vtc.mpcpcvtc[cpc][itc];
+    string s = to_string(tc);
+    DrawSCenterXY(s, tfTc, rc, fActive ? coWhite : CoText());
+}
+
+void WNCLOCK::DrawTime(const string& s, const RC& rcClock, bool fDrawColons)
+{
+    vector<string> vs;
+    string sPart;
+    
+    float dx = 0;
+    for (auto&& ps : views::split(s, ':')) {
+        sPart = string(ps.begin(), ps.end());
+        dx += SzFromS(sPart, tf).width;
+        vs.emplace_back(sPart);
+    }
+
+    RC rc(PT(0), SZ(dx + dxColon*(vs.size()-1), dyClock));
+    rc.CenterIn(rcClock);
+
+    auto ps = vs.begin();
+    DrawS(*ps, tf, rc);
+    rc.left += SzFromS(*ps, tf).width;
+    for (++ps; ps != vs.end(); ++ps) {
+        if (fDrawColons)
+            DrawS(string_view(":"), tf, rc.RcSetLeft(rc.left+1));
+        rc.left += dxColon;
+        DrawS(*ps, tf, rc);
+        rc.left += SzFromS(*ps, tf).width;
+    }
 }
 
 void WNCLOCK::Layout(void)
 {
-    SetFont("Segoe UI", 40, TF::WEIGHT::Bold);
+    SetFont(string(sFontClock), 38, TF::WEIGHT::Bold);
+    dxOne = SzFromS("8", tf).width;
+    dxTwo = SzFromS("88", tf).width;
+    dxColon = SzFromS(":", tf).width + 2;
+    dyClock = SzFromS("0", tf).height;
 }
 
 SZ WNCLOCK::SzRequestLayout(const RC& rcWithin) const
 {
-    return SZ(rcWithin.dxWidth(), 72);
+    return SZ(rcWithin.dxWidth(), 64);
+}
+
+void WNCLOCK::Tick(TIMER& timer)
+{
+    /* if the clock has flagged, tell the game it needs to stop the game */
+    milliseconds dtp = game.mpcpcdtpClock[cpc] - game.DtpMove();
+    if (dtp < 0ms)
+        game.Flag(Wapp(iwapp), cpc);
+    Redraw();
+}
+
+bool WNCLOCK::FRunning(void) const
+{
+    return timer.FRunning();
 }
 
 /**
