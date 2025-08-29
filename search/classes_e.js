@@ -9,5 +9,6 @@ var searchData=
   ['staticicon_6',['STATICICON',['../d2/da1/classSTATICICON.html',1,'']]],
   ['staticl_7',['STATICL',['../d5/d4e/classSTATICL.html',1,'']]],
   ['staticr_8',['STATICR',['../d4/db7/classSTATICR.html',1,'']]],
-  ['sz_9',['SZ',['../db/dfa/classSZ.html',1,'']]]
+  ['stimer_9',['STIMER',['../d2/db4/classSTIMER.html',1,'']]],
+  ['sz_10',['SZ',['../db/dfa/classSZ.html',1,'']]]
 ];

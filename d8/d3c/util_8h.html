@@ -133,9 +133,9 @@ wstring&#160;</td><td class="memItemRight" valign="bottom"><b>WsFromS</b> (char 
 <tr class="separator:a6460f77e232382d07ac971e3d17b7b6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60d96a401e7aa186e485a16c9425b8a3" id="r_a60d96a401e7aa186e485a16c9425b8a3"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d3c/util_8h.html#a60d96a401e7aa186e485a16c9425b8a3">SFromU8</a> (const char8_t *s)</td></tr>
 <tr class="separator:a60d96a401e7aa186e485a16c9425b8a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2f82654da6be6d57b554bbf26065dd49" id="r_a2f82654da6be6d57b554bbf26065dd49"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a2f82654da6be6d57b554bbf26065dd49"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d8/d3c/util_8h.html#a2f82654da6be6d57b554bbf26065dd49">inrange</a> (const T &amp;t, const T &amp;tFirst, const T &amp;tLast)</td></tr>
-<tr class="separator:a2f82654da6be6d57b554bbf26065dd49"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89f1b35fb401f63802878b65a713e7c7" id="r_a89f1b35fb401f63802878b65a713e7c7"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a89f1b35fb401f63802878b65a713e7c7"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d8/d3c/util_8h.html#a89f1b35fb401f63802878b65a713e7c7">FInRange</a> (const T &amp;t, const T &amp;tFirst, const T &amp;tLast)</td></tr>
+<tr class="separator:a89f1b35fb401f63802878b65a713e7c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79397a9c2bf1593c3a3ced62adb36dae" id="r_a79397a9c2bf1593c3a3ced62adb36dae"><td class="memTemplParams" colspan="2">template&lt;typename T , std::size_t ct&gt; </td></tr>
 <tr class="memitem:a79397a9c2bf1593c3a3ced62adb36dae"><td class="memTemplItemLeft" align="right" valign="top">constexpr size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="../../d8/d3c/util_8h.html#a79397a9c2bf1593c3a3ced62adb36dae">index_of</a> (const array&lt; T, ct &gt; &amp;at, const T &amp;t)</td></tr>
 <tr class="separator:a79397a9c2bf1593c3a3ced62adb36dae"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -183,6 +183,45 @@ wstring&#160;</td><td class="memItemRight" valign="bottom"><b>WsFromS</b> (char 
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a89f1b35fb401f63802878b65a713e7c7" name="a89f1b35fb401f63802878b65a713e7c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89f1b35fb401f63802878b65a713e7c7">&#9670;&#160;</a></span>FInRange()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool FInRange </td>
+          <td>(</td>
+          <td class="paramtype">const T &amp;&#160;</td>
+          <td class="paramname"><em>t</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const T &amp;&#160;</td>
+          <td class="paramname"><em>tFirst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const T &amp;&#160;</td>
+          <td class="paramname"><em>tLast</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Tells if a value is inside the range, inclusive. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d8/d3c/util_8h_source.html#l00041">41</a> of file <a class="el" href="../../d8/d3c/util_8h_source.html">util.h</a>.</p>
+
+</div>
+</div>
 <a id="a79397a9c2bf1593c3a3ced62adb36dae" name="a79397a9c2bf1593c3a3ced62adb36dae"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a79397a9c2bf1593c3a3ced62adb36dae">&#9670;&#160;</a></span>index_of()</h2>
 
@@ -221,45 +260,6 @@ template&lt;typename T , std::size_t ct&gt; </div>
 <p>searches for an item within an array </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d8/d3c/util_8h_source.html#l00052">52</a> of file <a class="el" href="../../d8/d3c/util_8h_source.html">util.h</a>.</p>
-
-</div>
-</div>
-<a id="a2f82654da6be6d57b554bbf26065dd49" name="a2f82654da6be6d57b554bbf26065dd49"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2f82654da6be6d57b554bbf26065dd49">&#9670;&#160;</a></span>inrange()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename T &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">bool inrange </td>
-          <td>(</td>
-          <td class="paramtype">const T &amp;&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const T &amp;&#160;</td>
-          <td class="paramname"><em>tFirst</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const T &amp;&#160;</td>
-          <td class="paramname"><em>tLast</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Tells if a value is inside the range, inclusive. </p>
-
-<p class="definition">Definition at line <a class="el" href="../../d8/d3c/util_8h_source.html#l00041">41</a> of file <a class="el" href="../../d8/d3c/util_8h_source.html">util.h</a>.</p>
 
 </div>
 </div>

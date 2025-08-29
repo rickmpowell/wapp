@@ -144,6 +144,7 @@ var hierarchy =
         [ "SCROLLLNFIXED", "da/d80/classSCROLLLNFIXED.html", null ]
       ] ]
     ] ],
+    [ "STIMER", "d2/db4/classSTIMER.html", null ],
     [ "streambuf", null, [
       [ "iclipbuffer", "d2/dcf/classiclipbuffer.html", null ],
       [ "wnstreambuf", "db/dc3/classwnstreambuf.html", null ]
@@ -152,6 +153,7 @@ var hierarchy =
       [ "oclipbuffer", "d5/da0/classoclipbuffer.html", null ]
     ] ],
     [ "TF", "d9/d78/classTF.html", null ],
+    [ "TIMER", "d1/d9e/classTIMER.html", null ],
     [ "WND", "d7/d6d/classWND.html", [
       [ "WNDMAIN", "d3/def/classWNDMAIN.html", [
         [ "IWAPP", "d9/d15/classIWAPP.html", null ]

@@ -10,9 +10,8 @@ var searchData=
   ['initmenucmd_7',['InitMenuCmd',['../d9/d15/classIWAPP.html#a3cb7b7b5bdf6e14d72d261e454c659ea',1,'IWAPP']]],
   ['initmenucmds_8',['InitMenuCmds',['../d9/d15/classIWAPP.html#a19d2c1a01cebbb435124e9e24e203e1a',1,'IWAPP']]],
   ['initpopupmenucmds_9',['InitPopupMenuCmds',['../d9/d15/classIWAPP.html#ab0d00379b88687aa0054321a3cee446f',1,'IWAPP']]],
-  ['inrange_10',['inrange',['../d8/d3c/util_8h.html#a2f82654da6be6d57b554bbf26065dd49',1,'util.h']]],
-  ['instruct_11',['INSTRUCT',['../d9/d87/classINSTRUCT.html',1,'']]],
-  ['is_12',['What it is',['../index.html#autotoc_md1',1,'']]],
-  ['it_20is_13',['What it is',['../index.html#autotoc_md1',1,'']]],
-  ['iwapp_14',['IWAPP',['../d9/d15/classIWAPP.html',1,'']]]
+  ['instruct_10',['INSTRUCT',['../d9/d87/classINSTRUCT.html',1,'']]],
+  ['is_11',['What it is',['../index.html#autotoc_md1',1,'']]],
+  ['it_20is_12',['What it is',['../index.html#autotoc_md1',1,'']]],
+  ['iwapp_13',['IWAPP',['../d9/d15/classIWAPP.html',1,'']]]
 ];

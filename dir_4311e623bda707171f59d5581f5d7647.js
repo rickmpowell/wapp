@@ -12,6 +12,7 @@ var dir_4311e623bda707171f59d5581f5d7647 =
     [ "printer.cpp", "da/de9/printer_8cpp_source.html", null ],
     [ "rt.cpp", "d5/db1/rt_8cpp_source.html", null ],
     [ "scroll.cpp", "da/d3c/scroll_8cpp_source.html", null ],
+    [ "timer.cpp", "dc/de5/timer_8cpp.html", null ],
     [ "util.cpp", "df/d2d/util_8cpp_source.html", null ],
     [ "wapp.cpp", "d6/d1a/wapp_8cpp_source.html", null ],
     [ "wn.cpp", "d9/d1d/wn_8cpp_source.html", null ]

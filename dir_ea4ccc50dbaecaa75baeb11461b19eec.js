@@ -15,6 +15,7 @@ var dir_ea4ccc50dbaecaa75baeb11461b19eec =
     [ "len.h", "d2/d8d/len_8h.html", "d2/d8d/len_8h" ],
     [ "printer.h", "db/dab/printer_8h.html", "db/dab/printer_8h" ],
     [ "rt.h", "d6/dc9/rt_8h.html", "d6/dc9/rt_8h" ],
+    [ "timer.h", "d5/dd0/timer_8h.html", "d5/dd0/timer_8h" ],
     [ "util.h", "d8/d3c/util_8h.html", "d8/d3c/util_8h" ],
     [ "wapp.h", "d2/d48/wapp_8h.html", "d2/d48/wapp_8h" ],
     [ "wn.h", "d2/da3/wn_8h.html", "d2/da3/wn_8h" ]
