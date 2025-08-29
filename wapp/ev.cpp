@@ -120,8 +120,12 @@ bool EVD::FIdle(void)
 
 void EVD::ProcessMsg(MSG& msg)
 {
-    ::TranslateMessage(&msg);
-    ::DispatchMessageW(&msg);
+    if (msg.message == WM_TIMER)    
+        stimer.Tick((int)msg.wParam);
+    else {
+        ::TranslateMessage(&msg);
+        ::DispatchMessageW(&msg);
+    }
 }
 
 void EVD::EnterPump(void)

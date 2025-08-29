@@ -109,6 +109,8 @@ void IWAPP::CreateWnd(const string& sTitle, int ws, PT pt, SZ sz)
 {
     fVisible = (ws & WS_VISIBLE) != 0;
     WNDMAIN::CreateWnd(sTitle, ws, pt, sz);
+    if (fVisible)
+        UpdateWnd();
     if (GetMenu(hwnd) != NULL)
         RegisterMenuCmds();
 }
@@ -192,6 +194,10 @@ void IWAPP::OnMouseWheel(const PT& ptg, int dwheel)
     vpevd.back()->MouseWheel(ptg, dwheel);
 }
 
+void IWAPP::OnTimer(int tid)
+{
+}
+
 int IWAPP::OnCommand(int cmd)
 {
     return FExecuteMenuCmd(cmd);
@@ -218,6 +224,8 @@ void IWAPP::OnKeyDown(int vk)
 void IWAPP::Show(bool fShow)
 {
     ShowWnd(fShow ? SW_SHOW : SW_HIDE);
+    if (fVisible)
+        UpdateWnd();
 }
 
 /*

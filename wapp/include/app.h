@@ -121,6 +121,7 @@ public:
 
     void ShowWnd(int sw = SW_SHOW);
     void Minimize(void);
+    void UpdateWnd(void);
 
     /* WndProc and window message handlers */
 
@@ -137,6 +138,7 @@ public:
     virtual void OnMouseUp(const PT& ptg, unsigned mk);
     virtual void OnMouseWheel(const PT& ptg, int dwheel);
     virtual void OnKeyDown(int vk);
+    virtual void OnTimer(int tid);
     virtual void OnPaint(void);
     virtual int OnCommand(int cmd);
     virtual void OnInitMenu(void);
