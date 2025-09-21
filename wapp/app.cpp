@@ -42,15 +42,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hinstPrev, _In_ L
     }
 }
 
-/**  
- *  @class APP
- * 
- *  The base application handles COM initialization, Direct2D initialization, and provides
- *  basic access to the application via the instance handle. The instance handle is how
- *  resources are accessed. 
- */
-
 /**
+ *  @fn APP::APP()
+ *
  *  Constructor simply keeps track of the application module handle and initializes
  *  the COM sub-system. Throws an exception on failures, which should not happen in
  *  a properly configured Win32 system.
@@ -68,8 +62,11 @@ APP::~APP()
 }
 
 /**
- *  Loads a string, using the stringtable resource ID, from the application's 
- *  resource fork.
+ *  @fn string APP::SLoad(unsigned rss) const
+ *  @brief Loads a string resource
+ * 
+ *  Uses the stringtable resource ID, from the application's resource fork.
+ *  Resource ids are integers.
  */
 
 string APP::SLoad(unsigned rss) const
@@ -81,8 +78,11 @@ string APP::SLoad(unsigned rss) const
 }
 
 /**
- *  Loads a string, using the ICON resource ID, from the application's 
- *  resource fork. Throws an exception if not found.
+ *  @fn         HICON APP::HiconLoad(unsigned rsi) const
+ *  @brief      Loads an icon resource
+ * 
+ *  @details    Uses the ICON resource ID, from the application's resource 
+ *              fork. Throws an exception if not found.
  */
 
 HICON APP::HiconLoad(unsigned rsi) const
@@ -94,7 +94,25 @@ HICON APP::HiconLoad(unsigned rsi) const
 }
 
 /**
- *  Loads a default system icon
+ *  @fn         HICON APP::HiconLoad(unsigned rsi, int dxy) const
+ *  @brief      Loads an icon of a specific size
+ */
+
+HICON APP::HiconLoad(unsigned rsi, int dxy) const
+{
+    HICON hicon = (HICON)::LoadImageW(hinst, 
+                                      MAKEINTRESOURCEW(rsi), 
+                                      IMAGE_ICON, 
+                                      dxy, dxy, 
+                                      LR_DEFAULTCOLOR | LR_SHARED);
+    if (hicon == NULL)
+        throw ERRLAST();
+    return hicon;
+}
+
+/**
+ *  @fn HICON APP::HiconDef(LPCWSTR rsi) const
+ *  @brief Loads a default system icon
  */
 
 HICON APP::HiconDef(LPCWSTR rsi) const
@@ -105,8 +123,10 @@ HICON APP::HiconDef(LPCWSTR rsi) const
 }
 
 /**
- *  Loads a CURSOR resource givena numeric cursor ID from the application's
- *  resource fork.
+ *  @fn HCURSOR APP::HcursorLoad(unsigned rsc) const
+ *  @brief Loads a CURSOR resource 
+ *
+ *  Given a numeric cursor ID from the application's resource fork.
  */
 
 HCURSOR APP::HcursorLoad(unsigned rsc) const
@@ -118,7 +138,8 @@ HCURSOR APP::HcursorLoad(unsigned rsc) const
 }
 
 /**
- *  Loads a default system icon
+ *  @fn HCURSOR APP::HcursorDef(LPCWSTR rsc) const
+ *  @brief Loads a default system cursor
  */
 
 HCURSOR APP::HcursorDef(LPCWSTR rsc) const
@@ -129,8 +150,8 @@ HCURSOR APP::HcursorDef(LPCWSTR rsc) const
 }
 
 /**
- *  Given an accelerator table ID, returns an accelerator table from the
- *  application's resource fork.
+ *  @fn HACCEL APP::HaccelLoad(unsigned rsa) const
+ *  @brief Loads an accelerator table resource
  */
 
 HACCEL APP::HaccelLoad(unsigned rsa) const
@@ -139,10 +160,11 @@ HACCEL APP::HaccelLoad(unsigned rsa) const
 }
 
 /**
- *  @class WND
+ *  @fn WND::WND(APP& app)
+ *  @brief Creates a Windows HWND wrapper class
  * 
- *  A light wrapper around the Windows HWND. Windows HWNDs must be registered
- *  and then created, so the initialization of this thing is a little odd.
+ *  The constructor does not actually create the HWND< that is triggred by
+ *  calling CreateWnd. 
  */
 
 WND::WND(APP& app) : app(app), hwnd(NULL)
@@ -156,9 +178,12 @@ WND::~WND()
 }
 
 /**
+ *  @fn WNDCLASSEXW WND::WcexRegister(void) const
+ *  @brief Returns the registration information for the Windows window class
+ * 
  *  Creates a WNDCLASSEX structure for registering a Windows HWND class. 
- *  This does completely fill a valid WNDCLASSEXW, it only fill some of the 
- *  boilerplate stuff that we need for the WN class to work. Other WN derived 
+ *  This does not completely fill a valid WNDCLASSEXW, it only fill some of the 
+ *  boilerplate stuff that we need for the WN class to work. Other WND derived 
  *  classes should call this helper fucntion and then fill additional fields 
  *  for the particular window type.
  */
@@ -173,6 +198,9 @@ WNDCLASSEXW WND::WcexRegister(void) const
 }
 
 /**
+ *  @fn LPCWSTR WND::Register(const WNDCLASSEXW& wcex)
+ *  @brief Registers a Windows window class
+ * 
  *  Registers a Windows window class using the structure wcex. Fill in the wcex 
  *  using the appropriate static WcexRegister functions. The WN::WcexRegister 
  *  fills in the criticla parts for interfacing with the WN class.
@@ -187,9 +215,13 @@ LPCWSTR WND::Register(const WNDCLASSEXW& wcex)
 }
 
 /**
+ *  @fn void WND::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
+ *  @brief Creates a Windows window
+ * 
  *  Creates a Windows' Window using title, window style, and in the given 
  *  position and of the given size.
  */
+
 void WND::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
 {
     POINT point = (POINT)pt;
@@ -204,7 +236,8 @@ void WND::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
 }
 
 /**
- *  Destroys a Windows window.
+ *  @fn void WND::DestroyWnd(void)
+ *  @brief Destroys a Windows window.
  */
 
 void WND::DestroyWnd(void)
@@ -215,6 +248,7 @@ void WND::DestroyWnd(void)
 }
 
 /**
+ *  @fn void WND::UpdateWnd(void)
  *  @brief Forces a window to draw.
  * 
  *  We must be aggressive about this because we're using a DirectX back
@@ -228,7 +262,8 @@ void WND::UpdateWnd(void)
 }
 
 /**
- *  Shows/hides the Windows window.
+ *  @fn void WND::ShowWnd(int sw)
+ *  @brief Shows/hides the Windows window.
  */
 
 void WND::ShowWnd(int sw)
@@ -237,7 +272,8 @@ void WND::ShowWnd(int sw)
 }
 
 /**
- *  Minimizes (makes an icon) the Windows window.
+ *  @fn void WND::Minimize(void)
+ *  @brief Minimizes (makes an icon) the Windows window.
  */
 
 void WND::Minimize(void)
@@ -246,12 +282,19 @@ void WND::Minimize(void)
 }
 
 /**
- *  The WndProc for WAPP HWND windows. This simply dispatches all the window
- *  messages into the appropriate virtual function in the WND class.
+ *  @fn LRESULT CALLBACK WND::WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
+ *  @brief The Windows WndProc for all our HWNDs.
+ * 
+ *  This simply dispatches all the window messages into the appropriate 
+ *  virtual function in the WND class. We only add support for specific window
+ *  messages as we need them, so it's OK to be aggressive about adding support 
+ *  for new messages.
  */
 
 LRESULT CALLBACK WND::WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam)
 {
+    /* TODO: we should probably catch exceptions here and display an error message */
+
     /* messages that come in before we have the HWND and WN pointing at one another 
        need default handling. link the HWND and WN during WM_NCCREATE. */
 
@@ -359,9 +402,19 @@ LRESULT WND::DefProc(UINT wm, WPARAM wParam, LPARAM lParam)
     return ::DefWindowProc(hwnd, wm, wParam, lParam);
 }
 
+/**
+ *  @fn void WND::OnCreate(void)
+ *  @brief Create window message handler.
+ */
+
 void WND::OnCreate(void)
 {
 }
+
+/**
+ *  @fn void WND::OnDestroy(void)
+ *  @brief Destroy window message handler.
+ */
 
 void WND::OnDestroy(void)
 {
@@ -441,8 +494,9 @@ void WND::OnInitMenuPopup(HMENU hmenu)
     (void)hmenu;
 }
 
-/*
- *  The main window of an application
+/**
+ *  @fn WNDMAIN::WNDMAIN(APP& app)
+ *  @brief Wrapper for the top-level main window of an application
  */
 
 WNDMAIN::WNDMAIN(APP& app) : WND(app)
@@ -450,34 +504,45 @@ WNDMAIN::WNDMAIN(APP& app) : WND(app)
 }
 
 /**
- *  Returns the WNDCLASSEX for registering a main top-level window. Takes a menu
- *  and icon resource ids.
+ *  @fn WNDCLASSEXW WNDMAIN::WcexRegister(const wchar_t* wsClass, unsigned rsm, unsigned rsi) const
+ *  @brief Returns the WNDCLASSEX for registering a main top-level window
+ * 
+ *  Top level windows typically ahve a menu and large and small icons.  
  */
 
-WNDCLASSEXW WNDMAIN::WcexRegister(const wchar_t* wsClass, unsigned rsm, unsigned rsiLarge, unsigned rsiSmall) const
+WNDCLASSEXW WNDMAIN::WcexRegister(const wchar_t* wsClass, unsigned rsm, unsigned rsi) const
 {
     WNDCLASSEXW wcex = WND::WcexRegister();
     wcex.lpszClassName = wsClass;
     wcex.style = CS_HREDRAW | CS_VREDRAW;
     wcex.lpszMenuName = rsm ? MAKEINTRESOURCE(rsm) : NULL;
-    wcex.hIcon = rsiLarge ? app.HiconLoad(rsiLarge) : NULL;
-    wcex.hIconSm = rsiSmall ? app.HiconLoad(rsiSmall) : NULL;
+    wcex.hIcon = rsi ? app.HiconLoad(rsi) : NULL;
+    wcex.hIconSm = rsi ? app.HiconLoad(rsi, 16) : NULL;
     return wcex;
 }
 
 /**
- *  Ensures the window class for this window is registered, and returns a string that can
- *  be sent to ::CreateWindow to creat an actual Windows HWND.
+ *  @fn LPCWSTR WNDMAIN::SRegister(void)
+ *  @brief Ensures our top-level window class is registered.
+ * 
+ *  @returns a string that can be sent to ::CreateWindow that can be used as
+ *  the Window class for creating one of these types of Windows.
  */
 
 LPCWSTR WNDMAIN::SRegister(void)
 {
     static LPCWSTR sClass = nullptr;
     if (sClass == nullptr)
-        sClass = Register(WcexRegister(L"main", rsmApp, rsiAppLarge, rsiAppSmall));
+        sClass = Register(WcexRegister(L"main", rsmApp, rsiApp));
     return sClass;
 }
 
+/**
+ *  @fn void WNDMAIN::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
+ *  @brief Creates the top-level main window
+ * 
+ *  This is typically the only window in the application.
+ */
 void WNDMAIN::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
 {
     WND::CreateWnd(sTitle, ws, pt, sz);

@@ -153,9 +153,6 @@
     <None Include="test\Win-At-Chess-New.epd">
       <Filter>Test Files</Filter>
     </None>
-    <None Include="cpp.hint">
-      <Filter>Source Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\chess.h">
@@ -188,10 +185,8 @@
     <ClInclude Include="include\psqt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="chess.natvis">
-      <Filter>Source Files</Filter>
-    </Natvis>
+    <ClInclude Include="include\bb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

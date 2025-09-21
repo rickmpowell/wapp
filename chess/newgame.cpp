@@ -262,12 +262,12 @@ DLGNEWGAME::DLGNEWGAME(WN& wnParent, GAME& game) :
 {
     btnSettings.SetFont(sFontUI, 24);
 
-    btnSwap.SetLayout(CTLL::SizeToFit);
+    btnSwap.SetLeit({ .leinterior = LEINTERIOR::ScaleInteriorToFit });
     btnSwap.SetPadding(PAD(2));
     btnSwap.SetFont(sFontUI, 12, TF::WEIGHT::Bold);
     btnSwap.SetBounds(RC(PT(0), SZ(dxyBtnSwap)));
  
-    btnrandom.SetLayout(CTLL::SizeToFit);
+    btnrandom.SetLeit({ .leinterior = LEINTERIOR::ScaleInteriorToFit });
     btnrandom.SetPadding(PAD(2));
     btnrandom.SetBounds(RC(PT(0), SZ(dxyBtnSwap)));
 
@@ -394,7 +394,7 @@ void DLGNEWGAME::Layout(void)
     len.PositionOK(btnResume);
 }
 
-SZ DLGNEWGAME::SzRequestLayout(const RC& rcWithin) const
+SZ DLGNEWGAME::SzIntrinsic(const RC& rcWithin)
 {
     return SZ(dxNewGameDlg, dyNewGameDlg);
 }
@@ -444,14 +444,14 @@ VSELPLAYER::VSELPLAYER(DLGNEWGAME& dlg, ICMD* pcmd, CPC cpc, NGCC ngcc) :
     ngcc(ngcc),
     fModified(false)
 {
-    selHuman.SetLayout(CTLL::SizeToFit);
-    selComputer.SetLayout(CTLL::SizeToFit);
-    btnAISettings.SetLayout(CTLL::SizeToFit);
-    editName.SetLayout(CTLL::SizeToFit);
-    vsellevel.SetLayout(CTLL::SizeToFit);
-    btnAISettings.SetFont(sFontUI);
+    selHuman.SetLeit({ .leinterior = LEINTERIOR::ScaleInteriorToFit });
     selHuman.SetBorder(PAD(4));
+    selComputer.SetLeit({ .leinterior = LEINTERIOR::ScaleInteriorToFit });
     selComputer.SetBorder(PAD(4));
+    btnAISettings.SetLeit({ .leinterior = LEINTERIOR::ScaleInteriorToFit });
+    btnAISettings.SetFont(sFontUI);
+    editName.SetLeit({ .leinterior = LEINTERIOR::ScaleInteriorToFit });
+    vsellevel.SetLeit({ .leinterior = LEINTERIOR::ScaleInteriorToFit });
 }
 
 const float dxyPlayerPadding = 12;
@@ -506,7 +506,7 @@ void VSELPLAYER::Layout(void)
     btnAISettings.Show(GetSelectorCur() == 1);
 }
 
-SZ VSELPLAYER::SzRequestLayout(const RC& rcWithin) const
+SZ VSELPLAYER::SzIntrinsic(const RC& rcWithin)
 {
     RC rc(pwnParent->RcClient());
     return SZ((rc.dxWidth() - 2*dxyDlgPadding - dxyBtnSwap - 2*dxyDlgGutter) / 2, 196);
@@ -594,7 +594,7 @@ void VSELLEVEL::SELLEVEL::Draw(const RC& rcUpdate)
     DrawSCenterXY(sImage, pvsel->TfGet(), RcInterior());  // use RcInterior instead of RcContent becuase string "10" may not fit
 }
 
-SZ VSELLEVEL::SELLEVEL::SzRequestLayout(const RC& rcWithin) const
+SZ VSELLEVEL::SELLEVEL::SzIntrinsic(const RC& rcWithin)
 {
     VSEL* pvsel = static_cast<VSEL*>(pwnParent);
     SZ sz(SzFromS(sImage, pvsel->TfGet()));
@@ -607,7 +607,7 @@ VSELLEVEL::VSELLEVEL(WN& wnParent, ICMD* pcmd, int rssLabel) :
 {
     for (int isel = 1; isel <= 10; isel++) {
         SEL* psel = new SELLEVEL(*this, isel);
-        psel->SetLayout(CTLL::SizeToFit);
+        psel->SetLeit({ .leinterior = LEINTERIOR::ScaleInteriorToFit });
     }
 }
 
@@ -681,7 +681,7 @@ void SELTIME::Draw(const RC& rcUpdate)
     DrawLabel(rc);
 }
 
-SZ SELTIME::SzRequestLayout(const RC& rcWithin) const
+SZ SELTIME::SzIntrinsic(const RC& rcWithin)
 {
     int csel = 5;
     RC rc(pwnParent->RcInterior());
@@ -836,7 +836,7 @@ void VSELTIME::Layout(void)
         len.PositionLeft(*psel);
 }
 
-SZ VSELTIME::SzRequestLayout(const RC& rcWithin) const
+SZ VSELTIME::SzIntrinsic(const RC& rcWithin)
 {
     return SZ(rcWithin.dxWidth(), 92);
 }
@@ -891,7 +891,7 @@ void DLGAISETTINGS::Layout(void)
     len.PositionOK(btnok);
 }
 
-SZ DLGAISETTINGS::SzRequestLayout(const RC& rcWithin) const
+SZ DLGAISETTINGS::SzIntrinsic(const RC& rcWithin)
 {
     return SZ(600, 600);
 }
@@ -918,7 +918,7 @@ void DLGGAMESETTINGS::Layout(void)
     len.PositionOK(btnok);
 }
 
-SZ DLGGAMESETTINGS::SzRequestLayout(const RC& rcWithin) const
+SZ DLGGAMESETTINGS::SzIntrinsic(const RC& rcWithin)
 {
     return SZ(720, 240);
 }
@@ -945,7 +945,7 @@ void DLGTIMESETTINGS::Layout(void)
     len.PositionOK(btnok);
 }
 
-SZ DLGTIMESETTINGS::SzRequestLayout(const RC& rcWithin) const
+SZ DLGTIMESETTINGS::SzIntrinsic(const RC& rcWithin)
 {
     return SZ(800, 320);
 }
@@ -994,7 +994,7 @@ void BTNRANDOM::Draw(const RC& rcUpdate)
     BTNS::Draw(rcUpdate);
 }
 
-SZ BTNRANDOM::SzRequestLayout(const RC& rcWithin) const
+SZ BTNRANDOM::SzIntrinsic(const RC& rcWithin)
 {
     return SZ(rcWithin.dxWidth(), rcWithin.dxWidth());
 }

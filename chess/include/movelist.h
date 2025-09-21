@@ -29,7 +29,7 @@ public:
     virtual CO CoText(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
 private:
     GAME& game;
@@ -50,7 +50,7 @@ public:
     virtual CO CoText(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
     
     bool FRunning(void) const;
     virtual void Tick(TIMER& timer) override;
@@ -58,7 +58,7 @@ public:
 
 private:
     void DrawTime(const string& s, const RC& rc, bool fDrawColons);
-    void DrawTc(int itc, TF& tf, const RC& rc, bool fActive);
+    void DrawTc(int itc, TF& tf, const RC& rc, bool fHilite, bool fActive);
 
 private:
     GAME& game;
@@ -83,7 +83,7 @@ public:
     virtual CO CoBack(void) const override;
     virtual CO CoText(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
 private:
     GAME& game;
@@ -106,7 +106,7 @@ public:
     virtual CO CoText(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
  
     virtual void Wheel(const PT& pt, int dwheel) override;
 

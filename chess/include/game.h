@@ -366,18 +366,20 @@ public:
        is just the minimum amount of stuff needed make the New Game dialog do 
        something helpful */
 
-    string sEvent = "Unrated Casual Game";
-    string sSite = "WAPP Chess Program";
     TMA tma = TMA::Random1ThenAlt;
+    optional<string> osEvent = "Unrated Casual Game";
+    optional<string> osSite = "WAPP Chess Program";
+    optional<int> oround = 1;
+    TPS tpsStart;   // start time of the game
     int cgaPlayed = 0;  // number of games played between the players
-    VTC vtc;    // time control
-
-    map<string, vector<VAREPD>> mpkeyvar; // EPD/PGN file properties
+    map<string, vector<VAREPD>> mpkeyvar; // additional EPD/PGN file properties
 
     /* clock */
     
+    VTC vtc;    // time control
+
     milliseconds mpcpcdtpClock[cpcMax];
-    milliseconds dtpMoveCur;    // banked time used in the current move
+    milliseconds dtpMoveCur = 0s;    // banked time used in the current move
     optional<TP> otpMoveStart; // time at the last time we banked the time
 
     void InitClock(void);
@@ -389,7 +391,7 @@ public:
 
 private:
     unordered_set<LGAME*> setplgame; // listeners who get notified on changes
-    TPS tpsStart;   // start time of the game
+
 };
 
 /**

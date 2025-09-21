@@ -339,7 +339,7 @@ string IWAPP::SFromErr(ERR err) const
     /* optionally insert variable into the string */
 
     if (err.fHasVar())
-        s = vformat(s, make_format_args(err.sVar()));
+        s = SVFormat(s, make_format_args(err.sVar()));
     
     return s;
 }

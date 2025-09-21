@@ -38,6 +38,7 @@
 #define cmdShowLog 24
 #define cmdProfileAI 25
 #define cmdCopyFEN 26
+#define cmdAnalyzeWithAI 27
 
 /*
  *  Accelerator tables
@@ -84,6 +85,7 @@
 #define rssErrEpdIllegalNumber 151
 #define rssErrParseMoveGeneric 152
 #define rssErrParseMoveDestination 153
+#define rssErrEpdNoBestMove 154
 
 #define rssColor 256
 #define rssWhite 256

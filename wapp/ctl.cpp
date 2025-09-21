@@ -139,11 +139,6 @@ void CTL::Validate(void)
 {
 }
 
-void CTL::SetLayout(CTLL ctll)
-{
-    this->ctll = ctll;
-}
-
 void CTL::SetPadding(const PAD& pad)
 {
     this->pad = pad;
@@ -154,9 +149,14 @@ void CTL::SetBorder(const PAD& border)
     this->border = border;
 }
 
-void CTL::SetMargin(const PAD& margin)
+void CTL::SetLeit(const LEIT& leit)
 {
-    this->margin = margin;
+    this->leit = leit;
+}
+
+LEIT CTL::Leit(void) const
+{
+    return leit;
 }
 
 RC CTL::RcContent(void) const
@@ -191,7 +191,7 @@ void STATIC::Draw(const RC& rcUpdate)
     DrawSCenterXY(sImage, tf, RcContent());
 }
 
-SZ STATIC::SzRequestLayout(const RC& rcWithin) const
+SZ STATIC::SzIntrinsic(const RC& rcWithin)
 {
     SZ szLabel(SzLabel());
     SZ szText(SzFromS(sImage, tf, rcWithin.dxWidth()));
@@ -309,7 +309,7 @@ void STATICICON::Draw(const RC& rcUpdate)
     iwapp.pdc2->DrawBitmap(pbmp.Get(), &rc);
 }
 
-SZ STATICICON::SzRequestLayout(const RC& rcWithin) const
+SZ STATICICON::SzIntrinsic(const RC& rcWithin)
 {
     return SZ(96);
 }
@@ -404,11 +404,11 @@ void BTNS::Draw(const RC& rcUpdate)
 
 void BTNS::Layout(void)
 {
-    if (ctll == CTLL::SizeToFit)
+    if (leit.leinterior == LEINTERIOR::ScaleInteriorToFit)
         SetFontHeight(RcContent().dyHeight());
 }
 
-SZ BTNS::SzRequestLayout(const RC& rcWithin) const
+SZ BTNS::SzIntrinsic(const RC& rcWithin)
 {
     SZ sz(SzFromS(sImage, tf));
     if (sLabel.size() > 0) {
@@ -427,7 +427,7 @@ SZ BTNS::SzRequestLayout(const RC& rcWithin) const
 BTNCLOSE::BTNCLOSE(WN& wnParent, ICMD* pcmd, bool fVisible) :
     BTN(wnParent, pcmd, "", fVisible)
 {
-    SetLayout(CTLL::SizeToFit);
+    SetLeit({ .leinterior = LEINTERIOR::ScaleInteriorToFit } );
     SetFont(sFontUI, 12, TF::WEIGHT::Bold);
 }
 
@@ -447,11 +447,11 @@ void BTNCLOSE::Draw(const RC& rcUpdate)
 
 void BTNCLOSE::Layout(void)
 {
-    if (ctll == CTLL::SizeToFit)
+    if (leit.leinterior == LEINTERIOR::ScaleInteriorToFit)
         SetFontHeight(RcContent().dyHeight() * 0.45f);
 }
 
-SZ BTNCLOSE::SzRequestLayout(const RC& rc) const
+SZ BTNCLOSE::SzIntrinsic(const RC& rc)
 {
     return SzFromS(SFromU8(u8"\u2716"), tf) + SZ(2.8f);
 }
@@ -465,13 +465,12 @@ SZ BTNCLOSE::SzRequestLayout(const RC& rc) const
 BTNNEXT::BTNNEXT(WN& wnParent, ICMD* pcmd, bool fVisible) :
     BTN(wnParent, pcmd, "", fVisible)
 {
-    SetLayout(CTLL::SizeToFit);
     SetFont(sFontUI);
 }
 
 CO BTNNEXT::CoText(void) const
 {
-    return cdsCur == CDS::Hover || cdsCur == CDS::Execute ? coRed : coWhite;
+    return cdsCur == CDS::Hover || cdsCur == CDS::Execute ? coRed : pwnParent->CoText();
 }
 
 void BTNNEXT::Draw(const RC& rcUpdate)
@@ -488,15 +487,15 @@ void BTNNEXT::Erase(const RC& rcUpdate, DRO dro)
 
 void BTNNEXT::Layout(void)
 {
-    if (ctll == CTLL::SizeToFit)
+    if (leit.leinterior == LEINTERIOR::ScaleInteriorToFit)
         SetFontHeight(RcContent().dxWidth() * 1.25f);
 }
 
-SZ BTNNEXT::SzRequestLayout(const RC& rcWithin) const
+SZ BTNNEXT::SzIntrinsic(const RC& rcWithin)
 {
     (void)rcWithin;
 
-    return SZ(SzFromS(SFromU8(u8"\u23f5"), tf).width, rcWithin.dyHeight());
+    return SZ(SzFromS(SFromU8(u8"\u23f5"), tf).width + 2, rcWithin.dyHeight());
 }
 
 BTNPREV::BTNPREV(WN& wnParent, ICMD* pcmd, bool fVisible) :
@@ -540,10 +539,8 @@ void TITLEBAR::Draw(const RC& rcUpdate)
     DrawS(sTitle, tf, rc);
 }
 
-SZ TITLEBAR::SzRequestLayout(const RC& rcWithin) const
+SZ TITLEBAR::SzIntrinsic(const RC& rcWithin)
 {
-    (void)rcWithin;
-
     SZ sz = SzFromS(sTitle, tf);
     return SZ(rcWithin.dxWidth(), sz.height + 2*4);
 }
@@ -553,7 +550,8 @@ SZ TITLEBAR::SzRequestLayout(const RC& rcWithin) const
  */
 
 TOOLBAR::TOOLBAR(WN& wnParent) :
-    WN(wnParent)
+    WN(wnParent),
+    LE(static_cast<WN&>(*this))
 {
 }
 
@@ -573,9 +571,36 @@ void TOOLBAR::Draw(const RC& rcUpdate)
     Line(rc.ptBottomLeft()-PT(0,1), rc.ptBottomRight()-PT(0,1), CoText());
 }
 
-SZ TOOLBAR::SzRequestLayout(const RC& rc) const
+SZ TOOLBAR::SzIntrinsic(const RC& rc)
 {
     return SZ(rc.dxWidth(), 40.0f);
+}
+
+void TOOLBAR::Layout(void)
+{
+    Measure();
+    Position();
+    Finish();
+}
+
+void TOOLBAR::Measure(void) noexcept
+{
+    RC rcWithin = RcInterior();
+    float dxMargin = rcWithin.dyHeight() / 4;
+    margin = PAD(dxMargin, 1, dxMargin, 2);
+    gutter = SZ(2*dxMargin, 0);
+    rcWithin.Unpad(margin);
+
+    for (auto ppwnChild = vpwnChildren.begin(); ppwnChild != vpwnChildren.end(); ppwnChild++) {
+        SZ szChild = (*ppwnChild)->SzIntrinsic(RcInterior());
+        /* scale up to fit vertically and save for locate phase */
+        LEIT leit = (*ppwnChild)->Leit();
+        if (leit.lestretch == LESTRETCH::KeepWidth)
+            szChild.height = rcWithin.dyHeight();
+        else if (leit.lestretch == LESTRETCH::KeepAspect)
+            szChild *= rcWithin.dyHeight() / szChild.height;
+        mppwnrc[*ppwnChild] = RC(PT(0), szChild);
+    }
 }
 
 /*
@@ -607,7 +632,7 @@ CO SEL::CoBorder(void) const
 
 void SEL::Layout(void)
 {
-    if (ctll == CTLL::SizeToFit)
+    if (leit.leinterior == LEINTERIOR::ScaleInteriorToFit)
         SetFontHeight(RcContent().dyHeight());
 }
 
@@ -629,14 +654,14 @@ void SELS::Draw(const RC& rcUpdate)
     DrawSCenterXY(sImage, tf, RcContent());
 }
 
-SZ SELS::SzRequestLayout(const RC& rcWithin) const
+SZ SELS::SzIntrinsic(const RC& rcWithin)
 {
     return SzFromS(sImage, tf);
 }
 
 void SELS::Layout(void)
 {
-    if (ctll == CTLL::SizeToFit)
+    if (leit.leinterior == LEINTERIOR::ScaleInteriorToFit)
         SetFontHeight(RcContent().dyHeight());
 }
 
@@ -741,7 +766,7 @@ CHK::CHK(WN& wnParent, int rssLabel, bool fVisible) :
 {
 }
 
-SZ CHK::SzRequestLayout(const RC& rcWithin) const
+SZ CHK::SzIntrinsic(const RC& rcWithin)
 {
     SZ sz(SzFromS(SFromU8(u8"\u2713"), tf));
     SZ szLabel(SzLabel());
@@ -751,7 +776,7 @@ SZ CHK::SzRequestLayout(const RC& rcWithin) const
 
 void CHK::Layout(void)
 {
-    if (ctll == CTLL::SizeToFit)
+    if (leit.leinterior == LEINTERIOR::ScaleInteriorToFit)
         SetFontHeight(RcContent().dyHeight());
 }
 
@@ -825,12 +850,19 @@ int CMDCYCLEPREV::Execute(void)
     return 1;
 }
 
-CYCLE::CYCLE(WN& wnParent, ICMD* pcmd) :
+CYCLE::CYCLE(WN& wnParent, ICMD* pcmd, int iInit) :
     CTL(wnParent, pcmd),
+    LE(static_cast<WN&>(*this)),
     btnnext(*this, new CMDCYCLENEXT(*this)),
     btnprev(*this, new CMDCYCLEPREV(*this)),
-    i(0)
+    i(iInit)
 {
+    btnnext.SetLeit({ .lealignh = LEALIGNH::Right,
+                      .lealignv = LEALIGNV::Center,
+                      .leinterior = LEINTERIOR::ScaleInteriorToFit });
+    btnprev.SetLeit({ .lealignh = LEALIGNH::Left,
+                      .lealignv = LEALIGNV::Center,
+                      .leinterior = LEINTERIOR::ScaleInteriorToFit });
 }
 
 void CYCLE::Draw(const RC& rcUpdate)
@@ -840,25 +872,47 @@ void CYCLE::Draw(const RC& rcUpdate)
 
 void CYCLE::Layout(void)
 {
-    LEN len(*this, PAD(0), PAD(0));
-    len.PositionLeft(btnprev);
-    len.PositionRight(btnnext);
+    Measure();
+    Position();
+    Finish();
 }
 
-SZ CYCLE::SzRequestLayout(const RC& rcWithin) const
+SZ CYCLE::SzIntrinsic(const RC& rcWithin)
 {
-    return SzFromS("-999", tf) + SZ(2*btnprev.SzRequestLayout(RcContent()).width + 2*8, 0);
+    Measure();
+    SZ sz(SzInterior());
+    for (auto [pwn, rc] : mppwnrc) {
+        sz.width += rc.dxWidth();
+        sz.height = max(sz.height, rc.dyHeight());
+    }
+    return sz;
+}
+
+SZ CYCLE::SzInterior(void)
+{
+    return SzFromS("-99", tf);
+}
+
+void CYCLE::Measure(void) noexcept
+{
+    RC rc(RcInterior());
+    mppwnrc[&btnprev] = RC(PT(0), btnprev.SzIntrinsic(rc));
+    mppwnrc[&btnnext] = RC(PT(0), btnnext.SzIntrinsic(rc));
 }
 
 void CYCLE::Next(void)
 {
     ++i;
+    if (pcmd)
+        iwapp.FExecuteCmd(*pcmd);
     Redraw();
 }
 
 void CYCLE::Prev(void)
 {
     --i;
+    if (pcmd)
+        iwapp.FExecuteCmd(*pcmd);
     Redraw();
 }
 
@@ -871,6 +925,36 @@ void CYCLE::SetValue(int val)
 int CYCLE::ValueGet(void) const
 {
     return i;
+}
+
+/*
+ *  CYCLEINT
+ */
+
+CYCLEINT::CYCLEINT(WN& wnParent, ICMD* pcmd, int i, int iFirst, int iLast) :
+    CYCLE(wnParent, pcmd, i),
+    iFirst(iFirst), 
+    iLast(iLast)
+{
+}
+
+SZ CYCLEINT::SzInterior(void)
+{
+    SZ szFirst(SzFromS(to_string(iFirst), tf));
+    SZ szLast(SzFromS(to_string(iLast), tf));
+    return SZ(max(szFirst.width, szLast.width), max(szFirst.height, szLast.height));
+}
+
+void CYCLEINT::Next(void)
+{
+    if (i < iLast)
+        CYCLE::Next();
+}
+
+void CYCLEINT::Prev(void)
+{
+    if (i > iFirst)
+        CYCLE::Prev();
 }
 
 /*
@@ -921,11 +1005,11 @@ void EDIT::Draw(const RC& rcUpdate)
 
 void EDIT::Layout(void)
 {
-    if (ctll == CTLL::SizeToFit)
+    if (leit.leinterior  == LEINTERIOR::ScaleInteriorToFit)
         SetFontHeight(RcContent().dyHeight() * 0.67f);
 }
 
-SZ EDIT::SzRequestLayout(const RC& rcWithin) const
+SZ EDIT::SzIntrinsic(const RC& rcWithin)
 {
     return SzFromS(sText, tf);
 }

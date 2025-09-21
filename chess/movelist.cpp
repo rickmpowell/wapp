@@ -53,7 +53,7 @@ void WNML::Layout(void)
     dxMoveNum = SzFromS("999", tf).width;
 }
 
-SZ WNML::SzRequestLayout(const RC& rcWithin) const
+SZ WNML::SzIntrinsic(const RC& rcWithin)
 {
     return SZ(200, rcWithin.dyHeight());
 }
@@ -165,7 +165,7 @@ void WNPLAYER::Layout(void)
 {
 }
 
-SZ WNPLAYER::SzRequestLayout(const RC& rcWithin) const
+SZ WNPLAYER::SzIntrinsic(const RC& rcWithin)
 {
     return SZ(rcWithin.dxWidth(), 30);
 }
@@ -218,11 +218,11 @@ void WNCLOCK::Draw(const RC& rcUpdate)
     int tenths = (dtp.count() / 100) % 10;
     string sTime;
     if (dtp >= 1h)
-        sTime = format("{}:{:02}:{:02}", hr.count(), min.count(), sec.count());
+        sTime = SFormat("{}:{:02}:{:02}", hr.count(), min.count(), sec.count());
     else if (dtp >= 1min)
-        sTime = format("{}:{:02}", min.count(), sec.count());
+        sTime = SFormat("{}:{:02}", min.count(), sec.count());
     else
-        sTime = format("{}:{:02}.{:01}", min.count(), sec.count(), tenths);
+        sTime = SFormat("{}:{:02}.{:01}", min.count(), sec.count(), tenths);
     DrawTime(sTime, rcClock, !FRunning() || FInRange(tenths, 0, 4));
     
     /* show the time controls */
@@ -230,22 +230,35 @@ void WNCLOCK::Draw(const RC& rcUpdate)
     int ctc = (int)game.vtc.mpcpcvtc[cpc].size();
     float dx = rc.dxWidth() / ctc;
     rc.right = rc.left + dx;
-    TF tfTc(*this, string(sFontClock), 12);
+    TF tfTc(*this, string(sFontClock), 11, TF::WEIGHT::Normal);
     if (ctc == 1)
         rc.left = rc.right - rc.dxWidth() / 3;
     int itcSel = game.vtc.ItcFromNmv(game.NmvCur(), cpc);
-    DrawTc(0, tfTc, rc, itcSel == 0);
+    DrawTc(0, tfTc, rc, ctc > 1, itcSel == 0);
     for (int itc = 1; itc < ctc; itc++) {
         rc.Offset(dx, 0);
-        DrawTc(itc, tfTc, rc, itcSel == itc);
+        DrawTc(itc, tfTc, rc, ctc > 1, itcSel == itc);
     }
 }
 
-void WNCLOCK::DrawTc(int itc, TF& tfTc, const RC& rc, bool fActive)
+string SFromTc(const TC& tc, bool fShort)
+{
+    if (!fShort)
+        return to_string(tc);
+
+    string s;
+    if (tc.dnmv < nmvInfinite)
+        s = SFormat("{} mv ", tc.dnmv);
+    if (tc.dtpInc > 0s)
+        s += SFormat("+{}s", duration_cast<seconds>(tc.dtpInc).count());
+    return s;
+}
+
+void WNCLOCK::DrawTc(int itc, TF& tfTc, const RC& rc, bool fMulti, bool fActive)
 {
     TC tc = game.vtc.mpcpcvtc[cpc][itc];
-    string s = to_string(tc);
-    DrawSCenterXY(s, tfTc, rc, fActive ? coWhite : CoText());
+    string s = SFromTc(tc, fActive);
+    DrawSCenterXY(s, tfTc, rc, (fMulti && fActive) ? coWhite : CoText());
 }
 
 void WNCLOCK::DrawTime(const string& s, const RC& rcClock, bool fDrawColons)
@@ -284,7 +297,7 @@ void WNCLOCK::Layout(void)
     dyClock = SzFromS("0", tf).height;
 }
 
-SZ WNCLOCK::SzRequestLayout(const RC& rcWithin) const
+SZ WNCLOCK::SzIntrinsic(const RC& rcWithin)
 {
     return SZ(rcWithin.dxWidth(), 64);
 }
@@ -369,7 +382,7 @@ void WNGS::Draw(const RC& rcUpdate)
     }
 }
 
-SZ WNGS::SzRequestLayout(const RC& rcWithin) const
+SZ WNGS::SzIntrinsic(const RC& rcWithin)
 {
     switch (game.gs) {
     case GS::GameOver:
@@ -379,5 +392,5 @@ SZ WNGS::SzRequestLayout(const RC& rcWithin) const
     case GS::NotStarted:
         break;
     }
-    return SZ(rcWithin.dxWidth(), 36);
+    return SZ(rcWithin.dxWidth(), 40);
 }

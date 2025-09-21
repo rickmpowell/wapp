@@ -35,6 +35,15 @@ BD::BD(const string& fen)
     InitFromFen(fen);
 }
 
+/**
+ *  @fn void BD::Empty(void) noexcept
+ *  @brief Empties the board
+ * 
+ *  Completely removes everything from the board, including the move
+ *  history. Note that state like castling and en passant is not 
+ *  defined on the empty board.
+ */
+
 void BD::Empty(void)  noexcept
 {
     /* fill guard squares with invalid pieces */
@@ -62,10 +71,14 @@ void BD::Empty(void)  noexcept
     cmvNoCaptureOrPawn = 0;
 }
 
-/*
- *  BD::MakeMv
+/**
+ *  @fn         void BD::MakeMv(const MV& mv)
+ *  @brief      Makes a move on the board
  * 
- *  Makes a move on the board. 
+ *  @details    The board should be in a completely valid and consistent state 
+ *              on exit. Maintains castle state, en passant state, the move 
+ *              history, and the Zobrist hash. The move history will includes 
+ *              everything necessary to undo a move.
  */
 
 void BD::MakeMv(const MV& mv) noexcept
@@ -173,11 +186,36 @@ PlaceMovePiece:
     Validate();
 }
 
-/*
- *  BD::Undo 
+void BD::MakeMvNull(void) noexcept
+{
+    vmvuGame.emplace_back(mvNil, *this);
+    genha.ToggleEnPassant(ha, sqEnPassant);
+    sqEnPassant = sqNil;
+    genha.ToggleToMove(ha);
+    cpcToMove = ~cpcToMove;
+    Validate();
+}
+
+void BD::UndoMvNull(void) noexcept
+{
+    MVU mvu(vmvuGame.back());
+    assert(mvu.fIsNil());
+    vmvuGame.pop_back();
+
+    cpcToMove = ~cpcToMove;
+    csCur = mvu.csSav;
+    sqEnPassant = mvu.sqEnPassantSav;
+    cmvNoCaptureOrPawn = mvu.cmvNoCaptureOrPawnSav;
+    ha = mvu.haSav;
+}
+
+/**
+ *  @fn         void BD::Undo(void) noexcept
+ *  @brief      Undoes the last move.
  * 
- *  UNdoes the last move. TODO: use the move history instead of requiring
- *  the move be past in.
+ *  @details    Uses the move history to restore the board to the state before 
+ *              the last move was made. Includes restoring castle state, en 
+ *              passant state, the move list, and the Zobrist hash.
  */
 
 void BD::UndoMv(void) noexcept
@@ -239,6 +277,13 @@ UndoCastle:
     Validate();
 }
 
+/**
+ *  @fn bool BD::FMakeMvLegal(const MV& mv) noexcept
+ *  @brief Checks that a move is legal and make it if it is
+ * 
+ *  If the move is not legal, the board will be restored to the original
+ *  state. 
+ */
 bool BD::FMakeMvLegal(const MV& mv) noexcept
 {
     MakeMv(mv);
@@ -269,8 +314,6 @@ int BD::PhaseCur(void) const noexcept
 
 bool BD::FGameDrawn(int cbd) const noexcept
 {
-    if (vmvuGame.size() >= 256)  // our app can't handle games more than 256 moves
-        return true;
     if (cmvNoCaptureOrPawn >= 2*50)   // 50 move rule
         return true;
     if (FDrawRepeat(cbd)) // 3-fold repetition rule
@@ -296,11 +339,12 @@ bool BD::FDrawRepeat(int cbdDraw) const noexcept
     return false;
 }
 
-/*
- *   BD::FDrawDead
- *
- *   Returns true if we're in a board state where no one can force checkmate 
- *   on the other player.
+/**
+ *  @fn bool BD::FDrawDead(void) const noexcept
+ *  @brief If we're in a dead draw position
+ * 
+ *  Returns true if we're in a board state where no one can force checkmate 
+ *  on the other player.
  */
 
 bool BD::FDrawDead(void) const noexcept
@@ -414,10 +458,9 @@ HA GENHA::ahaCastle[16];
 HA GENHA::ahaEnPassant[8];
 HA GENHA::haToMove;
 
-/*
- *  GENHA::GENHA
- *
- *  Generates the random bit arrays used to compute the hash.
+/**
+ *  @fn GENHA::GENHA(void)
+ *  @brief Generates the random bit arrays used to compute the Zobrist hash.
  */
 
 GENHA::GENHA(void)
@@ -455,10 +498,9 @@ GENHA::GENHA(void)
     haToMove = HaRandom();
 }
 
-/*
- *  GENHA::HaFromBd
- *
- *	Creates the initial hash value for a new board position.
+/**
+ *  @fn HA GENHA::HaFromBd(const BD&  bd) const
+ *  @brief Creates the initial hash value for a new board position.
  */
 
 HA GENHA::HaFromBd(const BD& bd) const
@@ -495,6 +537,18 @@ HA GENHA::HaFromBd(const BD& bd) const
     return ha;
 }
 
+/**
+ *  @fn HA GENHA::HaPolyglotFromBd(const BD&  bd) const
+ *  @brief Creates the Polyglot book format Zobrist hash value
+ * 
+ *  The Polyglot format has extra restriction on the en passant square
+ *  that is expensive to compute for our particular board representation, so
+ *  it is not compatible with the particular Zobrist hash we use during
+ *  normal game play. This function should only be used when actually
+ *  looking into Polyglot books, and it must be used to look into Polyglot
+ *  books.
+ */
+
 HA GENHA::HaPolyglotFromBd(const BD& bd) const
 {
     HA ha = HaFromBd(bd);
@@ -502,6 +556,11 @@ HA GENHA::HaPolyglotFromBd(const BD& bd) const
         ha ^= ahaEnPassant[fi(bd.sqEnPassant)];
     return ha;
 }
+
+/**
+ *  @fn bool GENHA::FEnPassantPolyglot(const BD& bd) const
+ *  @brief Checks if the en passant square is valid for Polyglot Zobrist hash
+ */
 
 bool GENHA::FEnPassantPolyglot(const BD& bd) const
 {
@@ -511,4 +570,66 @@ bool GENHA::FEnPassantPolyglot(const BD& bd) const
     if (fi(sq) != fiA && bd[sq - 1].cp() == Cp(bd.cpcToMove, cptPawn))
         return true;
     return false;
+}
+
+/**
+ *  @fn         BB BD::BbPawns(CPC cpc) const
+ *  @brief      Returns a bitboard of the pawn structure
+ * 
+ *  @details    Returns the bitboard representation of the pawn structure for
+ *              given side.
+ */
+
+BB BD::BbPawns(CPC cpc) const noexcept
+{
+    BB bb;
+    for (int icp = 0; icp < 8; icp++) {
+        int icpbd = aicpbd[cpc][icp + 8];
+        if (icpbd == -1 || acpbd[icpbd].cpt != cptPawn)
+            continue;
+        bb |= SqFromIcpbd(icpbd);
+    }
+    return bb;
+}
+
+MPBB mpbb;
+
+/**
+ */
+
+MPBB::MPBB(void)
+{
+    for (int ra = 0; ra < raMax; ra++)
+        for (int fi = 0; fi < fiMax; fi++) {
+            SQ sq = Sq(fi, ra);
+
+            /* slides */
+            for (int dra = -1; dra <= 1; dra++)
+                for (int dfi = -1; dfi <= 1; dfi++) {
+                    if (dra == 0 && dfi == 0)
+                        continue;
+                    DIR dir = DirFromDraDfi(dra, dfi);
+                    for (int raMove = ra + dra, fiMove = fi + dfi;
+                         ((raMove | fiMove) & ~7) == 0; raMove += dra, fiMove += dfi)
+                        mpsqdirbbSlide[sq][(int)dir] |= BB(Sq(fiMove, raMove));
+                }
+
+            /* knights */
+            BB bb(sq);
+            BB bb1 = BbWest1(bb) | BbEast1(bb);
+            BB bb2 = BbWest2(bb) | BbEast2(bb);
+            mpsqbbKnight[sq] = BbNorth2(bb1) | BbSouth2(bb1) | BbNorth1(bb2) | BbSouth1(bb2);
+
+            /* kings */
+            bb1 = BbEast1(bb) | BbWest1(bb);
+            mpsqbbKing[sq] = bb1 | BbNorth1(bb1 | bb) | BbSouth1(bb1 | bb);
+
+            /* passed pawn alleys */
+            if (FInRange(ra, 1, raMax - 2)) {
+                BB bbNorth = mpsqdirbbSlide[sq][dirNorth];
+                BB bbSouth = mpsqdirbbSlide[sq][dirSouth];
+                mpsqbbPassedPawnAlley[sq - 8][cpcWhite] = bbNorth | BbEast1(bbNorth) | BbWest1(bbNorth);
+                mpsqbbPassedPawnAlley[sq - 8][cpcBlack] = bbSouth | BbEast1(bbSouth) | BbWest1(bbSouth);
+            }
+        }
 }

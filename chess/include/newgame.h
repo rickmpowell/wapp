@@ -71,7 +71,7 @@ public:
         virtual CO CoText(void) const override;
         virtual CO CoBack(void) const override;
         virtual void Draw(const RC& rcUpdate) override;
-        virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+        virtual SZ SzIntrinsic(const RC& rcWithin) override;
     };
 
     friend class SELLEVEL;
@@ -114,7 +114,7 @@ public:
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
     virtual void Validate(void);
     DATAPLAYER DataGet(void) const;
@@ -152,7 +152,7 @@ public:
     virtual void Draw(const RC& rcUpdate) override;
     virtual void DrawLabel(const RC& rcLabel) override;
     virtual SZ SzLabel(void) const override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
     virtual bool FChoose(const VTC& vtc);
     virtual VTC DataGet(void) const;
 
@@ -216,7 +216,7 @@ public:
     VSELTIME(DLGNEWGAME& dlg, ICMD* pcmd);
 
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
     
     virtual void Validate(void) override;
     virtual void SetData(const VTC& vtc);
@@ -246,7 +246,7 @@ public:
     virtual CO CoBack(void) const override;
     virtual void Erase(const RC& rcUpdate, DRO dro) override;
     virtual void Draw(const RC& rcUpdate) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 };
 
 /**
@@ -262,7 +262,7 @@ public:
     void Extract(GAME& game);
 
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
     virtual void Validate(void) override;
 
@@ -299,7 +299,7 @@ class DLGAISETTINGS : public DLG
 public:
     DLGAISETTINGS(WN& wn);
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
 private:
     TITLEDLG title;
@@ -317,7 +317,7 @@ class DLGGAMESETTINGS : public DLG
 public:
     DLGGAMESETTINGS(WN& wn);
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
 private:
     TITLEDLG title;
@@ -335,7 +335,7 @@ class DLGTIMESETTINGS : public DLG
 public:
     DLGTIMESETTINGS(WN& wn);
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
 private:
     TITLEDLG title;

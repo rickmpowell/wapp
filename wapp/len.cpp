@@ -1,8 +1,13 @@
 
-/*
- *  len.cpp
+/**
+ *  @file       len.cpp
+ *  @brief      Simple layout engine    
  * 
- *  Implementation of our simple layout engine
+ *  @details    A simple layout engine for laying out controls in a dialog-like
+ *              container.
+ * 
+ *  @#author     Richard Powell
+ *  @copyright  Copyright (c) 2024 by Richard Powell
  */
 
 #include "wapp.h"
@@ -29,16 +34,15 @@ LENDLG::LENDLG(DLG& dlg) :
 {
 }
 
-/*
- *  LEN::Position
- * 
- *  Lays out a control full-width within the layout rectangle
+/**
+ *  @fn void LEN::Position(WN& wn)
+ *  @brief Lays out a control full-width within the layout rectangle
  */
 
 void LEN::Position(WN& wn) 
 {
     RC rc(rcWithin);
-    rc.SetSz(wn.SzRequestLayout(rcWithin));
+    rc.SetSz(wn.SzIntrinsic(rcWithin));
     wn.SetBounds(rc);
     switch (cen) {
     case CEN::None:
@@ -58,17 +62,16 @@ void LEN::Position(WN& wn)
 void LEN::PositionBottom(CTL& ctl)
 {
     RC rc(rcWithin);
-    SZ sz(ctl.SzRequestLayout(rcWithin));
+    SZ sz(ctl.SzIntrinsic(rcWithin));
     rc.top = rc.bottom - sz.height;
     rc.left = rc.right - sz.width;
     ctl.SetBounds(rc);
     rcWithin.bottom = rc.top - marginDef.top;
 }
 
-/*
- *  LENG::StartFlow
- *
- *  Start laying out a flowing left-to-right sequence of windows
+/**
+ *  @fn void LENG::StartFlow(void)  
+ *  @brief Start laying out a flowing left-to-right sequence of windows
  */
 
 void LEN::StartFlow(void) 
@@ -82,8 +85,8 @@ void LEN::EndFlow(void)
     rcWithin.top = rcFlow.bottom + marginDef.bottom;
 }
 
-/*
- *  LEN::PositionLeft
+/**
+ *  @fn void LEN::PositionLeft(WN& wn, const SZ& sz)
  * 
  *  Positions a control in the flow area, wrapping to the next line if necessary.
  *  The control is positioned at the left edge of the flow area, and will wrap
@@ -106,7 +109,7 @@ void LEN::PositionLeft(WN& wn, const SZ& sz)
     if (rc.right > rcFlow.right) {
         rcFlow = RC(rcWithin.left, rcFlow.bottom, rcWithin.right, rcFlow.bottom);
         rc = rcFlow;
-        rc.SetSz(wn.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
+        rc.SetSz(wn.SzIntrinsic(rc.RcSetBottom(rcWithin.bottom)));
     }
 
     /* position the control */
@@ -125,13 +128,13 @@ void LEN::PositionLeft(WN& wn)
 
     /* layout the control within the flow area */
     RC rc(rcFlow);
-    rc.SetSz(wn.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
+    rc.SetSz(wn.SzIntrinsic(rc.RcSetBottom(rcWithin.bottom)));
 
     /* if we're beyond the right edge now, wrap ande re-layout with extra width */
     if (rc.right > rcFlow.right) {
         rcFlow = RC(rcWithin.left, rcFlow.bottom, rcWithin.right, rcFlow.bottom);
         rc = rcFlow;
-        rc.SetSz(wn.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
+        rc.SetSz(wn.SzIntrinsic(rc.RcSetBottom(rcWithin.bottom)));
     }
 
     /* position the control */
@@ -150,14 +153,14 @@ void LEN::PositionRight(WN& wn)
 
     /* layout the control within the flow area */
     RC rc(rcFlow);
-    rc.SetSz(wn.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
+    rc.SetSz(wn.SzIntrinsic(rc.RcSetBottom(rcWithin.bottom)));
     rc -= PT(rc.right - rcFlow.right, 0);
 
     /* if we're beyond the right edge now, wrap ande re-layout with extra width */
     if (rc.left < rcFlow.left) {
         rcFlow = RC(rcWithin.left, rcFlow.bottom, rcWithin.right, rcFlow.bottom);
         rc = rcFlow;
-        rc.SetSz(wn.SzRequestLayout(rc.RcSetBottom(rcWithin.bottom)));
+        rc.SetSz(wn.SzIntrinsic(rc.RcSetBottom(rcWithin.bottom)));
         rc -= PT(rc.right - rcFlow.right, 0);
     }
 
@@ -210,10 +213,9 @@ void LEN::EndCenter(void)
     vpwn.clear();
 }
 
-/* 
- *  LEN::PositionOK
- * 
- *  Positions an OK button in the bottom right corner.
+/** 
+ *  @fn void LEN::PositionOK(CTL& ctl)
+ *  @brief Positions an OK button in the bottom right corner.
  * 
  *  TODO: should this use flow and back up from the right?
  */
@@ -222,7 +224,7 @@ void LEN::PositionOK(CTL& ctl)
 {
     ctl.SetFont(sFontUI, 32.0f);
     RC rc(rcWithin.RcTopLeft(rcWithin.ptBottomRight() -
-                                ctl.SzRequestLayout(rcWithin) -
+                                ctl.SzIntrinsic(rcWithin) -
                                 SZ(2*32.0f, 0.0f)));
     ctl.SetBounds(rc);
     rcWithin.right = rc.left - marginDef.top;
@@ -246,4 +248,65 @@ RC LEN::RcLayout(void) const
 RC LEN::RcFlow(void) const 
 {
     return rcFlow;
+}
+
+LE::LE(WN& wn) noexcept : 
+    wnContainer(wn)
+{
+}
+
+/**
+ */
+
+void LE::Position(void) noexcept
+{
+    RC rcWithin = wnContainer.RcInterior();
+    rcWithin.Unpad(margin);
+
+    for (auto ppwnChild = wnContainer.vpwnChildren.begin(); ppwnChild != wnContainer.vpwnChildren.end(); ppwnChild++) {
+        RC rcNew = rcWithin;
+        rcNew.SetWidth(mppwnrc[*ppwnChild].dxWidth());
+        LEIT leit = (*ppwnChild)->Leit();
+        if (leit.lealignh == LEALIGNH::Left) {
+            rcWithin.left = rcNew.right + gutter.width;
+        }
+        else if (leit.lealignh == LEALIGNH::Right) {
+            rcNew += SZ(rcWithin.right - rcNew.right, 0);
+            rcWithin.right = rcNew.left - gutter.width;
+        }
+        AlignV(rcNew, rcWithin, leit.lealignv);
+        mppwnrc[*ppwnChild] = rcNew;
+    }
+}
+
+/**
+ *  @fn void LE::Finish(void) noexcept
+ *  @brief Finalize the layout by setting the bounds of all positioned windows
+ */
+
+void LE::Finish(void) noexcept
+{
+    for (auto& [pwn, rc] : mppwnrc)
+        pwn->SetBounds(rc);
+}
+
+void LE::AlignV(RC& rcItem, const RC& rcWithin, LEALIGNV lealignv) noexcept
+{
+    float dyItem = rcItem.dyHeight();
+    switch (lealignv) {
+    case LEALIGNV::Top:
+        rcItem.top = rcWithin.top;
+        rcItem.bottom = rcItem.top + dyItem;
+        break;
+    case LEALIGNV::Center:
+        rcItem.top = (rcItem.top + rcItem.bottom - dyItem) / 2;
+        rcItem.bottom = rcItem.top + dyItem;
+        break;
+    case LEALIGNV::Bottom:
+        rcItem.bottom = rcWithin.bottom;
+        rcItem.top = rcItem.bottom - dyItem;
+        break;
+    default:
+        break;
+    }
 }

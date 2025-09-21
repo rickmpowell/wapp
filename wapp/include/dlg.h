@@ -262,7 +262,7 @@ public:
     virtual ~TITLEDLG() = default;
 
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
 private:
     BTNCLOSE btnclose;
@@ -294,7 +294,7 @@ class DLGABOUT : public DLG
 public:
     DLGABOUT(IWAPP& wapp);
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
 private:
     TITLEDLG title;

@@ -80,6 +80,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);wapp.lib</AdditionalDependencies>
+      <GenerateMapFile>true</GenerateMapFile>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>../wapp/include</AdditionalIncludeDirectories>

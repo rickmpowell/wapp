@@ -22,21 +22,6 @@ class VSEL;
 class CYCLE;
 
 /**
- *  @enum CTLL
- *  @brief CTL layout hints
- * 
- *  These are barely sufficient for reel layout, and they should be replaced
- *  by a more sophisticated system.
- */
-
-enum class CTLL
-{
-    None = 0,
-    SizeToContent,
-    SizeToFit
-};
-
-/**
  *  @class CTL
  *  @brief Base class for all controls
  *
@@ -58,8 +43,9 @@ public:
     virtual void SetFontHeight(float dyHeight);
     virtual TF& TfGet(void);
 
-    virtual void SetLayout(CTLL ctll);
     virtual RC RcContent(void) const;
+    virtual void SetLeit(const LEIT& leit);
+    virtual LEIT Leit(void) const override;
     
     virtual void SetPadding(const PAD& pad);
     void SetPadding(float dxyPadding) { SetPadding(PAD(dxyPadding)); }
@@ -67,7 +53,6 @@ public:
     void SetPadding(float dxLeft, float dyTop, float dxRight, float dyBottom) { SetPadding(PAD(dxLeft, dyTop, dxRight, dyBottom)); }
     
     virtual void SetBorder(const PAD& border);
-    virtual void SetMargin(const PAD& margin);
 
     virtual CO CoBorder(void) const;
     virtual void Erase(const RC& rcUpdate, DRO dro) override;
@@ -100,8 +85,7 @@ protected:
     TF tf;
     PAD pad;
     PAD border;
-    PAD margin;
-    CTLL ctll = CTLL::None;
+    LEIT leit;
     CDS cdsCur = CDS::None;
 };
 
@@ -122,7 +106,7 @@ public:
     virtual CO CoText(void) const override;
 
     virtual void Draw(const RC& rcUpdate) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
     virtual void Enter(const PT& pt) override;
     virtual void Leave(const PT& pt) override;
@@ -177,7 +161,7 @@ public:
     virtual ~STATICICON();
 
     virtual void Draw(const RC& rcUpdate) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
 private:
     HICON hicon = NULL;
@@ -216,8 +200,9 @@ public:
     virtual ~BTNS() = default;
 
     virtual void Draw(const RC& rcUpdate) override;
+
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
 protected:
     string sImage;
@@ -236,8 +221,9 @@ public:
 
     virtual void Erase(const RC& rcUpdate, DRO dro) override;
     virtual void Draw(const RC& rcUpdate) override;
+
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 };
 
 /**
@@ -254,8 +240,9 @@ public:
     virtual CO CoText(void) const override;
     virtual void Erase(const RC& rcUpdate, DRO dro) override;
     virtual void Draw(const RC& rcUpdate) override;
+
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 };
 
 /**
@@ -286,10 +273,10 @@ public:
     CHK(WN& wnParent, int rssLabel = -1, bool fVisible = true);
     virtual ~CHK() = default;
 
-    virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
-
     virtual void Draw(const RC& rcUpdate) override;
+
+    virtual void Layout(void) override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
     virtual void Toggle(void);
     bool ValueGet(void) const;
@@ -323,15 +310,18 @@ private:
  *  @brief A control with an up and down button to cycle through options
  */
 
-class CYCLE : public CTL
+class CYCLE : public CTL, public LE
 {
 public:
-    CYCLE(WN& wnParent, ICMD* pcmd);
+    CYCLE(WN& wnParent, ICMD* pcmd, int iInit);
     virtual ~CYCLE() = default;
 
     virtual void Draw(const RC& rcUpdate) override;
+
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
+    virtual void Measure(void) noexcept override;
+    virtual SZ SzInterior(void);
 
     virtual void Next(void);
     virtual void Prev(void);
@@ -339,11 +329,32 @@ public:
     void SetValue(int val);
     int ValueGet(void) const;
 
-private:
+protected:
     BTNNEXT btnnext;
     BTNPREV btnprev;
     int i;
 };
+
+/**
+ *  @class      CYLEINT
+ *  @brief      A cycle control that just supports a ranged integer
+ */
+
+class CYCLEINT : public CYCLE
+{
+public:
+    CYCLEINT(WN& wnParent, ICMD* pcmd, int iInit, int iFirst, int iLast);
+
+    virtual SZ SzInterior(void) override;
+
+    virtual void Next(void) override;
+    virtual void Prev(void) override;
+
+private:
+    int iFirst, iLast;
+};
+
+
 
 /**
  *  @class CMDCYCLENEXT
@@ -397,7 +408,8 @@ public:
     virtual CO CoBack(void) const override;
     virtual CO CoText(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const;
+
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
 private:
     string sTitle;
@@ -409,7 +421,7 @@ private:
  *  @brief A toolbar, which is just an inert window that holds other controls
  */
 
-class TOOLBAR : public WN
+class TOOLBAR : public WN, public LE
 {
 public:
     TOOLBAR(WN& wnParent);
@@ -418,7 +430,11 @@ public:
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
 
-    virtual SZ SzRequestLayout(const RC& rc) const override;
+    virtual void Layout(void) override;
+    virtual SZ SzIntrinsic(const RC& rc) override;
+    virtual void Measure(void) noexcept override;
+
+private:
 };
 
 /**
@@ -434,6 +450,7 @@ public:
     virtual ~SEL() = default;
 
     virtual CO CoBorder(void) const override;
+
     virtual void Layout(void) override;
 
     void SetSelected(bool fSelected);
@@ -454,8 +471,9 @@ public:
     virtual ~SELS() = default;
 
     virtual void Draw(const RC& rcUpdate) override;
+
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
 protected:
     string sImage;
@@ -525,8 +543,9 @@ public:
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
     virtual void Draw(const RC& rcUpdate) override;
+
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWIthin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWIthin) override;
 
     virtual string SText(void) const;
     virtual void SetText(const string& s);

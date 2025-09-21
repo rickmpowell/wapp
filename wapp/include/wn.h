@@ -23,6 +23,7 @@
  */
 
 #include "dc.h"
+#include "len.h"
 class TIMER;
 
 /*
@@ -54,8 +55,10 @@ public:
     virtual RC RcBounds(void) const;
     RC RcNonClient(void) const;
     RC RcClient(void) const;
+
     virtual void Layout(void);
-    virtual SZ SzRequestLayout(const RC& rcWithin) const;
+    virtual SZ SzIntrinsic(const RC& rcWithin);
+    virtual LEIT Leit(void) const;
 
     virtual void Show(bool fShow = true);
     virtual bool FVisible(void) const;
@@ -105,9 +108,10 @@ public:
 
     virtual void Tick(TIMER& timer);
 
-protected:
+public:
     WN* pwnParent;  // will be nullptr at root
     vector<WN*> vpwnChildren;
+protected:
     RC rcInterior;
     bool fVisible;
     bool fEnabled;
@@ -267,11 +271,13 @@ inline ostream& outdent(ostream& os)
     indentation::decrease(os);
     return os;
 }
+
 class WNSTREAM : public WN, public ostream
 {
 public:
     WNSTREAM(WN& wnParent);
     virtual void ReceiveStream(int level, const string& s) = 0;
+    inline int get_level(void) { return indentation::get_level(*this); }
 
 private:
     wnstreambuf sb;

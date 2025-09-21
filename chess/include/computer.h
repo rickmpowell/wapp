@@ -53,14 +53,14 @@ public:
         assert(evAlpha <= evBeta);
     }
 
+    bool FIsNull(void) const noexcept
+    {
+        return evBeta == evAlpha + 1;
+    }
+
     AB AbNull(void) const noexcept
     {
         return AB(evAlpha, evAlpha + 1);
-    }
-
-    bool FIsNull(void) const noexcept
-    {
-        return evAlpha + 1 == evBeta;
     }
 
     bool FIsBelow(EV ev) const noexcept 
@@ -175,6 +175,11 @@ struct SETAI
     int level;
 };
 
+enum SO {
+    soNormal = 0,
+    soNoPruningHeuristics = 0x0001
+};
+
 /**
  *  @class PLCOMPUTER
  *  @brief A computer player
@@ -186,7 +191,6 @@ public:
     PLCOMPUTER(const SETAI& setai);
 
     /* communicate with the outside world */
-
     virtual bool FIsHuman(void) const override;
     virtual string SName(void) const override;
     int Level(void) const;
@@ -197,15 +201,15 @@ public:
     MV MvBestTest(WAPP& wapp, GAME& game, const TMAN& tman);
 
     /* basic alpha-beta search */
-
     MV MvBest(BD& bd, const TMAN& tman) noexcept;
-    EV EvSearch(BD& bd, AB ab, int d, int dLim) noexcept;
+    EV EvSearch(BD& bd, AB ab, int d, int dLim, SO so) noexcept;
     EV EvQuiescent(BD& bd, AB ab, int d) noexcept;
     bool FDeepen(BD& bd, MV& mvBestAll, MV mvBest, AB& ab, int& d) noexcept;
     bool FPrune(AB& ab, MV& mv, int& dLim) noexcept;
     bool FPrune(AB& ab, MV& mv, MV& mvBest, int& dLim) noexcept;
     bool FPrune(AB& ab, MV& mv) noexcept;
     bool FPrune(AB& ab, MV& mv, MV& mvBest) noexcept;
+    void SaveCut(BD& bd, const MV& mv, AB ab, int d, int dLim) noexcept;
 
     /* time management */
 
@@ -223,7 +227,7 @@ public:
     bool FDoYield(void) noexcept;
     TP tpSearchStart;
     TP tpSearchEnd;
-    int dSearchMax;
+    int dSearchMax = 100;
     enum class TINT {   /** type of interruption */
         Thinking = 0,
         MoveAndPause,
@@ -233,43 +237,55 @@ public:
     bool fInterruptSearch = false;
 
     /* static board evaluation */
-
     virtual EV EvStatic(BD& bd) noexcept;
     /* piece square tables */
     EV EvFromPsqt(const BD& bd) const noexcept;
+    EV EvPieceCombos(int accp[], CPC cpc) const noexcept;
+    EV EvPair(int accp[], CPC cpc, CPT cpt, EV evPair) const noexcept;
     void InitPsts(void) noexcept;
     EV mpcpsqevMid[cpMax][sqMax];
     EV mpcpsqevEnd[cpMax][sqMax];
-    EV EvKingSafety(BD& bd) noexcept;
-    EV EvPawnStructure(BD& bd) noexcept;
+    EV EvKingSafety(BD& bd) const noexcept;
+    EV EvPawnStructure(BD& bd) const noexcept;
+    EV EvPawnStructure(BB bbPawns, BB bbDefense, CPC cpc) const noexcept;
+    int CfiDoubledPawns(BB bbPawns, CPC cpc) const noexcept;
+    int CfiIsoPawns(BB bbPawns, CPC cpc) const noexcept;
+    int CfiPassedPawns(BB bb, BB bbDefense, CPC cpc) const noexcept;
 
     /* transposition table */
-
     bool FLookupXt(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept;
     XTEV* SaveXt(BD& bd, const MV& mvBest, AB ab, int d, int dLim) noexcept;
     XT xt;
 
-    /* move scoring */
+    /* pruning heuristics */
+    bool FTryStaticNullMove(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept;
+    bool FTryNullMove(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept;
+    bool FTryRazoring(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept;
+    bool FTryFutility(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept;
+    bool FZugzwangPossible(BD& bd) noexcept;
 
+    /* move scoring */
     void ScoreCapture(BD& bd, MV& mv) noexcept;
     void ScoreMove(BD& bd, MV& mv) noexcept;
     EV EvAttackDefend(BD& bd, const MV& mvPrev) const noexcept;
 
+    /* track killer moves */
     void InitKillers() noexcept;
     void SaveKiller(BD& bd, const MV& mv) noexcept;
     bool FScoreKiller(BD& bd, MV& mv) noexcept;
-    static const int cmvKillers = 2;
-    MV amvKillers[256][cmvKillers];
+    static const int cmvKillersGameMax = 256;
+    static const int cmvKillersMoveMax = 4;
+    MV amvKillers[cmvKillersGameMax][cmvKillersMoveMax] = { {0} };
 
+    /* track history moves */
     void InitHistory() noexcept;
     void AddHistory(BD& bd, const MV& mv, int d, int dLim) noexcept;
     void SubtractHistory(BD& bd, const MV& mv) noexcept;
     void AgeHistory(void) noexcept;
     bool FScoreHistory(BD& bd, MV& mv) noexcept;
-    int mpcpsqcHistory[cpMax][sqMax];
+    int mpcpsqcHistory[cpMax][sqMax] = { {0} };
 
     /* stats */
-
     void InitStats(void) noexcept;
     void LogStats(TP tpEnd) noexcept;
     int64_t cmvSearch = 0;

@@ -25,12 +25,12 @@ class TOOLBARLOG : public TOOLBAR
 {
 public:
     TOOLBARLOG(WNLOG& wnlog);
-    virtual void Layout(void) override;
 
 private:
     BTNS btnSave;
     BTNS btnCopy;
     BTNS btnClear;
+    CYCLEINT cycleLog;
 };
 
 /**
@@ -60,7 +60,7 @@ public:
     WNLOG(WN& wnParent);
 
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
     virtual void Draw(const RC& rcUpdate) override;
     virtual CO CoText(void) const override;
@@ -83,6 +83,7 @@ public:
     TPERFT tperft = TPERFT::Perft;
     int dPerft = 4;
     int levelLog = 1; // 8
+    inline bool FUnderLevel(void) { return levelLog >= get_level(); }
 
 private:
     TITLEBAR titlebar;
@@ -114,12 +115,12 @@ public:
     public:
         SELPERFT(VSEL& vsel, int rss) : SELS(vsel, vsel.iwapp.SLoad(rss))
         {
-            SetLayout(CTLL::SizeToFit);
+            SetLeit({ .leinterior = LEINTERIOR::ScaleInteriorToFit });
             SetBorder(4);
             SetPadding(8);
         }
 
-        virtual SZ SzRequestLayout(const RC& rcWithin) const override
+        virtual SZ SzIntrinsic(const RC& rcWithin) override
         {
             return SZ(150, 48);
         }
@@ -129,7 +130,7 @@ public:
     VSELPERFT(DLGPERFT& dlg, ICMD* pcmd);
     
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
 private:
     SELPERFT selPerft;
@@ -151,14 +152,14 @@ public:
     void Extract(WNLOG& wnlog);
 
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
 private:
     TITLEDLG title;
     INSTRUCT instruct;
     VSELPERFT vselperft;
     STATICL staticDepth;
-    CYCLE cycleDepth;
+    CYCLEINT cycleDepth;
     BTNOK btnok;
 };
 

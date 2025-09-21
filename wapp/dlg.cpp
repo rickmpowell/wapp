@@ -96,7 +96,7 @@ DLG::~DLG()
 
 void DLG::ShowCentered(void)
 {
-    SZ sz = SzRequestLayout(RcInterior());
+    SZ sz = SzIntrinsic(RcInterior());
     SetBounds(RC(iwapp.RcInterior().ptCenter() - sz/2, sz));
     Show(true);
 }
@@ -358,7 +358,7 @@ DLGABOUT::DLGABOUT(IWAPP& wapp) :
     title(*this, rssAboutTitle),
     instruct(*this, rssAboutInstruct),
     copyright(*this, rssAboutCopyright),
-    icon(*this, rsiAppLarge),
+    icon(*this, rsiApp),
     btnok(*this)
 {
     instruct.SetFontHeight(16);
@@ -379,7 +379,7 @@ void DLGABOUT::Layout(void)
     len.PositionOK(btnok);
 }
 
-SZ DLGABOUT::SzRequestLayout(const RC& rcWithin) const
+SZ DLGABOUT::SzIntrinsic(const RC& rcWithin)
 {
     return SZ(700, 360);
 }
@@ -412,7 +412,7 @@ void TITLEDLG::Layout(void)
     btnclose.SetBounds(rcClose);
 }
 
-SZ TITLEDLG::SzRequestLayout(const RC& rcWithin) const
+SZ TITLEDLG::SzIntrinsic(const RC& rcWithin)
 {
     SZ sz(SzFromS(sImage, tf));
     sz.width = max(sz.width, rcWithin.dxWidth());

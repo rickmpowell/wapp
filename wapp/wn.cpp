@@ -62,11 +62,12 @@ void WN::RemoveChild(WN* pwnChild)
     pwnChild->pwnParent = nullptr;
 }
 
-/*
- *  WN::SetBounds
+/**
+ *  @fn void WN::SetBounds(const RC& rcpNew)
+ *  @brief Sets the bounds of the WN.
  *
- *  The coordinates of the SetBounds are relative to the parent of the WN element, while
- *  the DC keeps the bounds relative to the top-level item
+ *  The coordinates of the SetBounds are relative to the parent of the WN 
+ *  element, while the DC keeps the bounds relative to the top-level item.
  */
 
 void WN::SetBounds(const RC& rcpNew)
@@ -90,21 +91,31 @@ RC WN::RcClient(void) const
     return RcInterior();
 }
 
-/*
- *  WN::Layout
+/**
+ *  @fn WN::Layout(void)
+ *  @brief Notification sent when a WN changes size and/or location
  * 
- *  Notification sent when the bounds of the window change. Window implementations should
- *  layout child windows in this notification
+ *  Window implementations should layout child windows in this notification.
  */
 
 void WN::Layout(void)
 {
 }
 
-SZ WN::SzRequestLayout(const RC& rcWithin) const
+SZ WN::SzIntrinsic(const RC& rcWithin)
 {
     return SZ(800.0f, 600.0f);
 }
+
+LEIT WN::Leit(void) const
+{
+    return LEIT();
+}
+
+/**
+ *  @fn WN::Show(bool fShow)
+ *  @brief Shows or hides the window.
+ */
 
 void WN::Show(bool fShow)
 {
@@ -115,6 +126,14 @@ void WN::Show(bool fShow)
     if (pwnParent)
         pwnParent->Redraw();
 }
+
+/**
+ *  @fn WN::FVisible(void) const
+ *  @brief Returns true if the window is visible.
+ * 
+ *  A window is visible if it and all its parents are visible, and if the
+ *  application is not minimized.
+ */
 
 bool WN::FVisible(void) const
 {

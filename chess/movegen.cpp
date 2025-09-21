@@ -42,7 +42,7 @@ void BD::MoveGenPseudo(VMV& vmv) const noexcept
     Validate();
 
     vmv.clear();
-    vmv.reserve(256);
+    vmv.reserve(VMV::cmvGenMax);
 
     for (int icp = 0; icp < icpMax; icp++) {
         int icpbdFrom = aicpbd[cpcToMove][icp];
@@ -79,7 +79,7 @@ void BD::MoveGenNoisy(VMV& vmv) const noexcept
     Validate();
 
     vmv.clear();
-    vmv.reserve(256);
+    vmv.reserve(VMV::cmvGenMax);
 
     for (int icp = 0; icp < icpMax; icp++) {
         int icpbdFrom = aicpbd[cpcToMove][icp];

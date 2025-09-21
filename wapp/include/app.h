@@ -55,6 +55,7 @@ public:
 
     string SLoad(unsigned rss) const;
     HICON HiconLoad(unsigned rsi) const;
+    HICON HiconLoad(unsigned rsi, int dxy) const;
     HACCEL HaccelLoad(unsigned rsa) const;
     HCURSOR HcursorLoad(unsigned rsc) const;
     HICON HiconDef(LPCWSTR rsi) const;
@@ -172,8 +173,7 @@ public:
     
     WNDCLASSEXW WcexRegister(const wchar_t* wsClass, 
                              unsigned rsm = 0, 
-                             unsigned rsiLarge = 0, 
-                             unsigned rsiSmall = 0) const;
+                             unsigned rsi = 0) const;
     virtual LPCWSTR SRegister(void) override;
 
     void CreateWnd(const string& sTitle,

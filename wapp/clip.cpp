@@ -24,9 +24,11 @@
 class CLIP
 {
 public:
+    
     /** 
      *  Opens the clipboard and takes ownership for the HWND 
      */
+    
     CLIP(HWND hwnd) {
         ThrowError(::OpenClipboard(hwnd) ? S_OK : (HRESULT)::GetLastError());
     }
@@ -34,6 +36,7 @@ public:
     /** 
      *  Closes the clipboard 
      */
+
     ~CLIP() {
         ::CloseClipboard();
     }
@@ -41,6 +44,7 @@ public:
     /** 
      *  Empties the clipboard 
      */
+    
     void Empty(void) {
         ThrowError(::EmptyClipboard() ? S_OK : (HRESULT)::GetLastError());
     }
@@ -48,6 +52,7 @@ public:
     /** 
      *  Sets the clipboard's data to the data in the global handle 
      */
+    
     bool SetData(UINT cf, HGLOBAL h) {
         return ::SetClipboardData(cf, h) != NULL;
     }
@@ -55,16 +60,16 @@ public:
     /** 
      *  Gets the global handle of the data in the clipboared 
      */
+    
     HGLOBAL GetData(UINT cf) {
         return ::GetClipboardData(cf);
     }
 };
 
 /** 
- *  @class iclipbuffer
+ *  @fn iclipbuffer::iclipbuffer(IWAPP& iwapp, UINT cf)
+ *  @brief Creates the clipboard input buffer
  * 
- *  The buffer implementation for streaming from the Windows clipboard.
- *  
  *  Unlike standard stream buffers, this implementation will throw an
  *  exception on errors.
  */
@@ -92,14 +97,19 @@ int iclipbuffer::underflow(void)
     return traits_type::to_int_type(ch);
 }
 
-/** 
- *  @class oclipbuffer
- *  @brief Clipboard output buffer
+/**
+ *  @fn oclipbuffer::oclipbuffer(IWAPP& iwapp, UINT cf)
+ *  @brief Creates the clipboard output buffer
  */
 
 oclipbuffer::oclipbuffer(IWAPP& iwappOwn, UINT cfOut) : iwapp(iwappOwn), cf(cfOut)
 {
 }
+
+/** 
+ *  @fn oclipbuffer::~oclipbuffer()
+ *  @brief Destroys the clipboard output buffer, syncing it to the clipboard
+ */
 
 oclipbuffer::~oclipbuffer()
 {

@@ -270,6 +270,17 @@ CMDEXECUTE(CMDPROFILEAI)
     return 1;
 }
 
+/**
+ *  @class      CMDANALYZEWITHAI
+ *  @brief      Command for running the Analyze Position 
+ */
+
+CMDEXECUTE(CMDANALYZEWITHAI)
+{
+    wapp.AnalyzePosition();
+    return 1;
+}
+
 /*
  *  CMDMAKEMOVE 
  *
@@ -351,11 +362,11 @@ public:
     }
 
     virtual bool FMenuS(string& s, CMS cms) const override {
-        ICMD* pcmd;
         string sCmd;
+        ICMD* pcmd;
         if (wapp.FTopUndoCmd(pcmd))
             pcmd->FMenuS(sCmd, CMS::Undo);
-        s = vformat(wapp.SLoad(rssUndo), make_format_args(sCmd));
+        s = SVFormat(wapp.SLoad(rssUndo), make_format_args(sCmd));
         return true;
     }
 };
@@ -385,7 +396,7 @@ public:
         ICMD* pcmd;
         if (wapp.FTopRedoCmd(pcmd))
             pcmd->FMenuS(sCmd, CMS::Redo);
-        s = vformat(wapp.SLoad(rssRedo), make_format_args(sCmd));
+        s = SVFormat(wapp.SLoad(rssRedo), make_format_args(sCmd));
         return true;
     }
 };
@@ -593,6 +604,7 @@ void WAPP::RegisterMenuCmds(void)
     REGMENUCMD(cmdTestPolyglot, CMDTESTPOLYGLOT);
     REGMENUCMD(cmdTestAI, CMDTESTAI);
     REGMENUCMD(cmdProfileAI, CMDPROFILEAI);
+    REGMENUCMD(cmdAnalyzeWithAI, CMDANALYZEWITHAI);
 
     REGMENUCMD(cmdShowLog, CMDSHOWLOG);
     REGMENUCMD(cmdAbout, CMDABOUT);

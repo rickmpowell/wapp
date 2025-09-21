@@ -1,30 +1,52 @@
 
-/*
- *  wnboard.cpp
+/**
+ *  @file       wnboard.cpp
+ *  @brief      Implementation of the visible board window element
+ *
+ *  @details    THe UI for the board, along with stripped down helper classes
+ *              for displaying static and small boards.
  * 
- *  Implementation of the board visible window element.
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "chess.h"
 #include "resource.h"
 
-/*
- *  WNPC
- * 
- *  Little sub window functionality that can draw chess pieces
- */
-
 PNGX WNPC::pngPieces(rspngChessPieces);
+
+/**
+ *  @fn         WNPC::WNPC(WN& wnParent, bool fVisible)
+ *  @brief      Constructor for class that can draw pieces
+ */
 
 WNPC::WNPC(WN& wnParent, bool fVisible) :
     WN(wnParent, fVisible)
 {
 }
 
+/**
+ *  @fn         WNPC::DrawPiece(const RC& rc, CP cp, float opacity) const
+ *  @brief      Draws a chess piece
+ * 
+ *  @details    Draws the chess piece cp inside the rectangle rc, with an
+ *              optional opacity. Draws out of the global pngPieces object,
+ *              which is loaded from a resource.
+ */
+
 void WNPC::DrawPiece(const RC& rc, CP cp, float opacity) const
 {
     DrawBmp(rc, pngPieces, RcPiecesFromCp(cp), opacity);
 }
+
+/**
+ *  @fn         RC WNPC::RcPiecesFormCo(CP cp) const
+ *  @brief      Finds the bitmap for the piece
+ * 
+ *  @details    Returns the rectangle within pngPieces that the given piece's
+ *              bitmap is located in. Suitable for using as the rectangle 
+ *              argument in DrawBmp.
+ */
 
 RC WNPC::RcPiecesFromCp(CP cp) const
 {
@@ -58,24 +80,24 @@ void WNBD::ShowMv(MV mv, bool fAnimate)
     if (!fAnimate)
         return;
 
+    /* figure out the animation to/from squares */
     CP cp = bd[mv.sqFrom].cp();
     RC rcFrom = RcFromSq(mv.sqFrom);
-    RC rcTo = RcFromSq(mv.sqTo);
-    PT dpt = rcTo.ptTopLeft() - rcFrom.ptTopLeft();
+    PT dpt = RcFromSq(mv.sqTo).ptTopLeft() - rcFrom.ptTopLeft();
+    milliseconds dtpTotal = 200ms;
+    TP tpStart = TpNow();
+    RC rcAnim = rcFrom;
 
-    constexpr milliseconds dtmTotal(200);
-    auto tpStart = high_resolution_clock::now();
-
-    while (1) {
-        duration<float> dtm = high_resolution_clock::now() - tpStart;
-        if (dtm >= dtmTotal)
-            break;
-        RC rc = rcFrom + dpt * (float)(dtm / dtmTotal);
+    for (duration<float> dtp = 0ms; dtp < dtpTotal; dtp = TpNow() - tpStart) {
         BeginDraw();
-        Draw(rc);
-        DrawPiece(rc, cp, 1.0f);
+        Draw(rcAnim);   // redraw on top of old piece in the animation 
+        rcAnim = rcFrom + dpt * (float)(dtp / dtpTotal);
+        DrawPiece(rcAnim, cp, 1.0f);
         EndDraw(RcInterior());
     }
+
+    /* we don't need to redraw the final result since we're guaranteed to get
+       a BdChanged notificcation later */
 }
 
 /*
@@ -110,7 +132,6 @@ void WNBD::Layout(void)
 {
     /* compute border area and decorative outline. if either gets too small, we 
        don't draw them */
-
     dxyBorder = RcInterior().dxWidth() * wBorderPerInterior;
     if (dxyBorder < dxyBorderMin)
         dxyBorder = 0;
@@ -119,7 +140,6 @@ void WNBD::Layout(void)
         dxyOutline = 0;
 
     /* cell labels are written inside the border area; again, if too small, don't bother */
-
     dyLabels = dxyBorder * wLabelsPerBorder;
     if (dyLabels < dyLabelsMin) {
         dyLabels = 0;
@@ -127,16 +147,16 @@ void WNBD::Layout(void)
     }
 
     /* and after all that, we know where the squares are and the size of each square */
-
     rcSquares = RcInterior().RcInflate(-dxyBorder);
     dxySquare = rcSquares.dxWidth() / raMax;
 }
 
-/*
- *  WNBD::Draw
- *
- *  Draws the board, which is the checkboard squares surrounded by an optional
- *  border area. If the board is small enough, we remove detail from the drawing.
+/**
+ *  @fn         void WNBD::Draw(const RC& rcUpdate)
+ *  @brief      Draws the board.
+ * 
+ *  @details    Checkboard squares surrounded by an optional border area. If 
+ *              the board is small enough, we remove detail from the drawing.
  */
 
 void WNBD::Draw(const RC& rcUpdate)
@@ -160,12 +180,10 @@ void WNBD::DrawBorder(void)
         return;
 
     /* draw the outline */
-
     if (dxyOutline > 0)
         DrawRc(rcSquares.RcInflate(2*dxyOutline), CoText(), dxyOutline);
 
     /* draw the labels */
-
     if (dyLabels >= dyLabelsMin) {
         TF tf(*this, sFontUI, dyLabels, TF::WEIGHT::Bold);
         for (int ra = 0; ra < raMax; ra++)
@@ -229,7 +247,7 @@ WNBOARD::WNBOARD(WN& wnParent, GAME& game) :
     fEnableMoveUI(true),
     pcmdMakeMove(make_unique<CMDMAKEMOVE>(Wapp(iwapp)))
 {
-    btnFlip.SetLayout(CTLL::SizeToFit);
+    btnFlip.SetLeit({ .leinterior = LEINTERIOR::ScaleInteriorToFit });
     bd.MoveGen(vmvLegal);
 }
 
@@ -244,7 +262,7 @@ void WNBOARD::Layout(void)
 {
     WNBD::Layout();
 
-    PT ptBotRight(RcInterior().ptBottomRight() - SZ(8.0f));
+    PT ptBotRight(RcInterior().ptBottomRight() - SZ(8));
     float dxy = max(4, dxy = dxyBorder - 16 - 2 * dxyOutline);
     btnFlip.SetBounds(RC(ptBotRight - SZ(dxy), ptBotRight));
 }
@@ -388,22 +406,41 @@ bool WNBOARD::FLegalSqTo(SQ sqFrom, SQ sqTo, MV& mvHit) const
     return false;
 }
 
+/**
+ *  @fn         void WNBOARD::BdChanged(void)
+ *  @brief      Notification that the board has changed
+ * 
+ *  @details    The graphical board is registered as a listener on the GAME, 
+ *              and should receive this notification whenever soemthing has 
+ *              changed on the board.
+ */
+
 void WNBOARD::BdChanged(void)
 {
     bd.MoveGen(vmvLegal);
     WNBD::BdChanged();
 }
 
+/**
+ *  @fn         void WNBOARD::EnableUI
+ *  @brief      Enables/disables the user interface
+ * 
+ *  @details    This is another notification from the game which is used to
+ *              enable or disable the user interface to the board. 
+ */
+
 void WNBOARD::EnableUI(bool fEnableNew)
 {
     fEnableMoveUI = fEnableNew;
 }
 
-/*
- *  WNBOARD::Hover
- * 
- *  Mouse is hovering over the board. We show a highlight over squares where
- *  we can move from.
+/**
+ *  @fn         void WNBOARD::Hover(const PT& pt)
+ *  @brief      Mouse hovering over the graphical board.
+ *
+ *  @details    We show a highlight over squares where we can move from, along
+ *              with an indicator for squares that piece can move to. We also
+ *              change the mouse cursor over legal source squares
  */
 
 void WNBOARD::Hover(const PT& pt)
@@ -486,9 +523,11 @@ void WNBOARD::EndDrag(const PT& pt, unsigned mk)
 
 bool WNBOARD::FGetPromotionMove(MV& mv)
 {
+    /* size of the promotion picker */
     RC rc(RcFromSq(mv.sqTo));
     rc.bottom = rc.top + rc.dyHeight() * 4;
 
+    /* position of the promotion picker */
     if (rc.xCenter() < RcInterior().xCenter())
         rc.Offset(rc.dxWidth()/2, 0);
     else
@@ -499,42 +538,41 @@ bool WNBOARD::FGetPromotionMove(MV& mv)
     rc.Inflate(4);
     wnpromote.SetBounds(rc);
 
+    /* TODO: can we do this in the main event loop? */
     iwapp.PushEvd(wnpromote);
     mv.cptPromote = (CPT)wnpromote.MsgPump();
     iwapp.PopEvd();
     return mv.cptPromote != cptNone;
 }
 
-/*
- *  WNBOARD::FlipCpc
- *
- *  Flips the board to the opposite point of view
+/**
+ *  @fn         void WNBOARD::FlipCpc(void)
+ *  @brief      Flips the board to the opposite point of view
+ * 
+ *  @details    This is an animated flip, rotating it around the center of
+ *              graphical board, then redrwaing it completely in the new 
+ *              flipped state. While we're in the animated rotation, the
+ *              board is not functional. 
  */
 
 void WNBOARD::FlipCpc(void)
 {
-    /* animate the turning over a 1/2 second time period */
-
     float angleEnd = -180;
-    constexpr milliseconds dtmTotal(900);
-    auto tpStart = high_resolution_clock::now();
+    TP tpStart = TpNow();
 
-    while (angleDraw > angleEnd) {
+    for (angleDraw = 0; 
+         angleDraw > angleEnd;  // greater than because angleEnd is negative
+         angleDraw = angleEnd * (TpNow() - tpStart) / 750ms)
         Redraw();
-        duration<float> dtm = high_resolution_clock::now() - tpStart;
-        angleDraw = angleEnd * dtm / dtmTotal;
-        // this_thread::sleep_for(milliseconds(8));
-    }
 
     angleDraw = 0;
     cpcView = ~cpcView;
     Redraw();
 }
 
-/*
- *  WNPROMOTE
- *
- *  The promotion piece picker
+/**
+ *  @fn         WNPROMOTE::WNPROMOTE(WNBOARD& wnboard)
+ *  @brief      Constructor for the promotion picker window
  */
 
 WNPROMOTE::WNPROMOTE(WNBOARD& wnboard) :
@@ -544,14 +582,31 @@ WNPROMOTE::WNPROMOTE(WNBOARD& wnboard) :
 {
 }
 
+/**
+ *  @fn         void WNPROMOTE::Erase(const RC& rcUpdate, DRO dro)
+ *
+ *  @details    Our promotion picker uses a semi-transparent background, which
+ *              requires a little special processing to redraw the transparent
+ *              portions.
+ */
+
 void WNPROMOTE::Erase(const RC& rcUpdate, DRO dro)
 {
     TransparentErase(rcUpdate, dro);
     FillRc(RcInterior(), CO(CoBack(), 0.75f));
 }
 
+/**
+ *  @fn         void WNPROMOTE::Draw(const RC& rc)
+ *  @brief      Draws the promotion piece picker
+ * 
+ *  @details    This works by maintaining a little mini-board of the pieces
+ *              that the user can pick from.
+ */
+
 void WNPROMOTE::Draw(const RC& rcUpdate)
 {
+    /* this positioning is the inverse of the code in CptHitTest */
     RC rc(RcInterior());
     DrawRc(rc, CoText(), 2);
     rc.Inflate(-4);
@@ -564,23 +619,42 @@ void WNPROMOTE::Draw(const RC& rcUpdate)
     }
 }
 
-bool WNPROMOTE::FQuitPump(MSG& msg) const
-{
-    return EVD::FQuitPump(msg) || fQuit;
-}
+/**
+ *  @fn         void WNPROMOTE::EnterPump(void)
+ *  @brief      Starts the modal promotion piece picker 
+ */
 
 void WNPROMOTE::EnterPump(void)
 {
+    /* fill our mini-piece table with the pieces we can promote to */
     acp[0] = Cp(wnboard.bd.cpcToMove, cptQueen);
     acp[1] = Cp(wnboard.bd.cpcToMove, cptRook);
     acp[2] = Cp(wnboard.bd.cpcToMove, cptBishop);
     acp[3] = Cp(wnboard.bd.cpcToMove, cptKnight);
+
+    /* flip the pieces for the non-display side */
     if (wnboard.bd.cpcToMove != wnboard.cpcView)
         reverse(acp, acp + 4);
+
+    /* and start the drag state */
     cptPromote = cptNone;
     fQuit = false;
     SetDrag(this, PtgMouse(), 0);
     Show(true);
+}
+
+/**
+ *  @fn         bool WNPROMOTE::FQuitPump(MSG& msg) const
+ * 
+ *  @details    We have a flag in the class that triggers the end of the modal
+ *              UI state. Set the fQuit member variable to terminate the modal 
+ *              state. The cptPromote member variable will contain the piece
+ *              that was chosen to promote to.
+ */
+
+bool WNPROMOTE::FQuitPump(MSG& msg) const
+{
+    return EVD::FQuitPump(msg) || fQuit;
 }
 
 int WNPROMOTE::QuitPump(MSG& msg)
@@ -607,8 +681,14 @@ void WNPROMOTE::EndDrag(const PT& pt, unsigned mk)
     fQuit = true;
 }
 
+/**
+ *  @fn         CPT WNPROMOTE::CptHitTest(PT pt) const
+ *  @brief      Returns the chess piece type the mouse is over
+ */
+
 CPT WNPROMOTE::CptHitTest(PT pt) const
 {
+    /* this code must be the inverse of the code in Draw/Layout */
     RC rc(RcInterior());
     rc.Inflate(-4);
     if (!rc.FContainsPt(pt))

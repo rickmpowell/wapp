@@ -207,6 +207,7 @@ public:
     void RunPolyglotTest(void);
     void RunAITest(filesystem::path folder, const vector<filesystem::path>& vfile);
     void RunAIProfile(void);
+    void AnalyzePosition(void);
 
 public:
     GAME game;

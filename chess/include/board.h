@@ -13,55 +13,9 @@
  */
 
 #include "framework.h"
+#include "bb.h"
 class BD;
 class PLCOMPUTER;
-
-/**
- *  @enum CPC
- *  @brief Color of Chess Piece
- */
-
-enum CPC : uint8_t
-{
-    cpcWhite = 0,
-    cpcBlack = 1,
-    cpcMax = 2, // kind of weird, but will make more sense with a non-mailbox board representation
-    cpcEmpty = 2,
-    cpcInvalid = 3
-};
-
-inline CPC operator ~ (CPC cpc) noexcept 
-{
-    return static_cast<CPC>(static_cast<uint8_t>(cpc) ^ 1);
-}
-
-inline CPC& operator ++ (CPC& cpc) noexcept
-{
-    cpc = static_cast<CPC>(static_cast<uint8_t>(cpc) + 1);
-    return cpc;
-}
-
-inline CPC operator ++ (CPC& cpc, int) noexcept
-{
-    CPC cpcT = cpc;
-    cpc = static_cast<CPC>(static_cast<uint8_t>(cpc) + 1);
-    return cpcT;
-}
-
-inline CPC& operator -- (CPC& cpc) noexcept
-{
-    cpc = static_cast<CPC>(static_cast<uint8_t>(cpc) - 1);
-    return cpc;
-}
-
-inline CPC operator -- (CPC& cpc, int) noexcept
-{
-    CPC cpcT = cpc;
-    cpc = static_cast<CPC>(static_cast<uint8_t>(cpc) - 1);
-    return cpcT;
-}
-
-string to_string(CPC cpc);
 
 /**
  *  @enum TCP
@@ -80,13 +34,13 @@ enum CPT : uint8_t
     cptMax = 7
 };
 
-inline CPT& operator ++ (CPT& cpt) noexcept
+constexpr CPT& operator ++ (CPT& cpt) noexcept
 {
     cpt = static_cast<CPT>(static_cast<uint8_t>(cpt) + 1);
     return cpt;
 }
 
-inline CPT operator ++ (CPT& cpt, int) noexcept
+constexpr CPT operator ++ (CPT& cpt, int) noexcept
 {
     CPT cptT = cpt;
     cpt = static_cast<CPT>(static_cast<uint8_t>(cpt) + 1);
@@ -102,17 +56,17 @@ inline CPT operator ++ (CPT& cpt, int) noexcept
 
 typedef uint8_t CP;
 
-constexpr inline CP Cp(CPC cpc, CPT cpt) noexcept
+constexpr CP Cp(CPC cpc, CPT cpt) noexcept
 {
     return (static_cast<uint8_t>(cpc) << 3) | static_cast<uint8_t>(cpt);
 }
 
-inline CPC cpc(CP cp) noexcept 
+constexpr CPC cpc(CP cp) noexcept 
 {
     return static_cast<CPC>((cp >> 3) & 0x3);
 }
 
-inline CPT cpt(CP cp) noexcept
+constexpr CPT cpt(CP cp) noexcept
 {
     return static_cast<CPT>(cp & 7);
 }
@@ -145,212 +99,48 @@ struct CPBD
         cpc : 2,
         icp : 4;
 
-    inline CPBD(void) noexcept : 
+    constexpr CPBD(void) noexcept : 
         cpc(cpcInvalid), 
         cpt(cptMax), 
         icp(0) 
     {
     }
     
-    inline CPBD(CPC cpc, CPT cpt, int icp) noexcept :
+    constexpr CPBD(CPC cpc, CPT cpt, int icp) noexcept :
         cpc(cpc), 
         cpt(cpt), 
         icp(icp) 
     {
     }
 
-    inline CPBD(CP cp, int icp) noexcept :
+    constexpr CPBD(CP cp, int icp) noexcept :
         cpt(cp & 7), 
         cpc(cp >> 3), 
         icp(icp) 
     {
     }
 
-    inline CP cp(void) const noexcept
+    constexpr CP cp(void) const noexcept
     {
         return cpt | (cpc << 3);
     }
 
-    inline void cp(CP cpNew) noexcept
+    constexpr void cp(CP cpNew) noexcept
     {
         cpt = cpNew & 7;
         cpc = cpNew >> 3;
     }
 
-    inline bool operator == (const CPBD& cpbd) const noexcept
+    constexpr bool operator == (const CPBD& cpbd) const noexcept
     {
         return cpt == cpbd.cpt && cpc == cpbd.cpc;
     }
 
-    inline bool operator != (const CPBD& cpbd) const noexcept
+    constexpr bool operator != (const CPBD& cpbd) const noexcept
     {
         return !(*this == cpbd);
     }
 };
-
-/**
- *  @typedef SQ
- *  @brief a chess square
- *
- *  A chess board square, which is represnted by a rank and file. Fits in a
- *  single byte. An invalid square is represented as the top two bits set.
- * 
- *  Implemented as a class to take advantage of type checking by the compiler.
- */
-
-typedef uint8_t SQ;
-
-constexpr int raMax = 8;
-constexpr int fiMax = 8;
-
-constexpr inline int ra(SQ sq) noexcept
-{
-    return (sq >> 3) & (raMax-1);
-}
-
-constexpr inline int fi(SQ sq) noexcept
-{
-    return sq & (fiMax-1);
-}
-
-constexpr inline SQ Sq(int fi, int ra) noexcept
-{
-    return (ra << 3) | fi;
-}
-
-inline SQ SqFlip(SQ sq) noexcept
-{
-    return Sq(fi(sq), ra(sq) ^ (raMax - 1));
-}
-
-constexpr SQ sqNil = 0xc0;
-constexpr SQ sqMax = raMax * fiMax;
-
-string to_string(SQ sq);
-
-constexpr int fiA = 0;
-constexpr int fiB = 1;
-constexpr int fiC = 2;
-constexpr int fiD = 3;
-constexpr int fiE = 4;
-constexpr int fiF = 5;
-constexpr int fiG = 6;
-constexpr int fiH = 7;
-
-constexpr int ra1 = 0;
-constexpr int ra2 = 1;
-constexpr int ra3 = 2;
-constexpr int ra4 = 3;
-constexpr int ra5 = 4;
-constexpr int ra6 = 5;
-constexpr int ra7 = 6;
-constexpr int ra8 = 7;
-
-constexpr int fiQueenRook = 0;
-constexpr int fiQueenKnight = 1;
-constexpr int fiQueenBishop = 2;
-constexpr int fiQueen = 3;
-constexpr int fiKing = 4;
-constexpr int fiKingBishop = 5;
-constexpr int fiKingKnight = 6;
-constexpr int fiKingRook = 7;
-
-constexpr int raWhiteBack = 0;
-constexpr int raWhitePawns = 1;
-constexpr int raWhitePawn1 = 2;
-constexpr int raWhitePawn2 = 3;
-constexpr int raBlackPawn2 = 4;
-constexpr int raBlackPawn1 = 5;
-constexpr int raBlackPawns = 6;
-constexpr int raBlackBack = 7;
-
-constexpr SQ sqA1 = Sq(fiA, ra1);
-constexpr SQ sqA2 = Sq(fiA, ra2);
-constexpr SQ sqA3 = Sq(fiA, ra3);
-constexpr SQ sqA4 = Sq(fiA, ra4);
-constexpr SQ sqA5 = Sq(fiA, ra5);
-constexpr SQ sqA6 = Sq(fiA, ra6);
-constexpr SQ sqA7 = Sq(fiA, ra7);
-constexpr SQ sqA8 = Sq(fiA, ra8);
-constexpr SQ sqB1 = Sq(fiB, ra1);
-constexpr SQ sqB2 = Sq(fiB, ra2);
-constexpr SQ sqB3 = Sq(fiB, ra3);
-constexpr SQ sqB4 = Sq(fiB, ra4);
-constexpr SQ sqB5 = Sq(fiB, ra5);
-constexpr SQ sqB6 = Sq(fiB, ra6);
-constexpr SQ sqB7 = Sq(fiB, ra7);
-constexpr SQ sqB8 = Sq(fiB, ra8);
-constexpr SQ sqC1 = Sq(fiC, ra1);
-constexpr SQ sqC2 = Sq(fiC, ra2);
-constexpr SQ sqC3 = Sq(fiC, ra3);
-constexpr SQ sqC4 = Sq(fiC, ra4);
-constexpr SQ sqC5 = Sq(fiC, ra5);
-constexpr SQ sqC6 = Sq(fiC, ra6);
-constexpr SQ sqC7 = Sq(fiC, ra7);
-constexpr SQ sqC8 = Sq(fiC, ra8);
-constexpr SQ sqD1 = Sq(fiD, ra1);
-constexpr SQ sqD2 = Sq(fiD, ra2);
-constexpr SQ sqD3 = Sq(fiD, ra3);
-constexpr SQ sqD4 = Sq(fiD, ra4);
-constexpr SQ sqD5 = Sq(fiD, ra5);
-constexpr SQ sqD6 = Sq(fiD, ra6);
-constexpr SQ sqD7 = Sq(fiD, ra7);
-constexpr SQ sqD8 = Sq(fiD, ra8);
-constexpr SQ sqE1 = Sq(fiE, ra1);
-constexpr SQ sqE2 = Sq(fiE, ra2);
-constexpr SQ sqE3 = Sq(fiE, ra3);
-constexpr SQ sqE4 = Sq(fiE, ra4);
-constexpr SQ sqE5 = Sq(fiE, ra5);
-constexpr SQ sqE6 = Sq(fiE, ra6);
-constexpr SQ sqE7 = Sq(fiE, ra7);
-constexpr SQ sqE8 = Sq(fiE, ra8);
-constexpr SQ sqF1 = Sq(fiF, ra1);
-constexpr SQ sqF2 = Sq(fiF, ra2);
-constexpr SQ sqF3 = Sq(fiF, ra3);
-constexpr SQ sqF4 = Sq(fiF, ra4);
-constexpr SQ sqF5 = Sq(fiF, ra5);
-constexpr SQ sqF6 = Sq(fiF, ra6);
-constexpr SQ sqF7 = Sq(fiF, ra7);
-constexpr SQ sqF8 = Sq(fiF, ra8);
-constexpr SQ sqG1 = Sq(fiG, ra1);
-constexpr SQ sqG2 = Sq(fiG, ra2);
-constexpr SQ sqG3 = Sq(fiG, ra3);
-constexpr SQ sqG4 = Sq(fiG, ra4);
-constexpr SQ sqG5 = Sq(fiG, ra5);
-constexpr SQ sqG6 = Sq(fiG, ra6);
-constexpr SQ sqG7 = Sq(fiG, ra7);
-constexpr SQ sqG8 = Sq(fiG, ra8);
-constexpr SQ sqH1 = Sq(fiH, ra1);
-constexpr SQ sqH2 = Sq(fiH, ra2);
-constexpr SQ sqH3 = Sq(fiH, ra3);
-constexpr SQ sqH4 = Sq(fiH, ra4);
-constexpr SQ sqH5 = Sq(fiH, ra5);
-constexpr SQ sqH6 = Sq(fiH, ra6);
-constexpr SQ sqH7 = Sq(fiH, ra7);
-constexpr SQ sqH8 = Sq(fiH, ra8);
-
-/* some tricks to get the compiler ot produce branchless code */
-
-constexpr inline int RaBack(CPC cpc) noexcept
-{
-    return ~(cpc-1) & 7;
-}
-static_assert(RaBack(cpcWhite) == 0);
-static_assert(RaBack(cpcBlack) == 7);
-
-constexpr inline int RaPromote(CPC cpc) noexcept
-{
-    return (cpc-1) & 7;
-}
-static_assert(RaPromote(cpcWhite) == 7);
-static_assert(RaPromote(cpcBlack) == 0);
-
-constexpr inline int RaPawns(CPC cpc) noexcept
-{
-    return cpc == cpcWhite ? raWhitePawns : raBlackPawns;
-}
-static_assert(RaPawns(cpcWhite) == raWhitePawns);
-static_assert(RaPawns(cpcBlack) == raBlackPawns);
 
 /**
  *  @enum CS
@@ -375,39 +165,39 @@ static_assert((static_cast<uint8_t>(csKing) << cpcBlack) == csBlackKing);
 static_assert((static_cast<uint8_t>(csQueen) << cpcWhite) == csWhiteQueen);
 static_assert((static_cast<uint8_t>(csQueen) << cpcBlack) == csBlackQueen);
 
-inline CS operator | (CS cs1, CS cs2) noexcept
+constexpr CS operator | (CS cs1, CS cs2) noexcept
 {
     return static_cast<CS>(static_cast<uint8_t>(cs1) | static_cast<uint8_t>(cs2));
 }
 
-inline CS& operator |= (CS& cs1, CS cs2) noexcept
+constexpr CS& operator |= (CS& cs1, CS cs2) noexcept
 {
     cs1 = cs1 | cs2;
     return cs1;
 }
 
-inline CS operator ~ (CS cs) noexcept
+constexpr CS operator ~ (CS cs) noexcept
 {
     return static_cast<CS>(~static_cast<uint8_t>(cs));
 }
 
-inline CS operator & (CS cs1, CS cs2) noexcept
+constexpr CS operator & (CS cs1, CS cs2) noexcept
 {
     return static_cast<CS>(static_cast<uint8_t>(cs1) & static_cast<uint8_t>(cs2));
 }
 
-inline CS& operator &= (CS& cs1, CS cs2) noexcept
+constexpr CS& operator &= (CS& cs1, CS cs2) noexcept
 {
     cs1 = cs1 & cs2;
     return cs1;
 }
 
-inline CS operator << (CS cs, CPC cpc) noexcept
+constexpr CS operator << (CS cs, CPC cpc) noexcept
 {
     return static_cast<CS>(static_cast<uint8_t>(cs) << cpc);
 }
 
-inline CS Cs(CS cs, CPC cpc) noexcept
+constexpr CS Cs(CS cs, CPC cpc) noexcept
 {
     return cs << cpc;
 }
@@ -416,23 +206,23 @@ inline CS Cs(CS cs, CPC cpc) noexcept
  *  map between squares an internal index into the board table
  */
 
-inline SQ SqFromIcpbd(int icpbd) noexcept
+constexpr SQ SqFromIcpbd(int icpbd) noexcept
 {
     return Sq(icpbd%10 - 1, (icpbd-10*2)/10);
 }
 
-inline int Icpbd(int fi, int ra) noexcept
+constexpr int Icpbd(int fi, int ra) noexcept
 {
     return (2 + ra) * 10 + fi + 1;
 }
 
-inline int IcpbdFromSq(SQ sq) noexcept
+constexpr int IcpbdFromSq(SQ sq) noexcept
 {
     assert(sq != sqNil);
     return Icpbd(fi(sq), ra(sq));
 }
 
-inline int IcpbdFromSq(int fi, int ra) noexcept
+constexpr int IcpbdFromSq(int fi, int ra) noexcept
 {
     return Icpbd(fi, ra);
 }
@@ -468,7 +258,7 @@ public:
      *  Toggles the square in the hash at the given square.
      */
 
-    inline static void TogglePiece(HA& ha, SQ sq, CP cp) noexcept
+    static void TogglePiece(HA& ha, SQ sq, CP cp) noexcept
     {
         ha ^= ahaPiece[sq][cp];
     }
@@ -477,7 +267,7 @@ public:
      *  Toggles the player to move in the hash.
      */
 
-    inline static void ToggleToMove(HA& ha)
+    static void ToggleToMove(HA& ha)
     {
         ha ^= haToMove;
     }
@@ -486,7 +276,7 @@ public:
      *  Toggles the castle state in the hash
      */
 
-    inline static void ToggleCastle(HA& ha, int cs)
+    static void ToggleCastle(HA& ha, int cs)
     {
         ha ^= ahaCastle[cs];
     }
@@ -495,7 +285,7 @@ public:
      *  Toggles the en passant state in the hash
      */
 
-    inline static void ToggleEnPassant(HA& ha, SQ sq)
+    static void ToggleEnPassant(HA& ha, SQ sq)
     {
         if (sq == sqNil)
             return;
@@ -532,24 +322,24 @@ constexpr EV evDraw = 0;                        /* evaluation of a draw */
 constexpr EV evInterrupt = 16384-1;               /* special interrupt value, larger than evMate */
 constexpr EV evBias = evInfinity;               /* used to bias evaluations for saving as an unsigned */
 
-inline EV EvMate(int d) noexcept
+constexpr EV EvMate(int d) noexcept
 {
     return evMate - d;
 }
 
-inline bool FEvIsMate(EV ev) noexcept
+constexpr bool FEvIsMate(EV ev) noexcept
 {
     return ev >= evMateMin;
 }
 
-inline int DFromEvMate(EV ev) noexcept
+constexpr int DFromEvMate(EV ev) noexcept
 {
     return evMate - ev;
 }
 
-inline bool FEvIsInterrupt(EV ev) noexcept
+constexpr bool FEvIsInterrupt(EV ev) noexcept
 {
-    return abs(ev) >= evInterrupt;
+    return ev >= evInterrupt || -ev >= evInterrupt;
 }
 
 string to_string(EV ev);
@@ -573,7 +363,7 @@ enum class EVENUM
     Max = 7
 };
 
-inline EVENUM& operator ++ (EVENUM& evenum) noexcept
+constexpr EVENUM& operator ++ (EVENUM& evenum) noexcept
 {
     evenum = static_cast<EVENUM>(static_cast<int>(evenum) + 1);
     return evenum;
@@ -589,11 +379,11 @@ string to_string(EVENUM evenum) noexcept;
 class MV
 {
 public:
-    inline MV(void) noexcept
+    constexpr MV(void) noexcept
     {
     }
 
-    inline MV(SQ sqFrom, SQ sqTo, CPT cptPromote = cptNone, CS csMove = csNone) noexcept :
+    constexpr MV(SQ sqFrom, SQ sqTo, CPT cptPromote = cptNone, CS csMove = csNone) noexcept :
         sqFrom(sqFrom),
         sqTo(sqTo),
         cptPromote(cptPromote),
@@ -601,7 +391,7 @@ public:
     {
     }
 
-    inline  MV(int8_t icpbdFrom, int8_t icpbdTo, CPT cptPromote = cptNone) noexcept :
+    constexpr MV(int8_t icpbdFrom, int8_t icpbdTo, CPT cptPromote = cptNone) noexcept :
         sqFrom(SqFromIcpbd(icpbdFrom)),
         sqTo(SqFromIcpbd(icpbdTo)),
         cptPromote(cptPromote),
@@ -609,7 +399,7 @@ public:
     {
     }
 
-    inline MV(int8_t icpbdFrom, int8_t icpbdTo, CS csMove) noexcept :
+    constexpr MV(int8_t icpbdFrom, int8_t icpbdTo, CS csMove) noexcept :
         sqFrom(SqFromIcpbd(icpbdFrom)),
         sqTo(SqFromIcpbd(icpbdTo)),
         cptPromote(cptNone),
@@ -617,17 +407,17 @@ public:
     {
     }
 
-    inline MV(EV ev) noexcept :
+    constexpr MV(EV ev) noexcept :
         ev(ev)
     {
     }
 
-    inline bool fIsNil(void) const noexcept
+    constexpr bool fIsNil(void) const noexcept
     {
         return sqFrom == sqNil;
     }
 
-    bool operator == (const MV& mv) const noexcept
+    constexpr bool operator == (const MV& mv) const noexcept
     {
         return sqFrom == mv.sqFrom &&
             sqTo == mv.sqTo &&
@@ -635,7 +425,7 @@ public:
             cptPromote == mv.cptPromote;
     }
 
-    bool operator != (const MV& mv) const noexcept
+    constexpr bool operator != (const MV& mv) const noexcept
     {
         return !(*this == mv);
     }
@@ -678,7 +468,7 @@ inline const MV mvNil;
  *  @brief Move list.
  * 
  *  This has the same interface as vector, but is highly-optimized for chess
- *  piece list. Assumes there are fewer than 256 moves per positin, which should
+ *  piece list. Assumes there are fewer than 256 moves per position, which should
  *  be plenty.
  *
  *  Has limited functionality. Basically only Iteration, indexing, and emplace_back.
@@ -690,7 +480,7 @@ public:
     class iterator
     {
     public:
-        inline iterator(MV* pmv) noexcept : pmvCur(pmv) { }
+        inline iterator(MV* pmv) noexcept : pmvCur(pmv) {}
         inline MV& operator * () const noexcept { return *pmvCur; }
         inline MV* operator -> () const noexcept { return pmvCur; }
         inline iterator& operator ++ () noexcept { ++pmvCur; return *this; }
@@ -704,7 +494,7 @@ public:
     class citerator
     {
     public:
-        inline citerator(const MV* pmv) noexcept : pmvCur(pmv) { }
+        inline citerator(const MV* pmv) noexcept : pmvCur(pmv) {}
         inline const MV& operator * () const noexcept { return *pmvCur; }
         inline const MV* operator -> () const noexcept { return pmvCur; }
         inline citerator& operator ++ () noexcept { ++pmvCur; return *this; }
@@ -724,7 +514,7 @@ public:
     private:
         void NextBestScore(void) noexcept;
         void InitEvEnum(void) noexcept;
-    
+
         PLCOMPUTER* ppl;
         BD* pbd;
         EVENUM evenum = EVENUM::None;
@@ -742,7 +532,7 @@ public:
     inline citerator end(void) const noexcept { return citerator(&reinterpret_cast<const MV*>(amv)[imvMac]); }
     inline void clear(void) noexcept { imvMac = 0; }
     inline void resize(int cmv) noexcept { imvMac = cmv; }
-    inline void reserve(int cmv) noexcept { assert(cmv == 256); }   // we're fixed size 
+    inline void reserve(int cmv) noexcept { assert(cmv == cmvGenMax); }   // we're fixed size 
 
     /* smart sorted iterator used in alpha-beta pruning - can't be const because we
        sort as we go */
@@ -754,7 +544,7 @@ public:
     {
         new (&reinterpret_cast<MV*>(amv)[imvMac]) MV(forward<ARGS>(args)...);
         ++imvMac;
-        assert(imvMac <= 256);
+        assert(imvMac <= cmvGenMax);
     }
 
     inline void pop_back(void) noexcept
@@ -769,15 +559,21 @@ public:
         return reinterpret_cast<MV*>(amv)[imvMac - 1];
     }
 
+    inline VMV::siterator InitMv(BD& bd, PLCOMPUTER& pl) noexcept;
+    inline bool FGetMv(VMV::siterator& sit, BD& bd) noexcept;
+    inline void NextMv(VMV::siterator& sit) noexcept;
+    int cmvLegal = 0;
+    static const int cmvGenMax = 256;
+
 private:
-    alignas(MV) uint8_t amv[256 * sizeof(MV)];
+    alignas(MV) uint8_t amv[cmvGenMax * sizeof(MV)];
     int16_t imvMac = 0;
 };
 
-/*
- *  nmv is a move number, starts at 1, and is the same as the number written
- *  in a move list. So both black and white will have the same move number for
- *  a pair of moves.
+/**
+ *  We use the nmv type to represent a move number, which starts at 1 and is
+ *  the same as the number written in a chess move list. So both black and
+ *  white will have the same move number for a pair of moves.
  */
 
 constexpr int nmvInfinite = 2048;   
@@ -836,23 +632,28 @@ public:
     }
 
     /* make and undo move */
-
     void MakeMv(const MV& mv) noexcept;
+    void MakeMvNull(void) noexcept;
     void UndoMv(void) noexcept;
+    void UndoMvNull(void) noexcept;
     bool FMakeMvLegal(const MV& mv) noexcept;
 
     /* move generation */
-
     void MoveGen(VMV& vmv) const noexcept;
     void MoveGenPseudo(VMV& vmv) const noexcept;
     void MoveGenNoisy(VMV& vmv) const noexcept;
     bool FLastMoveWasLegal(void) const noexcept;
 
+    /* attack squares and checks */
     bool FInCheck(CPC cpc) const noexcept;
     bool FIsAttackedBy(int8_t icpAttacked, CPC cpcBy) const noexcept;
     CPT CptSqAttackedBy(SQ sq, CPC cpcBy) const noexcept;
     bool FMvIsCapture(const MV& mv) const noexcept;
 
+    /* bitboards */
+    BB BbPawns(CPC cpc) const noexcept;
+
+    /* game phase and status */
     int PhaseCur(void) const noexcept;
     bool FGameDrawn(int cbd) const noexcept;
     bool FDrawRepeat(int cbdDraw) const noexcept;
@@ -860,7 +661,6 @@ public:
     bool FSufficientMaterial(CPC cpc) const noexcept;
 
     /* FEN reading and writing */
-
     void InitFromFen(istream& is);
     void InitFromFenShared(istream& is);
     void InitFromFen(const string& fen);
@@ -875,7 +675,6 @@ public:
     MV MvParseSan(string_view s) const;
 
     /* test functions */
-
     int64_t CmvPerft(int d);
     int64_t CmvBulk(int d);
 
@@ -942,4 +741,31 @@ MVU::MVU(MV mv, const BD& bd) :
     cmvNoCaptureOrPawnSav(bd.cmvNoCaptureOrPawn),
     haSav(bd.ha)
 {
+}
+
+/**
+ *  smart iterator inlines
+ */
+
+VMV::siterator VMV::InitMv(BD& bd, PLCOMPUTER& pl) noexcept
+{
+    cmvLegal = 0;
+    return sbegin(pl, bd);
+}
+
+bool VMV::FGetMv(VMV::siterator& sit, BD& bd) noexcept
+{
+    while (sit != send()) {
+        if (bd.FMakeMvLegal(*sit)) {
+            cmvLegal++;
+            return true;
+        }
+        ++sit;
+    }
+    return false;
+}
+
+void VMV::NextMv(VMV::siterator& sit) noexcept
+{
+    ++sit;
 }

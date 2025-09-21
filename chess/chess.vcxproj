@@ -90,6 +90,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);wapp.lib</AdditionalDependencies>
+      <GenerateMapFile>Yes</GenerateMapFile>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>include;..\wapp\include</AdditionalIncludeDirectories>
@@ -124,7 +125,6 @@
     <ResourceCompile Include="resources\chess.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
     <None Include="resources\Chess_Pieces_Sprite.svg" />
     <None Include="test\arsan21.epd" />
     <None Include="test\BK-Test.epd" />
@@ -153,6 +153,7 @@
     <None Include="test\Win-At-Chess-New.epd" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\bb.h" />
     <ClInclude Include="include\board.h" />
     <ClInclude Include="include\chess.h" />
     <ClInclude Include="include\computer.h" />
@@ -163,9 +164,6 @@
     <ClInclude Include="include\psqt.h" />
     <ClInclude Include="include\resource.h" />
     <ClInclude Include="include\test.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="chess.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

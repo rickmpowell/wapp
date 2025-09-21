@@ -27,8 +27,7 @@
  *  Icons
  */
 
-#define rsiAppLarge 1
-#define rsiAppSmall 2 
+#define rsiApp 1
 
  /*
   *  Menus

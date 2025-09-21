@@ -111,3 +111,27 @@ private:
     stack<string> stackBack;
     bool fEof = false;
 };
+
+
+/**
+ *  @fn         Format
+ *
+ *  @details    Limited functionality variant of std::format that isn't as
+ *              high overhead. We only do this because std::format was doubling
+ *              the siae of my executables.
+ *              
+ *              The limited functionality of format specifiers we support is:
+ * 
+ *                  [integer] specifiers for which argument to use
+ *                  :02 for 0-padding integers
+ * 
+ *              We do not support floating point.
+ */
+
+string SVFormat(string_view fmt, format_args args);
+
+template<typename... Args>
+string SFormat(string_view fmt, Args&&... args)
+{
+    return SVFormat(fmt, make_format_args(args...));
+}

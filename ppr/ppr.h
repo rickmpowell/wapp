@@ -1,21 +1,23 @@
 #pragma once
 
-/*
- *  ppr.h
- * 
- *  THe definitions for the WAPP pretty printer sample application.
+/**
+ *  @file       ppr.h
+ *  @brief      WAPP pretty printer application
  *
- *  This is a simple application that sends source code files to the printer,
- *  printed with two pages worth of code on each sheet of paper. 
+ *  @details    This is a simple application that sends source code files 
+ *              to the printer, printed with two pages worth of code on each 
+ *              sheet of paper. 
  * 
- *  Copyright (c) 2025 by Richard Powell
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "wapp.h"
 class WAPP;
 
-/*
- *  printer settings
+/**
+ *  @struct SETPPR
+ *  @brief  Printer settings
  */
 
 struct SETPPR
@@ -24,10 +26,9 @@ struct SETPPR
     bool fTwoSided;
 };
 
-/*
- *  PAPER class
- * 
- *  Helper class that renders a page
+/**
+ *  @class PAPER
+ *  @brief A helper class that render a page 
  */
 
 class PAPER
@@ -61,16 +62,15 @@ public:
     RC rcPage2;
 };
 
-/*
- *  Our simple little toolbar
+/**
+ *  @class TOOLS
+ *  @brief Our simple little toolbar
  */
 
 class TOOLS : public TOOLBAR
 {
 public:
     TOOLS(WAPP& wapp);
-
-    virtual void Layout(void) override;
 
 private:
     BTNS btnOpen;
@@ -79,8 +79,9 @@ private:
     BTNS btnSettings;
 };
 
-/*
- *  Settings dialog
+/**
+ *  @class DLGSETTINGS
+ *  @brief Settings dialog
  */
 
 class DLGSETTINGS : public DLG
@@ -91,7 +92,7 @@ public:
     void Extract(WAPP& wapp);
 
     virtual void Layout(void) override;
-    virtual SZ SzRequestLayout(const RC& rcWithin) const override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
 
     virtual void Validate(void) override;
 
@@ -103,10 +104,9 @@ private:
     BTNOK btnok;
 };
 
-/*
- *  WAPP
- *
- *  The sample pretty print application class
+/**
+ *  @class WAPP
+ *  @brief The sample pretty print application class
  */
 
 class WAPP : public IWAPP

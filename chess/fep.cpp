@@ -372,9 +372,7 @@ bool GAME::FValidEpdOp(const string& op) const
     return FInRange(op[0], 'a', 'z') || FInRange(op[0], 'A', 'Z');
 }
 
-/*
- *  GAME::FReadEpdOpValue
- * 
+/**
  *  Reads a sigle value of an EPD opcode. Values can be an unsigned ingeger,
  *  a signed integer, a float, a string, or a move. The values are added to
  *  the EPD op map.
@@ -509,9 +507,7 @@ string GAME::EpdRender(void)
     return s;
 }
 
-/*
- *  BD::MvParseSan
- *
+/**
  *  Parses a Standard Algebraic Notation move string. Because the EPD spec 
  *  uses disambiguation, we need a current board state in order to parse 
  *  these strings.
@@ -650,9 +646,7 @@ void GAME::InitFromPgn(const string& pgn)
     InitFromPgn(is);
 }
 
-/*
- *  GAME::FReadPgnTagPair
- * 
+/**
  *  Reads a tag pair from the PGN header. A tag pair is bracketed by [ and ],
  *  and consists of a tag and a value. Values are specified as quoted strings,
  *  but there are also unquoted values that are terminated by the closing
@@ -706,9 +700,7 @@ bool GAME::FReadPgnTagPair(istream& is, string& tag, string& sVal)
     return true;
 }
 
-/*
- *  GAME::SaveTagPair
- * 
+/**
  *  Saves a tag pair from the PGN header. The tag is a string, and the value is
  *  variant that comes here as a stirng, but may be specially handled into other
  *  types depending on the specific tag.
@@ -716,14 +708,69 @@ bool GAME::FReadPgnTagPair(istream& is, string& tag, string& sVal)
 
 void GAME::SaveTagPair(const string& tag, const string& sVal)
 {
-    /* TODO: we should do special cases of the tags we know about */
-    VAREPD var = string(sVal);
-    AddKey(tag, var);
+    unordered_map<string, function<void(GAME& game, const string& s)>> dispatch = {
+        { 
+            "White", 
+            [](GAME& game, const string& s) {
+                game.appl[cpcWhite] = make_shared<PLHUMAN>(s);
+            }
+        },
+        {
+            "Black", 
+            [](GAME& game, const string& s) {
+                game.appl[cpcBlack] = make_shared<PLHUMAN>(s);
+            }
+        },
+        {
+            "Event",
+            [](GAME& game, const string& s) {
+                if (s == "?")
+                    game.osEvent = nullopt;
+                else
+                    game.osEvent = s;
+            }
+        },
+        {
+            "Site",
+            [](GAME& game, const string& s) {
+                if (s == "?")
+                    game.osSite = nullopt;
+                else
+                    game.osSite = s;
+            }
+        },
+        {
+            "Date",
+            [](GAME& game, const string& s) {
+                /* TODO: parse a PGN data string YYYY.MM.DD or ???? */
+            }
+        },
+        {
+            "Round",
+            [](GAME& game, const string& s) {
+                if (s == "?")
+                    game.oround = nullopt;
+                else
+                    game.oround = stoi(s);
+            }
+        },
+        {
+            "Result",
+            [](GAME& game, const string& s) {
+            }
+        }
+    };
+
+    auto it = dispatch.find(tag);
+    if (it != dispatch.end())
+        it->second(*this, sVal); 
+    else {
+        VAREPD var = string(sVal);
+        AddKey(tag, var);
+    }
 }
 
-/*
- *  GAME::ReadPgnMoveList
- * 
+/**
  *  Reads the move list from the PGN file. The move list is a sequence of space-
  *  separated moves with optional move numbers. Move numbers are followed by a
  *  dot, or multiple dots if the white move is missing. 
@@ -768,9 +815,7 @@ void GAME::ReadPgnMoveList(istream& is)
     }
 }
 
-/*
- *  GAME::FParsePgnMoveNumber
- * 
+/**
  *  Parses the move number in the PGN move list. Pads the move list with nil
  *  moves if it introduces a gap in the move numbers, which may not be a valid
  *  thing to do, but it should leave us with a valid game state.
@@ -877,8 +922,10 @@ string GAME::PgnRender(void) const
 void GAME::RenderPgnHeader(ostream& os) const
 {
     /* render the standard 7 header items */
-    RenderPgnTagPair(os, "Event", sEvent);
-    RenderPgnTagPair(os, "Site", sSite);
+    if (osEvent)
+        RenderPgnTagPair(os, "Event", osEvent.value());
+    if (osSite)
+        RenderPgnTagPair(os, "Site", osSite.value());
     RenderPgnTagPair(os, "Date", SPgnDate(tpsStart));
     RenderPgnTagPair(os, "Round", "");
     RenderPgnTagPair(os, "White", appl[cpcWhite]->SName());

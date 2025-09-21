@@ -65,7 +65,6 @@
 #include <iterator>
 #include <ranges>
 #include <memory>
-#include <format>
 #include <numbers>
 #include <random>
 #include <thread>

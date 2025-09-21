@@ -1,14 +1,16 @@
 
-/*
- *  ppr.cpp
+/**
+ *  @file       ppr.cpp
+ *  @brief      WAPP pretty printer application
  *
- *  A simple WAPP sample application that implements a source code pretty
- *  printer. 
+ *  @details    A simple WAPP sample application that implements a source 
+ *              code pretty printer. 
  * 
- *  Shows how to print, uses several of the standard dialog boxes to pick
- *  files and print destinations.
+ *              Shows how to print, uses several of the standard dialog boxes 
+ *              to pick files and print destinations.
  * 
- *  Copyright (c) 2025 by Richard Powell.
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "ppr.h"
@@ -628,7 +630,7 @@ void DLGSETTINGS::Layout(void)
     len.PositionOK(btnok);
 }
 
-SZ DLGSETTINGS::SzRequestLayout(const RC& rcWithin) const
+SZ DLGSETTINGS::SzIntrinsic(const RC& rcWithin)
 {
     return SZ(600, 480);
 }
@@ -680,17 +682,7 @@ TOOLS::TOOLS(WAPP& wapp) :
     btnOpenProject.SetFontHeight(18);
     btnPrint.SetFontHeight(18);
     btnSettings.SetFontHeight(18);
-}
-
-void TOOLS::Layout(void)
-{
-    LEN len(*this, PAD(16, 6, 16, 0), PAD(24, 0));
-    len.StartFlow();
-    len.PositionLeft(btnOpen);
-    len.PositionLeft(btnOpenProject);
-    len.PositionLeft(btnPrint);
-    len.PositionRight(btnSettings);
-    len.EndFlow();
+    btnSettings.SetLeit({ .lerole = LEROLE::ToolbarRight, .lealignh = LEALIGNH::Right });
 }
 
 /*

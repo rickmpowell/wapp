@@ -350,16 +350,16 @@ string to_string(const TC tc)
 {
     if (tc.dnmv < nmvInfinite) {
         if (tc.dtpInc == 0s)
-            return format("{}/{}",
-                          duration_cast<minutes>(tc.dtpTotal).count(),
-                          tc.dnmv);
+            return SFormat("{}/{}",
+                           duration_cast<minutes>(tc.dtpTotal).count(),
+                           tc.dnmv);
         else
-            return format("{}/{}+{}",
-                          duration_cast<minutes>(tc.dtpTotal).count(),
-                          tc.dnmv,
-                          duration_cast<seconds>(tc.dtpInc).count());
+            return SFormat("{}/{}+{}",
+                           duration_cast<minutes>(tc.dtpTotal).count(),
+                           tc.dnmv,
+                           duration_cast<seconds>(tc.dtpInc).count());
     }
-    return format("{}+{}",
-                  duration_cast<minutes>(tc.dtpTotal).count(),
-                  duration_cast<seconds>(tc.dtpInc).count());
+    return SFormat("{}+{}",
+                   duration_cast<minutes>(tc.dtpTotal).count(),
+                   duration_cast<seconds>(tc.dtpInc).count());
 }
