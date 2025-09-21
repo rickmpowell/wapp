@@ -3,8 +3,8 @@ var indexSectionsWithContent =
   0: "abcdefghilmnoprstuvw~",
   1: "abcdefghilmoprstvw",
   2: "acdefilprtuw",
-  3: "acdefghimoprstuw~",
-  4: "csw",
+  3: "acdefghilmoprstuw~",
+  4: "lsw",
   5: "adfw"
 };
 

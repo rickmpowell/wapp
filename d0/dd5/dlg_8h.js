@@ -11,7 +11,7 @@ var dlg_8h =
     [ "CMDOK", "dd/d75/classCMDOK.html", null ],
     [ "CMDCANCEL", "de/d80/classCMDCANCEL.html", null ],
     [ "BTNOK", "df/d72/classBTNOK.html", null ],
-    [ "TITLEDLG", "d0/dd0/classTITLEDLG.html", null ],
+    [ "TITLEDLG", "d0/dd0/classTITLEDLG.html", "d0/dd0/classTITLEDLG" ],
     [ "INSTRUCT", "d9/d87/classINSTRUCT.html", null ],
-    [ "DLGABOUT", "da/d82/classDLGABOUT.html", null ]
+    [ "DLGABOUT", "da/d82/classDLGABOUT.html", "da/d82/classDLGABOUT" ]
 ];

@@ -180,6 +180,15 @@ $(document).ready(function(){initNavTree('d8/d3c/util_8h_source.html','../../');
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keywordtype">bool</span> fEof = <span class="keyword">false</span>;</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>};</div>
 </div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span><span class="keywordtype">string</span> SVFormat(string_view fmt, format_args args);</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Args&gt;</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span><span class="keywordtype">string</span> SFormat(string_view fmt, Args&amp;&amp;... args)</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>{</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    <span class="keywordflow">return</span> SVFormat(fmt, make_format_args(args...));</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>}</div>
 <div class="ttc" id="aclasslinestream_html"><div class="ttname"><a href="../../d9/d59/classlinestream.html">linestream</a></div><div class="ttdef"><b>Definition</b> <a href="../../d8/d3c/util_8h_source.html#l00096">util.h:96</a></div></div>
 <div class="ttc" id="aframework_8h_html"><div class="ttname"><a href="../../d6/d29/framework_8h.html">framework.h</a></div><div class="ttdoc">System and standard library headers.</div></div>
 <div class="ttc" id="autil_8h_html_a79397a9c2bf1593c3a3ced62adb36dae"><div class="ttname"><a href="../../d8/d3c/util_8h.html#a79397a9c2bf1593c3a3ced62adb36dae">index_of</a></div><div class="ttdeci">constexpr size_t index_of(const array&lt; T, ct &gt; &amp;at, const T &amp;t)</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d3c/util_8h_source.html#l00052">util.h:52</a></div></div>

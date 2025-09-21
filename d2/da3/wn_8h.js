@@ -1,6 +1,6 @@
 var wn_8h =
 [
-    [ "WN", "db/dd4/classWN.html", null ],
+    [ "WN", "db/dd4/classWN.html", "db/dd4/classWN" ],
     [ "SCROLL", "d5/d20/classSCROLL.html", null ],
     [ "SCROLLLN", "da/dc7/classSCROLLLN.html", null ],
     [ "SCROLLLNFIXED", "da/d80/classSCROLLLNFIXED.html", null ],

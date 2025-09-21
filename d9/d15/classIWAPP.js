@@ -10,5 +10,9 @@ var classIWAPP =
     [ "InitMenuCmd", "d9/d15/classIWAPP.html#a3cb7b7b5bdf6e14d72d261e454c659ea", null ],
     [ "InitMenuCmds", "d9/d15/classIWAPP.html#a19d2c1a01cebbb435124e9e24e203e1a", null ],
     [ "InitPopupMenuCmds", "d9/d15/classIWAPP.html#ab0d00379b88687aa0054321a3cee446f", null ],
-    [ "RegisterMenuCmds", "d9/d15/classIWAPP.html#ad5e449b3021efa240b7f90f270b0a6ec", null ]
+    [ "Layout", "d9/d15/classIWAPP.html#acd9c8b501fb54e82fcea7214ca639eb3", null ],
+    [ "OnCreate", "d9/d15/classIWAPP.html#a48652d606a41dd33a46836d7ee0a082a", null ],
+    [ "OnDestroy", "d9/d15/classIWAPP.html#aa44b93da643f0f82b765a0126ac84398", null ],
+    [ "RegisterMenuCmds", "d9/d15/classIWAPP.html#ad5e449b3021efa240b7f90f270b0a6ec", null ],
+    [ "Show", "d9/d15/classIWAPP.html#aa24847636921eb588a8789f3d6519460", null ]
 ];

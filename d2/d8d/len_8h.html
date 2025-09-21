@@ -91,14 +91,16 @@ $(document).ready(function(){initNavTree('d2/d8d/len_8h.html','../../'); initRes
 
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a>  </div>
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#enum-members">Enumerations</a>  </div>
   <div class="headertitle"><div class="title">len.h File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
 <p>Layout engine.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="../../d0/dd5/dlg_8h_source.html">dlg.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="../../d6/d29/framework_8h_source.html">framework.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="../../d7/d56/coord_8h_source.html">coord.h</a>&quot;</code><br />
 </div>
 <p><a href="../../d2/d8d/len_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -108,15 +110,232 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d05/classLENDLG.html">LENDLG</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dee/structLEIT.html">LEIT</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d0b/classLE.html">LE</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layout engine.  <a href="../../da/d0b/classLE.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:acfeea9ddfe2446742fab30e09c2a7f35" id="r_acfeea9ddfe2446742fab30e09c2a7f35"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d8d/len_8h.html#acfeea9ddfe2446742fab30e09c2a7f35">LEROLE</a> : uint32_t { <br />
+&#160;&#160;<b>None</b> = 0
+, <b>DialogTitle</b>
+, <b>DialogInstruction</b>
+, <b>OKButton</b>
+, <br />
+&#160;&#160;<b>ToolbarCmdButton</b>
+, <b>ToolbarRight</b>
+, <b>Max</b>
+<br />
+ }</td></tr>
+<tr class="memdesc:acfeea9ddfe2446742fab30e09c2a7f35"><td class="mdescLeft">&#160;</td><td class="mdescRight">The role of an item in the layout engine.  <a href="../../d2/d8d/len_8h.html#acfeea9ddfe2446742fab30e09c2a7f35">More...</a><br /></td></tr>
+<tr class="separator:acfeea9ddfe2446742fab30e09c2a7f35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a843eb22da9165d77504a48339014571d" id="r_a843eb22da9165d77504a48339014571d"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d8d/len_8h.html#a843eb22da9165d77504a48339014571d">LEALIGNH</a> : uint32_t { <b>Left</b> = 0
+, <b>Right</b>
+, <b>Center</b>
+ }</td></tr>
+<tr class="memdesc:a843eb22da9165d77504a48339014571d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Horizontal alignment behavior.  <a href="../../d2/d8d/len_8h.html#a843eb22da9165d77504a48339014571d">More...</a><br /></td></tr>
+<tr class="separator:a843eb22da9165d77504a48339014571d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb57db92269b9f8f88007a061bbe7d35" id="r_aeb57db92269b9f8f88007a061bbe7d35"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d8d/len_8h.html#aeb57db92269b9f8f88007a061bbe7d35">LEALIGNV</a> : uint32_t { <b>Top</b> = 0
+, <b>Bottom</b>
+, <b>Center</b>
+, <b>Baseline</b>
+ }</td></tr>
+<tr class="memdesc:aeb57db92269b9f8f88007a061bbe7d35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vertical alignment behavior.  <a href="../../d2/d8d/len_8h.html#aeb57db92269b9f8f88007a061bbe7d35">More...</a><br /></td></tr>
+<tr class="separator:aeb57db92269b9f8f88007a061bbe7d35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28829e47649eda6cd16576eb6bb0cadd" id="r_a28829e47649eda6cd16576eb6bb0cadd"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d8d/len_8h.html#a28829e47649eda6cd16576eb6bb0cadd">LESTRETCH</a> : uint32_t { <br />
+&#160;&#160;<b>None</b> = 0
+, <b>FitToContent</b>
+, <b>FillToContainer</b>
+, <b>KeepWidth</b>
+, <br />
+&#160;&#160;<b>KeepHeight</b>
+, <b>KeepAspect</b>
+<br />
+ }</td></tr>
+<tr class="memdesc:a28829e47649eda6cd16576eb6bb0cadd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stretch behavior.  <a href="../../d2/d8d/len_8h.html#a28829e47649eda6cd16576eb6bb0cadd">More...</a><br /></td></tr>
+<tr class="separator:a28829e47649eda6cd16576eb6bb0cadd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4fe713e5fcfb82a6ebb3557d65a4df6" id="r_ac4fe713e5fcfb82a6ebb3557d65a4df6"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><b>LEGUTTER</b> : uint32_t { <b>Standard</b> = 0
+, <b>Reduced</b> = 1
+ }</td></tr>
+<tr class="separator:ac4fe713e5fcfb82a6ebb3557d65a4df6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acae28d2cabb3080d0c5f87defa7635a1" id="r_acae28d2cabb3080d0c5f87defa7635a1"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><b>LEINTERIOR</b> : uint32_t { <b>None</b> = 0
+, <b>ScaleInteriorToFit</b> = 1
+ }</td></tr>
+<tr class="separator:acae28d2cabb3080d0c5f87defa7635a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Layout engine. </p>
 <p>A rudimentary and experimental layout engine for aiding in the automatic layout of dialog boxes.</p>
+<p>The engine is derived from the CSS flexbox model and uses the same terminology and concepts. It is not complete, however.</p>
 <dl class="section author"><dt>Author</dt><dd>Richard Powell</dd></dl>
 <dl class="section copyright"><dt>Copyright</dt><dd>Copyright (c) 2025 by Richard Powell </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="../../d2/d8d/len_8h_source.html">len.h</a>.</p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a843eb22da9165d77504a48339014571d" name="a843eb22da9165d77504a48339014571d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a843eb22da9165d77504a48339014571d">&#9670;&#160;</a></span>LEALIGNH</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="../../d2/d8d/len_8h.html#a843eb22da9165d77504a48339014571d">LEALIGNH</a> : uint32_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Horizontal alignment behavior. </p>
+<p>Layout engine behaviors.</p>
+<p>These are standard specific behaviors that an item will exhibit during layout.</p>
+<p><br  />
+ </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d8d/len_8h_source.html#l00124">124</a> of file <a class="el" href="../../d2/d8d/len_8h_source.html">len.h</a>.</p>
+
+</div>
+</div>
+<a id="aeb57db92269b9f8f88007a061bbe7d35" name="aeb57db92269b9f8f88007a061bbe7d35"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb57db92269b9f8f88007a061bbe7d35">&#9670;&#160;</a></span>LEALIGNV</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="../../d2/d8d/len_8h.html#aeb57db92269b9f8f88007a061bbe7d35">LEALIGNV</a> : uint32_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Vertical alignment behavior. </p>
+<p><br  />
+ </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d8d/len_8h_source.html#l00137">137</a> of file <a class="el" href="../../d2/d8d/len_8h_source.html">len.h</a>.</p>
+
+</div>
+</div>
+<a id="ac4fe713e5fcfb82a6ebb3557d65a4df6" name="ac4fe713e5fcfb82a6ebb3557d65a4df6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4fe713e5fcfb82a6ebb3557d65a4df6">&#9670;&#160;</a></span>LEGUTTER</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class LEGUTTER : uint32_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d8d/len_8h_source.html#l00161">161</a> of file <a class="el" href="../../d2/d8d/len_8h_source.html">len.h</a>.</p>
+
+</div>
+</div>
+<a id="acae28d2cabb3080d0c5f87defa7635a1" name="acae28d2cabb3080d0c5f87defa7635a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acae28d2cabb3080d0c5f87defa7635a1">&#9670;&#160;</a></span>LEINTERIOR</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class LEINTERIOR : uint32_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d8d/len_8h_source.html#l00166">166</a> of file <a class="el" href="../../d2/d8d/len_8h_source.html">len.h</a>.</p>
+
+</div>
+</div>
+<a id="acfeea9ddfe2446742fab30e09c2a7f35" name="acfeea9ddfe2446742fab30e09c2a7f35"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acfeea9ddfe2446742fab30e09c2a7f35">&#9670;&#160;</a></span>LEROLE</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="../../d2/d8d/len_8h.html#acfeea9ddfe2446742fab30e09c2a7f35">LEROLE</a> : uint32_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The role of an item in the layout engine. </p>
+<p>The role is typically assigned by the container to each item. It indicates the purpose of the item within the container, and is used by the layout engine to determine how to size and position the item.</p>
+<p>Roles are typically specific to a particular container type. A toolbar will have different roles than a dialog box, for example. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d8d/len_8h_source.html#l00100">100</a> of file <a class="el" href="../../d2/d8d/len_8h_source.html">len.h</a>.</p>
+
+</div>
+</div>
+<a id="a28829e47649eda6cd16576eb6bb0cadd" name="a28829e47649eda6cd16576eb6bb0cadd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a28829e47649eda6cd16576eb6bb0cadd">&#9670;&#160;</a></span>LESTRETCH</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="../../d2/d8d/len_8h.html#a28829e47649eda6cd16576eb6bb0cadd">LESTRETCH</a> : uint32_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Stretch behavior. </p>
+<p>The behavior we use to stretch an item to fit the available space. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d8d/len_8h_source.html#l00152">152</a> of file <a class="el" href="../../d2/d8d/len_8h_source.html">len.h</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

@@ -6,5 +6,6 @@ var classAPP =
     [ "HcursorLoad", "d5/d9b/classAPP.html#a6eb92ab2fa6ec8cd6dba7cd37a4571e4", null ],
     [ "HiconDef", "d5/d9b/classAPP.html#a403ad292ed81086e249c3720da54e1c9", null ],
     [ "HiconLoad", "d5/d9b/classAPP.html#afcad10b392ea24d5858f506d9632cfa2", null ],
+    [ "HiconLoad", "d5/d9b/classAPP.html#ab65e4594fae615fe7101c2e5a99787c0", null ],
     [ "SLoad", "d5/d9b/classAPP.html#a3c47fb3334ad8733ead1b0f279b378a5", null ]
 ];

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['iclipbuffer_0',['iclipbuffer',['../d2/dcf/classiclipbuffer.html',1,'']]],
+  ['iclipbuffer_0',['iclipbuffer',['../d2/dcf/classiclipbuffer.html',1,'iclipbuffer'],['../d2/dcf/classiclipbuffer.html#a77d59172b682c132a589a02bf50438eb',1,'iclipbuffer::iclipbuffer()']]],
   ['iclipstream_1',['iclipstream',['../d7/d9b/classiclipstream.html',1,'']]],
   ['icmd_2',['ICMD',['../d1/d45/classICMD.html',1,'']]],
   ['id_2eh_3',['id.h',['../df/db9/id_8h.html',1,'']]],

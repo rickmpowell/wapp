@@ -196,9 +196,9 @@ $(document).ready(function(){initNavTree('d4/d52/dlg_8cpp_source.html','../../')
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span><span class="keywordtype">void</span> DLG::ShowCentered(<span class="keywordtype">void</span>)</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>{</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a> sz = SzRequestLayout(RcInterior());</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    SetBounds(<a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>(iwapp.RcInterior().ptCenter() - sz/2, sz));</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    Show(<span class="keyword">true</span>);</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a> sz = SzIntrinsic(RcInterior());</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <a class="code hl_function" href="../../db/dd4/classWN.html#a7f6d343598c89bd5427de0c496418e5c">SetBounds</a>(<a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>(iwapp.RcInterior().ptCenter() - sz/2, sz));</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <a class="code hl_function" href="../../db/dd4/classWN.html#a8dea22ce7167fd8db440c3a7023cdc62">Show</a>(<span class="keyword">true</span>);</div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>}</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><a class="code hl_class" href="../../d8/d5a/classCO.html">CO</a> DLG::CoText(<span class="keywordtype">void</span>)<span class="keyword"> const</span></div>
@@ -223,7 +223,7 @@ $(document).ready(function(){initNavTree('d4/d52/dlg_8cpp_source.html','../../')
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span><span class="keywordtype">void</span> DLG::End(<span class="keywordtype">int</span> val)</div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>{</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    Show(<span class="keyword">false</span>);</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <a class="code hl_function" href="../../db/dd4/classWN.html#a8dea22ce7167fd8db440c3a7023cdc62">Show</a>(<span class="keyword">false</span>);</div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    fEnd = <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    this-&gt;val = val;</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>}</div>
@@ -242,7 +242,7 @@ $(document).ready(function(){initNavTree('d4/d52/dlg_8cpp_source.html','../../')
 <div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span> </div>
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span><span class="keywordtype">int</span> DLG::QuitPump(MSG&amp; msg)</div>
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>{</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    Show(<span class="keyword">false</span>);</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    <a class="code hl_function" href="../../db/dd4/classWN.html#a8dea22ce7167fd8db440c3a7023cdc62">Show</a>(<span class="keyword">false</span>);</div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    iwapp.PopEvd();</div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <span class="keywordflow">return</span> val;</div>
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>}</div>
@@ -458,29 +458,31 @@ $(document).ready(function(){initNavTree('d4/d52/dlg_8cpp_source.html','../../')
 <div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    title(*this, rssAboutTitle),</div>
 <div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    instruct(*this, rssAboutInstruct),</div>
 <div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>    copyright(*this, rssAboutCopyright),</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    icon(*this, rsiAppLarge),</div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    icon(*this, rsiApp),</div>
 <div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>    btnok(*this)</div>
 <div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>{</div>
 <div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>    instruct.SetFontHeight(16);</div>
 <div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>    copyright.SetFontHeight(16);</div>
 <div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>}</div>
 <div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span> </div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span><span class="keywordtype">void</span> DLGABOUT::Layout(<span class="keywordtype">void</span>)</div>
+<div class="foldopen" id="foldopen00368" data-start="{" data-end="}">
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno"><a class="line" href="../../da/d82/classDLGABOUT.html#a4185050994d10ce65721789ff7f229d8">  368</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../da/d82/classDLGABOUT.html#a4185050994d10ce65721789ff7f229d8">DLGABOUT::Layout</a>(<span class="keywordtype">void</span>)</div>
 <div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>{</div>
 <div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>    <a class="code hl_class" href="../../dd/d05/classLENDLG.html">LENDLG</a> len(*<span class="keyword">this</span>);</div>
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>    len.Position(title);</div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>    len.<a class="code hl_function" href="../../df/df1/classLEN.html#a27d7815556cfae83d70acc7bfaf8c4c0">Position</a>(title);</div>
 <div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>    len.AdjustMarginDy(dxyDlgGutter / 2);</div>
 <div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    len.StartFlow();</div>
 <div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>    len.PositionLeft(icon);</div>
 <div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>    <a class="code hl_class" href="../../df/df1/classLEN.html">LEN</a> len2(len.RcFlow(), <a class="code hl_class" href="../../d5/d9a/classPAD.html">PAD</a>(0), <a class="code hl_class" href="../../d5/d9a/classPAD.html">PAD</a>(16));</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>        len2.Position(instruct);</div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>        len2.Position(copyright);</div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>        len2.<a class="code hl_function" href="../../df/df1/classLEN.html#a27d7815556cfae83d70acc7bfaf8c4c0">Position</a>(instruct);</div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>        len2.<a class="code hl_function" href="../../df/df1/classLEN.html#a27d7815556cfae83d70acc7bfaf8c4c0">Position</a>(copyright);</div>
 <div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>    len.EndFlow();</div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>    len.PositionOK(btnok);</div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>    len.<a class="code hl_function" href="../../df/df1/classLEN.html#a45e0438266b45bc4a73996f0b37df073">PositionOK</a>(btnok);</div>
 <div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>}</div>
+</div>
 <div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span> </div>
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span><a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a> DLGABOUT::SzRequestLayout(<span class="keyword">const</span> <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>&amp; rcWithin)<span class="keyword"> const</span></div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span><span class="keyword"></span>{</div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span><a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a> DLGABOUT::SzIntrinsic(<span class="keyword">const</span> <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>&amp; rcWithin)</div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>{</div>
 <div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    <span class="keywordflow">return</span> <a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a>(700, 360);</div>
 <div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>}</div>
 <div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span> </div>
@@ -502,18 +504,20 @@ $(document).ready(function(){initNavTree('d4/d52/dlg_8cpp_source.html','../../')
 <div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>    SetFont(sFontUI, 40, TF::WEIGHT::Bold);</div>
 <div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>}</div>
 <div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span> </div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span><span class="keywordtype">void</span> TITLEDLG::Layout(<span class="keywordtype">void</span>)</div>
+<div class="foldopen" id="foldopen00405" data-start="{" data-end="}">
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno"><a class="line" href="../../d0/dd0/classTITLEDLG.html#a6903025b2f4bc9c5fff562b40765190a">  405</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../d0/dd0/classTITLEDLG.html#a6903025b2f4bc9c5fff562b40765190a">TITLEDLG::Layout</a>(<span class="keywordtype">void</span>)</div>
 <div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>{</div>
 <div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>    <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a> rc(RcInterior());</div>
 <div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>    <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a> rcClose(rc);</div>
 <div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>    <span class="keywordtype">float</span> dxyClose = rc.dyHeight() * 0.5f;</div>
 <div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>    rcClose.left = rcClose.right - dxyClose;</div>
 <div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>    rcClose.CenterDy(dxyClose);</div>
-<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>    btnclose.SetBounds(rcClose);</div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>    btnclose.<a class="code hl_function" href="../../db/dd4/classWN.html#a7f6d343598c89bd5427de0c496418e5c">SetBounds</a>(rcClose);</div>
 <div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>}</div>
+</div>
 <div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span> </div>
-<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span><a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a> TITLEDLG::SzRequestLayout(<span class="keyword">const</span> <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>&amp; rcWithin)<span class="keyword"> const</span></div>
-<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span><span class="keyword"></span>{</div>
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span><a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a> TITLEDLG::SzIntrinsic(<span class="keyword">const</span> <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>&amp; rcWithin)</div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>{</div>
 <div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>    <a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a> sz(SzFromS(sImage, tf));</div>
 <div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>    sz.width = max(sz.width, rcWithin.dxWidth());</div>
 <div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>    <span class="keywordflow">return</span> sz;</div>
@@ -541,20 +545,26 @@ $(document).ready(function(){initNavTree('d4/d52/dlg_8cpp_source.html','../../')
 <div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span>}</div>
 <div class="ttc" id="aclassCMDCANCEL_html"><div class="ttname"><a href="../../de/d80/classCMDCANCEL.html">CMDCANCEL</a></div><div class="ttdoc">Clicking the cancel button in the titlebar of dialogs.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00220">dlg.h:221</a></div></div>
 <div class="ttc" id="aclassCO_html"><div class="ttname"><a href="../../d8/d5a/classCO.html">CO</a></div><div class="ttdoc">A simple RGB color.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dec/color_8h_source.html#l00028">color.h:29</a></div></div>
+<div class="ttc" id="aclassDLGABOUT_html_a4185050994d10ce65721789ff7f229d8"><div class="ttname"><a href="../../da/d82/classDLGABOUT.html#a4185050994d10ce65721789ff7f229d8">DLGABOUT::Layout</a></div><div class="ttdeci">virtual void Layout(void) override</div><div class="ttdoc">Notification sent when a WN changes size and/or location.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d52/dlg_8cpp_source.html#l00368">dlg.cpp:368</a></div></div>
 <div class="ttc" id="aclassDLGFILEOPEN_html"><div class="ttname"><a href="../../d9/d7d/classDLGFILEOPEN.html">DLGFILEOPEN</a></div><div class="ttdoc">Dialog wrapper for standard Windows open dialog.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00118">dlg.h:119</a></div></div>
 <div class="ttc" id="aclassDLGFILE_html"><div class="ttname"><a href="../../d5/d73/classDLGFILE.html">DLGFILE</a></div><div class="ttdoc">Base class for standard file dialogs.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00096">dlg.h:97</a></div></div>
 <div class="ttc" id="aclassDLG_html"><div class="ttname"><a href="../../d1/d5a/classDLG.html">DLG</a></div><div class="ttdoc">Dialog box window.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00037">dlg.h:38</a></div></div>
 <div class="ttc" id="aclassEVD_html"><div class="ttname"><a href="../../d2/ded/classEVD.html">EVD</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/d55/ev_8h_source.html#l00028">ev.h:29</a></div></div>
 <div class="ttc" id="aclassIWAPP_html"><div class="ttname"><a href="../../d9/d15/classIWAPP.html">IWAPP</a></div><div class="ttdoc">The Windows Application.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d48/wapp_8h_source.html#l00039">wapp.h:40</a></div></div>
 <div class="ttc" id="aclassIWAPP_html_a8986518db8a102cf26965c305e7b4fab"><div class="ttname"><a href="../../d9/d15/classIWAPP.html#a8986518db8a102cf26965c305e7b4fab">IWAPP::FExecuteCmd</a></div><div class="ttdeci">bool FExecuteCmd(const ICMD &amp;icmd)</div><div class="ttdoc">Dispatches the command through the event system.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00018">cmd.cpp:18</a></div></div>
-<div class="ttc" id="aclassLENDLG_html"><div class="ttname"><a href="../../dd/d05/classLENDLG.html">LENDLG</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d8d/len_8h_source.html#l00073">len.h:74</a></div></div>
-<div class="ttc" id="aclassLEN_html"><div class="ttname"><a href="../../df/df1/classLEN.html">LEN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d8d/len_8h_source.html#l00028">len.h:29</a></div></div>
+<div class="ttc" id="aclassLENDLG_html"><div class="ttname"><a href="../../dd/d05/classLENDLG.html">LENDLG</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d8d/len_8h_source.html#l00080">len.h:81</a></div></div>
+<div class="ttc" id="aclassLEN_html"><div class="ttname"><a href="../../df/df1/classLEN.html">LEN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/d8d/len_8h_source.html#l00035">len.h:36</a></div></div>
+<div class="ttc" id="aclassLEN_html_a27d7815556cfae83d70acc7bfaf8c4c0"><div class="ttname"><a href="../../df/df1/classLEN.html#a27d7815556cfae83d70acc7bfaf8c4c0">LEN::Position</a></div><div class="ttdeci">void Position(WN &amp;wn)</div><div class="ttdoc">Lays out a control full-width within the layout rectangle.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d8f/len_8cpp_source.html#l00042">len.cpp:42</a></div></div>
+<div class="ttc" id="aclassLEN_html_a45e0438266b45bc4a73996f0b37df073"><div class="ttname"><a href="../../df/df1/classLEN.html#a45e0438266b45bc4a73996f0b37df073">LEN::PositionOK</a></div><div class="ttdeci">void PositionOK(CTL &amp;ctl)</div><div class="ttdoc">Positions an OK button in the bottom right corner.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d8f/len_8cpp_source.html#l00223">len.cpp:223</a></div></div>
 <div class="ttc" id="aclassPAD_html"><div class="ttname"><a href="../../d5/d9a/classPAD.html">PAD</a></div><div class="ttdoc">Padding used for layout.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00332">coord.h:333</a></div></div>
 <div class="ttc" id="aclassRC_html"><div class="ttname"><a href="../../d2/d9b/classRC.html">RC</a></div><div class="ttdoc">A rectangle class on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00373">coord.h:374</a></div></div>
-<div class="ttc" id="aclassSTATICL_html"><div class="ttname"><a href="../../d5/d4e/classSTATICL.html">STATICL</a></div><div class="ttdoc">Static text control, left aligned.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00141">ctl.h:142</a></div></div>
-<div class="ttc" id="aclassSTATIC_html"><div class="ttname"><a href="../../d4/dc5/classSTATIC.html">STATIC</a></div><div class="ttdoc">Base class for no-UI static controls.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00113">ctl.h:114</a></div></div>
+<div class="ttc" id="aclassSTATICL_html"><div class="ttname"><a href="../../d5/d4e/classSTATICL.html">STATICL</a></div><div class="ttdoc">Static text control, left aligned.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00125">ctl.h:126</a></div></div>
+<div class="ttc" id="aclassSTATIC_html"><div class="ttname"><a href="../../d4/dc5/classSTATIC.html">STATIC</a></div><div class="ttdoc">Base class for no-UI static controls.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00097">ctl.h:98</a></div></div>
 <div class="ttc" id="aclassSZ_html"><div class="ttname"><a href="../../db/dfa/classSZ.html">SZ</a></div><div class="ttdoc">a size on the screen</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00026">coord.h:27</a></div></div>
-<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00042">wn.h:43</a></div></div>
+<div class="ttc" id="aclassTITLEDLG_html_a6903025b2f4bc9c5fff562b40765190a"><div class="ttname"><a href="../../d0/dd0/classTITLEDLG.html#a6903025b2f4bc9c5fff562b40765190a">TITLEDLG::Layout</a></div><div class="ttdeci">virtual void Layout(void) override</div><div class="ttdoc">Notification sent when a WN changes size and/or location.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d52/dlg_8cpp_source.html#l00405">dlg.cpp:405</a></div></div>
+<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00043">wn.h:44</a></div></div>
+<div class="ttc" id="aclassWN_html_a7f6d343598c89bd5427de0c496418e5c"><div class="ttname"><a href="../../db/dd4/classWN.html#a7f6d343598c89bd5427de0c496418e5c">WN::SetBounds</a></div><div class="ttdeci">virtual void SetBounds(const RC &amp;rcpNew)</div><div class="ttdoc">Sets the bounds of the WN.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d1d/wn_8cpp_source.html#l00073">wn.cpp:73</a></div></div>
+<div class="ttc" id="aclassWN_html_a8dea22ce7167fd8db440c3a7023cdc62"><div class="ttname"><a href="../../db/dd4/classWN.html#a8dea22ce7167fd8db440c3a7023cdc62">WN::Show</a></div><div class="ttdeci">virtual void Show(bool fShow=true)</div><div class="ttdoc">Shows or hides the window.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d1d/wn_8cpp_source.html#l00120">wn.cpp:120</a></div></div>
 <div class="ttc" id="aclassglobal__ptr_html"><div class="ttname"><a href="../../d5/dd3/classglobal__ptr.html">global_ptr</a></div><div class="ttdoc">A managed pointer to a memory object allocated with GlobalAlloc.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d39/app_8h_source.html#l00323">app.h:324</a></div></div>
 <div class="ttc" id="aid_8h_html"><div class="ttname"><a href="../../df/db9/id_8h.html">id.h</a></div><div class="ttdoc">Resource ids.</div></div>
 <div class="ttc" id="astructOFN_html"><div class="ttname"><a href="../../df/daa/structOFN.html">OFN</a></div><div class="ttdoc">Wrapper class around OPENFILENAME structure.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00073">dlg.h:74</a></div></div>

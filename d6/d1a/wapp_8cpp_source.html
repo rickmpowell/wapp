@@ -208,7 +208,7 @@ $(document).ready(function(){initNavTree('d6/d1a/wapp_8cpp_source.html','../../'
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span><span class="keywordtype">void</span> IWAPP::CreateWnd(<span class="keyword">const</span> <span class="keywordtype">string</span>&amp; sTitle, <span class="keywordtype">int</span> ws, <a class="code hl_class" href="../../dc/d71/classPT.html">PT</a> pt, <a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a> sz)</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>{</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    fVisible = (ws &amp; WS_VISIBLE) != 0;</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    WNDMAIN::CreateWnd(sTitle, ws, pt, sz);</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <a class="code hl_function" href="../../d3/def/classWNDMAIN.html#a55fb154da27446e23404281559ef9ee7">WNDMAIN::CreateWnd</a>(sTitle, ws, pt, sz);</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keywordflow">if</span> (fVisible)</div>
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>        <a class="code hl_function" href="../../d7/d6d/classWND.html#a6caafc86e50ee71352a0a72b49e91dfe">UpdateWnd</a>();</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordflow">if</span> (GetMenu(hwnd) != NULL)</div>
@@ -224,16 +224,20 @@ $(document).ready(function(){initNavTree('d6/d1a/wapp_8cpp_source.html','../../'
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span><span class="comment"> *  Window notifications</span></div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span> </div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span><span class="keywordtype">void</span> IWAPP::OnCreate(<span class="keywordtype">void</span>)</div>
+<div class="foldopen" id="foldopen00127" data-start="{" data-end="}">
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno"><a class="line" href="../../d9/d15/classIWAPP.html#a48652d606a41dd33a46836d7ee0a082a">  127</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../d9/d15/classIWAPP.html#a48652d606a41dd33a46836d7ee0a082a">IWAPP::OnCreate</a>(<span class="keywordtype">void</span>)</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>{</div>
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    RebuildAllDevIndeps();</div>
 <div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    RebuildAllDevDeps();</div>
 <div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>}</div>
+</div>
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span><span class="keywordtype">void</span> IWAPP::OnDestroy(<span class="keywordtype">void</span>)</div>
+<div class="foldopen" id="foldopen00133" data-start="{" data-end="}">
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno"><a class="line" href="../../d9/d15/classIWAPP.html#aa44b93da643f0f82b765a0126ac84398">  133</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../d9/d15/classIWAPP.html#aa44b93da643f0f82b765a0126ac84398">IWAPP::OnDestroy</a>(<span class="keywordtype">void</span>)</div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>{</div>
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    ::PostQuitMessage(0);</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>}</div>
+</div>
 <div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span> </div>
 <div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span><span class="keywordtype">void</span> IWAPP::OnDisplayChange(<span class="keywordtype">void</span>)</div>
 <div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>{</div>
@@ -245,7 +249,7 @@ $(document).ready(function(){initNavTree('d6/d1a/wapp_8cpp_source.html','../../'
 <div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    PurgeAllDevDeps();</div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    RebuildAllDevDeps();</div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <span class="keywordflow">if</span> (!fMinimized)</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>        SetBounds(<a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>(<a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>(0), sz));</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>        <a class="code hl_function" href="../../db/dd4/classWN.html#a7f6d343598c89bd5427de0c496418e5c">SetBounds</a>(<a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>(<a class="code hl_class" href="../../dc/d71/classPT.html">PT</a>(0), sz));</div>
 <div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>}</div>
 <div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span> </div>
 <div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span><span class="keywordtype">void</span> IWAPP::OnMinimize(<span class="keywordtype">bool</span> fMinimize)</div>
@@ -321,20 +325,24 @@ $(document).ready(function(){initNavTree('d6/d1a/wapp_8cpp_source.html','../../'
 <div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="comment"> *  Window operations that make sense for the top-level HWND</span></div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span> </div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="keywordtype">void</span> IWAPP::Show(<span class="keywordtype">bool</span> fShow)</div>
+<div class="foldopen" id="foldopen00224" data-start="{" data-end="}">
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno"><a class="line" href="../../d9/d15/classIWAPP.html#aa24847636921eb588a8789f3d6519460">  224</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../d9/d15/classIWAPP.html#aa24847636921eb588a8789f3d6519460">IWAPP::Show</a>(<span class="keywordtype">bool</span> fShow)</div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>{</div>
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    <a class="code hl_function" href="../../d7/d6d/classWND.html#aca28b2935bf969c0626e6c9c2dc81c6f">ShowWnd</a>(fShow ? SW_SHOW : SW_HIDE);</div>
 <div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    <span class="keywordflow">if</span> (fVisible)</div>
 <div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>        <a class="code hl_function" href="../../d7/d6d/classWND.html#a6caafc86e50ee71352a0a72b49e91dfe">UpdateWnd</a>();</div>
 <div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>}</div>
+</div>
 <div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span> </div>
 <div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span><span class="comment">/*</span></div>
 <div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span><span class="comment"> *  Layout</span></div>
 <div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span><span class="comment"> */</span></div>
 <div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span><span class="keywordtype">void</span> IWAPP::Layout(<span class="keywordtype">void</span>)</div>
+<div class="foldopen" id="foldopen00235" data-start="{" data-end="}">
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno"><a class="line" href="../../d9/d15/classIWAPP.html#acd9c8b501fb54e82fcea7214ca639eb3">  235</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="../../d9/d15/classIWAPP.html#acd9c8b501fb54e82fcea7214ca639eb3">IWAPP::Layout</a>(<span class="keywordtype">void</span>)</div>
 <div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>{</div>
 <div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>}</div>
+</div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span> </div>
 <div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span><span class="comment">/*</span></div>
 <div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="comment"> *  Drawing</span></div>
@@ -439,7 +447,7 @@ $(document).ready(function(){initNavTree('d6/d1a/wapp_8cpp_source.html','../../'
 <div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    <span class="comment">/* optionally insert variable into the string */</span></div>
 <div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span> </div>
 <div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    <span class="keywordflow">if</span> (err.fHasVar())</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>        s = vformat(s, make_format_args(err.sVar()));</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>        s = SVFormat(s, make_format_args(err.sVar()));</div>
 <div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    </div>
 <div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>    <span class="keywordflow">return</span> s;</div>
 <div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>}</div>
@@ -509,21 +517,27 @@ $(document).ready(function(){initNavTree('d6/d1a/wapp_8cpp_source.html','../../'
 <div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>    <span class="keywordflow">return</span> SFromWs(wsPath);</div>
 <div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>}</div>
 <div class="ttc" id="aclassAPP_html"><div class="ttname"><a href="../../d5/d9b/classAPP.html">APP</a></div><div class="ttdoc">The base application class.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d39/app_8h_source.html#l00044">app.h:45</a></div></div>
-<div class="ttc" id="aclassAPP_html_a3c47fb3334ad8733ead1b0f279b378a5"><div class="ttname"><a href="../../d5/d9b/classAPP.html#a3c47fb3334ad8733ead1b0f279b378a5">APP::SLoad</a></div><div class="ttdeci">string SLoad(unsigned rss) const</div><div class="ttdef"><b>Definition</b> <a href="../../d5/df2/app_8cpp_source.html#l00075">app.cpp:75</a></div></div>
+<div class="ttc" id="aclassAPP_html_a3c47fb3334ad8733ead1b0f279b378a5"><div class="ttname"><a href="../../d5/d9b/classAPP.html#a3c47fb3334ad8733ead1b0f279b378a5">APP::SLoad</a></div><div class="ttdeci">string SLoad(unsigned rss) const</div><div class="ttdoc">Loads a string resource.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/df2/app_8cpp_source.html#l00072">app.cpp:72</a></div></div>
 <div class="ttc" id="aclassERR_html"><div class="ttname"><a href="../../d7/d24/classERR.html">ERR</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d40/err_8h_source.html#l00029">err.h:30</a></div></div>
 <div class="ttc" id="aclassEVD_html"><div class="ttname"><a href="../../d2/ded/classEVD.html">EVD</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/d55/ev_8h_source.html#l00028">ev.h:29</a></div></div>
 <div class="ttc" id="aclassFILTERMSG_html"><div class="ttname"><a href="../../d9/d14/classFILTERMSG.html">FILTERMSG</a></div><div class="ttdoc">Message filters.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d48/wapp_8h_source.html#l00156">wapp.h:157</a></div></div>
 <div class="ttc" id="aclassIWAPP_html"><div class="ttname"><a href="../../d9/d15/classIWAPP.html">IWAPP</a></div><div class="ttdoc">The Windows Application.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d48/wapp_8h_source.html#l00039">wapp.h:40</a></div></div>
+<div class="ttc" id="aclassIWAPP_html_a48652d606a41dd33a46836d7ee0a082a"><div class="ttname"><a href="../../d9/d15/classIWAPP.html#a48652d606a41dd33a46836d7ee0a082a">IWAPP::OnCreate</a></div><div class="ttdeci">virtual void OnCreate(void) override</div><div class="ttdoc">Create window message handler.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d1a/wapp_8cpp_source.html#l00127">wapp.cpp:127</a></div></div>
+<div class="ttc" id="aclassIWAPP_html_aa24847636921eb588a8789f3d6519460"><div class="ttname"><a href="../../d9/d15/classIWAPP.html#aa24847636921eb588a8789f3d6519460">IWAPP::Show</a></div><div class="ttdeci">virtual void Show(bool fShow=true) override</div><div class="ttdoc">Shows or hides the window.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d1a/wapp_8cpp_source.html#l00224">wapp.cpp:224</a></div></div>
+<div class="ttc" id="aclassIWAPP_html_aa44b93da643f0f82b765a0126ac84398"><div class="ttname"><a href="../../d9/d15/classIWAPP.html#aa44b93da643f0f82b765a0126ac84398">IWAPP::OnDestroy</a></div><div class="ttdeci">virtual void OnDestroy(void) override</div><div class="ttdoc">Destroy window message handler.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d1a/wapp_8cpp_source.html#l00133">wapp.cpp:133</a></div></div>
 <div class="ttc" id="aclassIWAPP_html_ab0d00379b88687aa0054321a3cee446f"><div class="ttname"><a href="../../d9/d15/classIWAPP.html#ab0d00379b88687aa0054321a3cee446f">IWAPP::InitPopupMenuCmds</a></div><div class="ttdeci">void InitPopupMenuCmds(HMENU hmenu)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00194">cmd.cpp:194</a></div></div>
 <div class="ttc" id="aclassIWAPP_html_acb2fc51eed0e261230f97bdf875759c8"><div class="ttname"><a href="../../d9/d15/classIWAPP.html#acb2fc51eed0e261230f97bdf875759c8">IWAPP::FExecuteMenuCmd</a></div><div class="ttdeci">bool FExecuteMenuCmd(int cmd)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00077">cmd.cpp:77</a></div></div>
+<div class="ttc" id="aclassIWAPP_html_acd9c8b501fb54e82fcea7214ca639eb3"><div class="ttname"><a href="../../d9/d15/classIWAPP.html#acd9c8b501fb54e82fcea7214ca639eb3">IWAPP::Layout</a></div><div class="ttdeci">virtual void Layout(void) override</div><div class="ttdoc">Notification sent when a WN changes size and/or location.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/d1a/wapp_8cpp_source.html#l00235">wapp.cpp:235</a></div></div>
 <div class="ttc" id="aclassIWAPP_html_ad5e449b3021efa240b7f90f270b0a6ec"><div class="ttname"><a href="../../d9/d15/classIWAPP.html#ad5e449b3021efa240b7f90f270b0a6ec">IWAPP::RegisterMenuCmds</a></div><div class="ttdeci">virtual void RegisterMenuCmds(void)</div><div class="ttdef"><b>Definition</b> <a href="../../db/d71/cmd_8cpp_source.html#l00170">cmd.cpp:170</a></div></div>
 <div class="ttc" id="aclassPT_html"><div class="ttname"><a href="../../dc/d71/classPT.html">PT</a></div><div class="ttdoc">a floating point point on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00166">coord.h:167</a></div></div>
 <div class="ttc" id="aclassRC_html"><div class="ttname"><a href="../../d2/d9b/classRC.html">RC</a></div><div class="ttdoc">A rectangle class on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00373">coord.h:374</a></div></div>
 <div class="ttc" id="aclassSZ_html"><div class="ttname"><a href="../../db/dfa/classSZ.html">SZ</a></div><div class="ttdoc">a size on the screen</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00026">coord.h:27</a></div></div>
-<div class="ttc" id="aclassWNDMAIN_html"><div class="ttname"><a href="../../d3/def/classWNDMAIN.html">WNDMAIN</a></div><div class="ttdoc">A top-level HWND.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d39/app_8h_source.html#l00165">app.h:166</a></div></div>
-<div class="ttc" id="aclassWND_html_a6caafc86e50ee71352a0a72b49e91dfe"><div class="ttname"><a href="../../d7/d6d/classWND.html#a6caafc86e50ee71352a0a72b49e91dfe">WND::UpdateWnd</a></div><div class="ttdeci">void UpdateWnd(void)</div><div class="ttdoc">Forces a window to draw.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/df2/app_8cpp_source.html#l00225">app.cpp:225</a></div></div>
-<div class="ttc" id="aclassWND_html_aca28b2935bf969c0626e6c9c2dc81c6f"><div class="ttname"><a href="../../d7/d6d/classWND.html#aca28b2935bf969c0626e6c9c2dc81c6f">WND::ShowWnd</a></div><div class="ttdeci">void ShowWnd(int sw=SW_SHOW)</div><div class="ttdef"><b>Definition</b> <a href="../../d5/df2/app_8cpp_source.html#l00234">app.cpp:234</a></div></div>
-<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00042">wn.h:43</a></div></div>
+<div class="ttc" id="aclassWNDMAIN_html"><div class="ttname"><a href="../../d3/def/classWNDMAIN.html">WNDMAIN</a></div><div class="ttdoc">A top-level HWND.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d39/app_8h_source.html#l00166">app.h:167</a></div></div>
+<div class="ttc" id="aclassWNDMAIN_html_a55fb154da27446e23404281559ef9ee7"><div class="ttname"><a href="../../d3/def/classWNDMAIN.html#a55fb154da27446e23404281559ef9ee7">WNDMAIN::CreateWnd</a></div><div class="ttdeci">void CreateWnd(const string &amp;sTitle, DWORD ws=WS_OVERLAPPEDWINDOW, PT pt=PT(CW_USEDEFAULT), SZ sz=SZ(CW_USEDEFAULT))</div><div class="ttdoc">Creates the top-level main window.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/df2/app_8cpp_source.html#l00546">app.cpp:546</a></div></div>
+<div class="ttc" id="aclassWND_html_a6caafc86e50ee71352a0a72b49e91dfe"><div class="ttname"><a href="../../d7/d6d/classWND.html#a6caafc86e50ee71352a0a72b49e91dfe">WND::UpdateWnd</a></div><div class="ttdeci">void UpdateWnd(void)</div><div class="ttdoc">Forces a window to draw.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/df2/app_8cpp_source.html#l00259">app.cpp:259</a></div></div>
+<div class="ttc" id="aclassWND_html_aca28b2935bf969c0626e6c9c2dc81c6f"><div class="ttname"><a href="../../d7/d6d/classWND.html#aca28b2935bf969c0626e6c9c2dc81c6f">WND::ShowWnd</a></div><div class="ttdeci">void ShowWnd(int sw=SW_SHOW)</div><div class="ttdoc">Shows/hides the Windows window.</div><div class="ttdef"><b>Definition</b> <a href="../../d5/df2/app_8cpp_source.html#l00269">app.cpp:269</a></div></div>
+<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00043">wn.h:44</a></div></div>
+<div class="ttc" id="aclassWN_html_a7f6d343598c89bd5427de0c496418e5c"><div class="ttname"><a href="../../db/dd4/classWN.html#a7f6d343598c89bd5427de0c496418e5c">WN::SetBounds</a></div><div class="ttdeci">virtual void SetBounds(const RC &amp;rcpNew)</div><div class="ttdoc">Sets the bounds of the WN.</div><div class="ttdef"><b>Definition</b> <a href="../../d9/d1d/wn_8cpp_source.html#l00073">wn.cpp:73</a></div></div>
 <div class="ttc" id="aid_8h_html"><div class="ttname"><a href="../../df/db9/id_8h.html">id.h</a></div><div class="ttdoc">Resource ids.</div></div>
 <div class="ttc" id="awapp_8h_html"><div class="ttname"><a href="../../d2/d48/wapp_8h.html">wapp.h</a></div><div class="ttdoc">Windows Application.</div></div>
 </div><!-- fragment --></div><!-- contents -->

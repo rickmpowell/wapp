@@ -13,6 +13,7 @@ var hierarchy =
     ] ],
     [ "CLIP", "d7/d0b/classCLIP.html", null ],
     [ "CURS", "d4/d09/classCURS.html", null ],
+    [ "CYLEINT", "d8/d90/classCYLEINT.html", null ],
     [ "D2D1_COLOR_F", null, [
       [ "CO", "d8/d5a/classCO.html", null ]
     ] ],
@@ -47,7 +48,9 @@ var hierarchy =
               ] ]
             ] ],
             [ "CHK", "da/dec/classCHK.html", null ],
-            [ "CYCLE", "df/df4/classCYCLE.html", null ],
+            [ "CYCLE", "df/df4/classCYCLE.html", [
+              [ "CYCLEINT", "d3/dfd/classCYCLEINT.html", null ]
+            ] ],
             [ "EDIT", "d6/dc4/classEDIT.html", null ],
             [ "STATIC", "d4/dc5/classSTATIC.html", [
               [ "STATICL", "d5/d4e/classSTATICL.html", [
@@ -122,6 +125,11 @@ var hierarchy =
     [ "istream", null, [
       [ "iclipstream", "d7/d9b/classiclipstream.html", null ]
     ] ],
+    [ "LE", "da/d0b/classLE.html", [
+      [ "CYCLE", "df/df4/classCYCLE.html", null ],
+      [ "TOOLBAR", "d6/dea/classTOOLBAR.html", null ]
+    ] ],
+    [ "LEIT", "de/dee/structLEIT.html", null ],
     [ "LEN", "df/df1/classLEN.html", [
       [ "LENDLG", "dd/d05/classLENDLG.html", null ]
     ] ],

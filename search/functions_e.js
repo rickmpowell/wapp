@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['undo_0',['Undo',['../d1/d45/classICMD.html#af75fcda7859cd6d68661d23bdc0c973a',1,'ICMD']]],
-  ['unpad_1',['Unpad',['../d2/d9b/classRC.html#a7e465311a4d47b1aea2b330ea63e3a18',1,'RC']]],
-  ['updatewnd_2',['UpdateWnd',['../d7/d6d/classWND.html#a6caafc86e50ee71352a0a72b49e91dfe',1,'WND']]]
+  ['tpnow_0',['TpNow',['../d8/d3c/util_8h.html#adf749cc20679f4bf6fcb4324ad695338',1,'util.h']]],
+  ['tpsnow_1',['TpsNow',['../d8/d3c/util_8h.html#ab8b217d557530386036d4a33094a00b5',1,'util.h']]]
 ];
