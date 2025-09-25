@@ -15,10 +15,12 @@
 #include "wapp.h"
 #include "id.h"
 
+#ifndef CONSOLE
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "windowscodecs.lib")
+#endif
 
 /**
  *  @brief The main application entry point
@@ -28,6 +30,7 @@
  *  Run function.
  */
 
+#ifndef CONSOLE
 int APIENTRY wWinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hinstPrev, _In_ LPWSTR wsCmd, _In_ int sw)
 {
     (void)hinst;
@@ -41,6 +44,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hinstPrev, _In_ L
         return 1;
     }
 }
+#endif
 
 /**
  *  @fn APP::APP()
@@ -158,6 +162,8 @@ HACCEL APP::HaccelLoad(unsigned rsa) const
 {
     return ::LoadAcceleratorsW(hinst, MAKEINTRESOURCEW(rsa));
 }
+
+#ifndef CONSOLE
 
 /**
  *  @fn WND::WND(APP& app)
@@ -547,3 +553,5 @@ void WNDMAIN::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
 {
     WND::CreateWnd(sTitle, ws, pt, sz);
 }
+
+#endif // CONSOLE

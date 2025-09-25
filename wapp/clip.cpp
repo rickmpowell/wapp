@@ -13,7 +13,9 @@
 
 #include "wapp.h"
 
-/** 
+#ifndef CONSOLE
+
+/**
  *  @class CLIP
  *  @brief Simplified clipboard wrapper
  * 
@@ -125,3 +127,5 @@ int oclipbuffer::sync(void)
     memcpy(pData.get(), str().c_str(), cb);
     return clip.SetData(cf, pData.release()) ? 0 : -1;
 }
+
+#endif

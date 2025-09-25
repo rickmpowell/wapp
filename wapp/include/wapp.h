@@ -36,7 +36,12 @@ class FILTERMSG;
  *  top-level main window, and the drawing context.
  */
 
-class IWAPP : public APP, public WNDMAIN, public WN, public EVD
+class IWAPP : public APP, 
+#ifndef CONSOLE
+              public WNDMAIN, 
+              public WN,
+#endif
+              public EVD
 {
     friend class WN;
 
@@ -44,6 +49,7 @@ public:
     IWAPP(void);
     virtual ~IWAPP();
 
+#ifndef CONSOLE
     void CreateWnd(const string& sTitle,
                 int ws = WS_OVERLAPPEDWINDOW,
                 PT pt = PT(CW_USEDEFAULT), SZ sz = SZ(CW_USEDEFAULT));
@@ -103,7 +109,8 @@ public:
     virtual void BeginDraw(void) override;
     virtual void EndDraw(const RC& rcUpdate) override;
     virtual void Draw(const RC& rcUpdate) override;
-    
+#endif // CONSOLE
+
     void PushEvd(EVD& evd);
     void PopEvd(void);
     virtual void ProcessMsg(MSG& msg) override;
@@ -160,6 +167,8 @@ public:
     virtual bool FFilterMsg(MSG& msg) = 0;
 };
 
+#ifndef CONSOLE
+
 /**
  *  @class FILTERMSGACCEL
  *  @brief Message filter for Windows keyboard accelerator tables
@@ -178,11 +187,15 @@ private:
     HACCEL haccel;
 };
 
+#endif 
+
 #include "dlg.h"
 #include "len.h"
 #include "clip.h"
 #include "timer.h"
 #include "printer.h"
+
+#ifndef CONSOLE
 
 /**
  *  @class GUARDTFALIGNMENT
@@ -258,3 +271,5 @@ private:
     DCS& dcs;
     D2D1_ANTIALIAS_MODE aaSav;
 };
+
+#endif // CONSOLE

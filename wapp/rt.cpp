@@ -9,6 +9,8 @@
 
 #include "wapp.h"
 
+#ifndef CONSOLE
+
 /*
  *  Maintain global device dependent drawing objects. These objects must have enough
  *  state saved to rebuild themselves from their internally saved state and the new 
@@ -240,3 +242,4 @@ void RTC2::Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate)
     HRESULT err = pswapchain->Present1(0, 0, &pp);
 }
 
+#endif // CONSOLE

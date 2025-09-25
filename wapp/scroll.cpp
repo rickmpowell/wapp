@@ -13,6 +13,8 @@
 
 #include "wapp.h"
 
+#ifndef CONSOLE
+
 /*
  *  SCROLL
  *
@@ -196,3 +198,5 @@ float SCROLLLNFIXED::DyHeightFromLi(int li) const
 {
     return DyLine();
 }
+
+#endif

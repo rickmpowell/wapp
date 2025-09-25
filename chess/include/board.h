@@ -15,7 +15,7 @@
 #include "framework.h"
 #include "bb.h"
 class BD;
-class PLCOMPUTER;
+class PLAI;
 
 /**
  *  @enum TCP
@@ -358,9 +358,10 @@ enum class EVENUM
     GoodCapt = 2,
     Killer = 3,
     History = 4,
-    Other = 5,
-    BadCapt = 6,
-    Max = 7
+    Xt = 5,
+    Other = 6,
+    BadCapt = 7,
+    Max = 8
 };
 
 constexpr EVENUM& operator ++ (EVENUM& evenum) noexcept
@@ -508,14 +509,14 @@ public:
     class siterator : public iterator
     {
     public:
-        inline siterator(PLCOMPUTER* pl, BD* pbd, MV* pmv, MV* pmvMac) noexcept;
+        inline siterator(PLAI* pl, BD* pbd, MV* pmv, MV* pmvMac) noexcept;
         inline siterator& operator ++ () noexcept;
         inline siterator operator ++ (int) noexcept { siterator it = *this; ++(*this); return it; }
     private:
         void NextBestScore(void) noexcept;
         void InitEvEnum(void) noexcept;
 
-        PLCOMPUTER* ppl;
+        PLAI* ppl;
         BD* pbd;
         EVENUM evenum = EVENUM::None;
         MV* pmvMac;
@@ -536,7 +537,7 @@ public:
 
     /* smart sorted iterator used in alpha-beta pruning - can't be const because we
        sort as we go */
-    siterator sbegin(PLCOMPUTER& pl, BD& bd) noexcept;
+    siterator sbegin(PLAI& pl, BD& bd) noexcept;
     siterator send(void) noexcept;
 
     template <typename... ARGS>
@@ -559,7 +560,7 @@ public:
         return reinterpret_cast<MV*>(amv)[imvMac - 1];
     }
 
-    inline VMV::siterator InitMv(BD& bd, PLCOMPUTER& pl) noexcept;
+    inline VMV::siterator InitMv(BD& bd, PLAI& pl) noexcept;
     inline bool FGetMv(VMV::siterator& sit, BD& bd) noexcept;
     inline void NextMv(VMV::siterator& sit) noexcept;
     int cmvLegal = 0;
@@ -747,7 +748,7 @@ MVU::MVU(MV mv, const BD& bd) :
  *  smart iterator inlines
  */
 
-VMV::siterator VMV::InitMv(BD& bd, PLCOMPUTER& pl) noexcept
+VMV::siterator VMV::InitMv(BD& bd, PLAI& pl) noexcept
 {
     cmvLegal = 0;
     return sbegin(pl, bd);

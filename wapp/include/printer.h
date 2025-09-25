@@ -16,6 +16,8 @@
 
 #include "dc.h"
 
+#ifndef CONSOLE
+
 /*
  *  DCP
  * 
@@ -53,3 +55,5 @@ public:
 private:
     HDC hdc = NULL;
 };
+
+#endif // CONSOLE

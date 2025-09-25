@@ -308,7 +308,7 @@ void DLGNEWGAME::InitPlayer(VSELPLAYER& vsel, PL* ppl, CPC cpc)
     dataplayer.fModified = false;
     dataplayer.cpc = cpc;
     dataplayer.ngcp = !ppl->FIsHuman();
-    dataplayer.lvlComputer = ppl->FIsHuman() ? 3 : static_cast<PLCOMPUTER*>(ppl)->Level();
+    dataplayer.lvlComputer = ppl->FIsHuman() ? 3 : static_cast<PLAI*>(ppl)->Level();
     dataplayer.sNameHuman = ppl->SName();
     vsel.SetData(dataplayer);
 }
@@ -356,7 +356,7 @@ CPC DLGNEWGAME::ExtractPlayer(GAME& game, VSELPLAYER& vsel)
             game.appl[dataplayer.cpc] = make_shared<PLHUMAN>(dataplayer.sNameHuman);
         else {
             SETAI set = { dataplayer.lvlComputer };
-            game.appl[dataplayer.cpc] = make_shared<PLCOMPUTER>(set);
+            game.appl[dataplayer.cpc] = make_shared<PLAI>(set);
         }
     }
 

@@ -17,9 +17,10 @@
 
 #include "wn.h"
 #include "cmd.h"
-
 class VSEL;
 class CYCLE;
+
+#ifndef CONSOLE
 
 /**
  *  @class CTL
@@ -553,3 +554,5 @@ public:
 private:
     string sText;
 };
+
+#endif // CONSOLE

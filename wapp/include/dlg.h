@@ -18,16 +18,18 @@
 #include "app.h"
 #include "ctl.h"
 
+#ifndef CONSOLE
+
 /*
  *  Our dialog boxes have a certain style  ...
  */
 
-inline constexpr CO coDlgBack(0.33f, 0.28f, 0.35f);
-inline constexpr CO coDlgText(coWhite);
-inline constexpr char sFontUI[] = "Segoe UI";
-inline constexpr char sFontSymbol[] = "Segoe UI Symbol";
-inline constexpr float dxyDlgPadding = 48;
-inline constexpr float dxyDlgGutter = 24;
+constexpr CO coDlgBack(0.33f, 0.28f, 0.35f);
+constexpr CO coDlgText(coWhite);
+constexpr char sFontUI[] = "Segoe UI";
+constexpr char sFontSymbol[] = "Segoe UI Symbol";
+constexpr float dxyDlgPadding = 48;
+constexpr float dxyDlgGutter = 24;
 
 /**
  *  @class DLG
@@ -304,3 +306,4 @@ private:
     BTNOK btnok;
 };
 
+#endif // CONSOLE

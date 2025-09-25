@@ -679,24 +679,25 @@ void WAPP::RunPolyglotTest(void)
 }
 
 /**
- *  @fn void WAPP::RunAITest(filesystem::path folder, const vector<filesystem::path>& vfile)
- *  @brief Runs a series of AI tests from EPD files
+ *  @fn         void WAPP::RunAITest(filesystem::path folder, const vector<filesystem::path>& vfile)
+ *  @brief      Runs a series of AI tests from EPD files
  */
 
 void WAPP::RunAITest(filesystem::path folder, const vector<filesystem::path>& vfile)
 {
     /* time management to use for test */
     TMAN tman;
-    tman.odtpTotal = duration_cast<milliseconds>(5s);
+    tman.odtpTotal = duration_cast<milliseconds>(10s);
     tman.odMax = 100;
 
     /* install AI players */
     SETAI set = { 10 };
-    game.appl[cpcWhite] = make_shared<PLCOMPUTER>(set);
-    game.appl[cpcBlack] = make_shared<PLCOMPUTER>(set);
+    game.appl[cpcWhite] = make_shared<PLAI>(set);
+    game.appl[cpcBlack] = make_shared<PLAI>(set);
     game.NotifyPlChanged();
 
     int cTotal = 0, cSuccess = 0;
+    STATAI stat;
 
     for (const filesystem::path& file : vfile) {
         wnlog << file << endl << indent;
@@ -734,8 +735,9 @@ void WAPP::RunAITest(filesystem::path folder, const vector<filesystem::path>& vf
 
             /* get what the AI thinks is the best move */
             wnlog.levelLog += 2;
-            PLCOMPUTER* ppl = static_cast<PLCOMPUTER*>(game.appl[game.bd.cpcToMove].get());
+            PLAI* ppl = static_cast<PLAI*>(game.appl[game.bd.cpcToMove].get());
             MV mvAct = ppl->MvBestTest(*this, game, tman);
+            stat += ppl->stat;
             wnlog.levelLog -= 2;
 
             /* log rseults */
@@ -762,6 +764,9 @@ void WAPP::RunAITest(filesystem::path folder, const vector<filesystem::path>& vf
         }
         wnlog << outdent << file << " test done" << endl;
         wnlog << cSuccess << " of " << cTotal << " tests passed" << endl;
+        wnlog << endl;
+
+        stat.Log(wnlog, stat.ms);
     }
 }
 
@@ -775,17 +780,17 @@ void WAPP::RunAIProfile(void)
     string fen("r1bq1rk1/ppp2ppp/2n2n2/3pp3/3P4/2P1PN2/PP3PPP/RNBQ1RK1 w - - 0 7");
     //string fen("rnbqkbnr/pppp1ppp/8/4p3/3P4/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 3");
     TMAN tman;
-    tman.odtpTotal = duration_cast<milliseconds>(15s);
+    tman.odtpTotal = duration_cast<milliseconds>(10s);
     tman.odMax = 30;
 
     /* install AI players */
     SETAI set = { 8 };
-    game.appl[cpcWhite] = make_shared<PLCOMPUTER>(set);
-    game.appl[cpcBlack] = make_shared<PLCOMPUTER>(set);
+    game.appl[cpcWhite] = make_shared<PLAI>(set);
+    game.appl[cpcBlack] = make_shared<PLAI>(set);
     game.NotifyPlChanged();
     game.InitFromFen(fen);
 
-    PLCOMPUTER* ppl = static_cast<PLCOMPUTER*>(game.appl[game.bd.cpcToMove].get());
+    PLAI* ppl = static_cast<PLAI*>(game.appl[game.bd.cpcToMove].get());
     wnlog.levelLog = 0;
     TP tpStart = TpNow();
     MV mvAct = ppl->MvBestTest(*this, game, tman);
@@ -817,14 +822,14 @@ void WAPP::AnalyzePosition(void)
 
     /* install AI players */
     SETAI set = { 10 };
-    game.appl[cpcWhite] = make_shared<PLCOMPUTER>(set);
-    game.appl[cpcBlack] = make_shared<PLCOMPUTER>(set);
+    game.appl[cpcWhite] = make_shared<PLAI>(set);
+    game.appl[cpcBlack] = make_shared<PLAI>(set);
     game.NotifyPlChanged();
 
     /* get what the AI thinks is the best move */
     wnlog << indent;
     wnlog.levelLog += 2;
-    PLCOMPUTER* ppl = static_cast<PLCOMPUTER*>(game.appl[game.bd.cpcToMove].get());
+    PLAI* ppl = static_cast<PLAI*>(game.appl[game.bd.cpcToMove].get());
     MV mvAct = ppl->MvBestTest(*this, game, tman);
     wnlog.levelLog -= 2;
     wnlog << outdent;

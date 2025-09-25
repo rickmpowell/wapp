@@ -7,6 +7,8 @@
 
 #include "wapp.h"
 
+#ifndef CONSOLE
+
 BRX DCS::brScratch;
 
 /*
@@ -707,3 +709,4 @@ void DCS::PurgeDevDeps(void)
 {
 }
 
+#endif

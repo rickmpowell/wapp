@@ -501,6 +501,8 @@ string to_string(EVENUM evenum) noexcept
         return "killer";
     case EVENUM::History:
         return "history";
+    case EVENUM::Xt:
+        return "xt";
     case EVENUM::Other:
         return "eval";
     case EVENUM::BadCapt:

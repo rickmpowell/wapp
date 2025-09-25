@@ -44,6 +44,7 @@ public:
     virtual void ProcessMsg(MSG& msg);
     virtual bool FIdle(void);
 
+#ifndef CONSOLE
     /* raw mouse input */
 
     virtual void MouseMove(const PT& ptg, int mk);
@@ -55,6 +56,7 @@ public:
     bool FDragging(const WN* pwn) const;
     void SetDrag(WN* pwn, const PT& ptg, unsigned mk);
     void SetHover(WN* pwn, const PT& ptg);
+#endif 
 
     /* raw keyboard input */
     

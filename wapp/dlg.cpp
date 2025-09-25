@@ -41,6 +41,8 @@
 #include "wapp.h"
 #include "id.h"
 
+#ifndef CONSOLE
+
 /*
  *  Dialogs
  */
@@ -439,3 +441,5 @@ void INSTRUCT::DrawLabel(const RC& rcLabel)
 {
     DrawSCenter(sLabel, tf, rcLabel, coYellow);
 }
+
+#endif

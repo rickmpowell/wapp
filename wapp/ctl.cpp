@@ -1,11 +1,17 @@
 
-/*
- *  ctl.cpp
+/**
+ *  @file       ctl.cpp
+ *  @brief      Controls
  * 
- *  Controls
+ *  @details    Implementation for variosu user interface controls
+ * 
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "wapp.h"
+
+#ifndef CONSOLE
 
 /*
  *  Base control
@@ -1023,3 +1029,5 @@ void EDIT::SetText(const string& sNew)
 {
     sText = sNew;
 }
+
+#endif

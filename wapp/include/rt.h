@@ -19,10 +19,12 @@
 class IWAPP;
 class DDDO;
 
-/*
- *
- */
+#ifndef CONSOLE
 
+/**
+ *  @class      RTC
+ *  @brief      Base class for render target
+ */
 
 class RTC
 {
@@ -92,3 +94,5 @@ public:
     virtual void Prepare(com_ptr<ID2D1DeviceContext>& pdc2) override;
     virtual void Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcUpdate) override;
 };
+
+#endif // CONSOLE

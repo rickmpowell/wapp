@@ -23,6 +23,8 @@ class TF;
 class BMP;
 class IWAPP;
 
+#ifndef CONSOLE
+
 /**
  *  @class BR
  *  @brief The brush, a tight wrapper on the Direct2D brush.
@@ -359,3 +361,4 @@ protected:
     RC rcgBounds;    /* relative to the pdc in the app */
 };
 
+#endif // CONSOLE

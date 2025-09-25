@@ -65,6 +65,8 @@ public:
     HINSTANCE hinst;
 };
 
+#ifndef CONSOLE
+
 /** 
  *  @class CURS
  *  @brief A mouse cursor wrapper class
@@ -181,6 +183,8 @@ public:
                    PT pt = PT(CW_USEDEFAULT), 
                    SZ sz = SZ(CW_USEDEFAULT));
 };
+
+#endif // CONSOLE
 
 /*
  *  Some Windows classes that ensure proper cleanup of various Windows 

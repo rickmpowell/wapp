@@ -12,6 +12,8 @@
 
 #include "wapp.h"
 
+#ifndef CONSOLE
+
 LEN::LEN(WN& wn, const PAD& pad, const PAD& margin) :
     pad(pad), marginDef(margin),
     rcWithin(wn.RcInterior()),
@@ -310,3 +312,5 @@ void LE::AlignV(RC& rcItem, const RC& rcWithin, LEALIGNV lealignv) noexcept
         break;
     }
 }
+
+#endif // CONSOLE

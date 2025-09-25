@@ -101,6 +101,11 @@ enum class TEV {
     Equal = 3
 };
 
+constexpr uint32_t HaTop(HA ha)
+{
+    return (ha >> 32) & 0xffffffffL;
+}
+
 /**
  *  @class XTEV
  *  @brief The individual transposition table entry
@@ -110,7 +115,7 @@ enum class TEV {
 class XTEV
 {
     friend class XT;
-    friend class PLCOMPUTER;
+    friend class PLAI;
 
 public:
     XTEV(void) noexcept {}
@@ -129,19 +134,18 @@ public:
 
     MV Mv(void) const noexcept
     {
-        return MV(mvBest.sqFrom, mvBest.sqTo, mvBest.cptPromote, mvBest.csMove);
+        return MV((SQ)sqFrom, (SQ)sqTo, (CPT)cptPromote, (CS)csMove);
     }
 
 public:
-    HA ha;          // full hash
-    uint8_t dd;     // depth
-    uint8_t tev;    // evaluation type (high, low, exact)
+    uint32_t haTop;          // high 32 bits of hash
     EV evBiased;          // evaluation
-    struct {
-        SQ sqFrom, sqTo;
-        CS csMove;
-        CPT cptPromote;
-    } mvBest; // the best move
+    uint32_t dd : 7,
+             tev : 3,
+             sqFrom : 6,
+             sqTo : 6,
+             csMove : 4,
+             cptPromote : 3;
 };
 #pragma pack(pop)
 
@@ -156,8 +160,7 @@ public:
     XT(void) {}
     void SetSize(uint32_t cb);
     void Init(void);
-    XTEV* Save(const BD& bd, TEV tev, EV ev, const MV& mv, int d, int dLim) noexcept;
-    XTEV* Find(const BD& bd, int d, int dLim) noexcept;
+    XTEV* Find(const BD& bd, int dd) noexcept;
     XTEV& operator [] (const BD& bd) noexcept { return axtev[bd.ha & (cxtev - 1)]; }
 
 private:
@@ -180,15 +183,43 @@ enum SO {
     soNoPruningHeuristics = 0x0001
 };
 
+struct STATAI {
+    void Init(void) noexcept;
+    void Log(ostream& os, milliseconds ms) noexcept;
+
+    int64_t cmvSearch = 0;
+    int64_t cmvQuiescent = 0;
+    int64_t cmvEval = 0;
+    int64_t cmvXt = 0;
+    int64_t cmvPruned = 0;
+    int64_t cmvLeaf = 0;
+    int64_t cmvMoveGen = 0;
+
+    milliseconds ms = 0ms;
+
+    STATAI& operator += (const STATAI& stat) noexcept
+    {
+        cmvSearch += stat.cmvSearch;
+        cmvQuiescent += stat.cmvQuiescent;
+        cmvEval += stat.cmvEval;
+        cmvXt += stat.cmvXt;
+        cmvPruned += stat.cmvPruned;
+        cmvLeaf += stat.cmvLeaf;
+        cmvMoveGen += stat.cmvMoveGen;
+        ms += stat.ms;
+        return *this;
+    }
+};
+
 /**
- *  @class PLCOMPUTER
+ *  @class PLAI
  *  @brief A computer player
  */
 
-class PLCOMPUTER : public PL
+class PLAI : public PL
 {
 public:
-    PLCOMPUTER(const SETAI& setai);
+    PLAI(const SETAI& setai);
 
     /* communicate with the outside world */
     virtual bool FIsHuman(void) const override;
@@ -245,7 +276,9 @@ public:
     void InitPsts(void) noexcept;
     EV mpcpsqevMid[cpMax][sqMax];
     EV mpcpsqevEnd[cpMax][sqMax];
+    /* king safety */
     EV EvKingSafety(BD& bd) const noexcept;
+    /* pawn structure */
     EV EvPawnStructure(BD& bd) const noexcept;
     EV EvPawnStructure(BB bbPawns, BB bbDefense, CPC cpc) const noexcept;
     int CfiDoubledPawns(BB bbPawns, CPC cpc) const noexcept;
@@ -264,9 +297,9 @@ public:
     bool FTryFutility(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept;
     bool FZugzwangPossible(BD& bd) noexcept;
 
-    /* move scoring */
+    /* move scoring for sorting move lists */
     void ScoreCapture(BD& bd, MV& mv) noexcept;
-    void ScoreMove(BD& bd, MV& mv) noexcept;
+    bool FScoreMove(BD& bd, MV& mv) noexcept;
     EV EvAttackDefend(BD& bd, const MV& mvPrev) const noexcept;
 
     /* track killer moves */
@@ -288,11 +321,8 @@ public:
     /* stats */
     void InitStats(void) noexcept;
     void LogStats(TP tpEnd) noexcept;
-    int64_t cmvSearch = 0;
-    int64_t cmvQSearch = 0;
-    int64_t cmvMoveGen = 0;
-    int64_t cmvEval = 0;
-    TP tpStart;
+    
+    STATAI stat;
 
 public:
     SETAI set;

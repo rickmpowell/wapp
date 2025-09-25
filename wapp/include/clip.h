@@ -18,6 +18,8 @@
 #include <streambuf>
 class IWAPP;
 
+#ifndef CONSOLE
+
 /** 
  *  @class iclipbuffer
  *  @brief input stream buffer for accessing clipboard text 
@@ -100,3 +102,5 @@ private:
     oclipbuffer buf;
 };
 #pragma pack()
+
+#endif // CONSOLE

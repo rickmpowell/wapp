@@ -10,6 +10,8 @@
 
 #include "wapp.h"
 
+#ifndef CONSOLE
+
 /*
  *  DCP
  * 
@@ -234,3 +236,5 @@ FM DCP::FmFromTf(const TF& tf) const
 
     return fm;
 }
+
+#endif

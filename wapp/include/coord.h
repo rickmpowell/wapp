@@ -15,6 +15,8 @@
 
 #include "framework.h"
 
+#ifndef CONSOLE
+
 /** 
  *  @class SZ
  *  @brief a size on the screen
@@ -1045,3 +1047,4 @@ public:
     }
 };
 
+#endif // CONSOLE

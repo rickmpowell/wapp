@@ -21,6 +21,8 @@ class WN;
 class CTL;
 class DLG;
 
+#ifndef CONSOLE
+
 /**
  *  @class LEN
  * 
@@ -225,3 +227,5 @@ public:
     PAD margin;
     SZ gutter;
 };
+
+#endif

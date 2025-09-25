@@ -26,6 +26,8 @@
 #include "len.h"
 class TIMER;
 
+#ifndef CONSOLE
+
 /*
  *  WN class
  *
@@ -282,3 +284,5 @@ public:
 private:
     wnstreambuf sb;
 };
+
+#endif // CONSOLE

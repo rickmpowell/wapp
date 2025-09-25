@@ -17,6 +17,8 @@
 
 #include "framework.h"
 
+#ifndef CONSOLE
+
 /** 
  *  @class CO
  *  @brief A simple RGB color
@@ -422,3 +424,5 @@ constexpr CO coWhite(0xFFFFFF);
 constexpr CO coWhiteSmoke(0xF5F5F5);
 constexpr CO coYellow(0xFFFF00);
 constexpr CO coYellowGreen(0x9ACD32);
+
+#endif // CONSOLE

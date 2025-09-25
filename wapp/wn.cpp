@@ -7,6 +7,8 @@
 
 #include "wapp.h"
 
+#ifndef CONSOLE
+
 WN::WN(IWAPP& iwapp, WN* pwnParent) : 
     DCS(iwapp), 
     pwnParent(pwnParent),
@@ -453,3 +455,4 @@ WNSTREAM::WNSTREAM(WN& wnParent) :
 {
 }
 
+#endif
