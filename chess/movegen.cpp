@@ -117,14 +117,14 @@ void BD::RemoveChecks(VMV& vmv) const noexcept
     BD bdT(*this);
     for (int imv = 0; imv < vmv.size(); imv++) {
         bdT.MakeMv(vmv[imv]);
-        if (bdT.FLastMoveWasLegal())
+        if (bdT.FMvWasLegal())
             vmv[imvTo++] = vmv[imv];
         bdT.UndoMv();
     }
     vmv.resize(imvTo);
 }
 
-bool BD::FLastMoveWasLegal(void) const noexcept
+bool BD::FMvWasLegal(void) const noexcept
 {
     const MVU& mvu = vmvuGame.back();
     if (mvu.csMove) {
@@ -143,10 +143,41 @@ bool BD::FLastMoveWasLegal(void) const noexcept
     return !FIsAttackedBy(icpbdKing, cpcToMove);
 }
 
+/**
+ *  @fn         bool BD::FMvIsCapture(const MV& mv) const
+ *  @brief      Checks if the move is a capture
+ * 
+ *  @details    Checks thta the given move captures an enemy piece, including
+ *              en passant captuers. Note that this checks for captures on a 
+ *              board before the move is made, not after.
+ */
+
 bool BD::FMvIsCapture(const MV& mv) const noexcept
 {
     return (*this)[mv.sqTo].cpc == ~cpcToMove || 
            ((*this)[mv.sqFrom].cpt == cptPawn && mv.sqTo == sqEnPassant);
+}
+
+/**
+ *  @fn         bool BD::FMvIsNoisy(const MV& mv) const
+ *  @brief      Checks if this is a noisy move
+ * 
+ *  @details    A noisy move is a capture or pawn promotion.
+ */
+
+bool BD::FMvIsNoisy(const MV& mv) const noexcept
+{
+    return FMvIsCapture(mv) || mv.cptPromote != cptNone;
+}
+
+/**
+ *  @fn         bool BD::FMvWasNoisy(void) const
+ *  @brief      Checks if the previously made move was noisy
+ */
+
+bool BD::FMvWasNoisy(void) const noexcept
+{
+    return cpt(vmvuGame.back().cpTake) != cptNone && vmvuGame.back().cptPromote != cptNone;
 }
 
 void BD::MoveGenPawn(int8_t icpbdFrom, VMV& vmv) const noexcept
@@ -225,7 +256,7 @@ void BD::MoveGenKingNoisy(int8_t icpbdFrom, VMV& vmv) const noexcept
  *
  *  Check verification is not done here - that the king is not in check, 
  *  does not move through check, and does not end up in check - it's done in 
- *  FLastMoveWasLegal.
+ *  FMvWasLegal.
  */
 
 void BD::AddCastle(int8_t icpbdKingFrom, int8_t fiKingTo, int8_t fiRookFrom, int8_t fiRookTo, CS csMove, VMV& vmv) const noexcept

@@ -166,8 +166,8 @@ void IWAPP::OnPaint(void)
     if (!fMinimized) {
         /* we force a full redraw here because we're using a back buffer that
            may need to be filled after a WM_SIZE */
-        ::GetClientRect(hwnd, &ps.rcPaint);
-        BeginDraw();
+        if (!FBeginDraw())
+            ::GetClientRect(hwnd, &ps.rcPaint);
         DrawWithChildren(ps.rcPaint, droParentDrawn);
         EndDraw(ps.rcPaint);
     }
@@ -236,20 +236,27 @@ void IWAPP::Layout(void)
 {
 }
 
-/*
- *  Drawing
+/**
+ *  @fn         bool IWAPP::FBeginDraw(void)
+ *  @brief      Preparing the Direct2D device context for drawing
+ * 
+ *  @details    The Direct2D drating  context is owned by the top-most level 
+ *              window, and this is where the context is actually prepared for
+ *              drawing. 
+ *
+ *  @returns    true if drawing can proceed, false if the backing buffer is 
+ *              dirty and the entire window needs to be redrawn.
  */
 
-void IWAPP::BeginDraw(void)
+bool IWAPP::FBeginDraw(void)
 {
     /* make sure all our Direct2D objects are created and force them to be
        recreated if the display has changed */
-
     RebuildAllDevIndeps();
     RebuildAllDevDeps();
     
     pdc2->BeginDraw();
-    prtc->Prepare(pdc2);
+    return prtc->FPrepare(pdc2);
 }
 
 void IWAPP::EndDraw(const RC& rcUpdate)

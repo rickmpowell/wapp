@@ -15,7 +15,7 @@
 #include "framework.h"
 #include "bb.h"
 class BD;
-class PLAI;
+class AI;
 
 /**
  *  @enum TCP
@@ -384,6 +384,14 @@ public:
     {
     }
 
+    constexpr MV(const MV& mv, EV ev) noexcept {
+        sqFrom = mv.sqFrom;
+        sqTo = mv.sqTo;
+        cptPromote = mv.cptPromote;
+        csMove = mv.csMove;
+        this->ev = ev;
+    }
+
     constexpr MV(SQ sqFrom, SQ sqTo, CPT cptPromote = cptNone, CS csMove = csNone) noexcept :
         sqFrom(sqFrom),
         sqTo(sqTo),
@@ -475,6 +483,9 @@ inline const MV mvNil;
  *  Has limited functionality. Basically only Iteration, indexing, and emplace_back.
  */
 
+#pragma warning(push)
+#pragma warning(disable: 26495)
+
 class VMV {
 
 public:
@@ -509,14 +520,14 @@ public:
     class siterator : public iterator
     {
     public:
-        inline siterator(PLAI* pl, BD* pbd, MV* pmv, MV* pmvMac) noexcept;
+        inline siterator(AI* pai, BD* pbd, MV* pmv, MV* pmvMac) noexcept;
         inline siterator& operator ++ () noexcept;
         inline siterator operator ++ (int) noexcept { siterator it = *this; ++(*this); return it; }
     private:
         void NextBestScore(void) noexcept;
         void InitEvEnum(void) noexcept;
 
-        PLAI* ppl;
+        AI* pai;
         BD* pbd;
         EVENUM evenum = EVENUM::None;
         MV* pmvMac;
@@ -537,7 +548,7 @@ public:
 
     /* smart sorted iterator used in alpha-beta pruning - can't be const because we
        sort as we go */
-    siterator sbegin(PLAI& pl, BD& bd) noexcept;
+    siterator sbegin(AI& ai, BD& bd) noexcept;
     siterator send(void) noexcept;
 
     template <typename... ARGS>
@@ -560,7 +571,7 @@ public:
         return reinterpret_cast<MV*>(amv)[imvMac - 1];
     }
 
-    inline VMV::siterator InitMv(BD& bd, PLAI& pl) noexcept;
+    inline VMV::siterator InitMv(BD& bd, AI& ai) noexcept;
     inline bool FGetMv(VMV::siterator& sit, BD& bd) noexcept;
     inline void NextMv(VMV::siterator& sit) noexcept;
     int cmvLegal = 0;
@@ -570,6 +581,7 @@ private:
     alignas(MV) uint8_t amv[cmvGenMax * sizeof(MV)];
     int16_t imvMac = 0;
 };
+#pragma warning(pop)
 
 /**
  *  We use the nmv type to represent a move number, which starts at 1 and is
@@ -632,6 +644,12 @@ public:
         return acpbd[Icpbd(fi, ra)];
     }
 
+    inline SQ SqKing(CPC cpc) const noexcept
+    {
+        int8_t icpbd = IcpbdFindKing(cpc);
+        return SqFromIcpbd(icpbd);
+    }
+
     /* make and undo move */
     void MakeMv(const MV& mv) noexcept;
     void MakeMvNull(void) noexcept;
@@ -643,16 +661,20 @@ public:
     void MoveGen(VMV& vmv) const noexcept;
     void MoveGenPseudo(VMV& vmv) const noexcept;
     void MoveGenNoisy(VMV& vmv) const noexcept;
-    bool FLastMoveWasLegal(void) const noexcept;
+    bool FMvWasLegal(void) const noexcept;
 
     /* attack squares and checks */
     bool FInCheck(CPC cpc) const noexcept;
     bool FIsAttackedBy(int8_t icpAttacked, CPC cpcBy) const noexcept;
     CPT CptSqAttackedBy(SQ sq, CPC cpcBy) const noexcept;
     bool FMvIsCapture(const MV& mv) const noexcept;
+    bool FMvIsNoisy(const MV& mv) const noexcept;
+    bool FMvWasNoisy(void) const noexcept;
 
     /* bitboards */
     BB BbPawns(CPC cpc) const noexcept;
+    BB BbAttacked(CPC cpc) noexcept;
+    BB BbAttackedFromVmv(const VMV& vmv) const noexcept;
 
     /* game phase and status */
     int PhaseCur(void) const noexcept;
@@ -699,7 +721,6 @@ private:
     bool FIsAttackedBySlider(int8_t icpAttacked, uint16_t grfCp, const int8_t adicp[], int8_t cdicp) const noexcept;
     int8_t IcpbdFindKing(CPC cpcKing) const noexcept;
     int8_t IcpUnused(CPC cpc, CPT cptHint) const noexcept;
-
     inline void ClearCs(CS cs, CPC cpc) noexcept
     {
         cs = Cs(cs, cpc);
@@ -742,31 +763,4 @@ MVU::MVU(MV mv, const BD& bd) :
     cmvNoCaptureOrPawnSav(bd.cmvNoCaptureOrPawn),
     haSav(bd.ha)
 {
-}
-
-/**
- *  smart iterator inlines
- */
-
-VMV::siterator VMV::InitMv(BD& bd, PLAI& pl) noexcept
-{
-    cmvLegal = 0;
-    return sbegin(pl, bd);
-}
-
-bool VMV::FGetMv(VMV::siterator& sit, BD& bd) noexcept
-{
-    while (sit != send()) {
-        if (bd.FMakeMvLegal(*sit)) {
-            cmvLegal++;
-            return true;
-        }
-        ++sit;
-    }
-    return false;
-}
-
-void VMV::NextMv(VMV::siterator& sit) noexcept
-{
-    ++sit;
 }

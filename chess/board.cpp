@@ -287,12 +287,74 @@ UndoCastle:
 bool BD::FMakeMvLegal(const MV& mv) noexcept
 {
     MakeMv(mv);
-    if (FLastMoveWasLegal())
+    if (FMvWasLegal())
         return true;
     else {
         UndoMv();
         return false;
     }
+}
+
+/**
+ *  @fn         BB BD::BbPawns(CPC cpc) const
+ *  @brief      Returns a bitboard of the pawn structure
+ *
+ *  @details    Returns the bitboard representation of the pawn structure for
+ *              given side.
+ */
+
+BB BD::BbPawns(CPC cpc) const noexcept
+{
+    BB bb;
+    for (int icp = 0; icp < 8; icp++) {
+        int icpbd = aicpbd[cpc][icp + 8];
+        if (icpbd == -1 || acpbd[icpbd].cpt != cptPawn)
+            continue;
+        bb |= SqFromIcpbd(icpbd);
+    }
+    return bb;
+}
+
+/**
+ *  @fn         BB BD::BbAttacked(CPC cpc) const
+ *  @brief      Returns a bitboard with all squares with an implied attack
+ *              by the color cpc
+ * 
+ *  @details    An implied attack means the piece can see through other
+ *              pieces, but pawns are blockers. Used for estimating King
+ *              safety.
+ * 
+ *  TODO: what we really want is probably a count of pieces that attack the
+ *  area around the king, which can't even be computed using bitboards since
+ *  it's possible for multiple pieces to attack the same square. And, in fact
+ *  that is the most dangerous situation.
+ */
+
+BB BD::BbAttacked(CPC cpc) noexcept
+{
+    /* TODO: do a real implementation once we have bitboards */
+    VMV vmv;
+    if (cpc == cpcToMove)
+        MoveGenPseudo(vmv);
+    else {
+        MakeMvNull();
+        MoveGenPseudo(vmv);
+        UndoMvNull();
+    }
+    return BbAttackedFromVmv(vmv);
+}
+
+BB BD::BbAttackedFromVmv(const VMV& vmv) const noexcept
+{
+    BB bb;
+    for (const MV& mv : vmv) {
+        if (mv.csMove)
+            continue;
+        if ((*this)[mv.sqFrom].cpt == cptPawn && fi(mv.sqFrom) == fi(mv.sqTo))
+            continue;
+        bb |= mv.sqTo;
+    }
+    return bb;
 }
 
 /* also used by eval */
@@ -572,29 +634,11 @@ bool GENHA::FEnPassantPolyglot(const BD& bd) const
     return false;
 }
 
-/**
- *  @fn         BB BD::BbPawns(CPC cpc) const
- *  @brief      Returns a bitboard of the pawn structure
- * 
- *  @details    Returns the bitboard representation of the pawn structure for
- *              given side.
- */
-
-BB BD::BbPawns(CPC cpc) const noexcept
-{
-    BB bb;
-    for (int icp = 0; icp < 8; icp++) {
-        int icpbd = aicpbd[cpc][icp + 8];
-        if (icpbd == -1 || acpbd[icpbd].cpt != cptPawn)
-            continue;
-        bb |= SqFromIcpbd(icpbd);
-    }
-    return bb;
-}
-
 MPBB mpbb;
 
 /**
+ *  @fn         MPBB::MPBB(void)
+ *  @brief      Creates handy bitboards
  */
 
 MPBB::MPBB(void)
@@ -631,5 +675,13 @@ MPBB::MPBB(void)
                 mpsqbbPassedPawnAlley[sq - 8][cpcWhite] = bbNorth | BbEast1(bbNorth) | BbWest1(bbNorth);
                 mpsqbbPassedPawnAlley[sq - 8][cpcBlack] = bbSouth | BbEast1(bbSouth) | BbWest1(bbSouth);
             }
+
+            /* king attack neighborhoods */
+            BB bbKing = BB(sq);
+            BB bbT = BbNorth1(bbKing) | bbKing | BbSouth1(bbKing);
+            BB bbInner = bbT | BbEast1(bbT) | BbWest1(bbT);
+            bbT = BbNorth1(bbInner) | BbSouth1(bbInner);
+            mpsqbbKingAttackInner[sq] = bbInner;
+            mpsqbbKingAttackOuter[sq] = (BbEast1(bbT) | BbWest1(bbT)) - bbInner;
         }
 }

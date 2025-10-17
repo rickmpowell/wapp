@@ -691,13 +691,18 @@ void WAPP::RunAITest(filesystem::path folder, const vector<filesystem::path>& vf
     tman.odMax = 100;
 
     /* install AI players */
-    SETAI set = { 10 };
-    game.appl[cpcWhite] = make_shared<PLAI>(set);
-    game.appl[cpcBlack] = make_shared<PLAI>(set);
+    game.appl[cpcWhite] = make_shared<PLAI>();
+    game.appl[cpcBlack] = make_shared<PLAI>();
     game.NotifyPlChanged();
 
     int cTotal = 0, cSuccess = 0;
     STATAI stat;
+
+    struct RES {
+        bool fSuccess;
+        STATAI stat;
+    };
+    map<string, RES> mpidres;
 
     for (const filesystem::path& file : vfile) {
         wnlog << file << endl << indent;
@@ -706,7 +711,7 @@ void WAPP::RunAITest(filesystem::path folder, const vector<filesystem::path>& vf
         while (getline(is, epd)) {
 
             vector<VAREPD>* pvvar = nullptr;
-    
+
             /* read the EPD line */
             try {
                 game.InitFromEpd(epd);
@@ -760,14 +765,72 @@ void WAPP::RunAITest(filesystem::path folder, const vector<filesystem::path>& vf
                         fSuccess = false;
             }
             wnlog << (fSuccess ? "Success" : "Failed") << endl << endl;
+            mpidres[get<string>(game.mpkeyvar["id"][0])] = RES{ fSuccess, stat };
             cSuccess += fSuccess;
         }
         wnlog << outdent << file << " test done" << endl;
         wnlog << cSuccess << " of " << cTotal << " tests passed" << endl;
         wnlog << endl;
-
-        stat.Log(wnlog, stat.ms);
     }
+
+    stat.Log(wnlog, stat.ms);
+
+    /* write results to the ai test log */
+    auto tp = system_clock::now();
+    time_t time = system_clock::to_time_t(tp);
+    tm tm;
+    gmtime_s(&tm, &time);
+
+    filesystem::path exe = iwapp.exe();
+    filesystem::path file = exe.parent_path() / "aitest.json";
+
+    bool fNewLog = !filesystem::exists(file);;
+    if (fNewLog) {
+        ofstream osT(file, ios::binary); // Creates the file
+        osT << "[" << endl;
+    }
+
+    fstream os(file, ios::in | ios::out | ios::binary);
+    /* TODO: error checking */
+    os.seekg(0, ios::end);
+
+    if (!fNewLog) {
+        /* file already exists, back up to the end of the previous entry and add a comma */
+        streamoff cb1 = 1;
+        streampos ibBrace = -1;
+        for (streampos ib = os.tellg() - cb1; ib >= 0; ib -= cb1) {
+            os.seekg(ib);
+            char ch;
+            os.get(ch);
+            if (ch == '}') {
+                ibBrace = ib;
+                break;
+            }
+        }
+        os.seekp(ibBrace + cb1);
+        os << "," << endl;
+    }
+
+    os << "{";
+    os << "\"time\": " << '"' << put_time(&tm, "%Y-%m-%d %H:%M:%S") << '"' << ",";
+    os << "\"settings\": ";
+    setaiDefault.Serialize(os);
+    os << ", ";
+    os << "\"tests\": " << "[";
+    bool fFirst = true;
+    for (auto& [id, res] : mpidres) {
+        if (!fFirst)
+            os << ",";
+        os << "{";
+        os << "\"id\": " << '"' << SEscapeQuoted(id) << '"' << ", ";
+        os << "\"success\": " << (res.fSuccess ? "true" : "false") << ", ";
+        os << "\"stats\": ";
+        res.stat.Serialize(os);
+        os << "}";
+        fFirst = false;
+    }
+    os << "] }" << endl;
+    os << "]" << endl;
 }
 
 /**
@@ -784,9 +847,8 @@ void WAPP::RunAIProfile(void)
     tman.odMax = 30;
 
     /* install AI players */
-    SETAI set = { 8 };
-    game.appl[cpcWhite] = make_shared<PLAI>(set);
-    game.appl[cpcBlack] = make_shared<PLAI>(set);
+    game.appl[cpcWhite] = make_shared<PLAI>();
+    game.appl[cpcBlack] = make_shared<PLAI>();
     game.NotifyPlChanged();
     game.InitFromFen(fen);
 
@@ -821,9 +883,8 @@ void WAPP::AnalyzePosition(void)
     tman.odMax = 100;
 
     /* install AI players */
-    SETAI set = { 10 };
-    game.appl[cpcWhite] = make_shared<PLAI>(set);
-    game.appl[cpcBlack] = make_shared<PLAI>(set);
+    game.appl[cpcWhite] = make_shared<PLAI>();
+    game.appl[cpcBlack] = make_shared<PLAI>();
     game.NotifyPlChanged();
 
     /* get what the AI thinks is the best move */
@@ -853,7 +914,7 @@ int64_t BD::CmvPerft(int d)
     MoveGenPseudo(vmv);
     for (const MV& mv : vmv) {
         MakeMv(mv);
-        if (FLastMoveWasLegal())
+        if (FMvWasLegal())
             cmv += CmvPerft(d - 1);
         UndoMv();
     }

@@ -1,10 +1,14 @@
 
-/*
- *  rt.cpp
+/**
+ *  @file       rt.cpp
+ *  @brief      Render targets
  * 
- *  Render target implementations. We actually draw on a Direct2D device
- *  context rather than a render target, because there are image features in
- *  the device context that are handy.
+ *  @details    Render target implementations. We actually draw on a Direct2D 
+ *              device context rather than a render target, because there are 
+ *              image features in the device context that are handy.
+ *
+ *  @author     Rick Powell
+ *  @copyright  Copyright (c) 2025 by Rick Powell
  */
 
 #include "wapp.h"
@@ -72,7 +76,6 @@ RTCFLIP::~RTCFLIP()
 void RTCFLIP::RebuildDev()
 {
     /* get the Direct3D 11 device and device context */
-
     D3D_FEATURE_LEVEL afld3[] = {
         D3D_FEATURE_LEVEL_11_1, D3D_FEATURE_LEVEL_11_0,
         D3D_FEATURE_LEVEL_10_1, D3D_FEATURE_LEVEL_10_0,
@@ -96,13 +99,11 @@ void RTCFLIP::RebuildDev()
     pdc3T.As(&pdc3);
 
     /* create the Direct2D device */
-
     pdev3.As(&pdevxgi);
     ThrowError(iwapp.pfactd2->CreateDevice(pdevxgi.Get(), &pdev2));
  
     /* and get the DirectX Graphics interface factory, which is used to create the
        swap chain and back buffer */
-
     com_ptr<IDXGIAdapter> padaptxgiT;
     pdevxgi->GetAdapter(&padaptxgiT);
     padaptxgiT->GetParent(IID_PPV_ARGS(&pfactxgi));
@@ -134,7 +135,6 @@ void RTCFLIP::RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
     ThrowError(pdev2->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &pdc2));
 
     /* create the simple 2-buffer swap chain */
-
     DXGI_SWAP_CHAIN_DESC1 swapchaind = { 0 };
     swapchaind.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     swapchaind.SampleDesc.Count = 1;
@@ -150,7 +150,6 @@ void RTCFLIP::RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
 
     /* create the back buffer bitmap for the swap chain and install it in the 
        device context */
-
     CreateBuffer(pdc2, pbmpBackBuf);
     pdc2->SetTarget(pbmpBackBuf.Get());
     fDirty = true;
@@ -158,8 +157,9 @@ void RTCFLIP::RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
     RTC::RebuildRegisteredDevDeps(iwapp);
 }
 
-void RTCFLIP::Prepare(com_ptr<ID2D1DeviceContext>& pdc2)
+bool RTCFLIP::FPrepare(com_ptr<ID2D1DeviceContext>& pdc2)
 {
+    return !fDirty;
 }
 
 void RTCFLIP::Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate)
@@ -231,8 +231,9 @@ void RTC2::RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
     RTC::RebuildRegisteredDevDeps(iwapp);
 }
 
-void RTC2::Prepare(com_ptr<ID2D1DeviceContext>& pdc2)
+bool RTC2::FPrepare(com_ptr<ID2D1DeviceContext>& pdc2)
 {
+    return !fDirty;
 }
 
 void RTC2::Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate)

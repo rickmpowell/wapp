@@ -494,14 +494,14 @@ void BTNNEXT::Erase(const RC& rcUpdate, DRO dro)
 void BTNNEXT::Layout(void)
 {
     if (leit.leinterior == LEINTERIOR::ScaleInteriorToFit)
-        SetFontHeight(RcContent().dxWidth() * 1.25f);
+        SetFontHeight((RcContent().dxWidth()-2) * 1.25f);
 }
 
 SZ BTNNEXT::SzIntrinsic(const RC& rcWithin)
 {
     (void)rcWithin;
 
-    return SZ(SzFromS(SFromU8(u8"\u23f5"), tf).width + 2, rcWithin.dyHeight());
+    return SZ(/*SzFromS(SFromU8(u8"\u23f5"), tf).width*/ 11 + 2, rcWithin.dyHeight());
 }
 
 BTNPREV::BTNPREV(WN& wnParent, ICMD* pcmd, bool fVisible) :
@@ -774,10 +774,11 @@ CHK::CHK(WN& wnParent, int rssLabel, bool fVisible) :
 
 SZ CHK::SzIntrinsic(const RC& rcWithin)
 {
-    SZ sz(SzFromS(SFromU8(u8"\u2713"), tf));
+    SZ sz(SzFromS(SFromU8(u8"\u2713"), tf));    // checkmark
+    float dxyCheck = max(sz.width, sz.height);
     SZ szLabel(SzLabel());
-    sz.width += szLabel.width + szLabel.height + szLabel.height * 0.25f;
-    return sz;
+    return SZ(dxyCheck + dxyCheck*0.25f + szLabel.width, 
+              max(dxyCheck, szLabel.height));
 }
 
 void CHK::Layout(void)
@@ -1017,7 +1018,10 @@ void EDIT::Layout(void)
 
 SZ EDIT::SzIntrinsic(const RC& rcWithin)
 {
-    return SzFromS(sText, tf);
+    SZ szBox = SzFromS(sText, tf);
+    SZ szLabel = SzLabel();
+    return SZ(szBox.width + 2*8 + szLabel.height*0.25f + szLabel.width,
+              max(szBox.height + 2*2, szLabel.height));
 }
 
 string EDIT::SText(void) const
@@ -1028,6 +1032,74 @@ string EDIT::SText(void) const
 void EDIT::SetText(const string& sNew)
 {
     sText = sNew;
+}
+
+/**
+ *  @fn         GROUP::GROUP(WN& wnParent, const string& sLabel)
+ *  @brief      Constructs group box control
+ */
+
+GROUP::GROUP(WN& wnParent, const string& sLabel) :
+    CTL(wnParent, nullptr, sLabel)
+{
+    pad = PAD(8, 8, 24, 8);
+    margin = PAD(8);
+}
+
+GROUP::GROUP(WN& wnParent, int rssLabel) :
+    CTL(wnParent, nullptr, rssLabel)
+{
+    pad = PAD(8, 8, 24, 8);
+    margin = PAD(8);
+}
+
+/**
+ *  @fn         GROUP::AddToGroup(CTL& ctl)
+ *  @brief      Adds a control to the group box
+ * 
+ *  @param      ctl     The control to include in the group
+ */
+
+void GROUP::AddToGroup(CTL& ctl)
+{
+    vpctlGroup.emplace_back(&ctl);
+}
+
+void GROUP::Draw(const RC& rcUpdate)
+{
+    RC rc(RcInterior());;
+    SZ szLabel = SzFromS(sLabel, tf);
+    DrawRc(rc.RcSetTop(rc.top + szLabel.height/2));
+    RC rcLabel = rc.RcSetLeft(rc.left + pad.left);
+    rcLabel.right = rcLabel.left + margin.left + szLabel.width + margin.right;
+    rcLabel.bottom = rcLabel.top + szLabel.height;
+    FillRc(rcLabel, CoBack());
+    DrawSCenter(sLabel, tf, rcLabel);
+}
+
+void GROUP::Layout(void)
+{
+    RC rc = pwnParent->RcFromRcg(RcgFromRc(RcInterior()));
+    rc.top += SzFromS(sLabel, tf).height;
+    LEN len(rc, pad, margin);
+    for (auto pctl : vpctlGroup) {
+        len.Position(*pctl);
+    }
+}
+
+SZ GROUP::SzIntrinsic(const RC& rcWithin)
+{
+    SZ szLabel = SzFromS(sLabel, tf);
+    SZ sz(0);
+    for (auto pctl : vpctlGroup) {
+        SZ szChild = pctl->SzIntrinsic(RcInterior());
+        sz.height += szChild.height + margin.bottom;
+        sz.width = max(sz.width, szChild.width);
+    }
+    sz -= margin.bottom;    /* remove trailing margin */
+    return SZ(max(pad.left + sz.width + pad.right, 
+                  pad.left + margin.left + szLabel.width + margin.right + pad.right), 
+              szLabel.height + pad.top + sz.height + pad.bottom);
 }
 
 #endif

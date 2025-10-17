@@ -239,20 +239,25 @@ CO WN::CoText(void) const
         return coBlack;
 }
 
-/*
- *  WN::BeginDraw
+/**
+ *  @fn         bool WN::FBeginDraw(void)
+ *  @brief      Prepares the drawing context for drawing.
  *
- *  All drawing must occur within a BeginDraw/EndDraw pair. BeginDraw prepares 
- *  the drawing context for drawing. 
+ *  @details    All drawing must occur within a FBeginDraw/EndDraw pair. 
+ *              FBeginDraw prepares the drawing context for drawing. 
  * 
- *  For Direct2D, the actual drawing context is owned by the root window, so
- *  we simply pass the BeginDraw up the parent chain, and the overridden 
- *  BeginDraw at the root does the actual work.
+ *              For Direct2D, the actual drawing context is owned by the root 
+ *              window, so simply pass the FBeginDraw up the parent chain, and 
+ *              the overridden FBeginDraw at the root does the actual work.
+ *
+ *  @return     false if the drawing surface is dirty and must be completely
+ *              redrawn.
  */
-void WN::BeginDraw(void)
+
+bool WN::FBeginDraw(void)
 {
     assert(pwnParent);
-    pwnParent->BeginDraw();
+    return pwnParent->FBeginDraw();
 }
 
 /*
@@ -297,9 +302,15 @@ void WN::RedrawRcg(RC rcgUpdate, DRO dro)
         pwnParent->RedrawRcg(rcgUpdate, dro);
     }
     else {
-        BeginDraw();
-        DrawWithChildren(rcgUpdate, dro);
-        DrawOverlappedSiblings(rcgUpdate);
+        if (!FBeginDraw()) {
+            /* buffer is dirty - force full redraw of the top-level window */
+            rcgUpdate = iwapp.RcInterior();
+            iwapp.DrawWithChildren(rcgUpdate, droParentNotDrawn);
+        }
+        else {
+            DrawWithChildren(rcgUpdate, dro);
+            DrawOverlappedSiblings(rcgUpdate);
+        }
         EndDraw(rcgUpdate);
     }
 }

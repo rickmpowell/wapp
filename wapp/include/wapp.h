@@ -106,7 +106,7 @@ public:
 
     /* drawing */
 
-    virtual void BeginDraw(void) override;
+    virtual bool FBeginDraw(void) override;
     virtual void EndDraw(const RC& rcUpdate) override;
     virtual void Draw(const RC& rcUpdate) override;
 #endif // CONSOLE

@@ -432,12 +432,16 @@ public:
     BB BbKingTo(SQ sq) const noexcept { return mpsqbbKing[sq]; }
     BB BbKnightTo(SQ sq) const noexcept { return mpsqbbKnight[sq]; }
     BB BbPassedPawnAlley(SQ sq, CPC cpc) const noexcept { return mpsqbbPassedPawnAlley[sq - 8][static_cast<int>(cpc)]; }
+    BB BbKingInner(SQ sq) const noexcept { return mpsqbbKingAttackInner[sq]; }
+    BB BbKingOuter(SQ sq) const noexcept { return mpsqbbKingAttackOuter[sq]; }
 
 private:
     BB mpsqdirbbSlide[64][8];
     BB mpsqbbKing[64];
     BB mpsqbbKnight[64];
     BB mpsqbbPassedPawnAlley[48][2];
+    BB mpsqbbKingAttackInner[64];
+    BB mpsqbbKingAttackOuter[64];
 };
 
 extern MPBB mpbb;

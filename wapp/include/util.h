@@ -112,7 +112,6 @@ private:
     bool fEof = false;
 };
 
-
 /**
  *  @fn         Format
  *
@@ -135,3 +134,40 @@ string SFormat(string_view fmt, Args&&... args)
 {
     return SVFormat(fmt, make_format_args(args...));
 }
+
+string SEscapeQuoted(const string& s);
+
+/**
+ *  @class      observer_ptr
+ *  @brief      A non-owning smart pointer
+ * 
+ *  @details    A simple non-owning smart pointer that just wraps a raw pointer.
+ *              This is mostly for documentation purposes, to make it clear
+ *              that the pointer is not owned by the class or function that
+ *              receives it. It has no special behavior beyond that.
+ * 
+ *  TODO: this could be replaced with std::observer_ptr when we move to C++23
+ */
+
+template<typename T>
+class observer_ptr {
+    T* pt = nullptr;
+
+public:
+    constexpr observer_ptr() noexcept = default;
+    constexpr observer_ptr(T* ptInit) noexcept : pt(ptInit) {}
+
+    constexpr T* get() const noexcept { return pt; }
+    constexpr T& operator*() const noexcept { return *pt; }
+    constexpr T* operator->() const noexcept { return pt; }
+    constexpr explicit operator bool() const noexcept { return pt != nullptr; }
+
+    void reset(T* ptNew = nullptr) noexcept { this->pt = ptNew; }
+
+    T* release() noexcept
+    {
+        T* ptT = pt;
+        pt = nullptr;
+        return ptT;
+    }
+};

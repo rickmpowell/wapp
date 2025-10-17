@@ -28,6 +28,8 @@ LEN::LEN(const RC& rc, const PAD& pad, const PAD& margin) :
     rcWithin(rc),
     cen(CEN::None)
 {
+    rcWithin.Unpad(pad);
+    rcFlow = rcWithin;
 }
 
 LENDLG::LENDLG(DLG& dlg) :
@@ -216,8 +218,8 @@ void LEN::EndCenter(void)
 }
 
 /** 
- *  @fn void LEN::PositionOK(CTL& ctl)
- *  @brief Positions an OK button in the bottom right corner.
+ *  @fn         void LEN::PositionOK(CTL& ctl)
+ *  @brief      Positions an OK button in the bottom right corner.
  * 
  *  TODO: should this use flow and back up from the right?
  */
@@ -258,6 +260,13 @@ LE::LE(WN& wn) noexcept :
 }
 
 /**
+ *  @fn         void LE::Position(void)
+ *  @brief      Moves all child windows within the container  
+ *
+ *  @details    Once the items we're laying out have been sized, we can then 
+ *              position them within their container. This is where alignment
+ *              takes place. We do not actually move the windows here, just
+ *              save where they are going for the final layout pass.
  */
 
 void LE::Position(void) noexcept
@@ -282,8 +291,8 @@ void LE::Position(void) noexcept
 }
 
 /**
- *  @fn void LE::Finish(void) noexcept
- *  @brief Finalize the layout by setting the bounds of all positioned windows
+ *  @fn         void LE::Finish(void) 
+ *  @brief      Finalize layout by setting bounds of all positioned windows
  */
 
 void LE::Finish(void) noexcept

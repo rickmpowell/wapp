@@ -582,6 +582,7 @@ void DCS::DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText, FC fc)
 
 void DCS::DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText, FC fc) const
 {
+    assert(rc.FValid());
     RC rcg = RcgFromRc(rc);
     wstring ws(WsFromS(s));
     com_ptr<IDWriteTextLayout> ptxl;

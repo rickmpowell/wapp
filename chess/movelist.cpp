@@ -275,6 +275,8 @@ void WNCLOCK::DrawTime(const string& s, const RC& rcClock, bool fDrawColons)
 
     RC rc(PT(0), SZ(dx + dxColon*(vs.size()-1), dyClock));
     rc.CenterIn(rcClock);
+    FM fm = FmFromTf(tf);
+    rc.Offset(0, fm.dyDescent/2);
 
     auto ps = vs.begin();
     DrawS(*ps, tf, rc);

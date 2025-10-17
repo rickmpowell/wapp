@@ -13,8 +13,11 @@
 #include "resource.h"
 
 /**
- *  The main application entry point, with command line argument and initial
- *  window visibility state
+ *  @fn         Run(const string& sCmdLine, int sw)
+ *  @brief      The main application entry point
+ * 
+ *  @details    Command line argument and initial window visibility state for
+ *              the Win32 WAPP application.
  */
 
 int Run(const string& sCmdLine, int sw)
@@ -23,7 +26,11 @@ int Run(const string& sCmdLine, int sw)
 }
 
 /**
- *  The WAPP class for the Sample WAPP chess demonstration.
+ *  @fn         WAPP::WAPP(const string& wsCmdLine, int sw)
+ *  @brief      Constructor for the main application class
+ * 
+ *  @details    Initializes the main window, the game state, and the
+ *              WAPP class for the Sample WAPP chess demonstration.
  */
 
 WAPP::WAPP(const string& wsCmdLine, int sw) : 
@@ -248,6 +255,39 @@ CMDEXECUTE(CMDTESTPOLYGLOT)
     return 1;
 }
 
+/**
+ *  @class      CMDDEFAULTAISETTINGS
+ *  @brief      Command for setting the default AI settings
+ */
+
+CMD_DECLARE(CMDDEFAULTAISETTINGS)
+{
+public:
+    CMDDEFAULTAISETTINGS(WAPP & wapp) : CMD(wapp) {}
+
+    virtual int Execute(void) override
+    {
+        DLGAISETTINGS dlg(wapp, setaiDefault);
+        if (!FRunDlg(dlg))
+            return 0;
+        dlg.Extract(setaiDefault);
+        return 1;
+    }
+
+    virtual int FRunDlg(DLG & dlg) override
+    {
+        wapp.wnboard.Enable(false);
+        int val = dlg.MsgPump();
+        wapp.wnboard.Enable(true);
+        return val;
+    }
+};
+
+/**
+ *  @class      CMDTESTAI
+ *  @brief      Command for running the AI test suite
+ */
+
 CMDEXECUTE(CMDTESTAI)
 {
     wapp.game.Pause();
@@ -263,6 +303,11 @@ CMDEXECUTE(CMDTESTAI)
     wapp.RunAITest(dlg.folder, dlg.vfile);
     return 1;
 }
+
+/**
+ *  @class      CMDPROFILEAI
+ *  @brief      Command for running a standard AI profile test
+ */
 
 CMDEXECUTE(CMDPROFILEAI)
 {
@@ -281,12 +326,11 @@ CMDEXECUTE(CMDANALYZEWITHAI)
     return 1;
 }
 
-/*
- *  CMDMAKEMOVE 
+/**
+ *  @class      CMDMAKEMOVE 
+ *  @brief      Command that makes a move in the game
  *
- *  makes a move in the game.
- * 
- *  Undoable.
+ *  @details    Undoable.
  */
 
 int CMDMAKEMOVE::Execute(void) 
@@ -602,6 +646,7 @@ void WAPP::RegisterMenuCmds(void)
     REGMENUCMD(cmdTestPerft, CMDTESTPERFT);
     REGMENUCMD(cmdTestPerftSuite, CMDTESTPERFTSUITE);
     REGMENUCMD(cmdTestPolyglot, CMDTESTPOLYGLOT);
+    REGMENUCMD(cmdDefaultAISettings, CMDDEFAULTAISETTINGS);
     REGMENUCMD(cmdTestAI, CMDTESTAI);
     REGMENUCMD(cmdProfileAI, CMDPROFILEAI);
     REGMENUCMD(cmdAnalyzeWithAI, CMDANALYZEWITHAI);

@@ -12,7 +12,6 @@
 
 static bool FNextCh(istream& is, char& ch);
 static int IchFind(const string_view& s, char ch);
-static string SEscapeQuoted(const string& s);
 
 /*
  *  linebreakbuf
@@ -1107,12 +1106,6 @@ static int IchFind(const string_view& s, char ch)
     if (ich == string::npos)
         throw ERRAPP(rssErrFenParseUnexpectedChar, string(1, ch));
     return static_cast<int>(ich);
-}
-
-static string SEscapeQuoted(const string& s)
-{
-    /* TODO: escape special characters */
-    return s;
 }
 
 /*

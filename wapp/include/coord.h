@@ -30,127 +30,127 @@ class SZ : public D2D1_SIZE_F
 public:
 
     /** Default constructor leaves size uninitialized */
-    SZ(void) 
+    constexpr SZ(void) noexcept
     {
     }
 
-    SZ(const D2D1_SIZE_F& sz) 
+    constexpr SZ(const D2D1_SIZE_F& sz) noexcept
     {
         width = sz.width;
         height = sz.height;
     }
 
-    SZ(float width, float height) 
+    constexpr SZ(float width, float height) noexcept
     {
         this->width = width;
         this->height = height;
     }
 
-    SZ(int width, int height) 
+    constexpr SZ(int width, int height) noexcept
     {
         this->width = (float)width;
         this->height = (float)height;
     }
 
-    SZ(float width, int height) 
+    constexpr SZ(float width, int height) noexcept
     {
         this->width = width;
         this->height = (float)height;
     }
 
-    SZ(int width, float height) 
+    constexpr SZ(int width, float height) noexcept
     {
         this->width = (float)width;
         this->height = height;
     }
 
-    SZ(int w) 
+    constexpr SZ(int w) noexcept
     {
         width = height = (float)w;
     }
 
-    SZ(float w) 
+    constexpr SZ(float w) noexcept
     {
         width = height = w;
     }
 
-    SZ(const SIZE& size) 
+    constexpr SZ(const SIZE& size) noexcept
     {
         width = (float)size.cx;
         height = (float)size.cy;
     }
 
-    operator SIZE() const 
+    operator SIZE() const noexcept
     {
         SIZE size = { (long)width, (long)height };
         return size;
     }
 
-    SZ& Offset(const SZ& sz) 
+    SZ& Offset(const SZ& sz) noexcept
     {
         width += sz.width;
         height += sz.height;
         return *this;
     }
 
-    SZ SzOffset(const SZ& sz) const 
+    SZ SzOffset(const SZ& sz) const noexcept
     {
         return SZ(*this).Offset(sz);
     }
 
-    SZ& Scale(float w) 
+    SZ& Scale(float w) noexcept
     {
         width *= w;
         height *= w;
         return *this;
     }
 
-    SZ SzScale(float w) const 
+    SZ SzScale(float w) const noexcept
     {
         return SZ(*this).Scale(w);
     }
 
-    SZ operator - () const 
+    SZ operator - () const noexcept
     {
         return SZ(-width, -height);
     }
 
-    SZ operator + (const SZ& sz) const 
+    SZ operator + (const SZ& sz) const noexcept
     {
         return SzOffset(sz);
     }
 
-    SZ& operator += (const SZ& sz) 
+    SZ& operator += (const SZ& sz) noexcept
     {
         return Offset(sz);
     }
 
-    SZ operator - (const SZ& sz) const 
+    SZ operator - (const SZ& sz) const noexcept
     {
         return SzOffset(-sz);
     }
 
-    SZ& operator -= (const SZ& sz) 
+    SZ& operator -= (const SZ& sz) noexcept
     {
         return Offset(-sz);
     }
 
-    SZ operator * (float w) const 
+    SZ operator * (float w) const noexcept
     {
         return SzScale(w);
     }
 
-    SZ& operator *= (float w) 
+    SZ& operator *= (float w) noexcept
     {
         return Scale(w);
     }
 
-    SZ operator / (float w) const 
+    SZ operator / (float w) const noexcept
     {
         return SzScale(1.0f/w);
     }
 
-    SZ& operator /= (float w) 
+    SZ& operator /= (float w) noexcept
     {
         return Scale(1.0f/w);
     }
@@ -418,6 +418,11 @@ public:
         top = ptTopLeft.y;
         right = ptBotRight.x;
         bottom = ptBotRight.y;
+    }
+
+    bool FValid(void) const noexcept
+    {
+        return left <= right && top <= bottom;
     }
 
     PT ptTopLeft(void) const 

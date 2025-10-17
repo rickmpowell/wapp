@@ -72,7 +72,7 @@ public:
     void RebuildDevDepsWithChildren(void);
     void PurgeDevDepsWithChildren(void);
  
-    virtual void BeginDraw(void);
+    virtual bool FBeginDraw(void);
     virtual void EndDraw(const RC& rcUpdate);
     virtual void Erase(const RC& rcUpdate, DRO dro);
     virtual void Draw(const RC& rcUpdate);

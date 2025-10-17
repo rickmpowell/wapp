@@ -39,6 +39,7 @@
 #define cmdProfileAI 25
 #define cmdCopyFEN 26
 #define cmdAnalyzeWithAI 27
+#define cmdDefaultAISettings 28
 
 /*
  *  Accelerator tables
@@ -87,9 +88,9 @@
 #define rssErrParseMoveDestination 153
 #define rssErrEpdNoBestMove 154
 
-#define rssColor 256
-#define rssWhite 256
-#define rssBlack 257
+#define rssColor 512
+#define rssWhite 512
+#define rssBlack 513
 
 #define rssNewGameTitle 1025
 #define rssNewGameInstructions 1026
@@ -104,6 +105,26 @@
 
 #define rssAISettingsTitle 1100
 #define rssAISettingsInstructions 1101
+#define rssAISettingsPruneGroup 1102
+#define rssAISettingsRevFutility 1103
+#define rssAISettingsNullMove 1104
+#define rssAISettingsRazoring 1105
+#define rssAISettingsFutility 1106
+#define rssAISettingsLateMoveReduction 1107
+#define rssAISettingsMoveOrderGroup 1110
+#define rssAISettingsKillers 1111
+#define rssAISettingsHistory 1112
+#define rssAISettingsEvalGroup 1120
+#define rssAISettingsPSQT 1121
+#define rssAISettingsMaterial 1122
+#define rssAISettingsMobility 1123
+#define rssAISettingsKingSafety 1124
+#define rssAISettingsPawnStructure 1125
+#define rssAISettingsTempo 1126
+#define rssAISettingsAspiration 1130
+#define rssAISettingsOtherGroup 1140
+#define rssAISettingsPV 1141
+#define rssAISettingsXtSize 1142
 
 #define rssGameSettingsTitle 1200
 #define rssGameSettingsInstructions 1201

@@ -177,3 +177,10 @@ bool linestream::wgetline(ifstream& ifs, wstring& ws)
         ws.pop_back();
     return true;
 }
+
+string SEscapeQuoted(const string& s)
+{
+    /* TODO: escape special characters */
+    return s;
+}
+

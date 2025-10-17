@@ -221,11 +221,15 @@ protected:
 class CMDAISETTINGS : public CMD<CMDAISETTINGS, WAPP>
 {
 public:
-    CMDAISETTINGS(DLGNEWGAME& dlg, VSELPLAYER& vsel) : CMD(Wapp(dlg.iwapp)), vsel(vsel) { }
+    CMDAISETTINGS(DLGNEWGAME& dlg, VSELPLAYER& vsel) : 
+        CMD(Wapp(dlg.iwapp)), vsel(vsel) 
+    {
+    }
 
     virtual int Execute(void) override {
-        unique_ptr<DLG> pdlg = make_unique<DLGAISETTINGS>(wapp);
+        unique_ptr<DLGAISETTINGS> pdlg = make_unique<DLGAISETTINGS>(wapp, vsel.setComputer);
         if (FRunDlg(*pdlg)) {
+            pdlg->Extract(vsel.setComputer);
             vsel.fModified = true;
         }
         return 1;
@@ -275,8 +279,11 @@ DLGNEWGAME::DLGNEWGAME(WN& wnParent, GAME& game) :
 }
 
 /**
- *  Initializes the data in the dialog box with the default values taken 
- *  from the game
+ *  @fn         void DLGNEWGAME::Init(GAME& game)
+ *  @brief      Initializes the New Game dialog box
+ *
+ *  @details    Initializes the data in the dialog box with the default 
+ *              values taken from the game
  */
 
 void DLGNEWGAME::Init(GAME& game)
@@ -308,7 +315,8 @@ void DLGNEWGAME::InitPlayer(VSELPLAYER& vsel, PL* ppl, CPC cpc)
     dataplayer.fModified = false;
     dataplayer.cpc = cpc;
     dataplayer.ngcp = !ppl->FIsHuman();
-    dataplayer.lvlComputer = ppl->FIsHuman() ? 3 : static_cast<PLAI*>(ppl)->Level();
+    if (!ppl->FIsHuman())
+        dataplayer.setComputer = static_cast<PLAI*>(ppl)->set;
     dataplayer.sNameHuman = ppl->SName();
     vsel.SetData(dataplayer);
 }
@@ -349,15 +357,13 @@ CPC DLGNEWGAME::ExtractPlayer(GAME& game, VSELPLAYER& vsel)
 {
     DATAPLAYER dataplayer = vsel.DataGet();
  
-    /* if hte player was modified, create a new player */
+    /* if the player was modified, create a new player */
 
     if (dataplayer.fModified) {
         if (dataplayer.ngcp == 0)
             game.appl[dataplayer.cpc] = make_shared<PLHUMAN>(dataplayer.sNameHuman);
-        else {
-            SETAI set = { dataplayer.lvlComputer };
-            game.appl[dataplayer.cpc] = make_shared<PLAI>(set);
-        }
+        else
+            game.appl[dataplayer.cpc] = make_shared<PLAI>(dataplayer.setComputer);
     }
 
     return dataplayer.cpc;
@@ -544,14 +550,16 @@ DATAPLAYER VSELPLAYER::DataGet(void) const
     dataplayer.ngcp = GetSelectorCur();
     dataplayer.cpc = cpc;
     dataplayer.fModified = fModified;
-    dataplayer.lvlComputer = vsellevel.GetSelectorCur();
+    dataplayer.setComputer = setComputer;
+    dataplayer.setComputer.level = vsellevel.GetSelectorCur();
     dataplayer.sNameHuman = editName.SText();
     return dataplayer;
 }
 
 void VSELPLAYER::SetData(const DATAPLAYER& dataplayer)
 {
-    vsellevel.SetSelectorCur(dataplayer.lvlComputer);
+    setComputer = dataplayer.setComputer;
+    vsellevel.SetSelectorCur(dataplayer.setComputer.level);
     editName.SetText(dataplayer.sNameHuman);
     SetSelectorCur(dataplayer.ngcp);
     cpc = dataplayer.cpc;
@@ -808,9 +816,21 @@ VTC SELTIMECYCLE::DataGet(void) const
  *  THe new dialog's game time control list
  */
 
-vector<VTC> vvtcBullet = { TC(1min,0s), TC(1min,1s), TC(2min,1s) };
-vector<VTC> vvtcBlitz = { TC(3min,0s), TC(3min,2s), TC(5min,0s) };
-vector<VTC> vvtcRapid = { TC(10min,0s), TC(10min,5s), TC(15min,10s) };
+vector<VTC> vvtcBullet = { 
+    TC(1min,0s), 
+    TC(1min,1s), 
+    TC(2min,1s) 
+};
+vector<VTC> vvtcBlitz = { 
+    TC(3min,0s), 
+    TC(3min,2s), 
+    TC(5min,0s) 
+};
+vector<VTC> vvtcRapid = { 
+    TC(10min,0s), 
+    TC(10min,5s), 
+    TC(15min,10s) 
+};
 vector<VTC> vvtcClassical = { 
     TC(30min,0s), 
     TC(30min,20s), 
@@ -873,12 +893,95 @@ VTC VSELTIME::DataGet(void) const
  *  AI settings dialog
  */
 
-DLGAISETTINGS::DLGAISETTINGS(WN& wnParent) :
+DLGAISETTINGS::DLGAISETTINGS(WN& wnParent, const SETAI& set) :
     DLG(wnParent),
     title(*this, rssAISettingsTitle),
     instruct(*this, rssAISettingsInstructions),
+
+    groupPrune(*this, rssAISettingsPruneGroup),
+    chkRevFutility(*this, rssAISettingsRevFutility),
+    chkRazoring(*this, rssAISettingsRazoring),
+    chkNullMove(*this, rssAISettingsNullMove),
+    chkFutility(*this, rssAISettingsFutility),
+    chkLateMoveReduction(*this, rssAISettingsLateMoveReduction),
+
+    groupMoveOrder(*this, rssAISettingsMoveOrderGroup),
+    chkKillers(*this, rssAISettingsKillers),
+    chkHistory(*this, rssAISettingsHistory),
+
+    groupEval(*this, rssAISettingsEvalGroup),
+    chkPSQT(*this, rssAISettingsPSQT),
+    chkMaterial(*this, rssAISettingsMaterial),
+    chkMobility(*this, rssAISettingsMobility),
+    chkKingSafety(*this, rssAISettingsKingSafety),
+    chkPawnStructure(*this, rssAISettingsPawnStructure),
+    chkTempo(*this, rssAISettingsTempo),
+
+    groupOther(*this, rssAISettingsOtherGroup),
+    chkPV(*this, rssAISettingsPV),
+    chkAspiration(*this, rssAISettingsAspiration),
+    editXt(*this, "", rssAISettingsXtSize),
+
     btnok(*this)
 {
+    groupPrune.AddToGroup(chkRevFutility, chkRazoring, chkNullMove, chkFutility, chkLateMoveReduction);
+    groupMoveOrder.AddToGroup(chkKillers, chkHistory);
+    groupEval.AddToGroup(chkPSQT, chkMaterial, chkMobility, chkKingSafety, chkPawnStructure, chkTempo);
+    groupOther.AddToGroup(chkPV, chkAspiration, editXt);
+
+    Init(set);
+}
+
+void DLGAISETTINGS::Init(const SETAI& set)
+{
+    chkRevFutility.SetValue(set.fRevFutility);
+    chkRazoring.SetValue(set.fRazoring);
+    chkNullMove.SetValue(set.fNullMove);
+    chkFutility.SetValue(set.fFutility);
+    chkLateMoveReduction.SetValue(set.fLateMoveReduction);
+
+    chkKillers.SetValue(set.fKillers);
+    chkHistory.SetValue(set.fHistory);
+
+    chkPSQT.SetValue(set.fPSQT);
+    chkMaterial.SetValue(set.fMaterial);
+    chkMobility.SetValue(set.fMobility);
+    chkKingSafety.SetValue(set.fKingSafety);
+    chkPawnStructure.SetValue(set.fPawnStructure);
+    chkTempo.SetValue(set.fTempo);
+
+    chkPV.SetValue(set.fPV);
+    chkAspiration.SetValue(set.fAspiration);
+    editXt.SetText(to_string(set.cmbXt));
+}
+
+void DLGAISETTINGS::Extract(SETAI& set)
+{
+    set.fRevFutility = chkRevFutility.ValueGet();
+    set.fRazoring = chkRazoring.ValueGet();
+    set.fNullMove = chkNullMove.ValueGet();
+    set.fFutility = chkFutility.ValueGet();
+    set.fLateMoveReduction = chkLateMoveReduction.ValueGet();
+
+    set.fKillers = chkKillers.ValueGet();
+    set.fHistory = chkHistory.ValueGet();
+
+    set.fPSQT = chkPSQT.ValueGet(); 
+    set.fMaterial = chkMaterial.ValueGet();
+    set.fMobility = chkMobility.ValueGet();
+    set.fKingSafety = chkKingSafety.ValueGet();
+    set.fPawnStructure = chkPawnStructure.ValueGet();
+    set.fTempo = chkTempo.ValueGet();
+    
+    set.fPV = chkPV.ValueGet();
+    set.fAspiration = chkAspiration.ValueGet();
+    /* TODO: should do some real parsing/validation here */
+    try {
+        set.cmbXt = stoi(editXt.SText());
+    }
+    catch (...) {
+        set.cmbXt = 1;
+    }
 }
 
 void DLGAISETTINGS::Layout(void)
@@ -888,12 +991,19 @@ void DLGAISETTINGS::Layout(void)
     len.AdjustMarginDy(-dxyDlgGutter / 2);
     len.Position(instruct);
 
+    len.StartFlow();
+        len.PositionLeft(groupPrune);
+        len.PositionLeft(groupMoveOrder);
+        len.PositionLeft(groupEval);
+        len.PositionLeft(groupOther);
+    len.EndFlow();
+
     len.PositionOK(btnok);
 }
 
 SZ DLGAISETTINGS::SzIntrinsic(const RC& rcWithin)
 {
-    return SZ(600, 600);
+    return SZ(800, 600);
 }
 
 /*

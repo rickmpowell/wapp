@@ -89,7 +89,8 @@ void WNBD::ShowMv(MV mv, bool fAnimate)
     RC rcAnim = rcFrom;
 
     for (duration<float> dtp = 0ms; dtp < dtpTotal; dtp = TpNow() - tpStart) {
-        BeginDraw();
+        /* TODO: what if this fails? */
+        FBeginDraw();
         Draw(rcAnim);   // redraw on top of old piece in the animation 
         rcAnim = rcFrom + dpt * (float)(dtp / dtpTotal);
         DrawPiece(rcAnim, cp, 1.0f);

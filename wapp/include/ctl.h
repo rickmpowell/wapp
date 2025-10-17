@@ -86,6 +86,7 @@ protected:
     TF tf;
     PAD pad;
     PAD border;
+    PAD margin;
     LEIT leit;
     CDS cdsCur = CDS::None;
 };
@@ -355,8 +356,6 @@ private:
     int iFirst, iLast;
 };
 
-
-
 /**
  *  @class CMDCYCLENEXT
  *  @brief The command sent by the cycle control on the next arrow
@@ -553,6 +552,40 @@ public:
 
 private:
     string sText;
+};
+
+/**
+ *  @class      GROUP
+ *  @brief      Grouping box for dialog controls
+ * 
+ *  @details    For combining groups of controls in a dialog, which affects
+ *              layout and provides simple logical grouping/titling.
+ * 
+ *              This is a werid control, in that it treats sibling controls
+ *              as children for layout purposes.   
+ */
+
+class GROUP : public CTL
+{
+public:
+    GROUP(WN& wnParent, const string& sLabel);
+    GROUP(WN& wnParent, int rssLabel = -1);
+
+    void AddToGroup(CTL& ctl);
+    void AddToGroupT(CTL& ctl) { AddToGroup(ctl); }
+
+    template<typename... Args>
+    void AddToGroup(Args&&... args)
+    {
+        (AddToGroupT(forward<Args>(args)), ...); 
+    }
+
+    virtual void Draw(const RC& rcUpdate) override;
+    virtual void Layout(void) override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
+
+private:
+    vector<observer_ptr<CTL>> vpctlGroup;
 };
 
 #endif // CONSOLE

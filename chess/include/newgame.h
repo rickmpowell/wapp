@@ -13,6 +13,7 @@
 
 #include "wapp.h"
 #include "game.h"
+#include "computer.h"   // for AI settings
 class DLGNEWGAME;
 class VSELTIME;
 
@@ -42,7 +43,7 @@ struct DATAPLAYER
     bool fModified = false;
     CPC cpc = cpcInvalid;
     int ngcp = -1;
-    int lvlComputer = 3;
+    SETAI setComputer = setaiDefault;
     string sNameHuman;
 };
 
@@ -122,6 +123,7 @@ public:
 
     NGCC ngcc;
     bool fModified;
+    SETAI setComputer;
 
 private:
     CPC cpc;
@@ -297,13 +299,40 @@ public:
 class DLGAISETTINGS : public DLG
 {
 public:
-    DLGAISETTINGS(WN& wn);
+    DLGAISETTINGS(WN& wn, const SETAI& set);
     virtual void Layout(void) override;
     virtual SZ SzIntrinsic(const RC& rcWithin) override;
+    void Init(const SETAI& set);
+    void Extract(SETAI& set);
 
 private:
     TITLEDLG title;
     INSTRUCT instruct;
+
+    GROUP groupPrune;
+    CHK chkRevFutility;
+    CHK chkNullMove;
+    CHK chkRazoring;
+    CHK chkFutility;
+    CHK chkLateMoveReduction;
+
+    GROUP groupMoveOrder;
+    CHK chkKillers;
+    CHK chkHistory;
+
+    GROUP groupEval;
+    CHK chkPSQT;
+    CHK chkMaterial;
+    CHK chkMobility;
+    CHK chkKingSafety;
+    CHK chkPawnStructure;
+    CHK chkTempo;
+
+    GROUP groupOther;
+    CHK chkPV;
+    CHK chkAspiration;
+    EDIT editXt;
+
     BTNOK btnok;
 };
 

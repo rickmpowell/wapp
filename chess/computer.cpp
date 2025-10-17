@@ -1,24 +1,30 @@
 
-/*
- *  computer.cpp
- *
- *  Our AI. This is a simple alpha-beta search with quiscient search and
- *  piece table static evaluation 
+/**
+ *  @file       computer.cpp
+ *  @brief      Computer player
+ * 
+ *  @details    For the most part, this is just our AI. This is an alpha-beta 
+ *              search with quiscient search, along with a number of pruning 
+ *              heuristics, and a transposition table, and various tree 
+ *              extensions/reductions.
+ *              We also have static board evaluation, which is currently just
+ *              piece square tables, and reduimentary pawn structure and king
+ *              safety.
  */
 
 #include "chess.h"
 #include "computer.h"
 
 WNLOG* pwnlog = nullptr;  // logging
+SETAI setaiDefault;     // default AI settings
 
 PL::PL(void)
 {
 }
 
 PLAI::PLAI(const SETAI& set) :
-    set(set)
+    AI(set)
 {
-    xt.SetSize(64 * 0x100000UL);
 }
 
 string PLAI::SName(void) const
@@ -29,16 +35,6 @@ string PLAI::SName(void) const
 bool PLAI::FIsHuman(void) const
 {
     return false;
-}
-
-int PLAI::Level(void) const
-{
-    return set.level;
-}
-
-void PLAI::SetLevel(int level)
-{
-    set.level = level;
 }
 
 void PLAI::RequestMv(WAPP& wapp, GAME& game, const TMAN& tman)
@@ -64,15 +60,21 @@ void PLAI::Interrupt(WAPP& wapp, GAME& game)
     fInterruptSearch = true;
 }
 
+AI::AI(const SETAI& set) :
+    set(set)
+{
+    xt.SetSize(set.cmbXt);
+}
+
 /**
- *  @fn         MV PLCMPUTER::MvBestTest(WAPP& wapp, GAME& game, const TMAN& tman)
+ *  @fn         MV AI::MvBestTest(WAPP& wapp, GAME& game, const TMAN& tman)
  *  @brief      Stub entry pont for testing the AI
  * 
  *  @details    Just sets up the logging system before doing the full search 
  *              to find the best move.
  */
 
-MV PLAI::MvBestTest(WAPP& wapp, GAME& game, const TMAN& tman)
+MV AI::MvBestTest(WAPP& wapp, GAME& game, const TMAN& tman)
 {
     pwnlog = &wapp.wnlog;
     return MvBest(game.bd, tman);
@@ -121,11 +123,11 @@ public:
         }
     }
 
-    void LogMvStart(const MV& mv, const AB& ab, string_view s = "") noexcept
+    void LogMvStart(const MV& mv, const AB& ab, optional<string_view> os = nullopt) noexcept
     {
         if (pwnlog->FUnderLevel()) {
-            if (s.size() > 0)
-                *pwnlog << s << " ";
+            if (os)
+                *pwnlog << os.value() << " ";
             *pwnlog << to_string(mv)
                 << " [" << to_string(mv.evenum) << " " << to_string(mv.ev) << "] "
                 << to_string(ab) << endl;
@@ -133,23 +135,23 @@ public:
         *pwnlog << indent;
     }
 
-    void LogMvEnd(const MV& mv, string_view sPost="") noexcept
+    void LogMvEnd(const MV& mv, optional<string_view> osPost = nullopt) noexcept
     {
         *pwnlog << outdent;
         if (pwnlog->FUnderLevel()) {
             *pwnlog << to_string(mv) << " " << to_string(mv.ev);
-            if (sPost.size() > 0)
-                *pwnlog << " " << sPost;
+            if (osPost)
+                *pwnlog << " " << osPost.value();
             *pwnlog << endl;
         }
     }
 
-    void LogEnd(EV ev, string_view s, string_view sPost="") noexcept
+    void LogEnd(EV ev, string_view s, optional<string_view> osPost = nullopt) noexcept
     {
         if (pwnlog->FUnderLevel()) {
             *pwnlog << s << " " << to_string(ev);
-            if (sPost.size() > 0)
-                *pwnlog << " " << sPost;
+            if (osPost)
+                *pwnlog << " " << osPost.value();
             *pwnlog << endl;
         }
     }
@@ -175,7 +177,7 @@ private:
 BRK brk;
 
 /**
- *  @fn         MV PLAI::MvBest(BD& bdGame, const TMAN& tman)
+ *  @fn         MV AI::MvBest(BD& bdGame, const TMAN& tman)
  *  @brief      Root best move search
  * 
  *  @details    The root node of the search not only sets up everything 
@@ -186,8 +188,10 @@ BRK brk;
  *              or they won't help much on just this one node.
  */
 
-MV PLAI::MvBest(BD& bdGame, const TMAN& tman) noexcept
+MV AI::MvBest(BD& bdGame, const TMAN& tman) noexcept
 {
+    *pwnlog << bdGame.FenRender() << endl << indent;
+
     /* prepare for search */
     stat.Init();
     InitPsts();
@@ -204,11 +208,12 @@ MV PLAI::MvBest(BD& bdGame, const TMAN& tman) noexcept
     bd.MoveGen(vmv);
     stat.cmvMoveGen += vmv.size();
     
-    *pwnlog << bd.FenRender() << endl << indent;
     MV mvBestAll(vmv[0]), mvBest;
     dSearchMax = tman.odMax.has_value() ? tman.odMax.value() : 100;
     int dLim = 2;
-    AB abInit(-evInfinity, evInfinity);
+    AB abInit(AbInfinite());
+    HD mpdhd[dMax];
+    mpdhd[0].evStatic = EvStatic(bd);
 
     do {    /* iterative deepening/aspiration window loop */
         stat.cmvSearch++;
@@ -218,7 +223,7 @@ MV PLAI::MvBest(BD& bdGame, const TMAN& tman) noexcept
         for (VMV::siterator pmv = vmv.InitMv(bd, *this); vmv.FGetMv(pmv, bd); vmv.NextMv(pmv)) {
             brk.Check(0, *pmv);
             brk.LogMvStart(*pmv, ab);
-            pmv->ev = -EvSearch(bd, -ab, 0+1, dLim, soNormal);
+            pmv->ev = -EvSearch(bd, -ab, 0+1, dLim, mpdhd, soNormal);
             bd.UndoMv();
             if (FPrune(ab, *pmv, mvBest, dSearchMax)) {
                 SaveCut(bd, *pmv, ab, 0, dLim);
@@ -235,25 +240,23 @@ MV PLAI::MvBest(BD& bdGame, const TMAN& tman) noexcept
         if (mvBest.ev > -evInfinity)
             SaveXt(bd, mvBest, abInit, 0, dLim);
         brk.LogDepthEnd(mvBest, "best");    
-    } while (FDeepen(bd, mvBestAll, mvBest, abInit, dLim));
+    } while (FDeepen(bd, mvBestAll, mvBest, abInit, dLim) &&
+             vmv.size() > 1);
 
     *pwnlog << outdent << "best " << to_string(mvBestAll) << endl;    
     duration dtp = TpNow() - tpSearchStart;
     stat.Log(*pwnlog, duration_cast<milliseconds>(dtp));
 
-    mvBestAll.ev = 0;
-    if (tint == TINT::Halt) {
-        mvBestAll = mvNil;
-        mvBestAll.ev = evInterrupt;
-    }
-    else if (tint == TINT::MoveAndPause)
-        mvBestAll.ev = evInterrupt;
+    /* set up special moves to communicate to the game how the game should proceed */
+    mvBestAll.ev = tint == TINT::MoveAndPause ? evInterrupt : 0;
+    if  (tint == TINT::Halt)
+        mvBestAll = MV(mvNil, evInterrupt);
 
     return mvBestAll;
 }
 
 /**
- *  @fn         EV PLAI::EvSearch(BD& bd, AB abInit, int d, int dLim, SO so)
+ *  @fn         EV AI::EvSearch(BD& bd, AB abInit, int d, int dLim, HD mpdhd[], SO so)
  *  @brief      Recursive alpha-beta search
  * 
  *  @details    Basic recursive move search, finds the evaluation of the best 
@@ -263,23 +266,29 @@ MV PLAI::MvBest(BD& bdGame, const TMAN& tman) noexcept
  *  @returns    The evaluation of the bd from the pov of the side to move
  */
 
-EV PLAI::EvSearch(BD& bd, AB abInit, int d, int dLim, SO so) noexcept
+EV AI::EvSearch(BD& bd, AB abInit, int d, int dLim, HD mpdhd[], SO so) noexcept
 {
     bool fInCheck = bd.FInCheck(bd.cpcToMove);
     dLim += fInCheck;
     if (d >= dLim)
-        return EvQuiescent(bd, abInit, d);
+        return EvQuiescent(bd, abInit, d, mpdhd);
 
     stat.cmvSearch++;
 
-    //ab.evAlpha = max(ab.evAlpha, -EvMate(dLim));
-    ///ab.evBeta = min(ab.evBeta, EvMate(dLim));
-
-    /* check for interrupts and draws */
-    if (FInterrupt()) {
-        stat.cmvLeaf++;
+    /* periodically check for interrupts */
+    if (FInterrupt())
         return evInterrupt;
+
+    /* mate distance pruning */
+    abInit.evAlpha = max(abInit.evAlpha, -EvMate(d));
+    abInit.evBeta = min(abInit.evBeta, EvMate(d));
+    if (abInit.FEmpty()) {
+        stat.cmvLeaf++;
+        brk.LogEnd(evDraw, "mate distance");
+        return abInit.evAlpha;
     }
+
+    /* check for draws */
     if (bd.FGameDrawn(2)) {
         stat.cmvLeaf++;
         brk.LogEnd(evDraw, "draw");
@@ -288,68 +297,55 @@ EV PLAI::EvSearch(BD& bd, AB abInit, int d, int dLim, SO so) noexcept
 
     /* check transposition table */
     MV mvBest(-evInfinity);
-    if (FLookupXt(bd, mvBest, abInit, d, dLim)) {
-        stat.cmvXt++;
-        brk.LogEnd(mvBest.ev, "xt");
-        return mvBest.ev;
-    }
+    if (FLookupXt(bd, mvBest, abInit, d, dLim))
+       return mvBest.ev;
+
+    /* get a static board evaluation which we'll use for various pruning
+       heuristics */
+    mpdhd[d].evStatic = EvStatic(bd);
+    mpdhd[d].fImproving = d > 1 && mpdhd[d].evStatic > mpdhd[d - 2].evStatic;
 
     /* try various pruning tricks */
-    if (!fInCheck && abInit.FIsNull() && (so & soNoPruningHeuristics)) {
-        MV mvBest(EvStatic(bd));
-        if (FTryStaticNullMove(bd, mvBest, abInit, d, dLim)) {
-            stat.cmvPruned++;
-            brk.LogEnd(mvBest.ev, "static null");
-            return mvBest.ev;
-        }
-        if (FTryNullMove(bd, mvBest, abInit, d, dLim)) {
-            stat.cmvPruned++;
-            brk.LogEnd(mvBest.ev, "null");
-            return mvBest.ev;
-        }
-        if (FTryRazoring(bd, mvBest, abInit, d, dLim)) {
-            stat.cmvPruned++;
-            brk.LogEnd(mvBest.ev, "razoring");
-            return mvBest.ev;
-        }
-        if (FTryFutility(bd, mvBest, abInit, d, dLim)) {
-            stat.cmvPruned++;
-            brk.LogEnd(mvBest.ev, "futility");
-            return mvBest.ev;
-        }
+    bool fTryFutility = false;
+    if (!fInCheck && abInit.FIsNull() && !(so & soNoPruningHeuristics)) {
+        if (FTryReverseFutility(bd, abInit, d, dLim, mpdhd))
+            return mpdhd[d].evStatic;
+        if (FTryNullMove(bd, abInit, d, dLim, mpdhd))
+            return mpdhd[d].evStatic;
+        if (FTryRazoring(bd, abInit, d, dLim, mpdhd))
+            return mpdhd[d].evStatic;
+        if (FTryFutility(bd, abInit, d, dLim, mpdhd))
+            fTryFutility = true;
     }
 
     /* generate legal moves */
-    AB ab = abInit;
     VMV vmv;
     bd.MoveGenPseudo(vmv);
     stat.cmvMoveGen += vmv.size();
- 
-    /* try first move with full povided ab window */
-    VMV::siterator pmv = vmv.InitMv(bd, *this);
-    if (vmv.FGetMv(pmv, bd)) {
-        brk.Check(d, *pmv); brk.LogMvStart(*pmv, ab);
-        pmv->ev = -EvSearch(bd, -ab, d + 1, dLim, so);
-        bd.UndoMv();
-        if (FPrune(ab, *pmv, mvBest, dLim)) {
-            SaveCut(bd, *pmv, ab, d, dLim);
-            return pmv->ev;
-        }
-        brk.LogMvEnd(*pmv);
-        vmv.NextMv(pmv);
-    }
+    AB ab = abInit;
 
-    for ( ; vmv.FGetMv(pmv, bd); vmv.NextMv(pmv)) {
+    /* try the moves in the move list */
+    for (VMV::siterator pmv = vmv.InitMv(bd, *this); 
+         vmv.FGetMv(pmv, bd); vmv.NextMv(pmv)) {
         brk.Check(d, *pmv); brk.LogMvStart(*pmv, ab);
-        pmv->ev = -EvSearch(bd, -ab.AbNull(), d + 1, dLim, so);
-        if (!ab.FIsBelow(pmv->ev) && !ab.FIsNull())
-            pmv->ev = -EvSearch(bd, -ab, d+1, dLim, so);
-        bd.UndoMv();
-        if (FPrune(ab, *pmv, mvBest, dLim)) {
-            SaveCut(bd, *pmv, ab, d, dLim);
-            return pmv->ev;
+        if (fTryFutility && vmv.cmvLegal > 1 && !bd.FMvWasNoisy() && !bd.FInCheck(~bd.cpcToMove)) {
+            stat.cmvFutility++;
+            bd.UndoMv();
+            brk.LogMvEnd(*pmv, "futility");
         }
-        brk.LogMvEnd(*pmv);
+        else {
+            if (!set.fPV || ab.evAlpha == abInit.evAlpha)
+                pmv->ev = -EvSearch(bd, -ab, d + 1, dLim, mpdhd, so);
+            else {
+                pmv->ev = -EvSearch(bd, -ab.AbNull(), d + 1, dLim, mpdhd, so);
+                if (!ab.FIsBelow(pmv->ev))
+                    pmv->ev = -EvSearch(bd, -ab, d + 1, dLim, mpdhd, so);
+            }
+            bd.UndoMv();
+            if (FPrune(ab, *pmv, mvBest, dLim))
+                return SaveCut(bd, *pmv, ab, d, dLim);
+            brk.LogMvEnd(*pmv);
+        }
     }
 
     if (vmv.cmvLegal == 0) {
@@ -368,7 +364,7 @@ EV PLAI::EvSearch(BD& bd, AB abInit, int d, int dLim, SO so) noexcept
 }
 
 /**
- *  @fn         EV PLAI::EvQuiescent(BD& bd, AB ab, int d)
+ *  @fn         EV AI::EvQuiescent(BD& bd, AB ab, int d, HD mpdhd[])
  *  @brief      Recursive quiescent search
  * 
  *  @detils     A common problem with chess search is trying to get a static 
@@ -380,20 +376,21 @@ EV PLAI::EvSearch(BD& bd, AB abInit, int d, int dLim, SO so) noexcept
  *              quiescent moves, too.
  */
 
-EV PLAI::EvQuiescent(BD& bd, AB ab, int d) noexcept
+EV AI::EvQuiescent(BD& bd, AB ab, int d, HD mpdhd[]) noexcept
 {
     stat.cmvQuiescent++;
 
-    if (FInterrupt()) {
-        stat.cmvLeaf++;
+    if (FInterrupt())
         return evInterrupt;
-    }
 
     stat.cmvEval++;
-    MV mvBest(EvStatic(bd));
+    mpdhd[d].evStatic = EvStatic(bd);
+    mpdhd[d].fImproving = false;
+
+    MV mvBest(mpdhd[d].evStatic);
     if (FPrune(ab, mvBest)) {
         stat.cmvLeaf++;
-        brk.LogEnd(mvBest.ev, "leaf", "cut");
+        brk.LogEnd(mvBest.ev, "eval", "cut");
         return mvBest.ev;
     }
     brk.LogEnd(mvBest.ev, "eval");
@@ -409,7 +406,7 @@ EV PLAI::EvQuiescent(BD& bd, AB ab, int d) noexcept
     for (VMV::siterator pmv = vmv.InitMv(bd, *this); vmv.FGetMv(pmv, bd); vmv.NextMv(pmv)) {
         brk.Check(d, *pmv);
         brk.LogMvStart(*pmv, ab, "q");
-        pmv->ev = -EvQuiescent(bd, -ab, d + 1);
+        pmv->ev = -EvQuiescent(bd, -ab, d + 1, mpdhd);
         bd.UndoMv();
         if (FPrune(ab, *pmv, mvBest)) {
             brk.LogMvEnd(*pmv, "cut");
@@ -431,14 +428,16 @@ EV PLAI::EvQuiescent(BD& bd, AB ab, int d) noexcept
 /**
  *  @class      VMV::siterator
  *
- *  @details    Our smart iterator works by doing a quick type check on all
- *              the moves and then lazy scoring each type as we get to them.
- *              Lazy scoring saves us the cost of scoring unvisited moves
- *              that might be avoided when we get a cut.
+ *  @details    Our smart iterator works by quickly partioning all the moves 
+ *              into types, and then enermating through the move list one type 
+ *              at a time. We lazy evaluate the moves of each type as we go
+ *              and sort the moves by that evaluation. If we ever get a beta 
+ *              cut, that means we save the evaluation of types that we didn't 
+ *              get to.
  */
 
 /**
- *  @fn         VMV::siterator VMV::sbegin(PLAI& pl, BD& bd)
+ *  @fn         VMV::siterator VMV::sbegin(AI& ai, BD& bd)
  *  @brief      the beginning of our smart move list iterator
  * 
  *  @details    The list is sorted by move score. The score is evaluated
@@ -451,9 +450,9 @@ EV PLAI::EvQuiescent(BD& bd, AB ab, int d) noexcept
  *              scoring.
  */
 
-VMV::siterator VMV::sbegin(PLAI& pl, BD& bd) noexcept
+VMV::siterator VMV::sbegin(AI& ai, BD& bd) noexcept
 {
-    VMV::siterator sit = siterator(&pl, &bd,
+    VMV::siterator sit = siterator(&ai, &bd,
                                    &reinterpret_cast<MV*>(amv)[0],
                                    &reinterpret_cast<MV*>(amv)[imvMac]);
     return sit;
@@ -470,17 +469,62 @@ VMV::siterator VMV::send(void) noexcept
 }
 
 /**
- *  @fn         VMV::siterator::siterator(PLAI* plai, BD* pbd, MV* pmv, MV * pmvMac)
+ *  @fn         VMV::siterator VMV::InitMv(BD& bd, AI& ai)
+ *  @brief      Initializes the smart move iterator
+ * 
+ *  @details    Resets the legal move count and returns an iterator to the
+ *              start of the move list.
+ */
+
+VMV::siterator VMV::InitMv(BD& bd, AI& ai) noexcept
+{
+    cmvLegal = 0;
+    return sbegin(ai, bd);
+}
+
+/**
+ *  @fn         bool VMV::FGetMv(VMV::siterator& pmv, BD& bd)
+ *  @brief      Gets the next legal move from the smart iterator
+ * 
+ *  @details    Will not return invalid pseudo moves that are invalid.
+ * 
+ *  TODO: should actually remove moves that aren't legal
+ */
+
+ bool VMV::FGetMv(VMV::siterator& pmv, BD& bd) noexcept
+{
+    while (pmv != send()) {
+        if (bd.FMakeMvLegal(*pmv)) {
+            cmvLegal++;
+            return true;
+        }
+        ++pmv;
+    }
+    return false;
+}
+
+/**
+ *  @fn         void VMV::NextMv(VMV::siterator& sit)
+ *  @brief      Advances the smart move iterator to the next move
+ */
+
+void VMV::NextMv(VMV::siterator& sit) noexcept
+{
+    ++sit;
+}
+
+/**
+ *  @fn         VMV::siterator::siterator(AI* pai, BD* pbd, MV* pmv, MV * pmvMac)
  *  @brief      Constructor for the smart move list iterator
  *  
  *  @details    The work to move to the first of the sorted moves is done here, 
  *              and the move list may be scanned and moves scored.
  */
 
-VMV::siterator::siterator(PLAI* ppl, BD* pbd, MV* pmv, MV* pmvMac) noexcept :
+VMV::siterator::siterator(AI* pai, BD* pbd, MV* pmv, MV* pmvMac) noexcept :
     iterator(pmv),
     pmvMac(pmvMac),
-    ppl(ppl),
+    pai(pai),
     pbd(pbd)
 {
     InitEvEnum();
@@ -519,7 +563,7 @@ void VMV::siterator::InitEvEnum(void) noexcept
 
     case EVENUM::PV:    /* principle variation should be in the transposition table */
     {
-        XTEV* pxtev = ppl->xt.Find(*pbd, 0);
+        XTEV* pxtev = pai->xt.Find(*pbd, 0);
         if (pxtev != nullptr && ((TEV)pxtev->tev == TEV::Equal || (TEV)pxtev->tev == TEV::Higher)) {
             for (MV* pmv = pmvCur; pmv < pmvMac; pmv++)
                 if (*pmv == pxtev->Mv()) {
@@ -533,7 +577,7 @@ void VMV::siterator::InitEvEnum(void) noexcept
     case EVENUM::GoodCapt:  /* good captures based on MVV-LVA heuristifc */
         for (MV* pmv = pmvCur; pmv < pmvMac; pmv++) {
             if (pbd->FMvIsCapture(*pmv)) {
-                ppl->ScoreCapture(*pbd, *pmv);
+                pai->ScoreCapture(*pbd, *pmv);
                 pmv->evenum = pmv->ev > -200 ? EVENUM::GoodCapt : EVENUM::BadCapt;
             }
         }
@@ -541,22 +585,25 @@ void VMV::siterator::InitEvEnum(void) noexcept
 
     case EVENUM::Killer:    /* killer moves */
         for (MV* pmv = pmvCur; pmv < pmvMac; pmv++)
-            if (pmv->evenum == EVENUM::None && ppl->FScoreKiller(*pbd, *pmv))
+            if (pmv->evenum == EVENUM::None && pai->FScoreKiller(*pbd, *pmv))
                 pmv->evenum = EVENUM::Killer;
         break;
 
     case EVENUM::History:   /* move history */
         for (MV* pmv = pmvCur; pmv < pmvMac; pmv++)
-            if (pmv->evenum == EVENUM::None && ppl->FScoreHistory(*pbd, *pmv))
+            if (pmv->evenum == EVENUM::None && pai->FScoreHistory(*pbd, *pmv))
                 pmv->evenum = EVENUM::History;
         break;
 
-    case EVENUM::Xt:        /* transposition table and actual move scoring */
-        /* both these types require making the move on the board */
+    case EVENUM::Xt:        /* transposition table */
         for (MV* pmv = pmvCur; pmv < pmvMac; pmv++)
-            if (pmv->evenum == EVENUM::None && ppl->FScoreMove(*pbd, *pmv))
+            if (pmv->evenum == EVENUM::None && pai->FScoreXt(*pbd, *pmv))
                 pmv->evenum = EVENUM::Xt;
-            else
+        break;
+
+    case EVENUM::Other: /* an actual fast board evaluation */
+        for (MV* pmv = pmvCur; pmv < pmvMac; pmv++)
+            if (pmv->evenum == EVENUM::None && pai->FScoreMove(*pbd, *pmv))
                 pmv->evenum = EVENUM::Other;
         break;
 
@@ -622,17 +669,26 @@ GotIt:
 }
 
 /**
- *  Alpha-beta pruning
+ *  @fn         bool AI::FPrune(AB& ab, MV& mv, int& dLim)    
+ *  @brief      Alpha-beta pruning
+ * 
+ *  @details    Given a board evaluation and an alpha-beta window, checks to
+ *              see if we should do a beta-cut (i.e., the evaluation is above
+ *              beta). We'll close up the a-b window on a cut and return true.
+ *              
  */
 
-bool PLAI::FPrune(AB& ab, MV& mv, int& dLim) noexcept
+bool AI::FPrune(AB& ab, MV& mv, int& dLim) noexcept
 {
+    // interrupts always prune; force the sign to be positive    
     if (FEvIsInterrupt(mv.ev)) {
-        mv.ev = evInterrupt;
+        mv.ev = evInterrupt;    
         return true;
     }
     assert(ab.evAlpha <= ab.evBeta);
     if (mv.ev > ab.evAlpha) {
+        /* on mates, we adjust the depth limit for later searches so all we
+           do is search for quicker mates */
         if (FEvIsMate(mv.ev)) {
             dLim = min(dLim, DFromEvMate(mv.ev));
             assert(dLim > 0);
@@ -646,16 +702,33 @@ bool PLAI::FPrune(AB& ab, MV& mv, int& dLim) noexcept
     return false;
 }
 
-bool PLAI::FPrune(AB& ab, MV& mv, MV& mvBest, int& dLim) noexcept
+/**
+ *  @fn         bool AI::FPrune(AB& ab, MV& mv, MV& mvBest, int& dLim)
+ *  @brief      Alpha-beta pruning with best move tracking
+ * 
+ *  @details    Same as FPrune above, but also keeps track of the best move
+ *              found so far.
+ */
+
+bool AI::FPrune(AB& ab, MV& mv, MV& mvBest, int& dLim) noexcept
 {
     assert(ab.evAlpha <= ab.evBeta);
     bool fPrune = FPrune(ab, mv, dLim);
+    /* REVIEW: is this right for interrupts? */
     if (mv.ev > mvBest.ev)
         mvBest = mv;
     return fPrune;
 }
 
-bool PLAI::FPrune(AB& ab, MV& mv) noexcept
+/**
+ *  @fn         bool AI::FPrune(AB& ab, MV& mv)
+ *  @brief      Alpha-beta pruning without depth adjustment
+ * 
+ *  @details    Same as FPrune above, but without the depth adjustment on
+ *              mate scores. Used in quiescent search.
+ */
+
+bool AI::FPrune(AB& ab, MV& mv) noexcept
 {
     if (FEvIsInterrupt(mv.ev)) {
         mv.ev = evInterrupt;
@@ -672,29 +745,51 @@ bool PLAI::FPrune(AB& ab, MV& mv) noexcept
     return false;
 }
 
-bool PLAI::FPrune(AB& ab, MV& mv, MV& mvBest) noexcept
+/**
+ *  @fn         bool AI::FPrune(AB& ab, MV& mv, MV& mvBest)
+ *  @brief      Alpha-beta pruning with best move tracking
+ * 
+ *  @details    Same as FPrune above, but also keeps track of the best move
+ *              found so far, and no depth adjustment on mate scores.
+ */
+
+bool AI::FPrune(AB& ab, MV& mv, MV& mvBest) noexcept
 {
     assert(ab.evAlpha <= ab.evBeta);
     bool fPrune = FPrune(ab, mv);
+    /* REVIEW: is this right for interrupts? */
     if (mv.ev > mvBest.ev)
         mvBest = mv;
     return fPrune;
 }
 
-void PLAI::SaveCut(BD& bd, const MV& mv, AB ab, int d, int dLim) noexcept
+/**
+ *  @fn         EV AI::SaveCut(BD& bd, const MV& mv, AB ab, int d, int dLim)
+ *  @brief      Saves a move that caused a beta cut
+ * 
+ *  @details    Performs all the housekeeping we need to do on a beta cut-off.
+ *              Includes saving killer moves, updating the history table, and
+ *              adding the move to the transposition table. 
+ *              We also do the logging here, which is a little weird.
+ */
+
+EV AI::SaveCut(BD& bd, const MV& mv, AB ab, int d, int dLim) noexcept
 {
-    SaveKiller(bd, mv);
-    AddHistory(bd, mv, d, dLim);
+    if (!bd.FMvIsNoisy(mv)) {
+        SaveKiller(bd, mv);
+        AddHistory(bd, mv, d, dLim);
+    }
     SaveXt(bd, mv, ab, d, dLim);
     brk.LogMvEnd(mv, "cut");
+    return mv.ev;
 }
 
 /**
- *  @fn         bool PLAI::FDeepen(BD& bd, MV& mvBestAll, MV mvBest, AB& ab, int& d)
+ *  @fn         bool AI::FDeepen(BD& bd, MV& mvBestAll, MV mvBest, AB& ab, int& d)
  *  @brief      Iterative deepening and aspiration window adjustment.
  */
 
-bool PLAI::FDeepen(BD& bd, MV& mvBestAll, MV mvBest, AB& ab, int& d) noexcept
+bool AI::FDeepen(BD& bd, MV& mvBestAll, MV mvBest, AB& ab, int& d) noexcept
 {
     /* If the search failed with a narrow a-b window, widen the window up some
        and try again */
@@ -708,16 +803,16 @@ bool PLAI::FDeepen(BD& bd, MV& mvBestAll, MV mvBest, AB& ab, int& d) noexcept
            a-b window (the aspiration window optimization) at first in hopes
            we'll get lots of pruning */
         mvBestAll = mvBest;
-        if (FEvIsMate(mvBest.ev))
+        if (FEvIsMate(mvBest.ev) || FEvIsMate(-mvBest.ev))
             return false;
-        ab = AbAspiration(mvBest.ev, 40);
+        ab = set.fAspiration ? AbAspiration(mvBest.ev, 40) : AbInfinite();
         d += 1;
     }
     return d < dSearchMax;
 }
 
 /**
- *  @fn         bool PLAI::FLookupXt(BD& bd, MV& mvBest, AB ab, int d, int dLim)
+ *  @fn         bool AI::FLookupXt(BD& bd, MV& mvBest, AB ab, int d, int dLim)
  *  @brief      Handles transposition table matches
  * 
  *  @details    Checks the transposition table for a board entry at the given 
@@ -728,7 +823,7 @@ bool PLAI::FDeepen(BD& bd, MV& mvBestAll, MV mvBest, AB& ab, int& d) noexcept
  *              if we stop the search.
  */
  
-bool PLAI::FLookupXt(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
+bool AI::FLookupXt(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
 {
     /* look for the entry in the transposition table */
 
@@ -757,18 +852,21 @@ bool PLAI::FLookupXt(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
 
     pxtev->GetMv(mvBest);
 
+    stat.cmvXt++;
+    brk.LogEnd(mvBest.ev, "xt");
+
     return true;
 }
 
 /**
- *  @fn         XTEV* PLAI::SaveXt(BD& bd, const MV& mvBest, AB ab, int d, int dLim)
+ *  @fn         XTEV* AI::SaveXt(BD& bd, const MV& mvBest, AB ab, int d, int dLim)
  *  @brief      Tries to saves a move into the transpositiont able.
  *  
  *  @details    Saves the board hash, the best move, the move evaluation, and
  *              the depth of the search into the transposition table.
  */
 
-XTEV* PLAI::SaveXt(BD &bd, const MV& mvBest, AB ab, int d, int dLim) noexcept
+XTEV* AI::SaveXt(BD &bd, const MV& mvBest, AB ab, int d, int dLim) noexcept
 {
     if (FEvIsInterrupt(mvBest.ev))
         return nullptr;
@@ -785,8 +883,6 @@ XTEV* PLAI::SaveXt(BD &bd, const MV& mvBest, AB ab, int d, int dLim) noexcept
     /* very primitive replacement strategy */
     XTEV& xtev = xt[bd];
     if (dLim - d < (int)xtev.dd)
-        return nullptr;
-    if (evBest <= ab.evAlpha || (unsigned)tev < (int)xtev.tev)
         return nullptr;
 
     xtev.Save(bd.ha, tev, evBest, mvBest, d, dLim);
@@ -828,7 +924,47 @@ void XTEV::GetMv(MV& mv) const noexcept
 }
 
 /**
- *  The transposition table
+ *  @fn         void XT::Init(void)
+ *  @brief      Initialize the transposition table
+ * 
+ *  @details    This completely wipes out the transposition table. For 
+ *              continuous play, there is probably a good reason to just age
+ *              the table. But this will give you a complete, clean slate.
+ */
+
+void XT::Init(void)
+{
+    memset(axtev, 0, sizeof(XTEV) * cxtev);
+}
+
+/**
+ *  @fn         XT::SetSize(uint32_t cmb)
+ *  @brief      Sets the size of the transposition table, in megabytes
+ *
+ *  @details    The size of the table is rounded down to a power of two
+ *              to streamline turning hash values into table indexes.
+ */
+
+void XT::SetSize(uint32_t cmb)
+{
+    uint32_t cb = cmb * 0x100000UL;
+    cxtev = cb / sizeof(XTEV);
+    while (cxtev & (cxtev - 1))
+        cxtev &= cxtev - 1;
+    if (axtev)
+        delete[] axtev;
+    axtev = new XTEV[cxtev];
+    Init();
+}
+
+/**
+ *  @fn         XTEV* XT::Find(const BD& bd, int dd)
+ *  @brief      Finds the board in the transposition table
+ * 
+ *  @details    Finds the index within the transposition table where this
+ *              particular board should reside, and makes sure the hashes
+ *              match and the depth is deep enough. 
+ *  @returns    nullptr if the entry doesn't match or it's not deep enough
  */
 
 XTEV* XT::Find(const BD& bd, int dd) noexcept
@@ -839,39 +975,33 @@ XTEV* XT::Find(const BD& bd, int dd) noexcept
     return nullptr;
 }
 
-void XT::SetSize(uint32_t cb)
-{
-    if (axtev)
-        delete[] axtev;
-
-    cxtev = cb / sizeof(XTEV);
-    while (cxtev & (cxtev - 1))
-        cxtev &= cxtev - 1;
-    axtev = new XTEV[cxtev];
-    Init();
-}
-
-void XT::Init(void)
-{
-    memset(axtev, 0, sizeof(XTEV) * cxtev);
-}
-
 /**
- *  @fn         bool PLAI::FTryStaticNullMove(BD& bd, MV& mvBest, AB ab, int d, int dLim)
- *  @brief      Try the static null move pruning heuristic
+ *  @fn         bool AI::FTryReverseFutility(BD& bd, AB ab, int d, int dLim, HD mpdhd[])
+ *  @brief      Try the reverse futility move pruning heuristic
+ * 
+ *  @details    Also known as static null move pruning. WOrks on the assumption
+ *              that if we're way over the beta cut-off already, there's no 
+ *              need to keep searching.
  */
 
-bool PLAI::FTryStaticNullMove(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
+bool AI::FTryReverseFutility(BD& bd, AB ab, int d, int dLim, HD mpdhd[]) noexcept
 {
-    EV devMargin = evPawn * (dLim - d);
-    if (!ab.FIsAbove(mvBest.ev - devMargin))
+    EV devMargin = 214 * (dLim - d - mpdhd[d].fImproving);
+    if (!set.fRevFutility ||
+        dLim - d > 8 || 
+        !ab.FIsAbove(mpdhd[d].evStatic - devMargin))
         return false;
-    mvBest.ev -= devMargin;
+
+    mpdhd[d].evStatic -= devMargin;
+
+    stat.cmvRevFutility++;
+    brk.LogEnd(mpdhd[d].evStatic, "reverse futility");
+    
     return true;
 }
 
 /**
- *  @fn         bool PLAI::FTryNullMove(BD& bd, MV& mvBest, AB ab, int d, int dLim)
+ *  @fn         bool AI::FTryNullMove(BD& bd, AB ab, int d, int dLim, HD mpdhd[])
  *  @brief      The null move reduction
  * 
  *  @details    Null move pruning works by pruning clearly "bad" positions,
@@ -889,30 +1019,43 @@ bool PLAI::FTryStaticNullMove(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexce
  *              current board.
  */
 
-bool PLAI::FTryNullMove(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
+bool AI::FTryNullMove(BD& bd, AB ab, int d, int dLim, HD mpdhd[]) noexcept
 {
-    int ddReduction = 3 + (dLim - d) / 4;   // how far to search for null move reduction
-    if (d + 1 >= dLim - ddReduction ||		// don't bother if regular search will go this deep anyway
-        ab.FIsAbove(mvBest.ev) ||   
+    int ddReduce = 3 + (dLim - d) / 4;   // how far to search for null move reduction
+    if (!set.fNullMove ||
+        !ab.FIsAbove(mpdhd[d].evStatic) ||
+        d + 1 >= dLim - ddReduce ||		// don't bother if regular search will go this deep anyway
         FZugzwangPossible(bd))       // null move reduction doesn't work in zugzwang positions
         return false;
     bd.MakeMvNull();
-    EV ev = -EvSearch(bd, (-ab).AbNull(), d + 1, dLim - ddReduction, soNoPruningHeuristics);
+    EV evReduced = -EvSearch(bd, (-ab).AbNull(), d + 1, dLim - ddReduce, mpdhd, soNoPruningHeuristics);
     bd.UndoMvNull();
-    if (!ab.FIsAbove(ev))
+    if (!ab.FIsAbove(evReduced))
         return false;
-    mvBest.ev = ev;
+
+    /* try a quick reduced-depth search to protect against Zugzwang */
+    if (d + 1 < dLim - ddReduce - 4) {
+        evReduced = -EvSearch(bd, ab, d + 1, dLim - ddReduce - 4, mpdhd, soNoPruningHeuristics);
+        if (!ab.FIsAbove(evReduced))
+            return false;
+    }
+
+    mpdhd[d].evStatic = evReduced;
+
+    stat.cmvNullMove++;
+    brk.LogEnd(mpdhd[d].evStatic, "null");
+    
     return true;
 }
 
 /**
- *  @fn         bool PLAI::FZugzwangPossible(BD& bd)
+ *  @fn         bool AI::FZugzwangPossible(BD& bd)
  *  @details    Heuristic for a zugzwang position
  * 
  *  @details    We're very aggressive about reporting possible zugzwang
  */
 
-bool PLAI::FZugzwangPossible(BD& bd) noexcept
+bool AI::FZugzwangPossible(BD& bd) noexcept
 {
     /* this is very lame */
     return bd.PhaseCur() >= phaseEndFirst;
@@ -930,42 +1073,57 @@ static const EV mpdddevFutility[ddFutility] = {
 };
 
 /** 
- *  @fn         bool PLAI::FTryRazoring(BD& bd, MV& mvBest, AB ab, int d, int dLim)
+ *  @fn         bool AI::FTryRazoring(BD& bd, AB ab, int d, int dLim, HD mpdhd[])
  *  @brief      Try the razoring pruning heuristic
  * 
  *  @details    If we're near the horzion and static evaluation is terrible, 
  *              try a quick quiescent search to see if we'll probably fail low. 
  *              If qsearch fails low, it probably knows what it's talking 
  *              about, so bail out and return alpha.
- * 
- *              Preliminary tests show the AI plays better without razoring,
- *              and theoretically, futility pruning should supercede it. 
- *              Leaving this code here for historical purposes. 
  */
 
-bool PLAI::FTryRazoring(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
+bool AI::FTryRazoring(BD& bd, AB ab, int d, int dLim, HD mpdhd[]) noexcept
 {
-    if (dLim - d > 2)
+    if (!set.fRazoring ||
+        dLim - d > 2)
+        return false;
+    EV dev = 3 * mpdddevFutility[dLim - d];
+    if (!ab.FIsBelow(mpdhd[d].evStatic + dev))
+        return false;
+    EV evReduced = EvQuiescent(bd, ab, d, mpdhd);
+    if (!ab.FIsBelow(evReduced))
         return false;
 
-    assert(dLim - d < ddFutility);
-    EV dev = 3 * mpdddevFutility[dLim - d];
-    if (!ab.FIsBelow(mvBest.ev + dev))
-        return false;
-    EV ev = EvQuiescent(bd, ab, d);
-    if (!ab.FIsBelow(ev))
-        return false;
-    mvBest.ev = ab.evAlpha;
+    mpdhd[d].evStatic = ab.evAlpha;
+
+    stat.cmvRazoring++;
+    brk.LogEnd(mpdhd[d].evStatic, "razoring");
+    
     return true;
 }
 
-bool PLAI::FTryFutility(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
+/**
+ *  @fn         bool AI::FTryFutility(BD& bd, AB ab, int d, int dLim, HD mpdhd[])
+ *  @brief      Checks if we're OK to do futility pruning
+ *
+ *  @details    Returns true if our move list can use the futility pruning
+ *              heuristic, which doesn't bother checking relatively quiet
+ *              moves when we're in a futile situation near the horizon of
+ *              the tree.
+ */
+
+bool AI::FTryFutility(BD& bd, AB ab, int d, int dLim, HD mpdhd[]) noexcept
 {
-    return false;
+    if (!set.fFutility ||
+        abs(ab.evAlpha) >= 9000 ||      // nothing near check mate 
+        dLim - d >= ddFutility ||       // near horizon
+        mpdhd[d].evStatic + mpdddevFutility[dLim - d] > ab.evAlpha)
+        return false;
+    return true;
 }
 
 /**
- *  @fn         EV PLAI::EvStatic(BD& bd)
+ *  @fn         EV AI::EvStatic(BD& bd)
  *  @brief      Static board evaluation.
  *
  *  @details    Evaluates the board from the point of view of the player next 
@@ -973,21 +1131,44 @@ bool PLAI::FTryFutility(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
  *              speed and good functionality.
  */
 
-EV PLAI::EvStatic(BD& bd) noexcept
+EV AI::EvStatic(BD& bd) noexcept
 {
     EV ev = 0;
-    ev += EvFromPsqt(bd);
-    ev += EvKingSafety(bd);
-    ev += EvPawnStructure(bd);
-
-    /* tempo adjustment causes alternating depth eval oscillation that messes 
-       with the aspiration window optimization */
-    // ev += evTempo;  
+    if (set.fPSQT)
+        ev += EvFromPsqt(bd);
+    if (set.fMobility)
+        ev += EvMobility(bd);
+    if (set.fMaterial)
+        ev += EvMaterial(bd);
+    if (set.fKingSafety)
+        ev += EvKingSafety(bd);
+    if (set.fPawnStructure)
+        ev += EvPawnStructure(bd);
+    if (set.fTempo)
+        ev += evTempo;  
     return ev;
 }
 
+EV AI::EvMaterial(BD& bd) const noexcept
+{
+    return bd.EvMaterial(bd.cpcToMove) - bd.EvMaterial(~bd.cpcToMove);
+}
+
+EV AI::EvMobility(BD& bd) const noexcept
+{
+    VMV vmv;
+    bd.MoveGenPseudo(vmv);
+    int cmv = vmv.size();
+    bd.MakeMvNull();
+    bd.MoveGenPseudo(vmv);
+    cmv -= vmv.size();
+    bd.UndoMvNull();
+
+    return 20 * cmv;
+}
+
 /**
- *  @fn         void PLAI::InitPsts(void)
+ *  @fn         void AI::InitPsts(void)
  *  @brief      Initializes the piece square tables
  *
  *  @details    Initializes the piece value weight tables for the different
@@ -996,7 +1177,7 @@ EV PLAI::EvStatic(BD& bd) noexcept
  *              of search, but it's not a big deal.
  */
 
-void PLAI::InitPsts(void) noexcept
+void AI::InitPsts(void) noexcept
 {
     InitPsqt(mpcptevMid, mpcptsqdevMid, mpcpsqevMid);
     InitPsqt(mpcptevEnd, mpcptsqdevEnd, mpcpsqevEnd);
@@ -1012,7 +1193,7 @@ void PLAI::InitPsts(void) noexcept
  *              for things like bishop pairs. 
  */
 
-EV PLAI::EvFromPsqt(const BD& bd) const noexcept
+EV AI::EvFromPsqt(const BD& bd) const noexcept
 {
     EV mpcpcevMid[2] = { 0, 0 };
     EV mpcpcevEnd[2] = { 0, 0 };
@@ -1041,7 +1222,7 @@ EV PLAI::EvFromPsqt(const BD& bd) const noexcept
 }
 
 /**
- *  @fn         EV PLAI::EvPieceCombos(int accp[], CPC cpc) const
+ *  @fn         EV AI::EvPieceCombos(int accp[], CPC cpc) const
  *  @brief      Computes material advnatge for certain piece combinations
  *
  *  @details    Adjustment for the static board evaluation for various
@@ -1051,7 +1232,7 @@ EV PLAI::EvFromPsqt(const BD& bd) const noexcept
  *              in cpc.
  */
 
-EV PLAI::EvPieceCombos(int accp[], CPC cpc) const noexcept
+EV AI::EvPieceCombos(int accp[], CPC cpc) const noexcept
 {
     constexpr EV evBishopPair = 30;
     constexpr EV evKnightPair = 8;
@@ -1064,7 +1245,21 @@ EV PLAI::EvPieceCombos(int accp[], CPC cpc) const noexcept
     return ev;
 }
 
-EV PLAI::EvPair(int accp[], CPC cpc, CPT cpt, EV evPair) const noexcept
+/**
+ *  @fn         EV AI::EvPair(int accp[], CPC cpc, CPT cpt, EV evPair) const
+ *  @brief      Computes material advantage for having a pair of a piece type
+ * 
+ *  @details    If the player has more than one of the given piece type, wek
+ *              give an evaluation bonus. This checks both sides, positive for
+ *              the side to move, negative for the opponent. 
+ * 
+ *  @param      accp    array of piece counts by type
+ *  @param      cpc     color to evaluate for
+ *  @param      cpt     piece type to check for pairs
+ *  @param      evPair  evaluation bonus for having the pair
+ */
+
+EV AI::EvPair(int accp[], CPC cpc, CPT cpt, EV evPair) const noexcept
 {
     EV ev = 0;
     if (accp[Cp(cpc, cpt)] > 1)
@@ -1074,12 +1269,36 @@ EV PLAI::EvPair(int accp[], CPC cpc, CPT cpt, EV evPair) const noexcept
     return ev;
 }
 
-EV PLAI::EvKingSafety(BD& bd) const noexcept
+/**
+ *  @fn         EV AI::KingSafety(BD& bd) const
+ *  @brief      Evaluates the safety of the kings
+ */
+
+EV AI::EvKingSafety(BD& bd) const noexcept
 {
-    return 0;
+    return EvKingSafety(bd, bd.cpcToMove) - EvKingSafety(bd, ~bd.cpcToMove);
 }
 
-EV PLAI::EvPawnStructure(BD& bd) const noexcept
+EV AI::EvKingSafety(BD& bd, CPC cpc) const noexcept
+{
+    SQ sqKing = bd.SqKing(cpc);
+    BB bbInner = mpbb.BbKingInner(sqKing);
+    BB bbOuter = mpbb.BbKingOuter(sqKing);
+    BB bbAttacked = bd.BbAttacked(~cpc);
+
+    return 4*(bbInner & bbAttacked).csq() + 1*(bbOuter & bbAttacked).csq();
+}
+
+/**
+ *  @#fn        EV AI::EvPawnStructure(BD& bd) const
+ *  @brief      Pawn structure evaluation
+ * 
+ *  @details    Evaluates the pawn structure for both sides, returning a
+ *              evaluation from the point of view of the player to move. Takes
+ *              into account doubled pawns, isolated pawns, and passed pawns.
+ */
+
+EV AI::EvPawnStructure(BD& bd) const noexcept
 {
     BB bb = bd.BbPawns(bd.cpcToMove);
     BB bbDefense = bd.BbPawns(~bd.cpcToMove);
@@ -1090,16 +1309,16 @@ EV PLAI::EvPawnStructure(BD& bd) const noexcept
     return ev;
 }
 
-EV PLAI::EvPawnStructure(BB bbPawns, BB bbDefense, CPC cpc) const noexcept
+EV AI::EvPawnStructure(BB bbPawns, BB bbDefense, CPC cpc) const noexcept
 {
     EV ev = 0;
-    ev -= CfiDoubledPawns(bbPawns, cpc);
-    ev -= CfiIsoPawns(bbPawns, cpc);
-    ev += 5 * CfiPassedPawns(bbPawns, bbDefense, cpc);
-    return 10 * ev;
+    ev -= 10 * CfiDoubledPawns(bbPawns, cpc);
+    ev -= 10 * CfiIsoPawns(bbPawns, cpc);
+    ev += 50 * CfiPassedPawns(bbPawns, bbDefense, cpc);
+    return ev;
 }
 
-int PLAI::CfiDoubledPawns(BB bbPawns, CPC cpc) const noexcept
+int AI::CfiDoubledPawns(BB bbPawns, CPC cpc) const noexcept
 {
     int cfi = 0;
     BB bbFile = bbFileA;
@@ -1111,7 +1330,7 @@ int PLAI::CfiDoubledPawns(BB bbPawns, CPC cpc) const noexcept
     return cfi;
 }
 
-int PLAI::CfiIsoPawns(BB bbPawns, CPC cpc) const noexcept
+int AI::CfiIsoPawns(BB bbPawns, CPC cpc) const noexcept
 {
     int cfi = 0;
     BB bbFile = bbFileA;
@@ -1120,7 +1339,7 @@ int PLAI::CfiIsoPawns(BB bbPawns, CPC cpc) const noexcept
     return cfi;
 }
 
-int PLAI::CfiPassedPawns(BB bbPawns, BB bbDefense, CPC cpc) const noexcept
+int AI::CfiPassedPawns(BB bbPawns, BB bbDefense, CPC cpc) const noexcept
 {
     int cfi = 0;
     DIR dir = cpc == cpcWhite ? dirNorth : dirSouth;
@@ -1144,7 +1363,7 @@ int PLAI::CfiPassedPawns(BB bbPawns, BB bbDefense, CPC cpc) const noexcept
 
 static const EV mpcptev[cptMax] = { 0, 100, 300, 320, 500, 900, 1000 };
 
-void PLAI::ScoreCapture(BD& bd, MV& mv) noexcept
+void AI::ScoreCapture(BD& bd, MV& mv) noexcept
 {
     if (mv.cptPromote != cptNone) {
         mv.ev = mpcptev[mv.cptPromote] - mpcptev[cptPawn];
@@ -1161,22 +1380,23 @@ void PLAI::ScoreCapture(BD& bd, MV& mv) noexcept
         mv.ev -= mpcpsqevMid[cpFrom][mv.sqFrom] / 8;   // MMV-LVA style move ordering heuristic
 }
 
-bool PLAI::FScoreMove(BD& bd, MV& mv) noexcept
+bool AI::FScoreMove(BD& bd, MV& mv) noexcept
+{
+    bd.MakeMv(mv);
+    mv.ev = -(EvFromPsqt(bd) + EvAttackDefend(bd, mv));
+    bd.UndoMv();
+    return true;
+}
+
+bool AI::FScoreXt(BD& bd, MV& mv) noexcept
 {
     bd.MakeMv(mv);
     XTEV* pxtev = xt.Find(bd, 0);
-    if (pxtev == nullptr ||
-            (TEV)pxtev->tev == TEV::Lower ||
-            (TEV)pxtev->tev == TEV::Null) {
-        mv.ev = -(EvFromPsqt(bd) + EvAttackDefend(bd, mv));
-        bd.UndoMv();
+    bd.UndoMv();
+    if (pxtev == nullptr)
         return false;
-    }
-    else {
-        mv.ev = pxtev->Ev(1);
-        bd.UndoMv();
-        return true;
-    }
+    mv.ev = -pxtev->Ev(1);
+    return true;
 }
 
 /*
@@ -1186,16 +1406,19 @@ bool PLAI::FScoreMove(BD& bd, MV& mv) noexcept
  *  that will likely cause another cut.
  */
 
-void PLAI::InitKillers(void) noexcept
+void AI::InitKillers(void) noexcept
 {
     for (int imvGame = 0; imvGame < cmvKillersGameMax; imvGame++)
         for (int imv = 0; imv < cmvKillersMoveMax; imv++)
             amvKillers[imvGame][imv] = mvNil;
 }
 
-void PLAI::SaveKiller(BD& bd, const MV& mv) noexcept
+void AI::SaveKiller(BD& bd, const MV& mv) noexcept
 {
-    if (bd.FMvIsCapture(mv) || mv.cptPromote || FEvIsInterrupt(mv.ev))
+    if (!set.fKillers || 
+        bd.FMvIsCapture(mv) || 
+        mv.cptPromote || 
+        FEvIsInterrupt(mv.ev))
         return;
     int imvLim = (int)bd.vmvuGame.size() + 1;
     if (imvLim >= cmvKillersGameMax)
@@ -1209,7 +1432,7 @@ void PLAI::SaveKiller(BD& bd, const MV& mv) noexcept
     amvKillers[imvLim][0] = mv;
 }
 
-bool PLAI::FScoreKiller(BD& bd, MV& mv) noexcept
+bool AI::FScoreKiller(BD& bd, MV& mv) noexcept
 {
     int imvGame = (int)bd.vmvuGame.size() + 1;
     if (imvGame >= cmvKillersGameMax)
@@ -1223,64 +1446,87 @@ bool PLAI::FScoreKiller(BD& bd, MV& mv) noexcept
     return false;
 }
 
-/*
- *  History
+/**
+ *  @fn         void AI::InitHistory(void)
+ *  @brief      Initializes the history table in preparation for a new search
  */
 
-void PLAI::InitHistory(void) noexcept
+void AI::InitHistory(void) noexcept
 {
     for (CP cp = 0; cp < cpMax; ++cp)
         for (SQ sqTo = 0; sqTo < sqMax; sqTo++)
             mpcpsqcHistory[cp][sqTo] = 0;
 }
 
-/*
- *  PLAI::AddHistory
+/**
+ *  @fn         void AI::AddHistory(BD& bd, const MV& mv, int d, int dLim)
+ *  @brief      Bumps the move history count.
  *
- *  Bumps the move history count, which is non-captures that cause beta
- *  cut-offs, indexed by the source/destination squares of the move
+ *  @details    History heuristic for move ordering. We save moves that are 
+ *              non-captures that cause beta cut-offs. They are indexed by 
+ *              the piece to move and the destination square
  */
 
-void PLAI::AddHistory(BD& bd, const MV& mv, int d, int dLim) noexcept
+void AI::AddHistory(BD& bd, const MV& mv, int d, int dLim) noexcept
 {
-    if (bd.FMvIsCapture(mv) || mv.cptPromote || FEvIsInterrupt(mv.ev))
+    if (!set.fHistory ||
+        bd.FMvIsCapture(mv) || 
+        mv.cptPromote || 
+        FEvIsInterrupt(mv.ev))
         return;
-    int& csqHistory = mpcpsqcHistory[bd[mv.sqFrom].cp()][mv.sqTo];
-    csqHistory += (dLim - d) * (dLim - d);
-    if (csqHistory >= evMateMin)
+    int& cHistory = mpcpsqcHistory[bd[mv.sqFrom].cp()][mv.sqTo];
+    cHistory += (dLim - d) * (dLim - d);
+    if (cHistory >= evMateMin)
         AgeHistory();
 }
 
-/*
- *  PLAI::SubtractHistory
+/**
+ *  @fn         void AI::SubtractHistory(BD& bd, const MV& mv)
+ *  @brief      Lowers the move history count
  *
- *  Lowers history count in the history table, which is done on non-beta
- *  cut-offs.Note that bumping is much faster than decaying.
+ *  @details    Lowers history count in the history table, which is done on 
+ *              cut-offs.
+ * 
+ *  REVIEW!: is this used?
  */
 
-void PLAI::SubtractHistory(BD& bd, const MV& mv) noexcept
+void AI::SubtractHistory(BD& bd, const MV& mv) noexcept
 {
-    if (bd.FMvIsCapture(mv) || mv.cptPromote || FEvIsInterrupt(mv.ev))
+    if (!set.fHistory ||
+        bd.FMvIsCapture(mv) || 
+        mv.cptPromote || 
+        FEvIsInterrupt(mv.ev))
         return;
-    int& csqHistory = mpcpsqcHistory[bd[mv.sqFrom].cp()][mv.sqTo];
-    if (csqHistory > 0)
-        csqHistory--;
+    int& cHistory = mpcpsqcHistory[bd[mv.sqFrom].cp()][mv.sqTo];
+    if (cHistory > 0)
+        cHistory--;
 }
 
-/*
- *  PLAI::AgeHistory
+/**
+ *  @fn         void AI::AgeHistory(void)
+ *  @brief      Ages the history table
  *
- *  Redece old history's impact with each move
+ *  @details    Redece old history's impact with each move, which allows us
+ *              to keep contnuous history tables throughout a game and not
+ *              leave it polluted with old data.
  */
 
-void PLAI::AgeHistory(void) noexcept
+void AI::AgeHistory(void) noexcept
 {
     for (CP cp = 0; cp < cpMax; ++cp)
         for (SQ sqTo = 0; sqTo < sqMax; ++sqTo)
             mpcpsqcHistory[cp][sqTo] /= 8;
 }
 
-bool PLAI::FScoreHistory(BD& bd, MV& mv) noexcept
+/**
+ *  @fn         bool AI::FScoreHistory(BD& bd, MV& mv)
+ *  @brief      Scores a move using the history table
+ * 
+ *  @details    Looks up the move in the history table and returns true if
+ *              it was found. The score is returned in mv.ev.
+ */
+
+bool AI::FScoreHistory(BD& bd, MV& mv) noexcept
 {
     if (mpcpsqcHistory[bd[mv.sqFrom].cp()][mv.sqTo] == 0)
         return false;
@@ -1289,7 +1535,7 @@ bool PLAI::FScoreHistory(BD& bd, MV& mv) noexcept
 }
 
 /**
- *  @fn         EV PLAI::EvAttackDefend(BD& bd, const MV& mv) const
+ *  @fn         EV AI::EvAttackDefend(BD& bd, const MV& mv) const
  *  @brief      Extreme simplistic move eval
  * 
  *  @brief      This heuristic for board evaluation tries to detect bad moves,
@@ -1301,7 +1547,7 @@ bool PLAI::FScoreHistory(BD& bd, MV& mv) noexcept
  *  @returns    The amount to adjust the score by.
  */
 
-EV PLAI::EvAttackDefend(BD& bd, const MV& mvPrev) const noexcept
+EV AI::EvAttackDefend(BD& bd, const MV& mvPrev) const noexcept
 {
     CPT cptMove = (CPT)bd[mvPrev.sqTo].cpt;
     CPT cptAttacker = bd.CptSqAttackedBy(mvPrev.sqTo, bd.cpcToMove);
@@ -1315,16 +1561,17 @@ EV PLAI::EvAttackDefend(BD& bd, const MV& mvPrev) const noexcept
     return 0;
 }
 
-/*
- *  Time management 
- */
-
 /**
- *  @fn         void PLAI::InitTimeMan(const BD& bdGame, const TMAN& tman)
+ *  @fn         void AI::InitTimeMan(const BD& bdGame, const TMAN& tman)
  *  @brief      Initializes search for the requested time management
+ * 
+ *  @details    Estimates the amount of time we should spend on this move.
+ *              Some search time management variants are not based on time, 
+ *              so there are some can also set up other search termination
+ *              criteria, such as depth, node count, or infinite.
  */
 
-void PLAI::InitTimeMan(const BD& bdGame, const TMAN& tman) noexcept
+void AI::InitTimeMan(const BD& bdGame, const TMAN& tman) noexcept
 {
     tpSearchStart = TpNow();
     if (tman.odtpTotal.has_value()) {
@@ -1335,7 +1582,8 @@ void PLAI::InitTimeMan(const BD& bdGame, const TMAN& tman) noexcept
         milliseconds dtpFlag = tman.mpcpcodtp[bdGame.cpcToMove].value();
         milliseconds dtpInc = tman.mpcpcodtpInc[bdGame.cpcToMove].value();
         /* estimate number of moves left in the game */
-        int dnmv = (int)((float)(EvMaterialTotal(bdGame) - 200) / (7800 - 200) * (60 - 10) + 10);
+        EV evMaterial = bdGame.EvMaterial(cpcWhite) + bdGame.EvMaterial(cpcBlack) - 2 * 100;
+        int dnmv = (int)((float)evMaterial / (7800 - 200) * (60 - 10) + 10);
         if (tman.ocmvExpire.has_value())
             dnmv = min(dnmv, tman.ocmvExpire.value());
         milliseconds dtp = dtpFlag / dnmv + dtpInc;
@@ -1351,23 +1599,33 @@ void PLAI::InitTimeMan(const BD& bdGame, const TMAN& tman) noexcept
     tint = TINT::Thinking;
 }
 
-EV PLAI::EvMaterialTotal(const BD& bd) const noexcept
+bool AI::FInterrupt(void) noexcept
 {
-    EV ev = 0;
-    for (CPC cpc = cpcWhite; cpc < cpcMax; cpc++)
-        ev += bd.EvMaterial(cpc);
-    return ev;
+    static const uint16_t cYieldFreq = 16384U;
+    static uint32_t cYieldEllapsed = 0;
+    if ((++cYieldEllapsed % cYieldFreq) || !FDoYield())
+        return false;
+
+    stat.cmvLeaf++;
+    brk.LogEnd(evInterrupt, "interrupt");
+
+    return true;
 }
 
 /**
- *  @fn         bool PLAI::FDoYield(void)
+ *  @fn         bool AI::FDoYield(void)
  *  @brief      Lets the system work for a bit
  *
- *  @details    TODO: This is nowhere near sophisticated enough, and we'll 
+ *  @details    Will return true if the search should terminate. The triggers
+ *              for termination can be things like time limit reached, or the
+ *              user hitting the ESC key, the application shutting down, or
+ *              some other external trigger that called Interrupt().
+ * 
+ *              TODO: This is nowhere near sophisticated enough, and we'll 
  *              almost certainly crash due to UI re-entrancy during AI search.
  */
 
-bool PLAI::FDoYield(void) noexcept
+bool AI::FDoYield(void) noexcept
 {
     if (fInterruptSearch) {
         tint = TINT::Halt;
@@ -1402,14 +1660,20 @@ bool PLAI::FDoYield(void) noexcept
     return false;
 }
 
-/*
- *  Search statistics
+/**
+ *  @fn         void STATAI::Init(void)
+ *  @brief      Initializes Search statistics to zero
  */
 
 void STATAI::Init(void) noexcept
 {
     *this = STATAI();
 }
+
+/**
+ *  @fn         void STATAI::Log(ostream& os, milliseconds ms)
+ *  @brief      Logs search statistics to the given output stream
+ */
 
 void STATAI::Log(ostream& os, milliseconds ms) noexcept
 {
@@ -1418,20 +1682,17 @@ void STATAI::Log(ostream& os, milliseconds ms) noexcept
     os << "Total nodes: " << cmvTotal << " | "
             << (int)(cmvTotal / ms.count()) << " nodes/ms"  
             << endl;
-    os << "Quiescent nodes: "
-            << dec << cmvQuiescent << " | "
-            << fixed << setprecision(1) << 100.0f*cmvQuiescent / cmvTotal << "%"
-            << endl;
-    os << "Leaf nodes: "
-            << dec << cmvLeaf << " | "
-            << fixed << setprecision(1) << 100.0f * cmvLeaf / cmvTotal << "%"
-            << endl;
-    os << "XT hits: "
-            << dec << cmvXt << " | "
-            << fixed << setprecision(1) << 100.0f * cmvXt / cmvTotal << "%"
-            << endl;
-    /* BUG! - Branch factor numerator should probably be cmvTotal minus number 
-       of iterative deepening/aspiration window loops we went through */
+    LogCmv(os, "Quiescent nodes", cmvQuiescent, cmvTotal);
+    LogCmv(os, "Leaf nodes", cmvLeaf, cmvTotal);
+    LogCmv(os, "XT hits", cmvXt, cmvTotal);
+    LogCmv(os, "Early prunes", cmvRevFutility + cmvNullMove + cmvRazoring + cmvFutility, cmvTotal);
+    LogCmv(os, "Reverse futility", cmvRevFutility, cmvTotal);
+    LogCmv(os, "Razoring", cmvRazoring, cmvTotal);
+    LogCmv(os, "Null move", cmvNullMove, cmvTotal);
+    LogCmv(os, "Futility", cmvFutility, cmvTotal);
+    /* BUG! - Branch factor numerator should be cmvTotal minus number
+       of iterative deepening/aspiration window loops we went through. But 
+       it's a small enough number that it won't matter that much */
     os << "Branch factor: "
             << fixed << setprecision(2) << (float)(cmvTotal-1) / (cmvTotal - cmvLeaf)
             << endl;
@@ -1439,6 +1700,21 @@ void STATAI::Log(ostream& os, milliseconds ms) noexcept
             << fixed << setprecision(2) << ms.count() / 1000.0f << " sec"
             << endl;
 }
+
+void STATAI::LogCmv(ostream& os, string_view sTitle, uint64_t cmv, uint64_t cmvTotal) noexcept
+{
+    os << sTitle << ": "
+        << dec << cmv << " | "
+        << fixed << setprecision(1) << 100.0f * cmv / cmvTotal << "%"
+        << endl;
+}
+
+/**
+ *  @fn         string to_string(AB ab)
+ *  @brief      Converts an alpha-beta window to a string
+ * 
+ *  @details    The alpha-beta window is an open interval of board evluations.
+ */
 
 string to_string(AB ab)
 {

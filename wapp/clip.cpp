@@ -63,17 +63,21 @@ public:
      *  Gets the global handle of the data in the clipboared 
      */
     
-    HGLOBAL GetData(UINT cf) {
-        return ::GetClipboardData(cf);
+    HGLOBAL GetData(UINT cf) 
+    {
+        HANDLE hT = ::GetClipboardData(cf);
+        if (hT == NULL)
+            throw (HRESULT)::GetLastError();
+        return hT;
     }
 };
 
 /** 
- *  @fn iclipbuffer::iclipbuffer(IWAPP& iwapp, UINT cf)
- *  @brief Creates the clipboard input buffer
+ *  @fn         iclipbuffer::iclipbuffer(IWAPP& iwapp, UINT cf)
+ *  @brief      Creates the clipboard input buffer
  * 
- *  Unlike standard stream buffers, this implementation will throw an
- *  exception on errors.
+ *  @details    Unlike standard stream buffers, this implementation will 
+ *              throw an exception on errors.
  */
 
 iclipbuffer::iclipbuffer(IWAPP& iwapp, UINT cf)

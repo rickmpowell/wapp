@@ -34,7 +34,7 @@ public:
 
     virtual void RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2) = 0;
     virtual void PurgeDevDeps(com_ptr<ID2D1DeviceContext>& pdc2) = 0;
-    virtual void Prepare(com_ptr<ID2D1DeviceContext>& pdc2) = 0;
+    virtual bool FPrepare(com_ptr<ID2D1DeviceContext>& pdc2) = 0;
     virtual void Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate) = 0;
 
     static vector<DDDO*>* pvpdddo;
@@ -60,7 +60,7 @@ public:
 
     virtual void RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2) override;
     virtual void PurgeDevDeps(com_ptr<ID2D1DeviceContext>& pdc2) override;
-    virtual void Prepare(com_ptr<ID2D1DeviceContext>& pdc2) override;
+    virtual bool FPrepare(com_ptr<ID2D1DeviceContext>& pdc2) override;
     virtual void Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate) override;
 
 protected:
@@ -91,7 +91,7 @@ public:
     RTC2(IWAPP& iwapp) : RTCFLIP(iwapp) {}
 
     virtual void RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2) override;
-    virtual void Prepare(com_ptr<ID2D1DeviceContext>& pdc2) override;
+    virtual bool FPrepare(com_ptr<ID2D1DeviceContext>& pdc2) override;
     virtual void Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcUpdate) override;
 };
 
