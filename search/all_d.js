@@ -8,5 +8,6 @@ var searchData=
   ['positionok_5',['PositionOK',['../df/df1/classLEN.html#a45e0438266b45bc4a73996f0b37df073',1,'LEN']]],
   ['printer_2eh_6',['printer.h',['../db/dab/printer_8h.html',1,'']]],
   ['project_7',['To create a new project',['../index.html#autotoc_md3',1,'']]],
-  ['pt_8',['PT',['../dc/d71/classPT.html',1,'']]]
+  ['pt_8',['PT',['../dc/d71/classPT.html',1,'']]],
+  ['pvpdddo_9',['pvpdddo',['../da/db3/classRTC.html#ad70c9e1926848f42e21e0b4e99b740a7',1,'RTC']]]
 ];

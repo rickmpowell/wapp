@@ -179,6 +179,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ace8e6a048e7092b69cc4ca03f22b158f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Preparing the Direct2D device context for drawing.  <br /></td></tr>
 <tr class="separator:ace8e6a048e7092b69cc4ca03f22b158f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac8092eff4f6aa5e53403b0db04a9a13a" id="r_ac8092eff4f6aa5e53403b0db04a9a13a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d15/classIWAPP.html#ac8092eff4f6aa5e53403b0db04a9a13a">EndDraw</a> (const <a class="el" href="../../d2/d9b/classRC.html">RC</a> &amp;rcUpdate) override</td></tr>
+<tr class="memdesc:ac8092eff4f6aa5e53403b0db04a9a13a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ends a drawing sequence started by FBeginDraw.  <br /></td></tr>
 <tr class="separator:ac8092eff4f6aa5e53403b0db04a9a13a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ba4f13bdc36211d66ad505741ee1950" id="r_a6ba4f13bdc36211d66ad505741ee1950"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d15/classIWAPP.html#a6ba4f13bdc36211d66ad505741ee1950">Draw</a> (const <a class="el" href="../../d2/d9b/classRC.html">RC</a> &amp;rcUpdate) override</td></tr>
 <tr class="separator:a6ba4f13bdc36211d66ad505741ee1950"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -231,6 +232,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a7e372c49ba56dbc6e481b27bc654e7f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d0101857f24cf169e871094f9f8fdd0" id="r_a6d0101857f24cf169e871094f9f8fdd0"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d15/classIWAPP.html#a6d0101857f24cf169e871094f9f8fdd0">exe</a> (void) const</td></tr>
 <tr class="separator:a6d0101857f24cf169e871094f9f8fdd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7eca40335497035638aebd1b7d47a3c9" id="r_a7eca40335497035638aebd1b7d47a3c9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d15/classIWAPP.html#a7eca40335497035638aebd1b7d47a3c9">ForceUpdateChildWindows</a> (void)</td></tr>
+<tr class="separator:a7eca40335497035638aebd1b7d47a3c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classAPP"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classAPP')"><img src="../../closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="../../d5/d9b/classAPP.html">APP</a></td></tr>
 <tr class="memitem:aa4a09d24307544169a4f66e97f50dc32 inherit pub_methods_classAPP" id="r_aa4a09d24307544169a4f66e97f50dc32"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d9b/classAPP.html#aa4a09d24307544169a4f66e97f50dc32">APP</a> (void)</td></tr>
 <tr class="separator:aa4a09d24307544169a4f66e97f50dc32 inherit pub_methods_classAPP"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -265,34 +268,45 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a252e11276102074d5d7c74698e9c2c3a inherit pub_methods_classWNDMAIN" id="r_a252e11276102074d5d7c74698e9c2c3a"><td class="memItemLeft" align="right" valign="top">virtual LPCWSTR&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/def/classWNDMAIN.html#a252e11276102074d5d7c74698e9c2c3a">SRegister</a> (void) override</td></tr>
 <tr class="memdesc:a252e11276102074d5d7c74698e9c2c3a inherit pub_methods_classWNDMAIN"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ensures our top-level window class is registered.  <br /></td></tr>
 <tr class="separator:a252e11276102074d5d7c74698e9c2c3a inherit pub_methods_classWNDMAIN"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a55fb154da27446e23404281559ef9ee7 inherit pub_methods_classWNDMAIN" id="r_a55fb154da27446e23404281559ef9ee7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/def/classWNDMAIN.html#a55fb154da27446e23404281559ef9ee7">CreateWnd</a> (const string &amp;sTitle, DWORD ws=WS_OVERLAPPEDWINDOW, <a class="el" href="../../dc/d71/classPT.html">PT</a> pt=<a class="el" href="../../dc/d71/classPT.html">PT</a>(CW_USEDEFAULT), <a class="el" href="../../db/dfa/classSZ.html">SZ</a> sz=<a class="el" href="../../db/dfa/classSZ.html">SZ</a>(CW_USEDEFAULT))</td></tr>
-<tr class="memdesc:a55fb154da27446e23404281559ef9ee7 inherit pub_methods_classWNDMAIN"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the top-level main window.  <br /></td></tr>
-<tr class="separator:a55fb154da27446e23404281559ef9ee7 inherit pub_methods_classWNDMAIN"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1cdd6577ca165c3a3a7ce61b75003685 inherit pub_methods_classWNDMAIN" id="r_a1cdd6577ca165c3a3a7ce61b75003685"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/def/classWNDMAIN.html#a1cdd6577ca165c3a3a7ce61b75003685">CreateWnd</a> (const string &amp;sTitle, DWORD ws=WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN, <a class="el" href="../../dc/d71/classPT.html">PT</a> pt=<a class="el" href="../../dc/d71/classPT.html">PT</a>(CW_USEDEFAULT), <a class="el" href="../../db/dfa/classSZ.html">SZ</a> sz=<a class="el" href="../../db/dfa/classSZ.html">SZ</a>(CW_USEDEFAULT))</td></tr>
+<tr class="memdesc:a1cdd6577ca165c3a3a7ce61b75003685 inherit pub_methods_classWNDMAIN"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the top-level main window.  <br /></td></tr>
+<tr class="separator:a1cdd6577ca165c3a3a7ce61b75003685 inherit pub_methods_classWNDMAIN"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classWND"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classWND')"><img src="../../closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="../../d7/d6d/classWND.html">WND</a></td></tr>
 <tr class="memitem:a75a9bbdba2389de04fd9e26a45f2b927 inherit pub_methods_classWND" id="r_a75a9bbdba2389de04fd9e26a45f2b927"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#a75a9bbdba2389de04fd9e26a45f2b927">WND</a> (<a class="el" href="../../d5/d9b/classAPP.html">APP</a> &amp;app)</td></tr>
 <tr class="memdesc:a75a9bbdba2389de04fd9e26a45f2b927 inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Windows HWND wrapper class.  <br /></td></tr>
 <tr class="separator:a75a9bbdba2389de04fd9e26a45f2b927 inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac51c11727d5f8ca1c37fc06a7496bfa8 inherit pub_methods_classWND" id="r_ac51c11727d5f8ca1c37fc06a7496bfa8"><td class="memItemLeft" align="right" valign="top">WNDCLASSEXW&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#ac51c11727d5f8ca1c37fc06a7496bfa8">WcexRegister</a> (void) const</td></tr>
-<tr class="memdesc:ac51c11727d5f8ca1c37fc06a7496bfa8 inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the registration information for the Windows window class.  <br /></td></tr>
+<tr class="memdesc:ac51c11727d5f8ca1c37fc06a7496bfa8 inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the registration information for the window class.  <br /></td></tr>
 <tr class="separator:ac51c11727d5f8ca1c37fc06a7496bfa8 inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba3c2519b62d877478448cf1c35b6667 inherit pub_methods_classWND" id="r_aba3c2519b62d877478448cf1c35b6667"><td class="memItemLeft" align="right" valign="top">LPCWSTR&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#aba3c2519b62d877478448cf1c35b6667">Register</a> (const WNDCLASSEXW &amp;wc)</td></tr>
 <tr class="memdesc:aba3c2519b62d877478448cf1c35b6667 inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a Windows window class.  <br /></td></tr>
 <tr class="separator:aba3c2519b62d877478448cf1c35b6667 inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd077b76885efe8c6722de5eecb72771 inherit pub_methods_classWND" id="r_acd077b76885efe8c6722de5eecb72771"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#acd077b76885efe8c6722de5eecb72771">CreateWnd</a> (const string &amp;sTitle, DWORD ws, <a class="el" href="../../dc/d71/classPT.html">PT</a> pt, <a class="el" href="../../db/dfa/classSZ.html">SZ</a> sz)</td></tr>
-<tr class="memdesc:acd077b76885efe8c6722de5eecb72771 inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Windows window.  <br /></td></tr>
-<tr class="separator:acd077b76885efe8c6722de5eecb72771 inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60bc8bcd94e7bc208bbbff49fdcca450 inherit pub_methods_classWND" id="r_a60bc8bcd94e7bc208bbbff49fdcca450"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#a60bc8bcd94e7bc208bbbff49fdcca450">CreateWnd</a> (optional&lt; <a class="el" href="../../d7/d6d/classWND.html">WND</a> * &gt; opwndParent, const string &amp;sTitle, DWORD ws, <a class="el" href="../../dc/d71/classPT.html">PT</a> pt, <a class="el" href="../../db/dfa/classSZ.html">SZ</a> sz)</td></tr>
+<tr class="memdesc:a60bc8bcd94e7bc208bbbff49fdcca450 inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a Windows window.  <br /></td></tr>
+<tr class="separator:a60bc8bcd94e7bc208bbbff49fdcca450 inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad125e0c2ad7c329de39c99324be0fe1f inherit pub_methods_classWND" id="r_ad125e0c2ad7c329de39c99324be0fe1f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#ad125e0c2ad7c329de39c99324be0fe1f">DestroyWnd</a> (void)</td></tr>
 <tr class="memdesc:ad125e0c2ad7c329de39c99324be0fe1f inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys a Windows window.  <br /></td></tr>
 <tr class="separator:ad125e0c2ad7c329de39c99324be0fe1f inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca28b2935bf969c0626e6c9c2dc81c6f inherit pub_methods_classWND" id="r_aca28b2935bf969c0626e6c9c2dc81c6f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#aca28b2935bf969c0626e6c9c2dc81c6f">ShowWnd</a> (int sw=SW_SHOW)</td></tr>
 <tr class="memdesc:aca28b2935bf969c0626e6c9c2dc81c6f inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shows/hides the Windows window.  <br /></td></tr>
 <tr class="separator:aca28b2935bf969c0626e6c9c2dc81c6f inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a417160e13bc2106c278637f01016943d inherit pub_methods_classWND" id="r_a417160e13bc2106c278637f01016943d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#a417160e13bc2106c278637f01016943d">Minimize</a> (void)</td></tr>
-<tr class="memdesc:a417160e13bc2106c278637f01016943d inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimizes (makes an icon) the Windows window.  <br /></td></tr>
-<tr class="separator:a417160e13bc2106c278637f01016943d inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a7ab227acffe9349624f43967b3ce9e inherit pub_methods_classWND" id="r_a2a7ab227acffe9349624f43967b3ce9e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#a2a7ab227acffe9349624f43967b3ce9e">SetBoundsWnd</a> (const <a class="el" href="../../d2/d9b/classRC.html">RC</a> &amp;rcNew)</td></tr>
+<tr class="memdesc:a2a7ab227acffe9349624f43967b3ce9e inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sizes and positions the window.  <br /></td></tr>
+<tr class="separator:a2a7ab227acffe9349624f43967b3ce9e inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f6811d7fa28cabd3a7fff1053ca8cec inherit pub_methods_classWND" id="r_a2f6811d7fa28cabd3a7fff1053ca8cec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#a2f6811d7fa28cabd3a7fff1053ca8cec">MinimizeWnd</a> (void)</td></tr>
+<tr class="memdesc:a2f6811d7fa28cabd3a7fff1053ca8cec inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimizes (makes an icon) the Windows window.  <br /></td></tr>
+<tr class="separator:a2f6811d7fa28cabd3a7fff1053ca8cec inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6caafc86e50ee71352a0a72b49e91dfe inherit pub_methods_classWND" id="r_a6caafc86e50ee71352a0a72b49e91dfe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#a6caafc86e50ee71352a0a72b49e91dfe">UpdateWnd</a> (void)</td></tr>
 <tr class="memdesc:a6caafc86e50ee71352a0a72b49e91dfe inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forces a window to draw.  <br /></td></tr>
 <tr class="separator:a6caafc86e50ee71352a0a72b49e91dfe inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27415044c6c51a6ff34e7f3d7e7b384e inherit pub_methods_classWND" id="r_a27415044c6c51a6ff34e7f3d7e7b384e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#a27415044c6c51a6ff34e7f3d7e7b384e">SetTitleWnd</a> (const string &amp;sNew)</td></tr>
+<tr class="memdesc:a27415044c6c51a6ff34e7f3d7e7b384e inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the title fo the window.  <br /></td></tr>
+<tr class="separator:a27415044c6c51a6ff34e7f3d7e7b384e inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c5e18d02d739b747fc056813da6f01c inherit pub_methods_classWND" id="r_a6c5e18d02d739b747fc056813da6f01c"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#a6c5e18d02d739b747fc056813da6f01c">STitleWnd</a> (void) const</td></tr>
+<tr class="separator:a6c5e18d02d739b747fc056813da6f01c inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ee76dafdd5c92e133b363fff2b2665e inherit pub_methods_classWND" id="r_a3ee76dafdd5c92e133b363fff2b2665e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#a3ee76dafdd5c92e133b363fff2b2665e">SetFontWnd</a> (const <a class="el" href="../../da/d22/classfont__gdi.html">font_gdi</a> &amp;font)</td></tr>
+<tr class="memdesc:a3ee76dafdd5c92e133b363fff2b2665e inherit pub_methods_classWND"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the font of the window.  <br /></td></tr>
+<tr class="separator:a3ee76dafdd5c92e133b363fff2b2665e inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a72f039198cae99f95d3120eb28d16a1c inherit pub_methods_classWND" id="r_a72f039198cae99f95d3120eb28d16a1c"><td class="memItemLeft" align="right" valign="top">LRESULT&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#a72f039198cae99f95d3120eb28d16a1c">DefProc</a> (UINT wm, WPARAM wParam, LPARAM lParam)</td></tr>
 <tr class="separator:a72f039198cae99f95d3120eb28d16a1c inherit pub_methods_classWND"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75cfb1468883e8fadb3b6078d7dad931 inherit pub_methods_classWND" id="r_a75cfb1468883e8fadb3b6078d7dad931"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d6d/classWND.html#a75cfb1468883e8fadb3b6078d7dad931">OnInitMenu</a> (void)</td></tr>
@@ -513,8 +527,8 @@ Public Attributes</h2></td></tr>
 <tr class="separator:afa24d8e4b9523e5b77bbac11ea03d973"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2af75cd261b8abd945510b58af7bc969" id="r_a2af75cd261b8abd945510b58af7bc969"><td class="memItemLeft" align="right" valign="top">unique_ptr&lt; <a class="el" href="../../da/db3/classRTC.html">RTC</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d15/classIWAPP.html#a2af75cd261b8abd945510b58af7bc969">prtc</a></td></tr>
 <tr class="separator:a2af75cd261b8abd945510b58af7bc969"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a657a51917f885ac1c1391cebc5be761b" id="r_a657a51917f885ac1c1391cebc5be761b"><td class="memItemLeft" align="right" valign="top">com_ptr&lt; ID2D1DeviceContext &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d15/classIWAPP.html#a657a51917f885ac1c1391cebc5be761b">pdc2</a></td></tr>
-<tr class="separator:a657a51917f885ac1c1391cebc5be761b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4412690f32702bd71b97f5c893ec5471" id="r_a4412690f32702bd71b97f5c893ec5471"><td class="memItemLeft" align="right" valign="top">com_ptr&lt; ID2D1RenderTarget &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d15/classIWAPP.html#a4412690f32702bd71b97f5c893ec5471">prt</a></td></tr>
+<tr class="separator:a4412690f32702bd71b97f5c893ec5471"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classAPP"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classAPP')"><img src="../../closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="../../d5/d9b/classAPP.html">APP</a></td></tr>
 <tr class="memitem:a4169f7723de7b5837f782f441cb1a7a8 inherit pub_attribs_classAPP" id="r_a4169f7723de7b5837f782f441cb1a7a8"><td class="memItemLeft" align="right" valign="top">HINSTANCE&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d9b/classAPP.html#a4169f7723de7b5837f782f441cb1a7a8">hinst</a></td></tr>
 <tr class="separator:a4169f7723de7b5837f782f441cb1a7a8 inherit pub_attribs_classAPP"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -727,7 +741,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../db/dd4/classWN.html">WN</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00272">272</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00273">273</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -755,9 +769,12 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented from <a class="el" href="../../db/dd4/classWN.html">WN</a>.</p>
+<p>Ends a drawing sequence started by FBeginDraw. </p>
+<p>All drawing must occur within a BeginDraw/EndDraw pair. EndDraw swaps the update to the actual screen </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00262">262</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p>Reimplemented from <a class="el" href="../../db/dd4/classWN.html#a4683117c4569b200f8de8753b2f9ccbe">WN</a>.</p>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00263">263</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -777,7 +794,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00302">302</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00303">303</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -807,7 +824,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00285">285</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00286">286</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -827,7 +844,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00412">412</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00413">413</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -861,7 +878,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../db/dd4/classWN.html#af21fd9521de2a5fc0e68f206f399c33d">WN</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00251">251</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00252">252</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -905,6 +922,26 @@ Additional Inherited Members</h2></td></tr>
 <p>Takes the id from the WM_COMMAND message sent by Windows, looks up the command that it is attached to, and executes it. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../db/d71/cmd_8cpp_source.html#l00077">77</a> of file <a class="el" href="../../db/d71/cmd_8cpp_source.html">cmd.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a7eca40335497035638aebd1b7d47a3c9" name="a7eca40335497035638aebd1b7d47a3c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7eca40335497035638aebd1b7d47a3c9">&#9670;&#160;</a></span>ForceUpdateChildWindows()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void IWAPP::ForceUpdateChildWindows </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00421">421</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1146,7 +1183,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../db/dd4/classWN.html#ad5d4930869b84afcc9190dd128100800">WN</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00235">235</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00236">236</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1176,7 +1213,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../d7/d6d/classWND.html">WND</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00201">201</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00202">202</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1300,7 +1337,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../d7/d6d/classWND.html">WND</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00206">206</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00207">207</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1330,7 +1367,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../d7/d6d/classWND.html">WND</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00211">211</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00212">212</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1400,7 +1437,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../d7/d6d/classWND.html">WND</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00182">182</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00183">183</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1440,7 +1477,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../d7/d6d/classWND.html">WND</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00177">177</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00178">178</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1480,7 +1517,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../d7/d6d/classWND.html">WND</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00187">187</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00188">188</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1520,7 +1557,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../d7/d6d/classWND.html">WND</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00192">192</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00193">193</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1640,7 +1677,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../d7/d6d/classWND.html">WND</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00197">197</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00198">198</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1660,7 +1697,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00359">359</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00360">360</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1690,7 +1727,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../d2/ded/classEVD.html">EVD</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00377">377</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00378">378</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1780,7 +1817,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00354">354</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00355">355</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1800,7 +1837,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00391">391</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00392">392</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1959,7 +1996,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../d2/ded/classEVD.html">EVD</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00364">364</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00365">365</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1979,7 +2016,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00321">321</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00322">322</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -2011,7 +2048,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../db/dd4/classWN.html#a8dea22ce7167fd8db440c3a7023cdc62">WN</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00224">224</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00225">225</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -2041,22 +2078,6 @@ Additional Inherited Members</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a id="a657a51917f885ac1c1391cebc5be761b" name="a657a51917f885ac1c1391cebc5be761b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a657a51917f885ac1c1391cebc5be761b">&#9670;&#160;</a></span>pdc2</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">com_ptr&lt;ID2D1DeviceContext&gt; IWAPP::pdc2</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00069">69</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
-
-</div>
-</div>
 <a id="a1aa2864c37a1c64aa63462cda92ae773" name="a1aa2864c37a1c64aa63462cda92ae773"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1aa2864c37a1c64aa63462cda92ae773">&#9670;&#160;</a></span>pfactd2</h2>
 
@@ -2102,6 +2123,22 @@ Additional Inherited Members</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00064">64</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+
+</div>
+</div>
+<a id="a4412690f32702bd71b97f5c893ec5471" name="a4412690f32702bd71b97f5c893ec5471"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4412690f32702bd71b97f5c893ec5471">&#9670;&#160;</a></span>prt</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">com_ptr&lt;ID2D1RenderTarget&gt; IWAPP::prt</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00069">69</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 
 </div>
 </div>

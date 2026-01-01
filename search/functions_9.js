@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['minimize_0',['Minimize',['../d7/d6d/classWND.html#a417160e13bc2106c278637f01016943d',1,'WND']]]
+  ['minimizewnd_0',['MinimizeWnd',['../d7/d6d/classWND.html#a2f6811d7fa28cabd3a7fff1053ca8cec',1,'WND']]]
 ];

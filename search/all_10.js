@@ -9,5 +9,6 @@ var searchData=
   ['to_20create_20a_20new_20project_6',['To create a new project',['../index.html#autotoc_md3',1,'']]],
   ['toolbar_7',['TOOLBAR',['../d6/dea/classTOOLBAR.html',1,'']]],
   ['tpnow_8',['TpNow',['../d8/d3c/util_8h.html#adf749cc20679f4bf6fcb4324ad695338',1,'util.h']]],
-  ['tpsnow_9',['TpsNow',['../d8/d3c/util_8h.html#ab8b217d557530386036d4a33094a00b5',1,'util.h']]]
+  ['tpsnow_9',['TpsNow',['../d8/d3c/util_8h.html#ab8b217d557530386036d4a33094a00b5',1,'util.h']]],
+  ['transparenterase_10',['TransparentErase',['../db/dd4/classWN.html#a3885e35ae28bb2be6490213bdff21c93',1,'WN']]]
 ];

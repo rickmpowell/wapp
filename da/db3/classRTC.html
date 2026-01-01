@@ -110,8 +110,9 @@ Inheritance diagram for RTC:</div>
  <div class="center">
   <img src="../../da/db3/classRTC.png" usemap="#RTC_map" alt=""/>
   <map id="RTC_map" name="RTC_map">
-<area href="../../d0/dbe/classRTCFLIP.html" alt="RTCFLIP" shape="rect" coords="0,56,62,80"/>
-<area href="../../dc/df7/classRTC2.html" alt="RTC2" shape="rect" coords="0,112,62,136"/>
+<area href="../../d0/dbe/classRTCFLIP.html" title="Flip-mode render target." alt="RTCFLIP" shape="rect" coords="0,56,91,80"/>
+<area href="../../dd/d39/classRTCRT.html" alt="RTCRT" shape="rect" coords="101,56,192,80"/>
+<area href="../../dd/d85/classRTCDISCARD.html" title="Render target for the old DISCARD device context." alt="RTCDISCARD" shape="rect" coords="0,112,91,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -119,18 +120,17 @@ Inheritance diagram for RTC:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a02d77edad9a9971b9f9e9c3d9571c1a2" id="r_a02d77edad9a9971b9f9e9c3d9571c1a2"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/db3/classRTC.html#a02d77edad9a9971b9f9e9c3d9571c1a2">RTC</a> (<a class="el" href="../../d9/d15/classIWAPP.html">IWAPP</a> &amp;iwapp)</td></tr>
 <tr class="separator:a02d77edad9a9971b9f9e9c3d9571c1a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ade32a8f2cbc02a1450e7d7186a39256d" id="r_ade32a8f2cbc02a1450e7d7186a39256d"><td class="memItemLeft" align="right" valign="top"><a id="ade32a8f2cbc02a1450e7d7186a39256d" name="ade32a8f2cbc02a1450e7d7186a39256d"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>RebuildDevDeps</b> (com_ptr&lt; ID2D1DeviceContext &gt; &amp;pdc2)=0</td></tr>
-<tr class="separator:ade32a8f2cbc02a1450e7d7186a39256d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2efc30c166337be2a4a73a82401cce66" id="r_a2efc30c166337be2a4a73a82401cce66"><td class="memItemLeft" align="right" valign="top"><a id="a2efc30c166337be2a4a73a82401cce66" name="a2efc30c166337be2a4a73a82401cce66"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>PurgeDevDeps</b> (com_ptr&lt; ID2D1DeviceContext &gt; &amp;pdc2)=0</td></tr>
-<tr class="separator:a2efc30c166337be2a4a73a82401cce66"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8e4f181ab7d747fbf79c8514f00c953b" id="r_a8e4f181ab7d747fbf79c8514f00c953b"><td class="memItemLeft" align="right" valign="top"><a id="a8e4f181ab7d747fbf79c8514f00c953b" name="a8e4f181ab7d747fbf79c8514f00c953b"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>FPrepare</b> (com_ptr&lt; ID2D1DeviceContext &gt; &amp;pdc2)=0</td></tr>
-<tr class="separator:a8e4f181ab7d747fbf79c8514f00c953b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac243a3e0e2dd2c91759e8593fbca7fdc" id="r_ac243a3e0e2dd2c91759e8593fbca7fdc"><td class="memItemLeft" align="right" valign="top"><a id="ac243a3e0e2dd2c91759e8593fbca7fdc" name="ac243a3e0e2dd2c91759e8593fbca7fdc"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Present</b> (com_ptr&lt; ID2D1DeviceContext &gt; &amp;pdc2, const <a class="el" href="../../d2/d9b/classRC.html">RC</a> &amp;rcgUpdate)=0</td></tr>
-<tr class="separator:ac243a3e0e2dd2c91759e8593fbca7fdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6466664a6d03100e98009e64347ca8bf" id="r_a6466664a6d03100e98009e64347ca8bf"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/db3/classRTC.html#a6466664a6d03100e98009e64347ca8bf">RebuildDevDeps</a> (com_ptr&lt; ID2D1RenderTarget &gt; &amp;prt)=0</td></tr>
+<tr class="separator:a6466664a6d03100e98009e64347ca8bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60f2f2248dc4f367827f5ecba3e142fe" id="r_a60f2f2248dc4f367827f5ecba3e142fe"><td class="memItemLeft" align="right" valign="top"><a id="a60f2f2248dc4f367827f5ecba3e142fe" name="a60f2f2248dc4f367827f5ecba3e142fe"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>PurgeDevDeps</b> (com_ptr&lt; ID2D1RenderTarget &gt; &amp;prt)=0</td></tr>
+<tr class="separator:a60f2f2248dc4f367827f5ecba3e142fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40649653f7c9081022b0b096af357f94" id="r_a40649653f7c9081022b0b096af357f94"><td class="memItemLeft" align="right" valign="top"><a id="a40649653f7c9081022b0b096af357f94" name="a40649653f7c9081022b0b096af357f94"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>FPrepare</b> (com_ptr&lt; ID2D1RenderTarget &gt; &amp;prt)=0</td></tr>
+<tr class="separator:a40649653f7c9081022b0b096af357f94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a3410ed3a163b313eadb9ac553f604c" id="r_a6a3410ed3a163b313eadb9ac553f604c"><td class="memItemLeft" align="right" valign="top"><a id="a6a3410ed3a163b313eadb9ac553f604c" name="a6a3410ed3a163b313eadb9ac553f604c"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Present</b> (com_ptr&lt; ID2D1RenderTarget &gt; &amp;prt, const <a class="el" href="../../d2/d9b/classRC.html">RC</a> &amp;rcgUpdate)=0</td></tr>
+<tr class="separator:a6a3410ed3a163b313eadb9ac553f604c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -146,6 +146,7 @@ Static Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
 <tr class="memitem:ad70c9e1926848f42e21e0b4e99b740a7" id="r_ad70c9e1926848f42e21e0b4e99b740a7"><td class="memItemLeft" align="right" valign="top">static vector&lt; <a class="el" href="../../d5/d52/classDDDO.html">DDDO</a> * &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/db3/classRTC.html#ad70c9e1926848f42e21e0b4e99b740a7">pvpdddo</a></td></tr>
+<tr class="memdesc:ad70c9e1926848f42e21e0b4e99b740a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Global device dependent drawing objects.  <br /></td></tr>
 <tr class="separator:ad70c9e1926848f42e21e0b4e99b740a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
@@ -238,7 +239,35 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00048">48</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00053">53</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a6466664a6d03100e98009e64347ca8bf" name="a6466664a6d03100e98009e64347ca8bf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6466664a6d03100e98009e64347ca8bf">&#9670;&#160;</a></span>RebuildDevDeps()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void RTC::RebuildDevDeps </td>
+          <td>(</td>
+          <td class="paramtype">com_ptr&lt; ID2D1RenderTarget &gt; &amp;&#160;</td>
+          <td class="paramname"><em>prt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implemented in <a class="el" href="../../dd/d85/classRTCDISCARD.html#ae83293d9bf20cbfc3e3011713ab249eb">RTCDISCARD</a>, and <a class="el" href="../../dd/d39/classRTCRT.html#a8249382c2fe08425be81d3cc79a5b27f">RTCRT</a>.</p>
 
 </div>
 </div>
@@ -266,7 +295,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00056">56</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00061">61</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
@@ -294,7 +323,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00026">26</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00031">31</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
@@ -322,7 +351,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00034">34</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00039">39</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
@@ -370,6 +399,9 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Global device dependent drawing objects. </p>
+<p>These objects are registered when created so they can be automatically rebuilt when device properties change. They must have enough state saved to rebuild themsleves from their internally saved state and the new iwapp when the display device changes. </p>
 
 <p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00040">40</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 

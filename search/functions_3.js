@@ -3,5 +3,6 @@ var searchData=
   ['ell_0',['ell',['../de/d00/classELL.html#a7ab77d38eac3a3bbc614330f0467140f',1,'ELL::ELL(void)'],['../de/d00/classELL.html#a11261e10c7813775078b6ef966eb8699',1,'ELL::ELL(const PT &amp;ptCenter, const SZ &amp;szRadius)'],['../de/d00/classELL.html#a80db5d3eae3d30c590f614f4f41dcddf',1,'ELL::ELL(const PT &amp;ptCenter, float dxyRadius)'],['../de/d00/classELL.html#ac043414b12c97e963ef2b46ec2e9c3a6',1,'ELL::ELL(const RC &amp;rcBounds)']]],
   ['elloffset_1',['EllOffset',['../de/d00/classELL.html#a469f4b16eb954373f5e16e2e3c8f1c58',1,'ELL']]],
   ['empty_2',['Empty',['../d7/d0b/classCLIP.html#ad75f48847d2cbedb57b064046b6ee0c4',1,'CLIP']]],
-  ['execute_3',['execute',['../d3/dd1/classCMDABOUT.html#adfdc0eb9821e9bb61a20cffd3e57ee19',1,'CMDABOUT::Execute()'],['../d1/d92/classCMDEXIT.html#a34474ac6c6b7065e55e28c1a53920f0e',1,'CMDEXIT::Execute()']]]
+  ['enddraw_3',['enddraw',['../d9/d15/classIWAPP.html#ac8092eff4f6aa5e53403b0db04a9a13a',1,'IWAPP::EndDraw()'],['../db/dd4/classWN.html#a4683117c4569b200f8de8753b2f9ccbe',1,'WN::EndDraw()']]],
+  ['execute_4',['execute',['../d3/dd1/classCMDABOUT.html#adfdc0eb9821e9bb61a20cffd3e57ee19',1,'CMDABOUT::Execute()'],['../d1/d92/classCMDEXIT.html#a34474ac6c6b7065e55e28c1a53920f0e',1,'CMDEXIT::Execute()']]]
 ];

@@ -97,6 +97,7 @@ var hierarchy =
       [ "FILTERMSGACCEL", "df/dcd/classFILTERMSGACCEL.html", null ]
     ] ],
     [ "FM", "de/d4e/structFM.html", null ],
+    [ "font_gdi", "da/d22/classfont__gdi.html", null ],
     [ "GEOM", "d3/db7/classGEOM.html", null ],
     [ "global_ptr< T >", "d5/dd3/classglobal__ptr.html", null ],
     [ "GUARDDCA", "d1/d9e/classGUARDDCA.html", null ],
@@ -146,8 +147,9 @@ var hierarchy =
     [ "resource_ptr", "d2/d69/classresource__ptr.html", null ],
     [ "RTC", "da/db3/classRTC.html", [
       [ "RTCFLIP", "d0/dbe/classRTCFLIP.html", [
-        [ "RTC2", "dc/df7/classRTC2.html", null ]
-      ] ]
+        [ "RTCDISCARD", "dd/d85/classRTCDISCARD.html", null ]
+      ] ],
+      [ "RTCRT", "dd/d39/classRTCRT.html", null ]
     ] ],
     [ "SCROLL", "d5/d20/classSCROLL.html", [
       [ "SCROLLLN", "da/dc7/classSCROLLLN.html", [
@@ -165,6 +167,7 @@ var hierarchy =
     [ "TF", "d9/d78/classTF.html", null ],
     [ "TIMER", "d1/d9e/classTIMER.html", null ],
     [ "WND", "d7/d6d/classWND.html", [
+      [ "EDIT", "d6/dc4/classEDIT.html", null ],
       [ "WNDMAIN", "d3/def/classWNDMAIN.html", [
         [ "IWAPP", "d9/d15/classIWAPP.html", null ]
       ] ]

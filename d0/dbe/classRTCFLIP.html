@@ -98,14 +98,19 @@ $(document).ready(function(){initNavTree('d0/dbe/classRTCFLIP.html','../../'); i
   <div class="headertitle"><div class="title">RTCFLIP Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Flip-mode render target.  
+ <a href="../../d0/dbe/classRTCFLIP.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for RTCFLIP:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="../../d0/dbe/classRTCFLIP.png" usemap="#RTCFLIP_map" alt=""/>
   <map id="RTCFLIP_map" name="RTCFLIP_map">
-<area href="../../da/db3/classRTC.html" title="Base class for render target." alt="RTC" shape="rect" coords="0,0,62,24"/>
-<area href="../../dc/df7/classRTC2.html" alt="RTC2" shape="rect" coords="0,112,62,136"/>
+<area href="../../da/db3/classRTC.html" title="Base class for render target." alt="RTC" shape="rect" coords="0,0,91,24"/>
+<area href="../../dd/d85/classRTCDISCARD.html" title="Render target for the old DISCARD device context." alt="RTCDISCARD" shape="rect" coords="0,112,91,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -113,14 +118,14 @@ Inheritance diagram for RTCFLIP:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a8a25f7a9928f9b3883bf9eed118242fa" id="r_a8a25f7a9928f9b3883bf9eed118242fa"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/classRTCFLIP.html#a8a25f7a9928f9b3883bf9eed118242fa">RTCFLIP</a> (<a class="el" href="../../d9/d15/classIWAPP.html">IWAPP</a> &amp;iwapp)</td></tr>
 <tr class="separator:a8a25f7a9928f9b3883bf9eed118242fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad4f55054d2b94776c89a856f819a84ae" id="r_ad4f55054d2b94776c89a856f819a84ae"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/classRTCFLIP.html#ad4f55054d2b94776c89a856f819a84ae">RebuildDevDeps</a> (com_ptr&lt; ID2D1DeviceContext &gt; &amp;pdc2) override</td></tr>
-<tr class="separator:ad4f55054d2b94776c89a856f819a84ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a43c850fc44acf4c30e61133fbc3924c3" id="r_a43c850fc44acf4c30e61133fbc3924c3"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/classRTCFLIP.html#a43c850fc44acf4c30e61133fbc3924c3">PurgeDevDeps</a> (com_ptr&lt; ID2D1DeviceContext &gt; &amp;pdc2) override</td></tr>
-<tr class="separator:a43c850fc44acf4c30e61133fbc3924c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aec95fefd2215daaa7855e6e390895843" id="r_aec95fefd2215daaa7855e6e390895843"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/classRTCFLIP.html#aec95fefd2215daaa7855e6e390895843">FPrepare</a> (com_ptr&lt; ID2D1DeviceContext &gt; &amp;pdc2) override</td></tr>
-<tr class="separator:aec95fefd2215daaa7855e6e390895843"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab7024f261e6b4d559bed51c22a140d92" id="r_ab7024f261e6b4d559bed51c22a140d92"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/classRTCFLIP.html#ab7024f261e6b4d559bed51c22a140d92">Present</a> (com_ptr&lt; ID2D1DeviceContext &gt; &amp;pdc2, const <a class="el" href="../../d2/d9b/classRC.html">RC</a> &amp;rcgUpdate) override</td></tr>
-<tr class="separator:ab7024f261e6b4d559bed51c22a140d92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8998667aaa0a8680d6c7a0bb9dc0d0c3" id="r_a8998667aaa0a8680d6c7a0bb9dc0d0c3"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/classRTCFLIP.html#a8998667aaa0a8680d6c7a0bb9dc0d0c3">RebuildDevDeps</a> (com_ptr&lt; ID2D1RenderTarget &gt; &amp;prt) override</td></tr>
+<tr class="separator:a8998667aaa0a8680d6c7a0bb9dc0d0c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a585a488f1a87fd8b18b56ac976a472" id="r_a2a585a488f1a87fd8b18b56ac976a472"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/classRTCFLIP.html#a2a585a488f1a87fd8b18b56ac976a472">PurgeDevDeps</a> (com_ptr&lt; ID2D1RenderTarget &gt; &amp;prt) override</td></tr>
+<tr class="separator:a2a585a488f1a87fd8b18b56ac976a472"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3424bcaae11fced0a12aeb658d11af90" id="r_a3424bcaae11fced0a12aeb658d11af90"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/classRTCFLIP.html#a3424bcaae11fced0a12aeb658d11af90">FPrepare</a> (com_ptr&lt; ID2D1RenderTarget &gt; &amp;prt) override</td></tr>
+<tr class="separator:a3424bcaae11fced0a12aeb658d11af90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9282c2b61484389e09698841ceb36233" id="r_a9282c2b61484389e09698841ceb36233"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/classRTCFLIP.html#a9282c2b61484389e09698841ceb36233">Present</a> (com_ptr&lt; ID2D1RenderTarget &gt; &amp;prt, const <a class="el" href="../../d2/d9b/classRC.html">RC</a> &amp;rcgUpdate) override</td></tr>
+<tr class="separator:a9282c2b61484389e09698841ceb36233"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classRTC"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classRTC')"><img src="../../closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="../../da/db3/classRTC.html">RTC</a></td></tr>
 <tr class="memitem:a02d77edad9a9971b9f9e9c3d9571c1a2 inherit pub_methods_classRTC" id="r_a02d77edad9a9971b9f9e9c3d9571c1a2"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/db3/classRTC.html#a02d77edad9a9971b9f9e9c3d9571c1a2">RTC</a> (<a class="el" href="../../d9/d15/classIWAPP.html">IWAPP</a> &amp;iwapp)</td></tr>
 <tr class="separator:a02d77edad9a9971b9f9e9c3d9571c1a2 inherit pub_methods_classRTC"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -167,11 +172,14 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:a5b2bc6d54548f8473cc508c4cc980139 inherit pub_static_methods_classRTC"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_static_attribs_classRTC"><td colspan="2" onclick="javascript:toggleInherit('pub_static_attribs_classRTC')"><img src="../../closed.png" alt="-"/>&#160;Static Public Attributes inherited from <a class="el" href="../../da/db3/classRTC.html">RTC</a></td></tr>
 <tr class="memitem:ad70c9e1926848f42e21e0b4e99b740a7 inherit pub_static_attribs_classRTC" id="r_ad70c9e1926848f42e21e0b4e99b740a7"><td class="memItemLeft" align="right" valign="top">static vector&lt; <a class="el" href="../../d5/d52/classDDDO.html">DDDO</a> * &gt; *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/db3/classRTC.html#ad70c9e1926848f42e21e0b4e99b740a7">pvpdddo</a></td></tr>
+<tr class="memdesc:ad70c9e1926848f42e21e0b4e99b740a7 inherit pub_static_attribs_classRTC"><td class="mdescLeft">&#160;</td><td class="mdescRight">Global device dependent drawing objects.  <br /></td></tr>
 <tr class="separator:ad70c9e1926848f42e21e0b4e99b740a7 inherit pub_static_attribs_classRTC"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00054">54</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<div class="textblock"><p>Flip-mode render target. </p>
+<p>Uses the Direct3 flip-mode for rendering to the Direct2D device context. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00058">58</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a8a25f7a9928f9b3883bf9eed118242fa" name="a8a25f7a9928f9b3883bf9eed118242fa"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8a25f7a9928f9b3883bf9eed118242fa">&#9670;&#160;</a></span>RTCFLIP()</h2>
@@ -189,7 +197,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00068">68</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00073">73</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
@@ -216,7 +224,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00072">72</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00077">77</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
@@ -255,12 +263,12 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00185">185</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00192">192</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
-<a id="aec95fefd2215daaa7855e6e390895843" name="aec95fefd2215daaa7855e6e390895843"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aec95fefd2215daaa7855e6e390895843">&#9670;&#160;</a></span>FPrepare()</h2>
+<a id="a3424bcaae11fced0a12aeb658d11af90" name="a3424bcaae11fced0a12aeb658d11af90"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3424bcaae11fced0a12aeb658d11af90">&#9670;&#160;</a></span>FPrepare()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -271,8 +279,8 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">bool RTCFLIP::FPrepare </td>
           <td>(</td>
-          <td class="paramtype">com_ptr&lt; ID2D1DeviceContext &gt; &amp;&#160;</td>
-          <td class="paramname"><em>pdc2</em></td><td>)</td>
+          <td class="paramtype">com_ptr&lt; ID2D1RenderTarget &gt; &amp;&#160;</td>
+          <td class="paramname"><em>prt</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -285,12 +293,12 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Implements <a class="el" href="../../da/db3/classRTC.html">RTC</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00160">160</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00167">167</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
-<a id="ab7024f261e6b4d559bed51c22a140d92" name="ab7024f261e6b4d559bed51c22a140d92"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab7024f261e6b4d559bed51c22a140d92">&#9670;&#160;</a></span>Present()</h2>
+<a id="a9282c2b61484389e09698841ceb36233" name="a9282c2b61484389e09698841ceb36233"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9282c2b61484389e09698841ceb36233">&#9670;&#160;</a></span>Present()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -301,8 +309,8 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">void RTCFLIP::Present </td>
           <td>(</td>
-          <td class="paramtype">com_ptr&lt; ID2D1DeviceContext &gt; &amp;&#160;</td>
-          <td class="paramname"><em>pdc2</em>, </td>
+          <td class="paramtype">com_ptr&lt; ID2D1RenderTarget &gt; &amp;&#160;</td>
+          <td class="paramname"><em>prt</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -325,12 +333,12 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Implements <a class="el" href="../../da/db3/classRTC.html">RTC</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00165">165</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00172">172</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
-<a id="a43c850fc44acf4c30e61133fbc3924c3" name="a43c850fc44acf4c30e61133fbc3924c3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a43c850fc44acf4c30e61133fbc3924c3">&#9670;&#160;</a></span>PurgeDevDeps()</h2>
+<a id="a2a585a488f1a87fd8b18b56ac976a472" name="a2a585a488f1a87fd8b18b56ac976a472"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a585a488f1a87fd8b18b56ac976a472">&#9670;&#160;</a></span>PurgeDevDeps()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -341,8 +349,8 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">void RTCFLIP::PurgeDevDeps </td>
           <td>(</td>
-          <td class="paramtype">com_ptr&lt; ID2D1DeviceContext &gt; &amp;&#160;</td>
-          <td class="paramname"><em>pdc2</em></td><td>)</td>
+          <td class="paramtype">com_ptr&lt; ID2D1RenderTarget &gt; &amp;&#160;</td>
+          <td class="paramname"><em>prt</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -355,7 +363,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Implements <a class="el" href="../../da/db3/classRTC.html">RTC</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00112">112</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00117">117</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
@@ -383,12 +391,12 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00076">76</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00081">81</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
-<a id="ad4f55054d2b94776c89a856f819a84ae" name="ad4f55054d2b94776c89a856f819a84ae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad4f55054d2b94776c89a856f819a84ae">&#9670;&#160;</a></span>RebuildDevDeps()</h2>
+<a id="a8998667aaa0a8680d6c7a0bb9dc0d0c3" name="a8998667aaa0a8680d6c7a0bb9dc0d0c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8998667aaa0a8680d6c7a0bb9dc0d0c3">&#9670;&#160;</a></span>RebuildDevDeps()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -399,8 +407,8 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">void RTCFLIP::RebuildDevDeps </td>
           <td>(</td>
-          <td class="paramtype">com_ptr&lt; ID2D1DeviceContext &gt; &amp;&#160;</td>
-          <td class="paramname"><em>pdc2</em></td><td>)</td>
+          <td class="paramtype">com_ptr&lt; ID2D1RenderTarget &gt; &amp;&#160;</td>
+          <td class="paramname"><em>prt</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -413,7 +421,9 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Implements <a class="el" href="../../da/db3/classRTC.html">RTC</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00128">128</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p>Reimplemented in <a class="el" href="../../dd/d85/classRTCDISCARD.html#ae83293d9bf20cbfc3e3011713ab249eb">RTCDISCARD</a>.</p>
+
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00133">133</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
@@ -438,7 +448,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00083">83</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00087">87</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 
 </div>
 </div>
@@ -462,7 +472,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00081">81</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00085">85</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 
 </div>
 </div>
@@ -486,7 +496,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00075">75</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00079">79</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 
 </div>
 </div>
@@ -510,7 +520,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00073">73</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00077">77</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 
 </div>
 </div>
@@ -534,7 +544,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00074">74</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00078">78</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 
 </div>
 </div>
@@ -558,7 +568,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00076">76</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00080">80</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 
 </div>
 </div>
@@ -582,7 +592,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00077">77</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00081">81</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 
 </div>
 </div>
@@ -606,7 +616,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00080">80</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00084">84</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 
 </div>
 </div>
