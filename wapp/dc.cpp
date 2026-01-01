@@ -45,7 +45,7 @@ void BR::reset(void)
 
 void BR::reset(DCS& dcs, CO co)
 {
-    dcs.iwapp.pdc2->CreateSolidColorBrush(co, &pbrush);
+    dcs.iwapp.prt->CreateSolidColorBrush(co, &pbrush);
 }
 
 ID2D1SolidColorBrush* BR::release(void)
@@ -194,7 +194,7 @@ void PNG::reset(DCS& dcs, int rspng)
                                       nullptr,
                                       0.0f,
                                       WICBitmapPaletteTypeMedianCut));
-    ThrowError(dcs.iwapp.pdc2->CreateBitmapFromWicBitmap(pconverter.Get(),
+    ThrowError(dcs.iwapp.prt->CreateBitmapFromWicBitmap(pconverter.Get(),
                                                         nullptr,
                                                         &pbitmap));
 }
@@ -384,7 +384,7 @@ void DCS::SetFontWidth(TF& tf, float dxWidth)
 void DCS::FillRc(const RC& rc, const BR& br) const
 {
     RC rcg = RcgFromRc(rc);
-    iwapp.pdc2->FillRectangle(&rcg, br);
+    iwapp.prt->FillRectangle(&rcg, br);
 }
 
 void DCS::FillRc(const RC& rc, CO coFill) const
@@ -397,7 +397,7 @@ void DCS::FillRc(const RC& rc, CO coFill) const
 void DCS::FillRcBack(const RC& rc) const
 {
     RC rcg = RcgFromRc(rc);
-    iwapp.pdc2->FillRectangle(&rcg, brScratch.SetCo(CoBack()));
+    iwapp.prt->FillRectangle(&rcg, brScratch.SetCo(CoBack()));
 }
 
 void DCS::DrawRc(const RC& rc, CO co, float dxyStroke) const
@@ -411,7 +411,7 @@ void DCS::DrawRc(const RC& rc, const BR& br, float dxyStroke) const
 {
     RC rcg = RcgFromRc(rc);
     rcg.Inflate(SZ(-dxyStroke/2));
-    iwapp.pdc2->DrawRectangle(&rcg, br, dxyStroke);
+    iwapp.prt->DrawRectangle(&rcg, br, dxyStroke);
 }
 
 /*
@@ -428,7 +428,7 @@ void DCS::FillEll(const ELL& ellFill, CO coFill) const
 void DCS::FillEll(const ELL& ellFill, const BR& brFill) const
 {
     ELL ellg = ellFill.EllOffset(PtgFromPt(PT(0)));
-    iwapp.pdc2->FillEllipse(&ellg, brFill);
+    iwapp.prt->FillEllipse(&ellg, brFill);
 }
 
 void DCS::DrawEll(const ELL& ell, CO co, float dxyStroke) const
@@ -442,7 +442,7 @@ void DCS::DrawEll(const ELL& ell, const BR& br, float dxyStroke) const
 {
     ELL ellg = ell.EllOffset(PtgFromPt(PT(0)));
     ellg.Inflate(SZ(-dxyStroke/2));
-    iwapp.pdc2->DrawEllipse(&ellg, br, dxyStroke);
+    iwapp.prt->DrawEllipse(&ellg, br, dxyStroke);
 }
 
 /*
@@ -457,7 +457,7 @@ void DCS::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, floa
                            Matrix3x2F::Scale(szScale, PT(0, 0)) *
                            Matrix3x2F::Translation(ptgOrigin + ptOffset));
     GUARDDCAA aa(*this, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-    iwapp.pdc2->FillGeometry(geom, brFill);
+    iwapp.prt->FillGeometry(geom, brFill);
 }
 
 void DCS::FillGeom(const GEOM& geom, const PT& ptOffset, const SZ& szScale, float angle, CO coFill)
@@ -482,7 +482,7 @@ void DCS::Line(const PT& pt1, const PT& pt2, const BR& br, float dxyStroke) cons
 {
     PT ptg1 = PtgFromPt(pt1);
     PT ptg2 = PtgFromPt(pt2);
-    iwapp.pdc2->DrawLine(ptg1, ptg2, br, dxyStroke);
+    iwapp.prt->DrawLine(ptg1, ptg2, br, dxyStroke);
 }
 
 /*
@@ -493,7 +493,7 @@ void DCS::DrawS(const string& s, const TF& tf, const RC& rc, const BR& brText, F
 {
     RC rcg = RcgFromRc(rc);
     wstring ws(WsFromS(s));
-    iwapp.pdc2->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText, 
+    iwapp.prt->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText, 
                          fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
 }
 
@@ -501,7 +501,7 @@ void DCS::DrawS(string_view s, const TF& tf, const RC& rc, const BR& brText, FC 
 {
     RC rcg = RcgFromRc(rc);
     wstring ws(WsFromS(s));
-    iwapp.pdc2->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText, 
+    iwapp.prt->DrawText(ws.c_str(), (UINT32)ws.size(), tf, &rcg, brText, 
                          fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
 }
 
@@ -569,8 +569,8 @@ void DCS::DrawSCenterXY(const string& s, TF& tf, const RC& rc, const BR& brText,
     FM fm(FmFromTf(tf));
     float ygTop = (rcg.top + rcg.bottom + fm.dyXHeight) / 2 - dlm.baseline + (fm.dyDescent/2);
     float xgLeft = (rcg.left + rcg.right - dtm.width) / 2;
-    iwapp.pdc2->DrawTextLayout(PT(xgLeft, ygTop), ptxl.Get(), brText, 
-                               fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
+    iwapp.prt->DrawTextLayout(PT(xgLeft, ygTop), ptxl.Get(), brText, 
+                              fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
 }
 
 void DCS::DrawSCenterXY(const string& s, TF& tf, const RC& rc, CO coText, FC fc) const
@@ -595,8 +595,8 @@ void DCS::DrawSCenterY(const string& s, TF& tf, const RC& rc, const BR& brText, 
     ptxl->GetLineMetrics(&dlm, 1, &cdlm);
     FM fm(FmFromTf(tf));
     float ygTop = (rcg.top + rcg.bottom + fm.dyXHeight) / 2 - dlm.baseline + (fm.dyDescent/2);
-    iwapp.pdc2->DrawTextLayout(PT(rcg.left, ygTop), ptxl.Get(), brText, 
-                               fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
+    iwapp.prt->DrawTextLayout(PT(rcg.left, ygTop), ptxl.Get(), brText, 
+                              fc == FC::Color ? D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT : D2D1_DRAW_TEXT_OPTIONS_NONE);
 }
 
 void DCS::DrawSCenterY(const string& s, TF& tf, const RC& rc, CO coText, FC fc) const
@@ -654,11 +654,11 @@ FM DCS::FmFromTf(const TF& tf) const
 
 void DCS::DrawBmp(const RC& rcTo, const BMP& bmp, const RC& rcFrom, float opacity) const
 {
-    iwapp.pdc2->DrawBitmap(bmp,
-                           RcgFromRc(rcTo),
-                           opacity,
-                           D2D1_INTERPOLATION_MODE_MULTI_SAMPLE_LINEAR,
-                           rcFrom);
+    iwapp.prt->DrawBitmap(bmp,
+                          RcgFromRc(rcTo),
+                          opacity,
+                          D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,
+                          rcFrom);
 }
 
 /*

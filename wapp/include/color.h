@@ -278,6 +278,11 @@ inline CO CoBlend(CO co1, CO co2, float pct = 0.5f)
               (1.f-pct) * co1.a + pct * co2.a); /* alpha blends linearly */
 }
 
+constexpr CO CoGray(float val)
+{
+    return CO(val, val, val);
+}
+
 /*
  *  constant colors
  */

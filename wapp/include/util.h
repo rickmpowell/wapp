@@ -34,7 +34,8 @@ inline const char* SFromU8(const char8_t* s)
 }
 
 /**
- *  Tells if a value is inside the range, inclusive.
+ *  @template   bool FInRange(const T& t, const T& tFirst, const T& tLast)
+ *  @brief      Tells if a value is inside the range, inclusive.
  */
 
 template <typename T>
@@ -137,6 +138,11 @@ string SFormat(string_view fmt, Args&&... args)
 
 string SEscapeQuoted(const string& s);
 
+inline string to_string_bool(bool f)
+{
+    return f ? "true" : "false";
+}
+
 /**
  *  @class      observer_ptr
  *  @brief      A non-owning smart pointer
@@ -171,3 +177,111 @@ public:
         return ptT;
     }
 };
+
+/**
+ *  @class      font_gdi
+ *  @brief      Windows HFONT wrapper
+ */
+
+class font_gdi
+{
+    font_gdi(const font_gdi&) = delete;
+    font_gdi& operator = (const font_gdi&) = delete;
+
+public:
+    font_gdi(void) :
+        hfont(NULL)
+    {
+    }
+
+    font_gdi(string_view sFace, float dyHeight) :
+        hfont(NULL)
+    {
+        reset(sFace, dyHeight);
+    }
+
+    font_gdi(IDWriteTextFormat* ptf) :
+        hfont(NULL)
+    {
+        reset(ptf);
+    }
+
+    font_gdi(HFONT hfont) noexcept :
+        hfont(NULL)
+    {
+        reset(hfont);
+    }
+
+    font_gdi(font_gdi&& gdi) noexcept :
+        hfont(NULL)
+    {
+        reset(gdi.release());
+    }
+
+    ~font_gdi() noexcept
+    {
+        reset();
+    }
+
+    font_gdi& operator = (font_gdi&& gdi) noexcept
+    {
+        if (this != &gdi)
+            reset(gdi.release());
+        return *this;
+    }
+
+    HFONT release(void) noexcept
+    {
+        HFONT hfontT = hfont;
+        hfont = NULL;
+        return hfontT;
+    }
+
+    void reset(HFONT hfontNew = NULL) noexcept
+    {
+        if (hfont)
+            ::DeleteObject(hfont);
+        hfont = hfontNew;
+    }
+
+    void reset(string_view sFace, float dyHeight)
+    {
+        reset();
+        wstring ws = WsFromS(sFace);
+        hfont = ::CreateFontW(-lroundf(dyHeight), 
+                              0, 0, 0, 0, 0, 0, 0, 
+                              ANSI_CHARSET, 
+                              0, 
+                              0, 
+                              0, 
+                              VARIABLE_PITCH | FF_SWISS, 
+                              ws.c_str());
+        if (hfont == NULL)
+            throw ERRLAST();
+    }
+
+    void reset(IDWriteTextFormat* ptf)
+    {
+        reset();
+        wchar_t ws[256];
+        ptf->GetFontFamilyName(ws, size(ws));
+        float dyHeight = ptf->GetFontSize();
+        hfont = ::CreateFontW(-lroundf(dyHeight), 0, 0, 0, 0, 0, 0, 0, ANSI_CHARSET, 0, 0, 0, 0, ws);
+        if (hfont == NULL)
+            throw ERRLAST();
+    }
+
+    void swap(font_gdi& gdi) noexcept
+    {
+        std::swap(hfont, gdi.hfont);
+    }
+
+    HFONT get(void) const noexcept
+    {
+        return hfont;
+    }
+
+private:
+    HFONT hfont;
+};
+

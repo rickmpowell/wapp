@@ -696,3 +696,70 @@ CPT WNPROMOTE::CptHitTest(PT pt) const
         return cptNone;
     return cpt(acp[(int)((pt.y - rc.top) / (rc.dyHeight() / 4))]);
 }
+
+/**
+ *  @fn         WNPAL::WNPAL(WN& wnParent, GAME& game)
+ *  @brief      constructor for game/board palette window
+ */
+
+WNPAL::WNPAL(WN& wnParent, GAME& game) :
+    WNPC(wnParent, false),
+    selWhite(vselToMove, rssWhite+cpcWhite),
+    selBlack(vselToMove, rssWhite+cpcBlack),
+    vselToMove(*this, nullptr),
+    mpcschkCastle { CHK(*this, "O-O"), CHK(*this, "O-O"),
+                    CHK(*this, "O-O-O"), CHK(*this, "O-O-O") },
+    game(game)
+{ 
+    vselToMove.AddSelector(selWhite);
+    vselToMove.AddSelector(selBlack);
+    for (int cs = 0; cs < 4; cs++)
+        mpcschkCastle[cs].SetFontHeight(11);
+}
+
+CO WNPAL::CoBack(void) const
+{
+    return CoGray(0.9f);
+}
+
+/**
+ *  @fn         void WNPAL::Draw(const RC& rcUpdate)
+ *  @brief      Draws the palette of pieces
+ * 
+ *  @details    Draws all the pieces in a grid, for use in drag and drop
+ *              piece placement.
+ */
+
+void WNPAL::Draw(const RC& rcUpdate)
+{
+    for (CPC cpc = cpcWhite; cpc <= cpcBlack; ++cpc) {
+        for (CPT cpt = cptPawn; cpt < cptMax; ++cpt)
+            DrawPiece(RcFromCp(Cp(cpc, cpt)), Cp(cpc, cpt), 1.0f);
+    }
+}
+
+void WNPAL::Layout(void)
+{   
+    RC rc = RcInterior();
+    float dxySquare = rc.dxWidth() / 2;
+    float y = RcFromCp(Cp(cpcWhite, cptKing)).bottom;
+    vselToMove.SetBounds(RC(rc.left, y, rc.right, y + 20));
+    y += 20;
+    float dyCastle = 13;
+    mpcschkCastle[0].SetBounds(RC(rc.left, y, rc.xCenter(), y + dyCastle));
+    mpcschkCastle[1].SetBounds(RC(rc.xCenter(), y, rc.right, y + dyCastle));
+    mpcschkCastle[2].SetBounds(RC(rc.left, y + dyCastle + 4, rc.xCenter(), y + 4 + 2*dyCastle));
+    mpcschkCastle[3].SetBounds(RC(rc.xCenter(), y + dyCastle + 4, rc.right, y + 4 + 2*dyCastle));
+}
+
+SZ WNPAL::SzIntrinsic(const RC& rcWithin)
+{
+    return SZ(120, rcWithin.dyHeight());
+}
+
+RC WNPAL::RcFromCp(CP cp) const
+{
+    RC rc = RcInterior();
+    float dxySquare = rc.dxWidth() / 2;
+    return RC(rc.ptTopLeft() + PT((int)cpc(cp) * dxySquare, (int)cpt(cp) * dxySquare), SZ(dxySquare));
+}

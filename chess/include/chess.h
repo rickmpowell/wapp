@@ -173,6 +173,42 @@ private:
     PT dptDrag = PT(0, 0); // offset from the mouse cursor of the initial drag hit
 };
 
+/**
+ *  @class WNPAL
+ *  @brief The piece palette window for setting up a board position
+ */
+
+class WNPAL : public WNPC
+{
+public:
+    WNPAL(WN& wnParent, GAME& game);
+
+    virtual void Layout(void) override;
+    virtual SZ SzIntrinsic(const RC& rcWithin) override;
+
+    virtual CO CoBack(void) const override;
+    virtual void Draw(const RC& rcUpdate) override;
+
+private:
+    RC RcFromCp(CP cp) const;
+
+    GAME& game;
+
+private:
+    static constexpr CP acp[2][6] =
+    {
+        { cpWhitePawn, cpWhiteKnight, cpWhiteBishop, cpWhiteRook, cpWhiteQueen, cpWhiteKing },
+        { cpBlackPawn, cpBlackKnight, cpBlackBishop, cpBlackRook, cpBlackQueen, cpBlackKing }
+    };
+
+    VSEL vselToMove;    // side to move
+    SEL selWhite, selBlack;
+    CHK mpcschkCastle[4];
+    
+    /* en passant */
+    /* EPD picker */
+};
+
 #include "test.h"
 #include "newgame.h"
 #include "movelist.h"
@@ -217,9 +253,10 @@ public:
 
     mt19937_64 rand;
 
-    WNBOARD wnboard;
-    WNML wnml;
-    WNLOG wnlog;
+    WNBOARD wnboard;    // board
+    WNPAL wnpal;        // board/game setup palette
+    WNML wnml;          // move list and game control
+    WNLOG wnlog;        // logging and debugging
 
 private:
     const float wMarginPerWindow = 0.02f; // ratio of the size of of margin to the total window size

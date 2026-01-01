@@ -101,6 +101,9 @@ void LEN::EndFlow(void)
 
 void LEN::PositionLeft(WN& wn, const SZ& sz)
 {
+    if (!wn.fVisible)
+        return;
+
     /* if we're aleady beyond the right edge, go ahead and wrap now */
     if (rcFlow.left >= rcFlow.right)
         rcFlow = RC(rcWithin.left, rcFlow.bottom, rcWithin.right, rcFlow.bottom);
@@ -126,6 +129,9 @@ void LEN::PositionLeft(WN& wn, const SZ& sz)
 
 void LEN::PositionLeft(WN& wn) 
 {
+    if (!wn.fVisible)
+        return;
+
     /* if we're aleady beyond the right edge, go ahead and wrap now */
     if (rcFlow.left >= rcFlow.right)
         rcFlow = RC(rcWithin.left, rcFlow.bottom, rcWithin.right, rcFlow.bottom);
@@ -151,6 +157,9 @@ void LEN::PositionLeft(WN& wn)
 
 void LEN::PositionRight(WN& wn)
 {
+    if (!wn.fVisible)
+        return;
+
     /* if we're aleady beyond the right edge, go ahead and wrap now */
     if (rcFlow.left >= rcFlow.right)
         rcFlow = RC(rcWithin.left, rcFlow.bottom, rcWithin.right, rcFlow.bottom);
@@ -226,6 +235,9 @@ void LEN::EndCenter(void)
 
 void LEN::PositionOK(CTL& ctl) 
 {
+    if (!ctl.fVisible)
+        return;
+
     ctl.SetFont(sFontUI, 32.0f);
     RC rc(rcWithin.RcTopLeft(rcWithin.ptBottomRight() -
                                 ctl.SzIntrinsic(rcWithin) -

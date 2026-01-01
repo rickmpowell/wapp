@@ -271,6 +271,7 @@ public:
 private:
     void InitPlayer(VSELPLAYER& vsel, PL* ppl, CPC cpc);
     CPC ExtractPlayer(GAME& game, VSELPLAYER& vsel);
+    bool FPlayerChanged(const shared_ptr<PL>& ppl, const DATAPLAYER& dataplayer) const;
     void ExtractTimeControls(GAME& game);
 
 public:
@@ -313,7 +314,8 @@ private:
     CHK chkRevFutility;
     CHK chkNullMove;
     CHK chkRazoring;
-    CHK chkFutility;
+    CHK chkFutilityPruning;
+    CHK chkLateMovePruning;
     CHK chkLateMoveReduction;
 
     GROUP groupMoveOrder;
@@ -332,6 +334,7 @@ private:
     CHK chkPV;
     CHK chkAspiration;
     EDIT editXt;
+    EDIT editDepthMax;
 
     BTNOK btnok;
 };

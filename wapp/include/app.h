@@ -16,8 +16,8 @@
  */
 
 #include "framework.h"
-#include "util.h"
 #include "err.h"
+#include "util.h"
 #include "coord.h"
 
 /** 
@@ -110,24 +110,24 @@ public:
     virtual ~WND();
 
     /* window class registration */
-
     WNDCLASSEXW WcexRegister(void) const;
     LPCWSTR Register(const WNDCLASSEXW& wc);
     virtual LPCWSTR SRegister(void) = 0;
 
     /* create and destroy windows HWND */
-
-    void CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz);
+    void CreateWnd(optional<WND*> opwndParent, const string& sTitle, DWORD ws, PT pt, SZ sz);
     void DestroyWnd(void);
 
     /* window operations */
-
     void ShowWnd(int sw = SW_SHOW);
-    void Minimize(void);
+    void SetBoundsWnd(const RC& rcNew);
+    void MinimizeWnd(void);
     void UpdateWnd(void);
+    void SetTitleWnd(const string& sNew);
+    string STitleWnd(void) const;
+    void SetFontWnd(const font_gdi& font);
 
     /* WndProc and window message handlers */
-
     static LRESULT CALLBACK WndProc(HWND hwnd, UINT wm, WPARAM wParam, LPARAM lParam);
     LRESULT DefProc(UINT wm, WPARAM wParam, LPARAM lParam);
     virtual void OnCreate(void);
@@ -148,7 +148,6 @@ public:
     virtual void OnInitMenuPopup(HMENU hmenu);
 
     /* dialogs */
-
     int Dialog(int rsd);
 
 public:
@@ -179,7 +178,7 @@ public:
     virtual LPCWSTR SRegister(void) override;
 
     void CreateWnd(const string& sTitle,
-                   DWORD ws = WS_OVERLAPPEDWINDOW, 
+                   DWORD ws = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 
                    PT pt = PT(CW_USEDEFAULT), 
                    SZ sz = SZ(CW_USEDEFAULT));
 };

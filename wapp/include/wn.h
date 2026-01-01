@@ -44,6 +44,8 @@ enum DRO
 
 class WN : public DCS
 {
+    friend class LEN;
+
 private:
     WN(const WN& wn) = delete;  /* disable copy constructors */
     void operator = (const WN& wn) = delete;
@@ -88,7 +90,6 @@ public:
     void DrawWithChildren(const RC& rcgUpdate, DRO dro);
 
     /* mouse */
-
     bool FWnFromPt(const PT& ptg, WN*& pwn);
     bool FDragging(void) const;
     virtual void Enter(const PT& pt);
@@ -103,11 +104,9 @@ public:
     void SetCurs(const CURS& curs);
 
     /* keyboard */
-
     virtual bool FKeyDown(int vk);
 
     /* timers */
-
     virtual void Tick(TIMER& timer);
 
 public:

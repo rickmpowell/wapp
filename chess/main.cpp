@@ -36,6 +36,7 @@ int Run(const string& sCmdLine, int sw)
 WAPP::WAPP(const string& wsCmdLine, int sw) : 
     game(fenStartPos, make_shared<PLHUMAN>("Rick"), make_shared<PLHUMAN>("Hazel")),
     wnboard(*this, game),
+    wnpal(*this, game),
     wnml(*this, game),
     wnlog(*this),
     cursArrow(*this, IDC_ARROW), cursHand(*this, IDC_HAND),
@@ -72,6 +73,7 @@ void WAPP::Layout(void)
     LEN len(*this, PAD(dxyMargin), PAD(dxyMargin));
     len.StartFlow();
     len.PositionLeft(wnboard, SZ(dxyBoard));
+    len.PositionLeft(wnpal);
     len.PositionLeft(wnml);
     len.PositionLeft(wnlog);
 }
@@ -129,7 +131,7 @@ public:
         if (!FRunDlg(dlg))
             return 0;
         gameUndo = wapp.game;
-        wapp.game.End(GR::Abandoned);
+        wapp.game.End(GR::Aborted);
         dlg.Extract(wapp.game);
         wapp.game.cgaPlayed++;
         wapp.game.Start();
@@ -164,6 +166,13 @@ private:
     GAME gameUndo;
 };
 
+CMDEXECUTE(CMDSETUPPOSITION)
+{
+    wapp.wnpal.Show(!wapp.wnpal.FVisible());
+    wapp.Relayout();
+    return 1;
+}
+
 /**
  *  @class CMDOPENFILE
  *  @brief Opens a PGN file
@@ -187,7 +196,7 @@ public:
         if (!dlg.FRun())
             return 0;
         gameUndo = wapp.game;
-        wapp.game.End(GR::Abandoned);
+        wapp.game.End(GR::Aborted);
         ifstream is(dlg.file);
         try {
             wapp.game.InitFromPgn(is);
@@ -299,7 +308,7 @@ CMDEXECUTE(CMDTESTAI)
     dlg.extDefault = "epd";
     if (!dlg.FRun())
         return 0;
-    wapp.game.End(GR::Abandoned);
+    wapp.game.End(GR::Aborted);
     wapp.RunAITest(dlg.folder, dlg.vfile);
     return 1;
 }
@@ -632,6 +641,7 @@ private:
 void WAPP::RegisterMenuCmds(void)
 {
     REGMENUCMD(cmdNewGame, CMDNEWGAME);
+    REGMENUCMD(cmdSetupPosition, CMDSETUPPOSITION);
     REGMENUCMD(cmdOpenFile, CMDOPENFILE);
     REGMENUCMD(cmdFlipBoard, CMDFLIPBOARD);
     REGMENUCMD(cmdExit, CMDEXIT);

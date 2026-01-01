@@ -22,7 +22,7 @@ CTL::CTL(WN& wnParent, ICMD* pcmd, const string& sLabel, bool fVisible) :
     sLabel(sLabel),
     pcmd(pcmd),
     cdsCur(CDS::None),
-    tf(*this, sFontUI, 12)
+    tf(*this, sFontUI, 13)
 {
 }
 
@@ -31,7 +31,7 @@ CTL::CTL(WN& wnParent, ICMD* pcmd, int rssLabel, bool fVisible) :
     sLabel(rssLabel == -1 ? "" : wnParent.iwapp.SLoad(rssLabel)),
     pcmd(pcmd),
     cdsCur(CDS::None),
-    tf(*this, sFontUI, 12)
+    tf(*this, sFontUI, 13)
 {
 }
 
@@ -309,10 +309,10 @@ void STATICICON::Draw(const RC& rcUpdate)
                                       WICBitmapIgnoreAlpha,
                                       &pwicbmp);
     com_ptr<ID2D1Bitmap> pbmp;
-    iwapp.pdc2->CreateBitmapFromWicBitmap(pwicbmp.Get(), nullptr, &pbmp);
+    iwapp.prt->CreateBitmapFromWicBitmap(pwicbmp.Get(), nullptr, &pbmp);
     RC rc(RcInterior());
     rc = RcgFromRc(rc);
-    iwapp.pdc2->DrawBitmap(pbmp.Get(), &rc);
+    iwapp.prt->DrawBitmap(pbmp.Get(), &rc);
 }
 
 SZ STATICICON::SzIntrinsic(const RC& rcWithin)
@@ -970,14 +970,20 @@ void CYCLEINT::Prev(void)
 
 EDIT::EDIT(WN& wnParent, const string& sText, const string& sLabel) :
     CTL(wnParent, nullptr, sLabel),
-    sText(sText)
+    WND((APP&)wnParent.iwapp)
 {
+    CreateWnd(&(WND&)wnParent.iwapp, sText, 
+              WS_CHILD | WS_VISIBLE | ES_LEFT | ES_AUTOHSCROLL, 
+              PT(0), SZ(1));
 }
 
 EDIT::EDIT(WN& wnParent, const string& sText, int rssLabel) :
     CTL(wnParent, nullptr, rssLabel),
-    sText(sText)
+    WND((APP&)wnParent.iwapp)
 {
+    CreateWnd(&(WND&)wnParent.iwapp, sText, 
+              WS_CHILD | WS_VISIBLE | ES_LEFT | ES_AUTOHSCROLL, 
+              PT(0), SZ(1));
 }
 
 CO EDIT::CoText(void) const
@@ -993,45 +999,71 @@ CO EDIT::CoBack(void) const
 void EDIT::Draw(const RC& rcUpdate)
 {
     /* TODO: figure out what to do with margins and padding here */
-
     RC rc(RcInterior());
     if (sLabel.size() > 0) {
-        float x = rc.left + SzLabel().width + 4;
-        DrawLabel(rc.RcSetRight(x));
-        rc = RcContent();
-        rc.left = x;
+        SZ szLabel(SzLabel());
+        float dxLabel = szLabel.width + szLabel.height * 0.33f;
+        DrawLabel(rc.RcSetRight(rc.left + dxLabel));
+        rc = RcContent().RcShiftLeft(dxLabel);
     }
     else 
         rc = RcContent();
 
-    FillRc(rc, coWhite);
-    DrawRc(rc, coBlack, 1);
-    rc.Unpad(PAD(8, 2));
-    DrawSCenterY(sText, tf, rc, coBlack);
+   FillRc(rc, coLightGray);
+   DrawRc(rc, coBlack, 1);
 }
 
 void EDIT::Layout(void)
 {
     if (leit.leinterior  == LEINTERIOR::ScaleInteriorToFit)
-        SetFontHeight(RcContent().dyHeight() * 0.67f);
+        SetFontHeight((RcContent().dyHeight()-2*2) * 0.67f);
 }
 
 SZ EDIT::SzIntrinsic(const RC& rcWithin)
 {
-    SZ szBox = SzFromS(sText, tf);
+    SZ szBox = SzFromS(SText(), tf);
     SZ szLabel = SzLabel();
-    return SZ(szBox.width + 2*8 + szLabel.height*0.25f + szLabel.width,
+    return SZ(szLabel.width + szLabel.height*0.33f + 2*6 + szBox.width + 8,
               max(szBox.height + 2*2, szLabel.height));
 }
 
 string EDIT::SText(void) const
 {
-    return sText;
+    return STitleWnd();
 }
 
 void EDIT::SetText(const string& sNew)
 {
-    sText = sNew;
+    SetTitleWnd(sNew);
+}
+
+LPCWSTR EDIT::SRegister(void)
+{
+    return L"EDIT";
+}
+
+void EDIT::SetBounds(const RC& rcpNew)
+{
+    float dxLabel = 0;
+    if (sLabel.size() > 0) {
+        SZ szLabel(SzLabel());
+        dxLabel = szLabel.width + szLabel.height * 0.33f;
+    }
+    SetBoundsWnd(pwnParent->RcgFromRc(rcpNew.RcShiftLeft(dxLabel)).RcInflate(-6, -2));
+    CTL::SetBounds(rcpNew);
+}
+
+void EDIT::Show(bool fShow)
+{
+    ShowWnd(fShow ? SW_SHOW : SW_HIDE);
+    CTL::Show(fShow);
+}
+
+void EDIT::SetFontHeight(float dy)
+{
+    CTL::SetFontHeight(dy);
+    font.reset(tf);
+    SetFontWnd(font);
 }
 
 /**

@@ -111,14 +111,11 @@ public:
 class BMP
 {
 public:
-    com_ptr<ID2D1Bitmap1> pbitmap;
-
-public:
     BMP(void) : pbitmap(nullptr) {}
 
-    operator ID2D1Bitmap1* () const 
+    operator ID2D1Bitmap* () const
     {
-        return pbitmap.Get(); 
+        return pbitmap.Get();
     }
     
     SZ sz(void) const 
@@ -130,6 +127,9 @@ public:
     ID2D1Bitmap* release(void);
     operator bool() const;
     bool operator ! () const;
+
+public:
+    com_ptr<ID2D1Bitmap> pbitmap;
 };
 
 /**

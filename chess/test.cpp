@@ -688,7 +688,6 @@ void WAPP::RunAITest(filesystem::path folder, const vector<filesystem::path>& vf
     /* time management to use for test */
     TMAN tman;
     tman.odtpTotal = duration_cast<milliseconds>(10s);
-    tman.odMax = 100;
 
     /* install AI players */
     game.appl[cpcWhite] = make_shared<PLAI>();
@@ -844,7 +843,6 @@ void WAPP::RunAIProfile(void)
     //string fen("rnbqkbnr/pppp1ppp/8/4p3/3P4/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 3");
     TMAN tman;
     tman.odtpTotal = duration_cast<milliseconds>(10s);
-    tman.odMax = 30;
 
     /* install AI players */
     game.appl[cpcWhite] = make_shared<PLAI>();
@@ -880,7 +878,6 @@ void WAPP::AnalyzePosition(void)
     /* time management to use for test */
     TMAN tman;
     tman.odtpTotal = duration_cast<milliseconds>(120s);
-    tman.odMax = 100;
 
     /* install AI players */
     game.appl[cpcWhite] = make_shared<PLAI>();

@@ -533,12 +533,18 @@ protected:
  *  This control is not currently implemented. 
  */
 
-class EDIT : public CTL
+class EDIT : public CTL, public WND
 {
 public:
     EDIT(WN& wnParent, const string& sText, const string& sLabel);
     EDIT(WN& wnParent, const string& sText, int rssLabel = -1);
     virtual ~EDIT(void) = default;
+
+    /* TODO: any way to make these overrides automatic? */
+    virtual LPCWSTR SRegister(void) override;
+    virtual void SetBounds(const RC& rcNew) override;
+    virtual void Show(bool fShow = true) override;
+    virtual void SetFontHeight(float dy) override;
 
     virtual CO CoText(void) const override;
     virtual CO CoBack(void) const override;
@@ -551,7 +557,7 @@ public:
     virtual void SetText(const string& s);
 
 private:
-    string sText;
+    font_gdi font;
 };
 
 /**

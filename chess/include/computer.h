@@ -195,7 +195,9 @@ class HD
 {
 public:
     EV evStatic = 0;
+    uint8_t cmvQuiet = 0;
     bool fImproving = false;
+    bool fInCheck = false;
 };
 
 /**
@@ -205,11 +207,12 @@ public:
 
 struct SETAI
 {
-    int level;
+    int level = 10;
     bool fRevFutility : 1 = true,
         fNullMove : 1 = true,
         fRazoring : 1 = true,
-        fFutility : 1 = true,
+        fFutilityPruning : 1 = true,
+        fLateMovePruning : 1 = true,
         fLateMoveReduction : 1 = false,
         fHistory : 1 = true,
         fKillers : 1 = true,
@@ -223,55 +226,37 @@ struct SETAI
         fAspiration : 1 = true;
 
     int cmbXt = 64;     // megabytes in transposition table
+    int dMax = 100;
 
     ostream& Serialize(ostream& os)
     {
         os << "{"
             << "\"level\": " << level << ','
             
-            << "\"revfutility\": " << (fRevFutility ? "true" : "false") << ','
-            << "\"nullmove\": " << (fNullMove ? "true" : "false") << ','
-            << "\"razoring\": " << (fRazoring ? "true" : "false") << ','
-            << "\"futility\": " << (fFutility ? "true" : "false") << ','
-            << "\"latemovereduction\": " << (fLateMoveReduction ? "true" : "false") << ','  
+            << "\"revfutility\": " << to_string_bool(fRevFutility) << ','
+            << "\"nullmove\": " << to_string_bool(fNullMove) << ','
+            << "\"razoring\": " << to_string_bool(fRazoring) << ','
+            << "\"futility\": " << to_string_bool(fFutilityPruning) << ','
+            << "\"latemovepruning\": " << to_string_bool(fLateMovePruning) << ','
+            << "\"latemovereduction\": " << to_string_bool(fLateMoveReduction) << ','  
             
-            << "\"history\": " << (fHistory ? "true" : "false") << ',' 
-            << "\"killers\": " << (fKillers ? "true" : "false") << ','
+            << "\"history\": " << to_string_bool(fHistory) << ',' 
+            << "\"killers\": " << to_string_bool(fKillers) << ','
 
-            << "\"psqt\": " << (fPSQT ? "true" : "false") << ','
-            << "\"material\": " << (fMaterial ? "true" : "false") << ','
-            << "\"mobility\": " << (fMobility ? "true" : "false") << ','
-            << "\"kingsafety\": " << (fKingSafety ? "true" : "false") << ','
-            << "\"pawnstructure\": " << (fPawnStructure ? "true" : "false") << ','
-            << "\"tempo\": " << (fTempo ? "true" : "false") << ','
+            << "\"psqt\": " << to_string_bool(fPSQT) << ','
+            << "\"material\": " << (fMaterial) << ','
+            << "\"mobility\": " << (fMobility) << ','
+            << "\"kingsafety\": " << (fKingSafety) << ','
+            << "\"pawnstructure\": " << (fPawnStructure) << ','
+            << "\"tempo\": " << (fTempo) << ','
             
-            << "\"pv\": " << (fPV ? "true" : "false") << ','
-            << "\"aspiration\": " << (fAspiration ? "true" : "false") << ','
+            << "\"pv\": " << (fPV) << ','
+            << "\"aspiration\": " << (fAspiration) << ','
 
             << "\"xtsize\": " << cmbXt
             << "}";
         return os;
     }
-};
-
-/**
- *  @struct     COAI
- *  @brief      AI tunmeable coefficients
- */
-
-struct COAI
-{
-    const EV evCaptureGood = 200;     /* threshold for good/bad capture scoring */
-    const EV devAspirationInit = 40;   /* initial aspiration window width */
-    const EV evRevFutility = 214;
-    const int ddRevFutility = 8;
-    const int ddNullMoveOffset = 3;
-    const int wdNullMoveDiv = 4;
-    const int ddNullMoveZugzwang = 4;
-    const int ddFutility = 4;
-    const EV mpdddevFutility[4] = { 0, 200, 300, 500 };
-    const int ddRazoring = 2;
-
 };
 
 /**
@@ -293,7 +278,8 @@ struct STATAI {
     int64_t cmvRevFutility = 0;
     int64_t cmvNullMove = 0;
     int64_t cmvRazoring = 0;
-    int64_t cmvFutility = 0;
+    int64_t cmvFutilityPruning = 0;
+    int64_t cmvLateMovePruning = 0;
     int64_t cmvLeaf = 0;
     int64_t cmvMoveGen = 0;
 
@@ -308,7 +294,8 @@ struct STATAI {
         cmvRevFutility += stat.cmvRevFutility;
         cmvNullMove += stat.cmvNullMove;
         cmvRazoring += stat.cmvRazoring;
-        cmvFutility += stat.cmvFutility;
+        cmvFutilityPruning += stat.cmvFutilityPruning;
+        cmvLateMovePruning += stat.cmvLateMovePruning;
         cmvLeaf += stat.cmvLeaf;
         cmvMoveGen += stat.cmvMoveGen;
         ms += stat.ms;
@@ -352,14 +339,17 @@ public:
 
     /* basic alpha-beta search */
     MV MvBest(BD& bd, const TMAN& tman) noexcept;
-    EV EvSearch(BD& bd, AB ab, int d, int dLim, HD mpdhd[], SO so) noexcept;
+    EV EvSearchPv(BD& bd, AB ab, int d, int dLim, HD mpdhd[], SO so) noexcept;
+    //EV EvSearchZw(BD& bd, AB ab, int d, int dLim, HD mpdhd[], SO so) noexcept;
     EV EvQuiescent(BD& bd, AB ab, int d, HD mpdhd[]) noexcept;
     bool FDeepen(BD& bd, MV& mvBestAll, MV mvBest, AB& ab, int& d) noexcept;
     bool FPrune(AB& ab, MV& mv, int& dLim) noexcept;
     bool FPrune(AB& ab, MV& mv, MV& mvBest, int& dLim) noexcept;
     bool FPrune(AB& ab, MV& mv) noexcept;
     bool FPrune(AB& ab, MV& mv, MV& mvBest) noexcept;
+    bool FPvSearch(BD& bd, MV& mv, AB ab, int d, int dLim, HD mpdhd[], SO so) noexcept;
     EV SaveCut(BD& bd, const MV& mv, AB ab, int d, int dLim) noexcept;
+    EV EvLeaf(EV ev, string_view s) noexcept;
 
     /* time management */
 
@@ -409,7 +399,11 @@ public:
     bool FTryNullMove(BD& bd, AB ab, int d, int dLim, HD mpdhd[]) noexcept;
     bool FTryRazoring(BD& bd, AB ab, int d, int dLim, HD mpdhd[]) noexcept;
     bool FTryFutility(BD& bd, AB ab, int d, int dLim, HD mpdhd[]) noexcept;
+    bool FMvWasFutile(BD& bd, const MV& mv) noexcept;
+    bool FMvLateMovePruning(BD& bd, const MV& mv, int d, int dLim, HD mpdhd[]) noexcept;
+    bool FMvLateMoveReduction(BD& bd, const MV& mv, int& ddReduction) noexcept;
     bool FZugzwangPossible(BD& bd) noexcept;
+
 
     /* move scoring for sorting move lists */
     void ScoreCapture(BD& bd, MV& mv) noexcept;

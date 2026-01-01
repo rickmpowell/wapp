@@ -30,16 +30,18 @@
 
 #define cmdNewGame 16
 #define cmdFlipBoard 18
-#define cmdTestPerft 19
-#define cmdTestPerftSuite 20
-#define cmdTestPolyglot 21
-#define cmdTestAI 22
-#define cmdOpenFile 23
-#define cmdShowLog 24
-#define cmdProfileAI 25
-#define cmdCopyFEN 26
-#define cmdAnalyzeWithAI 27
-#define cmdDefaultAISettings 28
+#define cmdSetupPosition 19
+#define cmdOpenFile 20
+#define cmdShowLog 21
+#define cmdCopyFEN 22
+
+#define cmdTestPerft 23
+#define cmdTestPerftSuite 24
+#define cmdTestPolyglot 25
+#define cmdTestAI 26
+#define cmdProfileAI 27
+#define cmdAnalyzeWithAI 28
+#define cmdDefaultAISettings 29
 
 /*
  *  Accelerator tables
@@ -109,8 +111,9 @@
 #define rssAISettingsRevFutility 1103
 #define rssAISettingsNullMove 1104
 #define rssAISettingsRazoring 1105
-#define rssAISettingsFutility 1106
-#define rssAISettingsLateMoveReduction 1107
+#define rssAISettingsFutilityPruning 1106
+#define rssAISettingsLateMovePruning 1107
+#define rssAISettingsLateMoveReduction 1108
 #define rssAISettingsMoveOrderGroup 1110
 #define rssAISettingsKillers 1111
 #define rssAISettingsHistory 1112
@@ -125,6 +128,7 @@
 #define rssAISettingsOtherGroup 1140
 #define rssAISettingsPV 1141
 #define rssAISettingsXtSize 1142
+#define rssAISettingsDepthMax 1143
 
 #define rssGameSettingsTitle 1200
 #define rssGameSettingsInstructions 1201

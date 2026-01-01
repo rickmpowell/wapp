@@ -82,7 +82,7 @@ public:
 
     operator SIZE() const noexcept
     {
-        SIZE size = { (long)width, (long)height };
+        SIZE size = { lroundf(width), lroundf(height) };
         return size;
     }
 
@@ -215,7 +215,7 @@ public:
 
     operator POINT() const 
     {
-        POINT point = { (long)x, (long)y };
+        POINT point = { lroundf(x), lroundf(y) };
         return point;
     }
 
@@ -749,10 +749,20 @@ public:
         return *this;
     }
 
+    RC RcShiftLeft(float dx) const
+    {
+        return RC(*this).ShiftLeft(dx);
+    }
+
     RC& ShiftRight(float dx)
     {
         right += dx;
         return *this;
+    }
+
+    RC RcShiftRight(float dx) const
+    {
+        return RC(*this).ShiftRight(dx);
     }
 
     RC& ShiftTop(float dy)
@@ -760,9 +770,19 @@ public:
         top += dy;
     }
 
+    RC RcShfitTop(float dy) const
+    {
+        return RC(*this).ShiftTop(dy);
+    }
+
     RC& ShiftBottom(float dy)
     {
         bottom += dy;
+    }
+
+    RC RcShiftBottom(float dy) const
+    {
+        return RC(*this).ShiftBottom(dy);
     }
 
     RC& SetSz(const SZ& sz) 
@@ -941,10 +961,10 @@ public:
     operator RECT() const 
     {
         RECT rect = {
-            (long)floorf(left),
-            (long)floorf(top),
-            (long)ceilf(right),
-            (long)ceilf(bottom) };
+            static_cast<long>(floorf(left)),
+            static_cast<long>(floorf(top)),
+            static_cast<long>(ceilf(right)),
+            static_cast<long>(ceilf(bottom)) };
         return rect;
     }
 };

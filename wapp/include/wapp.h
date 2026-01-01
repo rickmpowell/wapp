@@ -66,7 +66,7 @@ public:
     /* our main render target */
 
     unique_ptr<RTC> prtc;
-    com_ptr<ID2D1DeviceContext> pdc2;
+    com_ptr<ID2D1RenderTarget> prt;
 
     /* drawing object management */
 
@@ -143,6 +143,8 @@ public:
     void Error(ERR err, ERR err2 = errNone);
     void Error(const string& s);
     string exe(void) const;
+
+    void ForceUpdateChildWindows(void);
 
 private:
     map<int, unique_ptr<ICMD>> mpcmdpicmdMenu;
@@ -233,13 +235,13 @@ public:
     GUARDDCTRANSFORM(DCS& dcs, const D2D1_MATRIX_3X2_F& matrix) : 
         dcs(dcs) 
     {
-        dcs.iwapp.pdc2->GetTransform(&matrixSav);
-        dcs.iwapp.pdc2->SetTransform(matrix);
+        dcs.iwapp.prt->GetTransform(&matrixSav);
+        dcs.iwapp.prt->SetTransform(matrix);
     }
 
     ~GUARDDCTRANSFORM()
     {
-        dcs.iwapp.pdc2->SetTransform(matrixSav);
+        dcs.iwapp.prt->SetTransform(matrixSav);
     }
 
 private:
@@ -258,13 +260,13 @@ public:
     GUARDDCAA(DCS& dcs, D2D1_ANTIALIAS_MODE aa) :
         dcs(dcs) 
     {
-        aaSav = dcs.iwapp.pdc2->GetAntialiasMode();
-        dcs.iwapp.pdc2->SetAntialiasMode(aa);
+        aaSav = dcs.iwapp.prt->GetAntialiasMode();
+        dcs.iwapp.prt->SetAntialiasMode(aa);
     }
 
     ~GUARDDCAA() 
     {
-        dcs.iwapp.pdc2->SetAntialiasMode(aaSav);
+        dcs.iwapp.prt->SetAntialiasMode(aaSav);
     }
 
 private:

@@ -358,8 +358,7 @@ CPC DLGNEWGAME::ExtractPlayer(GAME& game, VSELPLAYER& vsel)
     DATAPLAYER dataplayer = vsel.DataGet();
  
     /* if the player was modified, create a new player */
-
-    if (dataplayer.fModified) {
+    if (dataplayer.fModified || FPlayerChanged(game.appl[dataplayer.cpc], dataplayer)) {
         if (dataplayer.ngcp == 0)
             game.appl[dataplayer.cpc] = make_shared<PLHUMAN>(dataplayer.sNameHuman);
         else
@@ -367,6 +366,16 @@ CPC DLGNEWGAME::ExtractPlayer(GAME& game, VSELPLAYER& vsel)
     }
 
     return dataplayer.cpc;
+}
+
+bool DLGNEWGAME::FPlayerChanged(const shared_ptr<PL>& ppl, const DATAPLAYER& dataplayer) const
+{
+    if (dataplayer.ngcp == 0) {
+        return dataplayer.sNameHuman != ppl->SName();
+    }
+    else {
+        return false;
+    }
 }
 
 void DLGNEWGAME::ExtractTimeControls(GAME& game)
@@ -549,10 +558,10 @@ DATAPLAYER VSELPLAYER::DataGet(void) const
     DATAPLAYER dataplayer;
     dataplayer.ngcp = GetSelectorCur();
     dataplayer.cpc = cpc;
-    dataplayer.fModified = fModified;
     dataplayer.setComputer = setComputer;
     dataplayer.setComputer.level = vsellevel.GetSelectorCur();
     dataplayer.sNameHuman = editName.SText();
+    dataplayer.fModified = fModified;
     return dataplayer;
 }
 
@@ -902,7 +911,8 @@ DLGAISETTINGS::DLGAISETTINGS(WN& wnParent, const SETAI& set) :
     chkRevFutility(*this, rssAISettingsRevFutility),
     chkRazoring(*this, rssAISettingsRazoring),
     chkNullMove(*this, rssAISettingsNullMove),
-    chkFutility(*this, rssAISettingsFutility),
+    chkFutilityPruning(*this, rssAISettingsFutilityPruning),
+    chkLateMovePruning(*this, rssAISettingsLateMovePruning),
     chkLateMoveReduction(*this, rssAISettingsLateMoveReduction),
 
     groupMoveOrder(*this, rssAISettingsMoveOrderGroup),
@@ -921,13 +931,14 @@ DLGAISETTINGS::DLGAISETTINGS(WN& wnParent, const SETAI& set) :
     chkPV(*this, rssAISettingsPV),
     chkAspiration(*this, rssAISettingsAspiration),
     editXt(*this, "", rssAISettingsXtSize),
+    editDepthMax(*this, "", rssAISettingsDepthMax),
 
     btnok(*this)
 {
-    groupPrune.AddToGroup(chkRevFutility, chkRazoring, chkNullMove, chkFutility, chkLateMoveReduction);
+    groupPrune.AddToGroup(chkRevFutility, chkRazoring, chkNullMove, chkFutilityPruning, chkLateMovePruning, chkLateMoveReduction);
     groupMoveOrder.AddToGroup(chkKillers, chkHistory);
     groupEval.AddToGroup(chkPSQT, chkMaterial, chkMobility, chkKingSafety, chkPawnStructure, chkTempo);
-    groupOther.AddToGroup(chkPV, chkAspiration, editXt);
+    groupOther.AddToGroup(chkPV, chkAspiration, editXt, editDepthMax);
 
     Init(set);
 }
@@ -937,7 +948,8 @@ void DLGAISETTINGS::Init(const SETAI& set)
     chkRevFutility.SetValue(set.fRevFutility);
     chkRazoring.SetValue(set.fRazoring);
     chkNullMove.SetValue(set.fNullMove);
-    chkFutility.SetValue(set.fFutility);
+    chkFutilityPruning.SetValue(set.fFutilityPruning);
+    chkLateMovePruning.SetValue(set.fLateMovePruning);
     chkLateMoveReduction.SetValue(set.fLateMoveReduction);
 
     chkKillers.SetValue(set.fKillers);
@@ -953,6 +965,7 @@ void DLGAISETTINGS::Init(const SETAI& set)
     chkPV.SetValue(set.fPV);
     chkAspiration.SetValue(set.fAspiration);
     editXt.SetText(to_string(set.cmbXt));
+    editDepthMax.SetText(to_string(set.dMax - 1));
 }
 
 void DLGAISETTINGS::Extract(SETAI& set)
@@ -960,7 +973,8 @@ void DLGAISETTINGS::Extract(SETAI& set)
     set.fRevFutility = chkRevFutility.ValueGet();
     set.fRazoring = chkRazoring.ValueGet();
     set.fNullMove = chkNullMove.ValueGet();
-    set.fFutility = chkFutility.ValueGet();
+    set.fFutilityPruning = chkFutilityPruning.ValueGet();
+    set.fLateMovePruning = chkLateMovePruning.ValueGet();
     set.fLateMoveReduction = chkLateMoveReduction.ValueGet();
 
     set.fKillers = chkKillers.ValueGet();
@@ -981,6 +995,12 @@ void DLGAISETTINGS::Extract(SETAI& set)
     }
     catch (...) {
         set.cmbXt = 1;
+    }
+    try {
+        set.dMax = stoi(editDepthMax.SText()) + 1;
+    }
+    catch (...) {
+        set.dMax = 100;
     }
 }
 
@@ -1003,7 +1023,7 @@ void DLGAISETTINGS::Layout(void)
 
 SZ DLGAISETTINGS::SzIntrinsic(const RC& rcWithin)
 {
-    return SZ(800, 600);
+    return SZ(800, 500);
 }
 
 /*

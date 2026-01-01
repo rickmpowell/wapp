@@ -23,11 +23,12 @@
 #endif
 
 /**
- *  @brief The main application entry point
+ *  @fn         wWinMain
+ *  @brief      The main application entry point
  * 
- *  For Win32 graphical desktop applications, this is the main program entry
- *  point. We simply use it to dispatch off to the main WAPP application
- *  Run function.
+ *  @details    For Win32 graphical desktop applications, this is the main 
+ *              program entry point. We simply use it to dispatch off to the 
+ *              main WAPP application Run function.
  */
 
 #ifndef CONSOLE
@@ -47,14 +48,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hinst, _In_opt_ HINSTANCE hinstPrev, _In_ L
 #endif
 
 /**
- *  @fn APP::APP()
+ *  @fn         APP::APP(void)
  *
- *  Constructor simply keeps track of the application module handle and initializes
- *  the COM sub-system. Throws an exception on failures, which should not happen in
- *  a properly configured Win32 system.
+ *  @details    Constructor simply keeps track of the application module 
+ *              handle and initializes the COM sub-system. Throws an exception 
+ *              on failures, which should not happen in a properly configured 
+ *              Win32 system.
  */
 
-APP::APP() : 
+APP::APP(void) : 
     hinst(::GetModuleHandle(NULL)) 
 {
     ThrowError(CoInitialize(NULL));
@@ -66,11 +68,11 @@ APP::~APP()
 }
 
 /**
- *  @fn string APP::SLoad(unsigned rss) const
- *  @brief Loads a string resource
+ *  @fn         string APP::SLoad(unsigned rss) const
+ *  @brief      Loads a string resource
  * 
- *  Uses the stringtable resource ID, from the application's resource fork.
- *  Resource ids are integers.
+ *  @det4ails   Uses the stringtable resource ID, from the application's 
+ *              resource fork.Resource ids are integers.
  */
 
 string APP::SLoad(unsigned rss) const
@@ -115,8 +117,8 @@ HICON APP::HiconLoad(unsigned rsi, int dxy) const
 }
 
 /**
- *  @fn HICON APP::HiconDef(LPCWSTR rsi) const
- *  @brief Loads a default system icon
+ *  @fn         HICON APP::HiconDef(LPCWSTR rsi) const
+ *  @brief      Loads a default system icon
  */
 
 HICON APP::HiconDef(LPCWSTR rsi) const
@@ -127,10 +129,10 @@ HICON APP::HiconDef(LPCWSTR rsi) const
 }
 
 /**
- *  @fn HCURSOR APP::HcursorLoad(unsigned rsc) const
- *  @brief Loads a CURSOR resource 
+ *  @fn         HCURSOR APP::HcursorLoad(unsigned rsc) const
+ *  @brief      Loads a CURSOR resource 
  *
- *  Given a numeric cursor ID from the application's resource fork.
+ *  @details    Given a numeric cursor ID from the application's resource fork.
  */
 
 HCURSOR APP::HcursorLoad(unsigned rsc) const
@@ -142,8 +144,8 @@ HCURSOR APP::HcursorLoad(unsigned rsc) const
 }
 
 /**
- *  @fn HCURSOR APP::HcursorDef(LPCWSTR rsc) const
- *  @brief Loads a default system cursor
+ *  @fn         HCURSOR APP::HcursorDef(LPCWSTR rsc) const
+ *  @brief      Loads a default system cursor
  */
 
 HCURSOR APP::HcursorDef(LPCWSTR rsc) const
@@ -154,8 +156,8 @@ HCURSOR APP::HcursorDef(LPCWSTR rsc) const
 }
 
 /**
- *  @fn HACCEL APP::HaccelLoad(unsigned rsa) const
- *  @brief Loads an accelerator table resource
+ *  @fn         HACCEL APP::HaccelLoad(unsigned rsa) const
+ *  @brief      Loads an accelerator table resource
  */
 
 HACCEL APP::HaccelLoad(unsigned rsa) const
@@ -166,11 +168,11 @@ HACCEL APP::HaccelLoad(unsigned rsa) const
 #ifndef CONSOLE
 
 /**
- *  @fn WND::WND(APP& app)
- *  @brief Creates a Windows HWND wrapper class
+ *  @fn         WND::WND(APP& app)
+ *  @brief      Creates a Windows HWND wrapper class
  * 
- *  The constructor does not actually create the HWND< that is triggred by
- *  calling CreateWnd. 
+ *  @details    The constructor does not actually create the HWND< that is 
+ *              triggred bycalling CreateWnd. 
  */
 
 WND::WND(APP& app) : app(app), hwnd(NULL)
@@ -184,14 +186,15 @@ WND::~WND()
 }
 
 /**
- *  @fn WNDCLASSEXW WND::WcexRegister(void) const
- *  @brief Returns the registration information for the Windows window class
+ *  @fn         WNDCLASSEXW WND::WcexRegister(void) const
+ *  @brief      Returns the registration information for the window class
  * 
- *  Creates a WNDCLASSEX structure for registering a Windows HWND class. 
- *  This does not completely fill a valid WNDCLASSEXW, it only fill some of the 
- *  boilerplate stuff that we need for the WN class to work. Other WND derived 
- *  classes should call this helper fucntion and then fill additional fields 
- *  for the particular window type.
+ *  @details    Creates a WNDCLASSEX structure for registering a Windows HWND 
+ *              class. This does not completely fill a valid WNDCLASSEXW, it 
+ *              only fill some of the boilerplate stuff that we need for the 
+ *              WN class to work. Other WND derived classes should call this 
+ *              helper fucntion and then fill additional fields for the 
+ *              particular window type.
  */
 
 WNDCLASSEXW WND::WcexRegister(void) const
@@ -200,16 +203,17 @@ WNDCLASSEXW WND::WcexRegister(void) const
     wcex.lpfnWndProc = WND::WndProc;
     wcex.cbWndExtra = sizeof(WND*);
     wcex.hInstance = app.hinst;
-   return wcex;
+    return wcex;
 }
 
 /**
- *  @fn LPCWSTR WND::Register(const WNDCLASSEXW& wcex)
- *  @brief Registers a Windows window class
+ *  @fn         LPCWSTR WND::Register(const WNDCLASSEXW& wcex)
+ *  @brief      Registers a Windows window class
  * 
- *  Registers a Windows window class using the structure wcex. Fill in the wcex 
- *  using the appropriate static WcexRegister functions. The WN::WcexRegister 
- *  fills in the criticla parts for interfacing with the WN class.
+ *  @details    Registers a Windows window class using the structure wcex. 
+ *              Fill in the wcex using the appropriate static WcexRegister 
+ *              functions. The WN::WcexRegister fills in the criticla parts 
+ *              for interfacing with the WN class.
  */
 
 LPCWSTR WND::Register(const WNDCLASSEXW& wcex)
@@ -221,45 +225,48 @@ LPCWSTR WND::Register(const WNDCLASSEXW& wcex)
 }
 
 /**
- *  @fn void WND::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
- *  @brief Creates a Windows window
+ *  @fn         void WND::CreateWnd(optional<WND*> opwndParent, const string& sTitle, DWORD ws, PT pt, SZ sz)
+ *  @brief      Creates a Windows window
  * 
- *  Creates a Windows' Window using title, window style, and in the given 
- *  position and of the given size.
+ *  @brief      Creates a Windows' Window using title, window style, and in 
+ *              the given position and of the given size.
  */
 
-void WND::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
+void WND::CreateWnd(optional<WND*> opwndParent, const string& sTitle, DWORD ws, PT pt, SZ sz)
 {
     POINT point = (POINT)pt;
     SIZE size = (SIZE)sz;
-    ::CreateWindowExW(0L,
-                      SRegister(), 
-                      WsFromS(sTitle).c_str(), ws,
-                      point.x, point.y, size.cx, size.cy,
-                      NULL, NULL, app.hinst, this);
+    HWND hwndParent = opwndParent ? (*opwndParent)->hwnd : NULL;
+    hwnd = ::CreateWindowExW(0L,
+                             SRegister(), 
+                             WsFromS(sTitle).c_str(), 
+                             ws,
+                             point.x, point.y, size.cx, size.cy,
+                             hwndParent, 
+                             NULL, app.hinst, this);
     if (!hwnd)
         throw ERRLAST();
 }
 
 /**
- *  @fn void WND::DestroyWnd(void)
- *  @brief Destroys a Windows window.
+ *  @fn         void WND::DestroyWnd(void)
+ *  @brief      Destroys a Windows window.
  */
 
 void WND::DestroyWnd(void)
 {
     ::DestroyWindow(hwnd);
-    assert(hwnd == NULL);   // WndProc should clear this on the WM_DESTROY
     hwnd = NULL;
 }
 
 /**
- *  @fn void WND::UpdateWnd(void)
- *  @brief Forces a window to draw.
+ *  @fn         void WND::UpdateWnd(void)
+ *  @brief      Forces a window to draw.
  * 
- *  We must be aggressive about this because we're using a DirectX back
- *  buffer for out updates, and we need the WM_PAINT to be forced through
- *  so we have a non-dirty back buffer. 
+ *  @details    We must be aggressive about Windows updates because we're 
+ *              using a DirectX back buffer for out updates, and we need 
+ *              the WM_PAINT to be forced through so we have a non-dirty 
+ *              back buffer. 
  */
 
 void WND::UpdateWnd(void)
@@ -268,8 +275,8 @@ void WND::UpdateWnd(void)
 }
 
 /**
- *  @fn void WND::ShowWnd(int sw)
- *  @brief Shows/hides the Windows window.
+ *  @fn         void WND::ShowWnd(int sw)
+ *  @brief      Shows/hides the Windows window.
  */
 
 void WND::ShowWnd(int sw)
@@ -278,13 +285,59 @@ void WND::ShowWnd(int sw)
 }
 
 /**
- *  @fn void WND::Minimize(void)
- *  @brief Minimizes (makes an icon) the Windows window.
+ *  @fn         void WND::SetBoundsWnd(const RC& rcNew)
+ *  @brief      Sizes and positions the window
+ * 
+ *  @details    Coordinates are relatively to the parent WND, which is not
+ *              the same as the parent WN.
  */
 
-void WND::Minimize(void)
+void WND::SetBoundsWnd(const RC& rcgNew)
+{
+    POINT point = rcgNew.ptTopLeft();
+    SIZE size = rcgNew.sz();
+    ::MoveWindow(hwnd,
+                 point.x, point.y, 
+                 size.cx, size.cy,
+                 TRUE);
+}
+
+/**
+ *  @fn         void WND::MinimizeWnd(void)
+ *  @brief      Minimizes (makes an icon) the Windows window.
+ */
+
+void WND::MinimizeWnd(void)
 {
     ::CloseWindow(hwnd);
+}
+
+/**
+ *  @fn         void WND::SetTitleWnd(const string& sNew)
+ *  @brief      Sets the title fo the window
+ */
+
+void WND::SetTitleWnd(const string& sNew)
+{
+    ::SetWindowTextW(hwnd, WsFromS(sNew).c_str());
+}
+
+string WND::STitleWnd(void) const
+{
+    int cch = (int)::GetWindowTextLengthW(hwnd) + 1;
+    auto ws = make_unique<wchar_t[]>(cch);
+    ::GetWindowTextW(hwnd, ws.get(), cch);
+    return string(SFromWs(ws.get()));
+}
+
+/**
+ *  @fn         void WND::SetFontWnd(const TF& tf)
+ *  @brief      Sets the font of the window
+ */
+
+void WND::SetFontWnd(const font_gdi& font)
+{
+    ::SendMessageW(hwnd, WM_SETFONT, (WPARAM)font.get(), 0);
 }
 
 /**
@@ -544,14 +597,15 @@ LPCWSTR WNDMAIN::SRegister(void)
 }
 
 /**
- *  @fn void WNDMAIN::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
- *  @brief Creates the top-level main window
+ *  @fn         void WNDMAIN::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
+ *  @brief      Creates the top-level main window
  * 
- *  This is typically the only window in the application.
+ *  @details    This is typically the only window in the application.
  */
+
 void WNDMAIN::CreateWnd(const string& sTitle, DWORD ws, PT pt, SZ sz)
 {
-    WND::CreateWnd(sTitle, ws, pt, sz);
+    WND::CreateWnd(nullopt, sTitle, ws, pt, sz);
 }
 
 #endif // CONSOLE

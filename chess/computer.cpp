@@ -180,12 +180,19 @@ BRK brk;
  *  @fn         MV AI::MvBest(BD& bdGame, const TMAN& tman)
  *  @brief      Root best move search
  * 
- *  @details    The root node of the search not only sets up everything 
+ *  @details    The root node of the search. not only sets up everything 
  *              for the search, it also processes differently. Iterative
  *              deepening and the aspiration window heuristic are made
  *              here, and we don't bother with many of the search
  *              heuristics at this level because they either don't apply
  *              or they won't help much on just this one node.
+ * 
+ *  @param      bdGame      The current game board
+ *  @param      tman        Time management information
+ *
+ *  @returns    The best move found. If the move eval is evInterrupt,
+ *              the search was interrupted. If an interrupted move is
+ *              fIsNil(), the game should be halted.
  */
 
 MV AI::MvBest(BD& bdGame, const TMAN& tman) noexcept
@@ -202,14 +209,16 @@ MV AI::MvBest(BD& bdGame, const TMAN& tman) noexcept
     brk.Init();
     fInterruptSearch = false;
 
-    /* generate all possible legal moves */
+    /* generate all possible legal moves - we don't bother with pseudo moves
+       here since we know we will be checking every move at least once */
     BD bd(bdGame);
     VMV vmv;
     bd.MoveGen(vmv);
     stat.cmvMoveGen += vmv.size();
     
     MV mvBestAll(vmv[0]), mvBest;
-    dSearchMax = tman.odMax.has_value() ? tman.odMax.value() : 100;
+    /* UCI depth takes precedene over engine settings */
+    dSearchMax = tman.odMax.has_value() ? tman.odMax.value() : set.dMax;
     int dLim = 2;
     AB abInit(AbInfinite());
     HD mpdhd[dMax];
@@ -223,7 +232,7 @@ MV AI::MvBest(BD& bdGame, const TMAN& tman) noexcept
         for (VMV::siterator pmv = vmv.InitMv(bd, *this); vmv.FGetMv(pmv, bd); vmv.NextMv(pmv)) {
             brk.Check(0, *pmv);
             brk.LogMvStart(*pmv, ab);
-            pmv->ev = -EvSearch(bd, -ab, 0+1, dLim, mpdhd, soNormal);
+            pmv->ev = -EvSearchPv(bd, -ab, 0+1, dLim, mpdhd, soNormal);
             bd.UndoMv();
             if (FPrune(ab, *pmv, mvBest, dSearchMax)) {
                 SaveCut(bd, *pmv, ab, 0, dLim);
@@ -243,6 +252,7 @@ MV AI::MvBest(BD& bdGame, const TMAN& tman) noexcept
     } while (FDeepen(bd, mvBestAll, mvBest, abInit, dLim) &&
              vmv.size() > 1);
 
+    /* finish logging */
     *pwnlog << outdent << "best " << to_string(mvBestAll) << endl;    
     duration dtp = TpNow() - tpSearchStart;
     stat.Log(*pwnlog, duration_cast<milliseconds>(dtp));
@@ -256,7 +266,7 @@ MV AI::MvBest(BD& bdGame, const TMAN& tman) noexcept
 }
 
 /**
- *  @fn         EV AI::EvSearch(BD& bd, AB abInit, int d, int dLim, HD mpdhd[], SO so)
+ *  @fn         EV AI::EvSearchPv(BD& bd, AB abInit, int d, int dLim, HD mpdhd[], SO so)
  *  @brief      Recursive alpha-beta search
  * 
  *  @details    Basic recursive move search, finds the evaluation of the best 
@@ -266,10 +276,10 @@ MV AI::MvBest(BD& bdGame, const TMAN& tman) noexcept
  *  @returns    The evaluation of the bd from the pov of the side to move
  */
 
-EV AI::EvSearch(BD& bd, AB abInit, int d, int dLim, HD mpdhd[], SO so) noexcept
+EV AI::EvSearchPv(BD& bd, AB abInit, int d, int dLim, HD mpdhd[], SO so) noexcept
 {
-    bool fInCheck = bd.FInCheck(bd.cpcToMove);
-    dLim += fInCheck;
+    mpdhd[d].fInCheck = bd.FInCheck(bd.cpcToMove);
+    dLim += mpdhd[d].fInCheck;
     if (d >= dLim)
         return EvQuiescent(bd, abInit, d, mpdhd);
 
@@ -282,18 +292,12 @@ EV AI::EvSearch(BD& bd, AB abInit, int d, int dLim, HD mpdhd[], SO so) noexcept
     /* mate distance pruning */
     abInit.evAlpha = max(abInit.evAlpha, -EvMate(d));
     abInit.evBeta = min(abInit.evBeta, EvMate(d));
-    if (abInit.FEmpty()) {
-        stat.cmvLeaf++;
-        brk.LogEnd(evDraw, "mate distance");
-        return abInit.evAlpha;
-    }
+    if (abInit.FEmpty())
+        return EvLeaf(abInit.evAlpha, "mate distance");
 
     /* check for draws */
-    if (bd.FGameDrawn(2)) {
-        stat.cmvLeaf++;
-        brk.LogEnd(evDraw, "draw");
-        return evDraw;
-    }
+    if (bd.FGameDrawn(2))
+        return EvLeaf(evDraw, "draw");
 
     /* check transposition table */
     MV mvBest(-evInfinity);
@@ -303,11 +307,12 @@ EV AI::EvSearch(BD& bd, AB abInit, int d, int dLim, HD mpdhd[], SO so) noexcept
     /* get a static board evaluation which we'll use for various pruning
        heuristics */
     mpdhd[d].evStatic = EvStatic(bd);
-    mpdhd[d].fImproving = d > 1 && mpdhd[d].evStatic > mpdhd[d - 2].evStatic;
+    mpdhd[d].fImproving = d >= 2 && mpdhd[d].evStatic > mpdhd[d - 2].evStatic;
+    mpdhd[d].cmvQuiet = 0;
 
     /* try various pruning tricks */
     bool fTryFutility = false;
-    if (!fInCheck && abInit.FIsNull() && !(so & soNoPruningHeuristics)) {
+    if (!mpdhd[d].fInCheck && abInit.FIsNull() && !(so & soNoPruningHeuristics)) {
         if (FTryReverseFutility(bd, abInit, d, dLim, mpdhd))
             return mpdhd[d].evStatic;
         if (FTryNullMove(bd, abInit, d, dLim, mpdhd))
@@ -318,7 +323,7 @@ EV AI::EvSearch(BD& bd, AB abInit, int d, int dLim, HD mpdhd[], SO so) noexcept
             fTryFutility = true;
     }
 
-    /* generate legal moves */
+    /* generate pseudo-legal moves */
     VMV vmv;
     bd.MoveGenPseudo(vmv);
     stat.cmvMoveGen += vmv.size();
@@ -326,34 +331,41 @@ EV AI::EvSearch(BD& bd, AB abInit, int d, int dLim, HD mpdhd[], SO so) noexcept
 
     /* try the moves in the move list */
     for (VMV::siterator pmv = vmv.InitMv(bd, *this); 
-         vmv.FGetMv(pmv, bd); vmv.NextMv(pmv)) {
+            vmv.FGetMv(pmv, bd); 
+            vmv.NextMv(pmv)) {
         brk.Check(d, *pmv); brk.LogMvStart(*pmv, ab);
-        if (fTryFutility && vmv.cmvLegal > 1 && !bd.FMvWasNoisy() && !bd.FInCheck(~bd.cpcToMove)) {
-            stat.cmvFutility++;
+        pmv->fNoisy = bd.FMvWasNoisy();
+        mpdhd[d].cmvQuiet += !pmv->fNoisy;
+
+        // REVIEW: some of thse tests test cmvLegal > 1, others if ab.evAlpha 
+        // has been raised. Should those tests be the same? Are they 
+        // equivalent? Is raising alpha a better test than cmvLegal > 1 for
+        // futility?
+
+        /* late move pruning and reduction */
+        int ddReduction = 0;
+        if ((fTryFutility && vmv.cmvLegal > 1 && FMvWasFutile(bd, *pmv)) ||
+                FMvLateMovePruning(bd, *pmv, d, dLim, mpdhd) ||
+                FMvLateMoveReduction(bd, *pmv, ddReduction)) {
             bd.UndoMv();
-            brk.LogMvEnd(*pmv, "futility");
+            continue;
         }
-        else {
-            if (!set.fPV || ab.evAlpha == abInit.evAlpha)
-                pmv->ev = -EvSearch(bd, -ab, d + 1, dLim, mpdhd, so);
-            else {
-                pmv->ev = -EvSearch(bd, -ab.AbNull(), d + 1, dLim, mpdhd, so);
-                if (!ab.FIsBelow(pmv->ev))
-                    pmv->ev = -EvSearch(bd, -ab, d + 1, dLim, mpdhd, so);
-            }
-            bd.UndoMv();
-            if (FPrune(ab, *pmv, mvBest, dLim))
-                return SaveCut(bd, *pmv, ab, d, dLim);
-            brk.LogMvEnd(*pmv);
-        }
+        /* PV search */
+        if (ab.evAlpha == abInit.evAlpha ||
+                !FPvSearch(bd, *pmv, ab, d, dLim, mpdhd, so))
+            pmv->ev = -EvSearchPv(bd, -ab, d + 1, dLim, mpdhd, so);
+        bd.UndoMv();
+        if (FPrune(ab, *pmv, mvBest, dLim))
+            return SaveCut(bd, *pmv, ab, d, dLim);
+        brk.LogMvEnd(*pmv);
     }
 
     if (vmv.cmvLegal == 0) {
         /* if no legal moves, we have a checkmate or stalemate */
         stat.cmvLeaf++;
-        mvBest = MV(fInCheck ? -EvMate(d) : evDraw);
+        mvBest = MV(mpdhd[d].fInCheck ? -EvMate(d) : evDraw);
         SaveXt(bd, mvBest, AB(-evInfinity, evInfinity), d, dLim);
-        brk.LogEnd(mvBest.ev, fInCheck ? "mate" : "stalemate");
+        brk.LogEnd(mvBest.ev, mpdhd[d].fInCheck ? "mate" : "stalemate");
     }
     else {
         SaveXt(bd, mvBest, abInit, d, dLim);
@@ -384,9 +396,10 @@ EV AI::EvQuiescent(BD& bd, AB ab, int d, HD mpdhd[]) noexcept
         return evInterrupt;
 
     stat.cmvEval++;
-    mpdhd[d].evStatic = EvStatic(bd);
-    mpdhd[d].fImproving = false;
 
+    mpdhd[d].evStatic = EvStatic(bd);
+    mpdhd[d].fImproving = d >= 2 && mpdhd[d].evStatic > mpdhd[d - 2].evStatic;
+    mpdhd[d].cmvQuiet = 0;
     MV mvBest(mpdhd[d].evStatic);
     if (FPrune(ab, mvBest)) {
         stat.cmvLeaf++;
@@ -395,9 +408,8 @@ EV AI::EvQuiescent(BD& bd, AB ab, int d, HD mpdhd[]) noexcept
     }
     brk.LogEnd(mvBest.ev, "eval");
 
-    bool fInCheck = bd.FInCheck(bd.cpcToMove);
     VMV vmv;
-    if (fInCheck)
+    if (mpdhd[d].fInCheck)
         bd.MoveGenPseudo(vmv);
     else
         bd.MoveGenNoisy(vmv);
@@ -675,7 +687,6 @@ GotIt:
  *  @details    Given a board evaluation and an alpha-beta window, checks to
  *              see if we should do a beta-cut (i.e., the evaluation is above
  *              beta). We'll close up the a-b window on a cut and return true.
- *              
  */
 
 bool AI::FPrune(AB& ab, MV& mv, int& dLim) noexcept
@@ -784,6 +795,13 @@ EV AI::SaveCut(BD& bd, const MV& mv, AB ab, int d, int dLim) noexcept
     return mv.ev;
 }
 
+EV AI::EvLeaf(EV ev, string_view sLog) noexcept
+{
+    stat.cmvLeaf++;
+    brk.LogEnd(ev, sLog);
+    return ev;
+}
+
 /**
  *  @fn         bool AI::FDeepen(BD& bd, MV& mvBestAll, MV mvBest, AB& ab, int& d)
  *  @brief      Iterative deepening and aspiration window adjustment.
@@ -837,12 +855,12 @@ bool AI::FLookupXt(BD& bd, MV& mvBest, AB ab, int d, int dLim) noexcept
         mvBest.ev = pxtev->Ev(d);
         break;
     case TEV::Higher:
-        if (pxtev->Ev(d) < ab.evBeta)
+        if (pxtev->Ev(d) < ab.evBeta || !ab.FIsNull())
             return false;
         mvBest.ev = ab.evBeta;
         break;
     case TEV::Lower:
-        if (pxtev->Ev(d) > ab.evAlpha)
+        if (pxtev->Ev(d) > ab.evAlpha || !ab.FIsNull())
             return false;
         mvBest.ev = ab.evAlpha;
         break;
@@ -1028,14 +1046,14 @@ bool AI::FTryNullMove(BD& bd, AB ab, int d, int dLim, HD mpdhd[]) noexcept
         FZugzwangPossible(bd))       // null move reduction doesn't work in zugzwang positions
         return false;
     bd.MakeMvNull();
-    EV evReduced = -EvSearch(bd, (-ab).AbNull(), d + 1, dLim - ddReduce, mpdhd, soNoPruningHeuristics);
+    EV evReduced = -EvSearchPv(bd, (-ab).AbNull(), d + 1, dLim - ddReduce, mpdhd, soNoPruningHeuristics);
     bd.UndoMvNull();
     if (!ab.FIsAbove(evReduced))
         return false;
 
     /* try a quick reduced-depth search to protect against Zugzwang */
     if (d + 1 < dLim - ddReduce - 4) {
-        evReduced = -EvSearch(bd, ab, d + 1, dLim - ddReduce - 4, mpdhd, soNoPruningHeuristics);
+        evReduced = -EvSearchPv(bd, ab, d + 1, dLim - ddReduce - 4, mpdhd, soNoPruningHeuristics);
         if (!ab.FIsAbove(evReduced))
             return false;
     }
@@ -1114,12 +1132,89 @@ bool AI::FTryRazoring(BD& bd, AB ab, int d, int dLim, HD mpdhd[]) noexcept
 
 bool AI::FTryFutility(BD& bd, AB ab, int d, int dLim, HD mpdhd[]) noexcept
 {
-    if (!set.fFutility ||
+    if (!set.fFutilityPruning ||
         abs(ab.evAlpha) >= 9000 ||      // nothing near check mate 
         dLim - d >= ddFutility ||       // near horizon
         mpdhd[d].evStatic + mpdddevFutility[dLim - d] > ab.evAlpha)
         return false;
     return true;
+}
+
+/**
+ *  @fn         bool AI::FMvWasFutile(BD& bd, const MV& mv) const
+ *  @brief      Checks if the last move (mv) was futile
+ * 
+ *  @details    If we're in futility pruning mode, we check moves for futility
+ *              before we try to evaluate them. The mv should already have 
+ *              been made on the board, and is redundant if we're willing to
+ *              look at the move list in the board.
+ */
+
+bool AI::FMvWasFutile(BD& bd, const MV& mv) noexcept
+{
+    if (bd.FMvWasNoisy() || bd.FInCheck(~bd.cpcToMove))
+        return false;
+    stat.cmvFutilityPruning++;
+    stat.cmvLeaf++;
+    stat.cmvSearch++;
+    brk.LogMvEnd(mv, "futility");
+    return true;
+}
+
+bool AI::FMvLateMovePruning(BD& bd, const MV& mv, int d, int dLim, HD mpdhd[]) noexcept
+{
+    if (!set.fLateMovePruning ||
+            mpdhd[d].fInCheck ||
+            dLim - d > 3 ||
+            mv.fNoisy ||
+            bd.FInCheck(~bd.cpcToMove) ||
+            mpdhd[d].cmvQuiet <= ((3 + mpdhd[d].fImproving) * (dLim - d)) - 1)
+        return false;
+    stat.cmvLateMovePruning++;
+    stat.cmvLeaf++;
+    stat.cmvSearch++;
+    brk.LogMvEnd(mv, "lm prune");
+    return true;
+}
+
+/**
+ *  @fn         bool AI::FMvLateMoveReduction(BD& bd, const MV& mv, int& ddReduction)
+ *  @brief      Late move reduction
+ *
+ *  @details    If we're well into the move list, try a reduced depth search
+ *              on the move to see if it's worth searching fully. Returns the
+ *              amount to reduce the depth in ddReduction.
+ */
+
+bool AI::FMvLateMoveReduction(BD& bd, const MV& mv, int& ddReduction) noexcept
+{
+    if (!set.fLateMoveReduction)
+        return false;
+;
+    /* Should we gather stats for this? not sure how we'd do it */
+    return false;
+}
+
+/**
+ *  @fn         bool AI::FPvSearch(BD& bd, MV& mv, AB ab, int d, int dLim, HD mpdhd[], SO so)
+ *  @brief      Attempts the PV optimization search
+ *
+ *  @details    Once we have got a candidate move, chances are all the other
+ *              moves won't beat it, so attempt a quick search with a narrow
+ *              window to verify.
+ *              Don't try this optimization until we have a candidate move
+ *              found with a full search.
+ *
+ *  @returns    false if the optimization didn't work and we need to do a full
+ *              search anyway.
+ */
+
+bool AI::FPvSearch(BD& bd, MV& mv, AB ab, int d, int dLim, HD mpdhd[], SO so) noexcept
+{
+    if (!set.fPV)
+        return false;
+    mv.ev = -EvSearchPv(bd, -ab.AbNull(), d, dLim, mpdhd, so);
+    return ab.FIsBelow(mv.ev);
 }
 
 /**
@@ -1309,6 +1404,15 @@ EV AI::EvPawnStructure(BD& bd) const noexcept
     return ev;
 }
 
+/**
+ *  @fn         EV AI::EvPawnStructure(BB bbPawns, BB bbDefense, CPC cpc) const
+ *  @brief      Pawn structure strudcture, one color
+ * 
+ *  @details    Evaluates the pawn structure for one side, returning an
+ *              evaluation based on doubled pawns, isolated pawns, and passed
+ *              pawns.
+ */
+
 EV AI::EvPawnStructure(BB bbPawns, BB bbDefense, CPC cpc) const noexcept
 {
     EV ev = 0;
@@ -1317,6 +1421,11 @@ EV AI::EvPawnStructure(BB bbPawns, BB bbDefense, CPC cpc) const noexcept
     ev += 50 * CfiPassedPawns(bbPawns, bbDefense, cpc);
     return ev;
 }
+
+/**
+ *  @fn         int AI::CfiDoubledPawns(BB bbPawns, CPC cpc) const
+ *  @brief      Counts the number of doubled pawns
+ */
 
 int AI::CfiDoubledPawns(BB bbPawns, CPC cpc) const noexcept
 {
@@ -1329,6 +1438,14 @@ int AI::CfiDoubledPawns(BB bbPawns, CPC cpc) const noexcept
     }
     return cfi;
 }
+
+/**
+ *  @fn         int AI::CfiIsoPawns(BB bbPawns, CPC cpc) const
+ *  @brief      Counts the number of isolated pawns
+ *
+ *  @details    Isolated pawns are pawns with no friendly pawns on an adjacent
+ *              file.
+ */
 
 int AI::CfiIsoPawns(BB bbPawns, CPC cpc) const noexcept
 {
@@ -1685,11 +1802,12 @@ void STATAI::Log(ostream& os, milliseconds ms) noexcept
     LogCmv(os, "Quiescent nodes", cmvQuiescent, cmvTotal);
     LogCmv(os, "Leaf nodes", cmvLeaf, cmvTotal);
     LogCmv(os, "XT hits", cmvXt, cmvTotal);
-    LogCmv(os, "Early prunes", cmvRevFutility + cmvNullMove + cmvRazoring + cmvFutility, cmvTotal);
+    LogCmv(os, "Early prunes", cmvRevFutility + cmvNullMove + cmvRazoring, cmvTotal);
     LogCmv(os, "Reverse futility", cmvRevFutility, cmvTotal);
     LogCmv(os, "Razoring", cmvRazoring, cmvTotal);
     LogCmv(os, "Null move", cmvNullMove, cmvTotal);
-    LogCmv(os, "Futility", cmvFutility, cmvTotal);
+    LogCmv(os, "Futility Pruning", cmvFutilityPruning, cmvTotal);
+    LogCmv(os, "Late Move Pruning", cmvLateMovePruning, cmvTotal);
     /* BUG! - Branch factor numerator should be cmvTotal minus number
        of iterative deepening/aspiration window loops we went through. But 
        it's a small enough number that it won't matter that much */

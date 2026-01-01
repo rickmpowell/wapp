@@ -73,10 +73,13 @@ void GAME::NotifyClockChanged(void)
 }
 
 /**
- *  If the evaluation of the move is evInterrupt, then the player had their 
- *  search interrupted and the game should be paused.
+ *  @fn         GAME::MakeMv(MV mv, bool fAnimate)
+ *  @brief      Makes the move in the game.
  * 
- *  If the move is nil, then the game is over.
+ *  @details    If the evaluation of the move is evInterrupt, then the player 
+ *              had their search interrupted and the game should be paused.
+ * 
+ *              If the move is nil, then the game is over.
  */
 
 void GAME::MakeMv(MV mv, bool fAnimate)
@@ -89,7 +92,7 @@ void GAME::MakeMv(MV mv, bool fAnimate)
     if (mv.fIsNil()) {
         GR gr;
         if (!FGameOver(gr))
-            gr = GR::Abandoned;
+            gr = GR::Aborted;
         End(gr);
     }
     

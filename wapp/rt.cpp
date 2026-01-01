@@ -15,10 +15,15 @@
 
 #ifndef CONSOLE
 
-/*
- *  Maintain global device dependent drawing objects. These objects must have enough
- *  state saved to rebuild themselves from their internally saved state and the new 
- *  iwapp when the display device changes.
+/**
+ *  @var        vector<DDDO*>* RTC::pvpdddo
+ *  @brief      Global device dependent drawing objects
+ * 
+ *  @details    These objects are registered when created so they can be
+ *              automatically rebuilt when device properties change. They must 
+ *              have enough state saved to rebuild themsleves from their 
+ *              internally saved state and the new iwapp when the display 
+ *              device changes.
  */
 
 vector<DDDO*>* RTC::pvpdddo;
@@ -28,16 +33,16 @@ void RTC::RegisterDevDeps(DDDO& dddo)
     /* NOTE: we do not take ownership of the dddo here */
     if (!pvpdddo)
         pvpdddo = new vector<DDDO*>;
-    pvpdddo->push_back(&dddo);
+    pvpdddo->emplace_back(&dddo);
 }
 
 void RTC::UnregisterDevDeps(DDDO& dddo)
  {
     assert(pvpdddo);
     
-    auto ipdddo = std::find(pvpdddo->begin(), pvpdddo->end(), &dddo);
-    if (ipdddo != pvpdddo->end())
-        pvpdddo->erase(ipdddo);
+    auto ppdddo = std::find(pvpdddo->begin(), pvpdddo->end(), &dddo);
+    if (ppdddo != pvpdddo->end())
+        pvpdddo->erase(ppdddo);
 
     if (pvpdddo->size() == 0) {
         delete pvpdddo;
@@ -109,15 +114,15 @@ void RTCFLIP::RebuildDev()
     padaptxgiT->GetParent(IID_PPV_ARGS(&pfactxgi));
 }
 
-void RTCFLIP::PurgeDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
+void RTCFLIP::PurgeDevDeps(com_ptr<ID2D1RenderTarget>& prt)
 {
-    if (!pdc2)
+    if (!prt)
         return;
 
     RTC::PurgeRegisteredDevDeps();
     pbmpBackBuf.Reset();
     pswapchain.Reset();
-    pdc2.Reset();
+    prt.Reset();
     pdev2.Reset();
     pfactxgi.Reset();
     pdevxgi.Reset();
@@ -125,14 +130,16 @@ void RTCFLIP::PurgeDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
     pdev3.Reset();
 }
 
-void RTCFLIP::RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
+void RTCFLIP::RebuildDevDeps(com_ptr<ID2D1RenderTarget>& prt)
 {
-    if (pdc2)
+    if (prt)
         return;
 
     RebuildDev();
 
+    com_ptr<ID2D1DeviceContext> pdc2;
     ThrowError(pdev2->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &pdc2));
+    pdc2.As(&prt);
 
     /* create the simple 2-buffer swap chain */
     DXGI_SWAP_CHAIN_DESC1 swapchaind = { 0 };
@@ -157,12 +164,12 @@ void RTCFLIP::RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
     RTC::RebuildRegisteredDevDeps(iwapp);
 }
 
-bool RTCFLIP::FPrepare(com_ptr<ID2D1DeviceContext>& pdc2)
+bool RTCFLIP::FPrepare(com_ptr<ID2D1RenderTarget>& prt)
 {
     return !fDirty;
 }
 
-void RTCFLIP::Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate)
+void RTCFLIP::Present(com_ptr<ID2D1RenderTarget>& prt, const RC& rcgUpdate)
 {
     if (rcgUpdate.fEmpty())
         return;
@@ -197,21 +204,26 @@ void RTCFLIP::CreateBuffer(com_ptr<ID2D1DeviceContext>& pdc2, com_ptr<ID2D1Bitma
     ThrowError(pdc2->CreateBitmapFromDxgiSurface(psurfdxgi.Get(), &bmpprop, &pbmpBuf));
 }
 
-/*
- *  RTC2 - an alternative implementation that uses older DISCARD swap chain.
+/**
+ *  @fn         void RTCDISCARD::RebuildDevDeps(com_ptr<ID2D1RenderTarget>& prt)
+ *  @brief      Rebuilds the device dependent part of the device context
+ *
+ *  @details    This implementation uses the older DISCARD type swap chain,
+ *              which has been superceded by flip mode.
  */
 
-void RTC2::RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
+void RTCDISCARD::RebuildDevDeps(com_ptr<ID2D1RenderTarget>& prt)
 {
-    if (pdc2)
+    if (prt)
         return;
 
     RebuildDev();
 
+    com_ptr<ID2D1DeviceContext> pdc2;
     ThrowError(pdev2->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &pdc2));
+    pdc2.As(&prt);
 
     /* create the simple 2-buffer swap chain */
-
     DXGI_SWAP_CHAIN_DESC1 swapchaind = { 0 };
     swapchaind.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
     swapchaind.SampleDesc.Count = 1;
@@ -231,16 +243,59 @@ void RTC2::RebuildDevDeps(com_ptr<ID2D1DeviceContext>& pdc2)
     RTC::RebuildRegisteredDevDeps(iwapp);
 }
 
-bool RTC2::FPrepare(com_ptr<ID2D1DeviceContext>& pdc2)
+bool RTCDISCARD::FPrepare(com_ptr<ID2D1RenderTarget>& prt)
 {
     return !fDirty;
 }
 
-void RTC2::Present(com_ptr<ID2D1DeviceContext>& pdc2, const RC& rcgUpdate)
+void RTCDISCARD::Present(com_ptr<ID2D1RenderTarget>& prt, const RC& rcgUpdate)
 {
     fDirty = false;
     DXGI_PRESENT_PARAMETERS pp = { 0 };
     HRESULT err = pswapchain->Present1(0, 0, &pp);
+}
+
+/**
+ *  @fn         void RTCRT::RebuildDevDeps(com_ptr<ID2D1RenderTarget>& prt)
+ *  @brief      Rebuilds device dependent render target
+ */
+
+void RTCRT::RebuildDevDeps(com_ptr<ID2D1RenderTarget>& prt)
+{
+    if (prt)
+        return;
+
+    RECT rect;
+    ::GetClientRect(iwapp.hwnd, &rect);
+    D2D1_RENDER_TARGET_PROPERTIES prop = RenderTargetProperties();
+    D2D1_HWND_RENDER_TARGET_PROPERTIES prophwnd = 
+        HwndRenderTargetProperties(iwapp.hwnd,
+                                   SizeU(rect.right - rect.left, rect.bottom - rect.top));
+
+    com_ptr<ID2D1HwndRenderTarget> prtT;
+    iwapp.pfactd2->CreateHwndRenderTarget(prop, prophwnd, &prtT);
+    prtT.As(&prt);
+
+    RTC::RebuildRegisteredDevDeps(iwapp);
+
+}
+
+void RTCRT::PurgeDevDeps(com_ptr<ID2D1RenderTarget>& prt)
+{
+    if (!prt)
+        return;
+
+    RTC::PurgeRegisteredDevDeps();
+    prt.Reset();
+}
+
+bool RTCRT::FPrepare(com_ptr<ID2D1RenderTarget>& prt)
+{
+    return true;
+}
+
+void RTCRT::Present(com_ptr<ID2D1RenderTarget>& prt, const RC& rcgUpdate)
+{
 }
 
 #endif // CONSOLE

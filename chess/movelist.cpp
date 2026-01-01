@@ -1,16 +1,18 @@
 
-/*
- *  movelist.cpp
+/**
+ *  @file       movelist.cpp
+ *  @brief      The Move List window for chess program
  * 
- *  The Move List window, which includes clocks, player names, and game
- *  state information.
+ *  @details    The Move List window, which includes clocks, player names, and 
+ *              game state information.
+ *
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 Richard Powell
  */
 
 #include "chess.h"
 
-
 string_view sFontClock = "Verdana";
-
 
 WNML::WNML(WN& wnParent, GAME& game) :
     WN(wnParent),

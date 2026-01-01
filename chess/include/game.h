@@ -170,8 +170,8 @@ string to_string(const TC tc);
  *  for a human player, too.
  * 
  *  We don't do a good job handling every combination of these time management
- *  options options, but they don't arise in real life, so it shouldn't be a 
- *  big deal.
+ *  options, especially when they are combined, but they don't arise in real 
+ *  life, so it shouldn't be a big deal.
  */
 
 class TMAN
@@ -192,7 +192,8 @@ public:
  * 
  *  These are typically values read in by various file formats, like PGN or
  *  EPD. Many of them only make sense in a very specific context, so we 
- *  often just leave them as a raw type to be interpreted when needed.
+ *  often just leave them as a raw type and value to be interpreted when 
+ *  needed.
  */
 
 using VAREPD = variant < int64_t, uint64_t, double, string >;
@@ -216,8 +217,11 @@ enum class TMA
 };
 
 /**
- *  @enum GS
- *  @brief Game state
+ *  @enum       GS
+ *  @brief      Game state
+ *
+ *  @details    Our games can be in just a few specific states: not started,
+ *              playing, paused, or finished.
  */
 
 enum class GS
@@ -229,8 +233,13 @@ enum class GS
 };
 
 /**
- *  @enum GR
- *  @brief Game result
+ *  @enum       GR
+ *  @brief      Game result
+ * 
+ *  @details    The result of a game when the game if finished. If this value
+ *              is not GR::NotOver, it implies the game state is over.
+ *              An aborted game is a game that is mutually agreed to be over
+ *              without a winner specified. This should be very rare. 
  */
 
 enum class GR
@@ -239,12 +248,12 @@ enum class GR
     WhiteWon,
     BlackWon,
     Draw,
-    Abandoned
+    Aborted
 };
 
 /**
- *  @enum GWT
- *  @brief Game Win type
+ *  @enum       GWT
+ *  @brief      Game Win type
  */
 
 enum class GWT
@@ -252,12 +261,13 @@ enum class GWT
     None = 0,
     Checkmate,
     TimeExpired,
-    Resignation
+    Resignation,
+    Abanndoned
 };
 
 /**
- *  @enum GDT
- *  @brief Game Draw type
+ *  @enum       GDT
+ *  @brief      Game Draw type
  */
 
 enum class GDT
@@ -272,8 +282,8 @@ enum class GDT
 };
 
 /**
- *  @class GAME
- *  @brief The chess game
+ *  @class      GAME
+ *  @brief      The chess game
  */
 
 class GAME

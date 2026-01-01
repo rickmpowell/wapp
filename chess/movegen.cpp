@@ -1,10 +1,12 @@
 
-/*
- *  movegen.cpp
+/**
+ *  @file       movegen.cpp
+ *  @brief      Chess move generation for 10x12 mailbox board
  *
- *  Chess move generation.
+ *  @details    THis is totally non-graphical and can be used in a UCI engine.
  * 
- *  This is totally non-graphical.
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2024 by Richard Powell.
  */
 
 #include "board.h"
@@ -20,15 +22,14 @@ static const int8_t adicpbdKnight[] = { -21, -19, -12, -8, 8, 12, 19, 21 };
 static const int8_t adicpbdKing[] = { -11, -10, -9, -1, 1, 9, 10, 11 };
 static const int8_t adicpbdPawn[] = { 9, 11, -11, -9 };  /* first 2 are white, second 2 are black */
 
-/*
- *  BD::MoveGen
+/**
+ *  @fn         void BD::MoveGen(VMV& vmv) const
+ *  @brief      Generates all legal moves
  * 
- *  Legal move generator. Speed critical code.
- * 
- *  We have two basic move generators, one that really returns all legal 
- *  moves, and another that is a pseudo-legal move generator, which does not 
- *  check for the king being in check. This saves us an expensive check test 
- *  on moves that we never consider because of alpha-beta search.
+ *  @details    We have two basic move generators, one that really returns all 
+ *              legal moves, and another that is a pseudo-legal move generator.
+ *              The check test is expensive, so we only use this variant in
+ *              code that is not as speed critical.
  */
 
 void BD::MoveGen(VMV& vmv) const noexcept
@@ -36,6 +37,16 @@ void BD::MoveGen(VMV& vmv) const noexcept
     MoveGenPseudo(vmv);
     RemoveChecks(vmv);
 }
+
+/**
+ *  @fn         void BD::MoveGenPseudo(VMV& vmv) const
+ *  @brief      Generates all pseudo-legal moves
+ * 
+ *  @details    This is a faster version of MovGen that does not validate that
+ *              moves do not leave the king in check. This is an important
+ *              optimization for alpha-beta search which saves us the expensive
+ *              check test on moves that get pruned.
+ */
 
 void BD::MoveGenPseudo(VMV& vmv) const noexcept
 {
@@ -73,6 +84,14 @@ void BD::MoveGenPseudo(VMV& vmv) const noexcept
         }
     }
 }
+
+/**
+ *  @fn         void BD::MoveGenNoisy(VMV& vmv) const
+ *  @brief      Generates all noisy moves
+ * 
+ *  @details    Noisy moves are captures and pawn promotions. This is used in
+ *              quiescence search to extend the search on captures.
+ */
 
 void BD::MoveGenNoisy(VMV& vmv) const noexcept
 {
@@ -229,34 +248,40 @@ void BD::MoveGenKingNoisy(int8_t icpbdFrom, VMV& vmv) const noexcept
     MoveGenSingleNoisy(icpbdFrom, adicpbdKing, size(adicpbdKing), vmv);
 }
 
-/*
- *  BD::AddCastle
+/**
+ *  @fn         void BD::AddCastle(int8_t icpbdKingFrom, int8_t fiKingTo, 
+ *                                 int8_t fiRookFrom, int8_t fiRookTo, 
+ *                                 CS csMove, VMV& vmv) const
+ *  @brief      Adds a castle move to the move list
  * 
- *  Tries to add a castle move to the move list. 
- * 
- *  Castle rules:
- *      Neither the king nor the rook we are castling with have moved before. 
- *          This function assumes this has been checked prior to calling it.
- *      The king can not be in check.
- *      All the squares between the rook and king are empty.
- *      None of the squares the king passes through on the way to its 
- *          destination are attacked by enemy pieces. 
- *      The final destination of the king cannot put the king into check 
- * 
- *  Chess960 castle rules:
- *      Pieces in the back row are randomly positioned
- *      King is always between the two rooks
- *      King-side castle: King always ends up in the G file; rook always ends 
- *          up in the F file 
- *      Queen-side castle: King always ends up in the C file; rook always ends 
- *          up in the D file 
- *      Squares must be empty between the king and rook
- *      The destination squarews of the king and rook must not have some other 
- *          piece in it King can't move through check, or be in check.
+ *  @details    Adds a castle move to the move list if the squares between
  *
- *  Check verification is not done here - that the king is not in check, 
- *  does not move through check, and does not end up in check - it's done in 
- *  FMvWasLegal.
+ *              Castle rules:
+ *                  1. Neither the king nor the rook we are castling with have 
+ *                     moved before. This function assumes this has been 
+ *                     checked prior to calling it. 
+ *                  2. The king can not be in check. 
+ *                  3. All the squares between the rook and king are empty. 
+ *                  4. None of the squares the king passes through on the way 
+ *                     to its destination are attacked by enemy pieces. 
+ *                  5. The final destination of the king cannot put the king 
+ *                     into check 
+ * 
+ *              Chess960 castle rules:
+ *                  1. Pieces in the back row are randomly positioned
+ *                  2. King is always between the two rooks
+ *                  3. King-side castle: King always ends up in the G file; 
+ *                     rook always ends up in the F file 
+ *                  4. Queen-side castle: King always ends up in the C file; 
+ *                     rook always ends up in the D file 
+ *                  5. Squares must be empty between the king and rook
+ *                  6. The destination squarews of the king and rook must not 
+ *                     have some other piece in it King can't move through 
+ *                     check, or be in check.
+ *
+ *              Check verification is not done here - that the king is not in 
+ *              check, does not move through check, and does not end up in 
+ *              check - it's done in FMvWasLegal.
  */
 
 void BD::AddCastle(int8_t icpbdKingFrom, int8_t fiKingTo, int8_t fiRookFrom, int8_t fiRookTo, CS csMove, VMV& vmv) const noexcept
@@ -278,11 +303,11 @@ void BD::AddCastle(int8_t icpbdKingFrom, int8_t fiKingTo, int8_t fiRookFrom, int
     vmv.emplace_back(icpbdKingFrom, icpbdKingTo, csMove);
 }
 
-/*
- *  BD::AddPawnMoves
+/**
+ *  @fn         void BD::AddPawnMoves(int8_t icpbdFrom, int8_t icpbdTo, VMV& vmv) const
+ *  @brief      Adds pawn moves to the move list    
  * 
- *  Given a pawn move, adds it to the move list. For promotions, this will 
- *  add the four promotion possibilities.
+ *  @details    For promotions, this will add the four promotion possibilities.
  */
 
 void BD::AddPawnMoves(int8_t icpbdFrom, int8_t icpbdTo, VMV& vmv) const noexcept
@@ -298,11 +323,14 @@ void BD::AddPawnMoves(int8_t icpbdFrom, int8_t icpbdTo, VMV& vmv) const noexcept
     }
 }
 
-/*
- *  BD::MoveGenSlider
+/**
+ *  @fn         void BD::MoveGenSlider(int8_t icpbdFrom, 
+ *                                     const int8_t adicpbd[], int8_t cdicpbd, 
+ *                                     VMV& vmv) const
+ *  @brief      Generates sliding piece moves
  * 
- *  Generates all moves of a sliding piece (rook, bishop, queen) in one 
- *  particular direction
+ *  @details    Generates all moves of a sliding piece (rook, bishop, queen) 
+ *              in one particular direction
  */
 
 void BD::MoveGenSlider(int8_t icpbdFrom, const int8_t adicpbd[], int8_t cdicpbd, VMV& vmv) const noexcept
@@ -336,11 +364,13 @@ void BD::MoveGenSliderNoisy(int8_t icpbdFrom, const int8_t adicpbd[], int8_t cdi
     }
 }
 
-/*
- *  BD::MoveGenSingle
+/**
+ *  @fn         void BD::MoveGenSingle(int8_t icpbdFrom,
+ *                                     const int8_t adicpbd[], int8_t cdicpbd,
+ *                                     VMV& vmv) const
+ *  @brief      Generates moves for kings and knights
  * 
- *  Generates moves for kings and knights, which just grinds through the 
- *  array of offsets.
+ *  @details    Just grinds through all the possible destination squares
  */
 
 void BD::MoveGenSingle(int8_t icpbdFrom, const int8_t adicpbd[], int8_t cdicpbd, VMV& vmv) const noexcept
@@ -363,15 +393,21 @@ void BD::MoveGenSingleNoisy(int8_t icpbdFrom, const int8_t adicpbd[], int8_t cdi
     }
 }
 
+/**
+ *  @fn         bool BD::FInCheck(CPC cpc) const
+ *  @brief      Checks if the given color is in check
+ */
+
 bool BD::FInCheck(CPC cpc) const noexcept
 {
     return FIsAttackedBy(IcpbdFindKing(cpc), ~cpc);
 }
 
-/*
- *  BD::FIsAttackedBy
+/**
+ *  @fn         void BD::FIsAttackedBy(int8_t icpbdAttacked, CPC cpcBy) const
+ *  @brief      Checks if a square is attacked
  * 
- *  Checks if the square is under attack by a piece of color cpcBy.
+ *  @details    Checks if the square is under attack by a piece of color cpcBy.
  */
 
 bool BD::FIsAttackedBy(int8_t icpbdAttacked, CPC cpcBy) const noexcept
@@ -389,10 +425,9 @@ bool BD::FIsAttackedBy(int8_t icpbdAttacked, CPC cpcBy) const noexcept
     return false;
 }
 
-/*
- *  BD::CptSqAttackedBy
- * 
- *  Returns the type of the weakest piece that is attacking the square
+/**
+ *  @fn         CPT BD::CptSqAttackedBy(SQ sq, CPC cpcBy) const
+ *  @brief      Determines the weakest piece attacking a square
  */
 
 CPT BD::CptSqAttackedBy(SQ sq, CPC cpcBy) const noexcept
@@ -436,10 +471,9 @@ bool BD::FIsAttackedBySlider(int8_t icpbdAttacked, uint16_t grfCp, const int8_t 
     return false;
 }
 
-/*
- *  BD::IcpbdFromKing
- * 
- *  Finds the position of the king on the board
+/**
+ *  @fn         int8_t BD::IcpbdFromKing(CPC cpc) const
+ *  @brief      Finds the position of the king on the board
  */
 
 int8_t BD::IcpbdFindKing(CPC cpc) const noexcept
@@ -453,12 +487,13 @@ int8_t BD::IcpbdFindKing(CPC cpc) const noexcept
     return -1;
 }
 
-/*
- *  BD::IcpUnused
+/**
+ *  @fn         int8_t BD::IcpUnused(CPC cpc, CPG cptHint) const
+ *  @brief      Finds an unused slot in the piece table
  * 
- *  Finds an unused slot in the piece table. This arranges the table so the
- *  king is always in aicpbd[0]. And since the king can never be removed from 
- *  the game, it will remain in aicpbd[0] forever.
+ *  @details    This arranges the table so the king is always in aicpbd[0]. 
+ *              And since the king can never be removed from the game, it will 
+ *              remain in aicpbd[0] forever.
  */
 
 int8_t BD::IcpUnused(CPC cpc, CPT cptHint) const noexcept

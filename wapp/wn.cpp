@@ -1,8 +1,10 @@
 
-/*
- *  wn.h
+/**
+ *  @file       wn.cpp
+ *  @brief      WN class implementation
  * 
- *  WN class implementation.
+ *  @author     Richard Powell
+ *  @copyright  Copyright (c) 2025 by Richard Powell
  */
 
 #include "wapp.h"
@@ -34,13 +36,11 @@ WN::~WN()
         iwapp.vpevd.back()->DestroyedWn(this);
 
     /* unlink children */
-
     for (WN* pwnChild : vpwnChildren)
         pwnChild->pwnParent = nullptr;
     vpwnChildren.clear();
 
     /* unlink parent */
-
     if (pwnParent) {
         vector<WN*>::iterator ipwn = find(pwnParent->vpwnChildren.begin(), pwnParent->vpwnChildren.end(), this);
         if (ipwn != pwnParent->vpwnChildren.end())
@@ -53,7 +53,6 @@ void WN::AddChild(WN* pwnChild)
 {
     vpwnChildren.push_back(pwnChild);
     pwnChild->pwnParent = this;
-
 }
 
 void WN::RemoveChild(WN* pwnChild)
@@ -65,11 +64,12 @@ void WN::RemoveChild(WN* pwnChild)
 }
 
 /**
- *  @fn void WN::SetBounds(const RC& rcpNew)
- *  @brief Sets the bounds of the WN.
+ *  @fn         void WN::SetBounds(const RC& rcpNew)
+ *  @brief      Sets the bounds of the WN.
  *
- *  The coordinates of the SetBounds are relative to the parent of the WN 
- *  element, while the DC keeps the bounds relative to the top-level item.
+ *  @details    The coordinates of the SetBounds are relative to the parent of 
+ *              the WN element, while the DC keeps the bounds relative to the 
+ *              top-level item.
  */
 
 void WN::SetBounds(const RC& rcpNew)
@@ -94,10 +94,11 @@ RC WN::RcClient(void) const
 }
 
 /**
- *  @fn WN::Layout(void)
- *  @brief Notification sent when a WN changes size and/or location
+ *  @fn         WN::Layout(void)
+ *  @brief      Notification sent when a WN changes size and/or location
  * 
- *  Window implementations should layout child windows in this notification.
+ *  @details    Window implementations should layout child windows in this 
+ *              notification.
  */
 
 void WN::Layout(void)
@@ -115,8 +116,8 @@ LEIT WN::Leit(void) const
 }
 
 /**
- *  @fn WN::Show(bool fShow)
- *  @brief Shows or hides the window.
+ *  @fn         void WN::Show(bool fShow)
+ *  @brief      Shows or hides the window.
  */
 
 void WN::Show(bool fShow)
@@ -130,11 +131,11 @@ void WN::Show(bool fShow)
 }
 
 /**
- *  @fn WN::FVisible(void) const
- *  @brief Returns true if the window is visible.
+ *  @fn         void WN::FVisible(void) const
+ *  @brief      Returns true if the window is visible.
  * 
- *  A window is visible if it and all its parents are visible, and if the
- *  application is not minimized.
+ *  @details    A window is visible if it and all its parents are visible, 
+ *              and if the application is not minimized.
  */
 
 bool WN::FVisible(void) const
@@ -203,17 +204,18 @@ void WN::Erase(const RC& rcUpdate, DRO dro)
     FillRcBack(rcUpdate);
 }
 
-/*
- *  WN::TransparentErase
+/**
+ *  @fn         void WN::TransparentErase(const RC& rcUpdate, DRO dro)
  *
- *  WNs with transparent backgrounds should call this function in their
- *  Erase, which ensures parent windows that might be show through transparent
- *  areas have been redrawn.
+ *  @details    WNs with transparent backgrounds should call this function in 
+ *              their Erase, which ensures parent windows that might be show 
+ *              through transparent areas have been redrawn.
  * 
- *  This is necessary for code that does a Redraw() on non-top-level WNs with
- *  transparent areas inside the WN. Normally Redraw() only draws the WN and
- *  the children of the WN, but for these transparent cases, parent WNs must
- *  be redrawn too.
+ *              This is necessary for code that does a Redraw() on 
+ *              non-top-level WNs with transparent areas inside the WN. 
+ *              Normally Redraw() only draws the WN and the children of the 
+ *              WN, but for these transparent cases, parent WNs must be 
+ *              redrawn too.
  */
 
 void WN::TransparentErase(const RC& rcUpdate, DRO dro)
@@ -260,12 +262,14 @@ bool WN::FBeginDraw(void)
     return pwnParent->FBeginDraw();
 }
 
-/*
- *  WN::EndDraw
+/**
+ *  @fn         void WN::EndDraw(const RC& rcUpdate)
+ *  @brief      Ends a drawing sequence started by FBeginDraw
  *
- *  All drawing must occur within a BeginDraw/EndDraw pair. EndDraw swaps the
- *  update to the actual screen
+ *  @details    All drawing must occur within a BeginDraw/EndDraw pair. 
+ *              EndDraw swaps the update to the actual screen
  */
+
 void WN::EndDraw(const RC& rcUpdate)
 {
     assert(pwnParent);
@@ -280,6 +284,7 @@ void WN::Redraw(void)
 void WN::Redraw(const RC& rcUpdate, DRO dro)
 {
     RedrawRcg(RcgFromRc(rcUpdate), dro);
+    iwapp.ForceUpdateChildWindows();
 }
 
 void WN::Relayout(void)
@@ -330,13 +335,13 @@ void WN::DrawWithChildren(const RC& rcgUpdate, DRO dro)
 void WN::DrawNoChildren(const RC& rcgUpdate, DRO dro)
 {
     assert(fVisible);
-    iwapp.pdc2->PushAxisAlignedClip(rcgUpdate, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+    iwapp.prt->PushAxisAlignedClip(rcgUpdate, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 
     RC rcDraw = RcFromRcg(rcgUpdate);
     Erase(rcDraw, dro);
     Draw(rcDraw);
 
-    iwapp.pdc2->PopAxisAlignedClip();
+    iwapp.prt->PopAxisAlignedClip();
 }
 
 void WN::DrawOverlappedSiblings(const RC& rcgUpdate)

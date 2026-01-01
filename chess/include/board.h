@@ -446,7 +446,8 @@ public:
     CPT cptPromote = cptNone;
     CS csMove = csNone;     // set on castle moves
 
-    EVENUM evenum = EVENUM::None;
+    EVENUM evenum : 8 = EVENUM::None;
+    bool fNoisy : 1 = false;
     EV ev = 0;
 };
 

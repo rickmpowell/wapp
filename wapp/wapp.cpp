@@ -23,7 +23,7 @@ IWAPP::IWAPP(void) :
     WN(*this, nullptr),
     EVD((WN&)*this)
 {
-    prtc = make_unique<RTCFLIP>(*this);
+    prtc = make_unique<RTCRT>(*this);
     RebuildAllDevIndeps();
     PushEvd(*this);
 }
@@ -45,14 +45,14 @@ void IWAPP::PurgeAllDevIndeps(void)
 
 void IWAPP::RebuildAllDevDeps(void)
 {
-    prtc->RebuildDevDeps(pdc2);
+    prtc->RebuildDevDeps(prt);
     RebuildDevDepsWithChildren();
 }
 
 void IWAPP::PurgeAllDevDeps(void)
 {
     PurgeDevDepsWithChildren();
-    prtc->PurgeDevDeps(pdc2);
+    prtc->PurgeDevDeps(prt);
 }
 
 /*
@@ -172,6 +172,7 @@ void IWAPP::OnPaint(void)
         EndDraw(ps.rcPaint);
     }
     ::EndPaint(hwnd, &ps);
+    ForceUpdateChildWindows();
 }
 
 void IWAPP::OnMouseMove(const PT& ptg, unsigned mk)
@@ -254,19 +255,19 @@ bool IWAPP::FBeginDraw(void)
        recreated if the display has changed */
     RebuildAllDevIndeps();
     RebuildAllDevDeps();
-    
-    pdc2->BeginDraw();
-    return prtc->FPrepare(pdc2);
+
+    prt->BeginDraw();
+    return prtc->FPrepare(prt);
 }
 
 void IWAPP::EndDraw(const RC& rcUpdate)
 {
-    if (pdc2->EndDraw() == D2DERR_RECREATE_TARGET) {
+    if (prt->EndDraw() == D2DERR_RECREATE_TARGET) {
         PurgeAllDevDeps();
         return;
     }
 
-    prtc->Present(pdc2, rcUpdate);
+    prtc->Present(prt, rcUpdate);
 }
 
 void IWAPP::Draw(const RC& rcUpdate)
@@ -415,3 +416,15 @@ string IWAPP::exe(void) const
     ::GetModuleFileNameW(NULL, wsPath, MAX_PATH);
     return SFromWs(wsPath);
 }
+
+
+void IWAPP::ForceUpdateChildWindows(void)
+{
+    ::EnumChildWindows(hwnd,
+                       [](HWND hwndChild, LPARAM) -> BOOL {
+                           ::InvalidateRect(hwndChild, NULL, TRUE);
+                           ::UpdateWindow(hwndChild);
+                           return TRUE;
+                       },
+                       0);
+};
