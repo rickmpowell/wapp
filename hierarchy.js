@@ -52,6 +52,7 @@ var hierarchy =
               [ "CYCLEINT", "d3/dfd/classCYCLEINT.html", null ]
             ] ],
             [ "EDIT", "d6/dc4/classEDIT.html", null ],
+            [ "GROUP", "d2/dfa/classGROUP.html", null ],
             [ "STATIC", "d4/dc5/classSTATIC.html", [
               [ "STATICL", "d5/d4e/classSTATICL.html", [
                 [ "INSTRUCT", "d9/d87/classINSTRUCT.html", null ]
@@ -136,6 +137,7 @@ var hierarchy =
     [ "linestream", "d9/d59/classlinestream.html", null ],
     [ "MENU", "dc/d4a/classMENU.html", null ],
     [ "menuiterator", "dd/da0/classmenuiterator.html", null ],
+    [ "observer_ptr< T >", "d6/d4d/classobserver__ptr.html", null ],
     [ "OFN", "df/daa/structOFN.html", null ],
     [ "ostream", null, [
       [ "WNSTREAM", "d1/d52/classWNSTREAM.html", null ],

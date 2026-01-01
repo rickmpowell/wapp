@@ -175,8 +175,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa24847636921eb588a8789f3d6519460" id="r_aa24847636921eb588a8789f3d6519460"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d15/classIWAPP.html#aa24847636921eb588a8789f3d6519460">Show</a> (bool fShow=true) override</td></tr>
 <tr class="memdesc:aa24847636921eb588a8789f3d6519460"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shows or hides the window.  <br /></td></tr>
 <tr class="separator:aa24847636921eb588a8789f3d6519460"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9ca5014ba0e4a7867bcb3a06e1cd2631" id="r_a9ca5014ba0e4a7867bcb3a06e1cd2631"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d15/classIWAPP.html#a9ca5014ba0e4a7867bcb3a06e1cd2631">BeginDraw</a> (void) override</td></tr>
-<tr class="separator:a9ca5014ba0e4a7867bcb3a06e1cd2631"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace8e6a048e7092b69cc4ca03f22b158f" id="r_ace8e6a048e7092b69cc4ca03f22b158f"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d15/classIWAPP.html#ace8e6a048e7092b69cc4ca03f22b158f">FBeginDraw</a> (void) override</td></tr>
+<tr class="memdesc:ace8e6a048e7092b69cc4ca03f22b158f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Preparing the Direct2D device context for drawing.  <br /></td></tr>
+<tr class="separator:ace8e6a048e7092b69cc4ca03f22b158f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac8092eff4f6aa5e53403b0db04a9a13a" id="r_ac8092eff4f6aa5e53403b0db04a9a13a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d15/classIWAPP.html#ac8092eff4f6aa5e53403b0db04a9a13a">EndDraw</a> (const <a class="el" href="../../d2/d9b/classRC.html">RC</a> &amp;rcUpdate) override</td></tr>
 <tr class="separator:ac8092eff4f6aa5e53403b0db04a9a13a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ba4f13bdc36211d66ad505741ee1950" id="r_a6ba4f13bdc36211d66ad505741ee1950"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d15/classIWAPP.html#a6ba4f13bdc36211d66ad505741ee1950">Draw</a> (const <a class="el" href="../../d2/d9b/classRC.html">RC</a> &amp;rcUpdate) override</td></tr>
@@ -616,36 +617,6 @@ Additional Inherited Members</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a9ca5014ba0e4a7867bcb3a06e1cd2631" name="a9ca5014ba0e4a7867bcb3a06e1cd2631"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9ca5014ba0e4a7867bcb3a06e1cd2631">&#9670;&#160;</a></span>BeginDraw()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void IWAPP::BeginDraw </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Reimplemented from <a class="el" href="../../db/dd4/classWN.html">WN</a>.</p>
-
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00243">243</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
-
-</div>
-</div>
 <a id="a8b8e3ad5682f64a34563e4946ce95cd1" name="a8b8e3ad5682f64a34563e4946ce95cd1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8b8e3ad5682f64a34563e4946ce95cd1">&#9670;&#160;</a></span>CreateWnd() <span class="overload">[1/2]</span></h2>
 
@@ -756,7 +727,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../db/dd4/classWN.html">WN</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00265">265</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00272">272</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -786,7 +757,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../db/dd4/classWN.html">WN</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00255">255</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00262">262</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -806,7 +777,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00295">295</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00302">302</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -836,7 +807,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00278">278</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00285">285</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -856,7 +827,41 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00405">405</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00412">412</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ace8e6a048e7092b69cc4ca03f22b158f" name="ace8e6a048e7092b69cc4ca03f22b158f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ace8e6a048e7092b69cc4ca03f22b158f">&#9670;&#160;</a></span>FBeginDraw()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool IWAPP::FBeginDraw </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Preparing the Direct2D device context for drawing. </p>
+<p>The Direct2D drating context is owned by the top-most level window, and this is where the context is actually prepared for drawing.</p>
+<dl class="section return"><dt>Returns</dt><dd>true if drawing can proceed, false if the backing buffer is dirty and the entire window needs to be redrawn. </dd></dl>
+
+<p>Reimplemented from <a class="el" href="../../db/dd4/classWN.html#af21fd9521de2a5fc0e68f206f399c33d">WN</a>.</p>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00251">251</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1655,7 +1660,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00352">352</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00359">359</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1685,7 +1690,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../d2/ded/classEVD.html">EVD</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00370">370</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00377">377</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1775,7 +1780,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00347">347</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00354">354</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1795,7 +1800,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00384">384</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00391">391</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1954,7 +1959,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../d2/ded/classEVD.html">EVD</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00357">357</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00364">364</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -1974,7 +1979,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00314">314</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d1a/wapp_8cpp_source.html#l00321">321</a> of file <a class="el" href="../../d6/d1a/wapp_8cpp_source.html">wapp.cpp</a>.</p>
 
 </div>
 </div>
@@ -2031,7 +2036,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00041">41</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00046">46</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 
 </div>
 </div>
@@ -2048,7 +2053,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00063">63</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00069">69</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 
 </div>
 </div>
@@ -2064,7 +2069,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00056">56</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00062">62</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 
 </div>
 </div>
@@ -2080,7 +2085,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00057">57</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00063">63</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 
 </div>
 </div>
@@ -2096,7 +2101,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00058">58</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00064">64</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 
 </div>
 </div>
@@ -2112,7 +2117,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00062">62</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d48/wapp_8h_source.html#l00068">68</a> of file <a class="el" href="../../d2/d48/wapp_8h_source.html">wapp.h</a>.</p>
 
 </div>
 </div>

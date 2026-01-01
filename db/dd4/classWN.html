@@ -116,9 +116,10 @@ Inheritance diagram for WN:</div>
 <area href="../../da/dec/classCHK.html" title="Checkbox control." alt="CHK" shape="rect" coords="97,280,184,304"/>
 <area href="../../df/df4/classCYCLE.html" title="A control with an up and down button to cycle through options." alt="CYCLE" shape="rect" coords="97,336,184,360"/>
 <area href="../../d6/dc4/classEDIT.html" title="Edit control." alt="EDIT" shape="rect" coords="97,392,184,416"/>
-<area href="../../d4/dc5/classSTATIC.html" title="Base class for no-UI static controls." alt="STATIC" shape="rect" coords="97,448,184,472"/>
-<area href="../../d2/da1/classSTATICICON.html" title="Static icon control." alt="STATICICON" shape="rect" coords="97,504,184,528"/>
-<area href="../../d8/d91/classVSEL.html" title="A collection of individual selector items." alt="VSEL" shape="rect" coords="97,560,184,584"/>
+<area href="../../d2/dfa/classGROUP.html" title="Grouping box for dialog controls." alt="GROUP" shape="rect" coords="97,448,184,472"/>
+<area href="../../d4/dc5/classSTATIC.html" title="Base class for no-UI static controls." alt="STATIC" shape="rect" coords="97,504,184,528"/>
+<area href="../../d2/da1/classSTATICICON.html" title="Static icon control." alt="STATICICON" shape="rect" coords="97,560,184,584"/>
+<area href="../../d8/d91/classVSEL.html" title="A collection of individual selector items." alt="VSEL" shape="rect" coords="97,616,184,640"/>
 <area href="../../da/d82/classDLGABOUT.html" title="A simple standard About dialog." alt="DLGABOUT" shape="rect" coords="291,224,378,248"/>
 <area href="../../d5/d73/classDLGFILE.html" title="Base class for standard file dialogs." alt="DLGFILE" shape="rect" coords="291,280,378,304"/>
 <area href="../../de/dab/classDLGFOLDER.html" title="The Windows standard directory picker dialog." alt="DLGFOLDER" shape="rect" coords="291,336,378,360"/>
@@ -166,8 +167,9 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:aa8e5838d30762eb541bc57bc9c74d5e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f26b832e87f9c2ed2cb0e6b33873f2b" id="r_a9f26b832e87f9c2ed2cb0e6b33873f2b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dd4/classWN.html#a9f26b832e87f9c2ed2cb0e6b33873f2b">PurgeDevDepsWithChildren</a> (void)</td></tr>
 <tr class="separator:a9f26b832e87f9c2ed2cb0e6b33873f2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd8596cd445b58b72c449dd11004efad" id="r_afd8596cd445b58b72c449dd11004efad"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dd4/classWN.html#afd8596cd445b58b72c449dd11004efad">BeginDraw</a> (void)</td></tr>
-<tr class="separator:afd8596cd445b58b72c449dd11004efad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af21fd9521de2a5fc0e68f206f399c33d" id="r_af21fd9521de2a5fc0e68f206f399c33d"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dd4/classWN.html#af21fd9521de2a5fc0e68f206f399c33d">FBeginDraw</a> (void)</td></tr>
+<tr class="memdesc:af21fd9521de2a5fc0e68f206f399c33d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepares the drawing context for drawing.  <br /></td></tr>
+<tr class="separator:af21fd9521de2a5fc0e68f206f399c33d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4683117c4569b200f8de8753b2f9ccbe" id="r_a4683117c4569b200f8de8753b2f9ccbe"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dd4/classWN.html#a4683117c4569b200f8de8753b2f9ccbe">EndDraw</a> (const <a class="el" href="../../d2/d9b/classRC.html">RC</a> &amp;rcUpdate)</td></tr>
 <tr class="separator:a4683117c4569b200f8de8753b2f9ccbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a519d0af2cccdf5a6a140fb8af86bb8f7" id="r_a519d0af2cccdf5a6a140fb8af86bb8f7"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dd4/classWN.html#a519d0af2cccdf5a6a140fb8af86bb8f7">Erase</a> (const <a class="el" href="../../d2/d9b/classRC.html">RC</a> &amp;rcUpdate, DRO dro)</td></tr>
@@ -335,7 +337,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d2/da3/wn_8h_source.html#l00043">43</a> of file <a class="el" href="../../d2/da3/wn_8h_source.html">wn.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/da3/wn_8h_source.html#l00045">45</a> of file <a class="el" href="../../d2/da3/wn_8h_source.html">wn.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="aacad7f3e88a36c2e669fd0f26e9a056f" name="aacad7f3e88a36c2e669fd0f26e9a056f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aacad7f3e88a36c2e669fd0f26e9a056f">&#9670;&#160;</a></span>WN() <span class="overload">[1/2]</span></h2>
@@ -363,7 +365,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00010">10</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00012">12</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -393,7 +395,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00020">20</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00022">22</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -420,7 +422,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00029">29</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00031">31</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -459,35 +461,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00372">372</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
-
-</div>
-</div>
-<a id="afd8596cd445b58b72c449dd11004efad" name="afd8596cd445b58b72c449dd11004efad"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afd8596cd445b58b72c449dd11004efad">&#9670;&#160;</a></span>BeginDraw()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void WN::BeginDraw </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00250">250</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00385">385</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -517,7 +491,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../dc/d10/classDC.html">DC</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00224">224</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00226">226</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -547,7 +521,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../dc/d10/classDC.html">DC</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00232">232</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00234">234</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -585,7 +559,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00376">376</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00389">389</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -613,7 +587,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00195">195</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00197">197</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -643,7 +617,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00305">305</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00318">318</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -671,7 +645,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00148">148</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00150">150</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -709,7 +683,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00380">380</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00393">393</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -737,7 +711,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00262">262</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00269">269</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -765,7 +739,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00359">359</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00372">372</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -803,7 +777,42 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00199">199</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00201">201</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+
+</div>
+</div>
+<a id="af21fd9521de2a5fc0e68f206f399c33d" name="af21fd9521de2a5fc0e68f206f399c33d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af21fd9521de2a5fc0e68f206f399c33d">&#9670;&#160;</a></span>FBeginDraw()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool WN::FBeginDraw </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Prepares the drawing context for drawing. </p>
+<p>All drawing must occur within a FBeginDraw/EndDraw pair. FBeginDraw prepares the drawing context for drawing.</p>
+<p>For Direct2D, the actual drawing context is owned by the root window, so simply pass the FBeginDraw up the parent chain, and the overridden FBeginDraw at the root does the actual work.</p>
+<dl class="section return"><dt>Returns</dt><dd>false if the drawing surface is dirty and must be completely redrawn. </dd></dl>
+
+<p>Reimplemented in <a class="el" href="../../d9/d15/classIWAPP.html#ace8e6a048e7092b69cc4ca03f22b158f">IWAPP</a>.</p>
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00257">257</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -823,7 +832,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00388">388</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00401">401</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -851,7 +860,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00154">154</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00156">156</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -879,7 +888,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00408">408</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00421">421</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -910,7 +919,7 @@ Additional Inherited Members</h2></td></tr>
 <p>Returns true if the window is visible. </p>
 <p>A window is visible if it and all its parents are visible, and if the application is not minimized. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00138">138</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00140">140</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -940,7 +949,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00348">348</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00361">361</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -968,7 +977,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00363">363</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00376">376</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -999,9 +1008,9 @@ Additional Inherited Members</h2></td></tr>
 <p>Notification sent when a <a class="el" href="../../db/dd4/classWN.html">WN</a> changes size and/or location. </p>
 <p>Window implementations should layout child windows in this notification. </p>
 
-<p>Reimplemented in <a class="el" href="../../d8/d37/classBTNS.html#a299c5460ae6a1f51d2723c153902ac50">BTNS</a>, <a class="el" href="../../d0/d52/classBTNCLOSE.html#a345da57cd85040f96de8d34e04fdbda2">BTNCLOSE</a>, <a class="el" href="../../da/d8e/classBTNNEXT.html#a40d09ae847710431986f7def05197d20">BTNNEXT</a>, <a class="el" href="../../da/dec/classCHK.html#a0ab9f5617dc946a01b33a6aadc3adef7">CHK</a>, <a class="el" href="../../df/df4/classCYCLE.html#ab5dd354c26ba64cd038c7e61087aaa5a">CYCLE</a>, <a class="el" href="../../d6/dea/classTOOLBAR.html#ad986cd1aebf41377e73676cd71e822cb">TOOLBAR</a>, <a class="el" href="../../dd/d29/classSEL.html#a819f6b3bc854d1433e90150627ae0a1b">SEL</a>, <a class="el" href="../../d6/d3b/classSELS.html#acd6fcd021b79b4646c42ff02361edeca">SELS</a>, <a class="el" href="../../d6/dc4/classEDIT.html#a75f0c8f78939a983acfcd1f40554a25e">EDIT</a>, <a class="el" href="../../d0/dd0/classTITLEDLG.html#a6903025b2f4bc9c5fff562b40765190a">TITLEDLG</a>, <a class="el" href="../../da/d82/classDLGABOUT.html#a4185050994d10ce65721789ff7f229d8">DLGABOUT</a>, and <a class="el" href="../../d9/d15/classIWAPP.html#acd9c8b501fb54e82fcea7214ca639eb3">IWAPP</a>.</p>
+<p>Reimplemented in <a class="el" href="../../d8/d37/classBTNS.html#a299c5460ae6a1f51d2723c153902ac50">BTNS</a>, <a class="el" href="../../d0/d52/classBTNCLOSE.html#a345da57cd85040f96de8d34e04fdbda2">BTNCLOSE</a>, <a class="el" href="../../da/d8e/classBTNNEXT.html#a40d09ae847710431986f7def05197d20">BTNNEXT</a>, <a class="el" href="../../da/dec/classCHK.html#a0ab9f5617dc946a01b33a6aadc3adef7">CHK</a>, <a class="el" href="../../df/df4/classCYCLE.html#ab5dd354c26ba64cd038c7e61087aaa5a">CYCLE</a>, <a class="el" href="../../d6/dea/classTOOLBAR.html#ad986cd1aebf41377e73676cd71e822cb">TOOLBAR</a>, <a class="el" href="../../dd/d29/classSEL.html#a819f6b3bc854d1433e90150627ae0a1b">SEL</a>, <a class="el" href="../../d6/d3b/classSELS.html#acd6fcd021b79b4646c42ff02361edeca">SELS</a>, <a class="el" href="../../d6/dc4/classEDIT.html#a75f0c8f78939a983acfcd1f40554a25e">EDIT</a>, <a class="el" href="../../d2/dfa/classGROUP.html#a6a5fcac833f7d28af8810e1206a32b97">GROUP</a>, <a class="el" href="../../d0/dd0/classTITLEDLG.html#a6903025b2f4bc9c5fff562b40765190a">TITLEDLG</a>, <a class="el" href="../../da/d82/classDLGABOUT.html#a4185050994d10ce65721789ff7f229d8">DLGABOUT</a>, and <a class="el" href="../../d9/d15/classIWAPP.html#acd9c8b501fb54e82fcea7214ca639eb3">IWAPP</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00101">101</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00103">103</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1029,7 +1038,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00368">368</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00381">381</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1057,7 +1066,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00110">110</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00112">112</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1077,7 +1086,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00184">184</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00186">186</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1097,7 +1106,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00170">170</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00172">172</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1125,7 +1134,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00079">79</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00081">81</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1145,7 +1154,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00089">89</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00091">91</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1165,7 +1174,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00084">84</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00086">86</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1185,7 +1194,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00177">177</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00179">179</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1205,7 +1214,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00163">163</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00165">165</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1235,7 +1244,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00273">273</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00280">280</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1255,7 +1264,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00268">268</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00275">275</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1275,7 +1284,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00278">278</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00285">285</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1308,7 +1317,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="../../d5/d13/classDCS.html">DCS</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00073">73</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00075">75</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1328,7 +1337,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00393">393</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00406">406</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1356,7 +1365,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00398">398</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00411">411</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1388,7 +1397,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented in <a class="el" href="../../d9/d15/classIWAPP.html#aa24847636921eb588a8789f3d6519460">IWAPP</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00120">120</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00122">122</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1416,7 +1425,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00105">105</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00107">107</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1444,7 +1453,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00417">417</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00430">430</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1482,7 +1491,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00217">217</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00219">219</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1520,7 +1529,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00384">384</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d1d/wn_8cpp_source.html#l00397">397</a> of file <a class="el" href="../../d9/d1d/wn_8cpp_source.html">wn.cpp</a>.</p>
 
 </div>
 </div>
@@ -1545,7 +1554,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/da3/wn_8h_source.html#l00117">117</a> of file <a class="el" href="../../d2/da3/wn_8h_source.html">wn.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/da3/wn_8h_source.html#l00119">119</a> of file <a class="el" href="../../d2/da3/wn_8h_source.html">wn.h</a>.</p>
 
 </div>
 </div>
@@ -1569,7 +1578,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/da3/wn_8h_source.html#l00116">116</a> of file <a class="el" href="../../d2/da3/wn_8h_source.html">wn.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/da3/wn_8h_source.html#l00118">118</a> of file <a class="el" href="../../d2/da3/wn_8h_source.html">wn.h</a>.</p>
 
 </div>
 </div>
@@ -1585,7 +1594,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/da3/wn_8h_source.html#l00112">112</a> of file <a class="el" href="../../d2/da3/wn_8h_source.html">wn.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/da3/wn_8h_source.html#l00114">114</a> of file <a class="el" href="../../d2/da3/wn_8h_source.html">wn.h</a>.</p>
 
 </div>
 </div>
@@ -1609,7 +1618,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/da3/wn_8h_source.html#l00115">115</a> of file <a class="el" href="../../d2/da3/wn_8h_source.html">wn.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/da3/wn_8h_source.html#l00117">117</a> of file <a class="el" href="../../d2/da3/wn_8h_source.html">wn.h</a>.</p>
 
 </div>
 </div>
@@ -1625,7 +1634,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/da3/wn_8h_source.html#l00113">113</a> of file <a class="el" href="../../d2/da3/wn_8h_source.html">wn.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/da3/wn_8h_source.html#l00115">115</a> of file <a class="el" href="../../d2/da3/wn_8h_source.html">wn.h</a>.</p>
 
 </div>
 </div>

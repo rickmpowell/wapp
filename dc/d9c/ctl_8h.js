@@ -22,5 +22,6 @@ var ctl_8h =
     [ "SELS", "d6/d3b/classSELS.html", "d6/d3b/classSELS" ],
     [ "CMDSELECTOR", "d7/d46/classCMDSELECTOR.html", null ],
     [ "VSEL", "d8/d91/classVSEL.html", null ],
-    [ "EDIT", "d6/dc4/classEDIT.html", "d6/dc4/classEDIT" ]
+    [ "EDIT", "d6/dc4/classEDIT.html", "d6/dc4/classEDIT" ],
+    [ "GROUP", "d2/dfa/classGROUP.html", "d2/dfa/classGROUP" ]
 ];

@@ -99,6 +99,11 @@ $(document).ready(function(){initNavTree('da/db3/classRTC.html','../../'); initR
   <div class="headertitle"><div class="title">RTC Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Base class for render target.  
+ <a href="../../da/db3/classRTC.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for RTC:</div>
 <div class="dyncontent">
@@ -120,9 +125,9 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>RebuildDevDep
 <tr class="memitem:a2efc30c166337be2a4a73a82401cce66" id="r_a2efc30c166337be2a4a73a82401cce66"><td class="memItemLeft" align="right" valign="top"><a id="a2efc30c166337be2a4a73a82401cce66" name="a2efc30c166337be2a4a73a82401cce66"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>PurgeDevDeps</b> (com_ptr&lt; ID2D1DeviceContext &gt; &amp;pdc2)=0</td></tr>
 <tr class="separator:a2efc30c166337be2a4a73a82401cce66"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad2fd0b87979da82fab7c70eaafc51bf" id="r_aad2fd0b87979da82fab7c70eaafc51bf"><td class="memItemLeft" align="right" valign="top"><a id="aad2fd0b87979da82fab7c70eaafc51bf" name="aad2fd0b87979da82fab7c70eaafc51bf"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Prepare</b> (com_ptr&lt; ID2D1DeviceContext &gt; &amp;pdc2)=0</td></tr>
-<tr class="separator:aad2fd0b87979da82fab7c70eaafc51bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e4f181ab7d747fbf79c8514f00c953b" id="r_a8e4f181ab7d747fbf79c8514f00c953b"><td class="memItemLeft" align="right" valign="top"><a id="a8e4f181ab7d747fbf79c8514f00c953b" name="a8e4f181ab7d747fbf79c8514f00c953b"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>FPrepare</b> (com_ptr&lt; ID2D1DeviceContext &gt; &amp;pdc2)=0</td></tr>
+<tr class="separator:a8e4f181ab7d747fbf79c8514f00c953b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac243a3e0e2dd2c91759e8593fbca7fdc" id="r_ac243a3e0e2dd2c91759e8593fbca7fdc"><td class="memItemLeft" align="right" valign="top"><a id="ac243a3e0e2dd2c91759e8593fbca7fdc" name="ac243a3e0e2dd2c91759e8593fbca7fdc"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Present</b> (com_ptr&lt; ID2D1DeviceContext &gt; &amp;pdc2, const <a class="el" href="../../d2/d9b/classRC.html">RC</a> &amp;rcgUpdate)=0</td></tr>
 <tr class="separator:ac243a3e0e2dd2c91759e8593fbca7fdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -149,8 +154,9 @@ Protected Attributes</h2></td></tr>
 <tr class="separator:a164aacd8f75d896c5634d785d3ede817"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00027">27</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<div class="textblock"><p>Base class for render target. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00029">29</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a02d77edad9a9971b9f9e9c3d9571c1a2" name="a02d77edad9a9971b9f9e9c3d9571c1a2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a02d77edad9a9971b9f9e9c3d9571c1a2">&#9670;&#160;</a></span>RTC()</h2>
@@ -176,7 +182,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00030">30</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00032">32</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 
 </div>
 </div>
@@ -203,7 +209,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00031">31</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00033">33</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 
 </div>
 </div>
@@ -232,7 +238,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00042">42</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00048">48</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
@@ -260,7 +266,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00050">50</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00056">56</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
@@ -288,7 +294,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00020">20</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00026">26</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
@@ -316,7 +322,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00028">28</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/db1/rt_8cpp_source.html#l00034">34</a> of file <a class="el" href="../../d5/db1/rt_8cpp_source.html">rt.cpp</a>.</p>
 
 </div>
 </div>
@@ -341,7 +347,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00045">45</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00047">47</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 
 </div>
 </div>
@@ -365,7 +371,7 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00038">38</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc9/rt_8h_source.html#l00040">40</a> of file <a class="el" href="../../d6/dc9/rt_8h_source.html">rt.h</a>.</p>
 
 </div>
 </div>

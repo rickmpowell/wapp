@@ -101,100 +101,108 @@ $(document).ready(function(){initNavTree('de/def/clip_8cpp_source.html','../../'
 <a href="../../de/def/clip_8cpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;<a class="code" href="../../d2/d48/wapp_8h.html">wapp.h</a>&quot;</span></div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
-<div class="foldopen" id="foldopen00024" data-start="{" data-end="};">
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="../../d7/d0b/classCLIP.html">   24</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d7/d0b/classCLIP.html">CLIP</a></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>{</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    </div>
-<div class="foldopen" id="foldopen00032" data-start="{" data-end="}">
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="../../d7/d0b/classCLIP.html#af89ae6fcef42e3564138ce5d90948881">   32</a></span>    <a class="code hl_function" href="../../d7/d0b/classCLIP.html#af89ae6fcef42e3564138ce5d90948881">CLIP</a>(HWND hwnd) {</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        ThrowError(::OpenClipboard(hwnd) ? S_OK : (HRESULT)::GetLastError());</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    }</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#ifndef CONSOLE</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
+<div class="foldopen" id="foldopen00026" data-start="{" data-end="};">
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="../../d7/d0b/classCLIP.html">   26</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d7/d0b/classCLIP.html">CLIP</a></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>{</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    </div>
+<div class="foldopen" id="foldopen00034" data-start="{" data-end="}">
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="../../d7/d0b/classCLIP.html#af89ae6fcef42e3564138ce5d90948881">   34</a></span>    <a class="code hl_function" href="../../d7/d0b/classCLIP.html#af89ae6fcef42e3564138ce5d90948881">CLIP</a>(HWND hwnd) {</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>        ThrowError(::OpenClipboard(hwnd) ? S_OK : (HRESULT)::GetLastError());</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    }</div>
 </div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="foldopen" id="foldopen00040" data-start="{" data-end="}">
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno"><a class="line" href="../../d7/d0b/classCLIP.html#ab3647ef7990b57f75b38e145a7624894">   40</a></span>    <a class="code hl_function" href="../../d7/d0b/classCLIP.html#ab3647ef7990b57f75b38e145a7624894">~CLIP</a>() {</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        ::CloseClipboard();</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    }</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
+<div class="foldopen" id="foldopen00042" data-start="{" data-end="}">
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="../../d7/d0b/classCLIP.html#ab3647ef7990b57f75b38e145a7624894">   42</a></span>    <a class="code hl_function" href="../../d7/d0b/classCLIP.html#ab3647ef7990b57f75b38e145a7624894">~CLIP</a>() {</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        ::CloseClipboard();</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    }</div>
 </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="foldopen" id="foldopen00048" data-start="{" data-end="}">
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="../../d7/d0b/classCLIP.html#ad75f48847d2cbedb57b064046b6ee0c4">   48</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="../../d7/d0b/classCLIP.html#ad75f48847d2cbedb57b064046b6ee0c4">Empty</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        ThrowError(::EmptyClipboard() ? S_OK : (HRESULT)::GetLastError());</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    }</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
+<div class="foldopen" id="foldopen00050" data-start="{" data-end="}">
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="../../d7/d0b/classCLIP.html#ad75f48847d2cbedb57b064046b6ee0c4">   50</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="../../d7/d0b/classCLIP.html#ad75f48847d2cbedb57b064046b6ee0c4">Empty</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        ThrowError(::EmptyClipboard() ? S_OK : (HRESULT)::GetLastError());</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    }</div>
 </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
-<div class="foldopen" id="foldopen00056" data-start="{" data-end="}">
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="../../d7/d0b/classCLIP.html#a7a73236440f4a150f6db351cd3c499c6">   56</a></span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="../../d7/d0b/classCLIP.html#a7a73236440f4a150f6db351cd3c499c6">SetData</a>(UINT cf, HGLOBAL h) {</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        return ::SetClipboardData(cf, h) != NULL;</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    }</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
+<div class="foldopen" id="foldopen00058" data-start="{" data-end="}">
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="../../d7/d0b/classCLIP.html#a7a73236440f4a150f6db351cd3c499c6">   58</a></span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="../../d7/d0b/classCLIP.html#a7a73236440f4a150f6db351cd3c499c6">SetData</a>(UINT cf, HGLOBAL h) {</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        return ::SetClipboardData(cf, h) != NULL;</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    }</div>
 </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="foldopen" id="foldopen00064" data-start="{" data-end="}">
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno"><a class="line" href="../../d7/d0b/classCLIP.html#aca0faac2c72034be1a7e7a9d268430c5">   64</a></span>    HGLOBAL <a class="code hl_function" href="../../d7/d0b/classCLIP.html#aca0faac2c72034be1a7e7a9d268430c5">GetData</a>(UINT cf) {</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        return ::GetClipboardData(cf);</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    }</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
+<div class="foldopen" id="foldopen00066" data-start="{" data-end="}">
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno"><a class="line" href="../../d7/d0b/classCLIP.html#aca0faac2c72034be1a7e7a9d268430c5">   66</a></span>    HGLOBAL <a class="code hl_function" href="../../d7/d0b/classCLIP.html#aca0faac2c72034be1a7e7a9d268430c5">GetData</a>(UINT cf) </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    {</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>        HANDLE hT = ::GetClipboardData(cf);</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>        <span class="keywordflow">if</span> (hT == NULL)</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>            <span class="keywordflow">throw</span> (HRESULT)::GetLastError();</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>        <span class="keywordflow">return</span> hT;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    }</div>
 </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>};</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>};</div>
 </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
-<div class="foldopen" id="foldopen00077" data-start="{" data-end="}">
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno"><a class="line" href="../../d2/dcf/classiclipbuffer.html#a77d59172b682c132a589a02bf50438eb">   77</a></span><a class="code hl_function" href="../../d2/dcf/classiclipbuffer.html#a77d59172b682c132a589a02bf50438eb">iclipbuffer::iclipbuffer</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; iwapp, UINT cf)</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>{</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <a class="code hl_class" href="../../d7/d0b/classCLIP.html">CLIP</a> clip(iwapp.hwnd);</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <a class="code hl_class" href="../../d5/dd3/classglobal__ptr.html">global_ptr&lt;char&gt;</a> pData(clip.<a class="code hl_function" href="../../d7/d0b/classCLIP.html#aca0faac2c72034be1a7e7a9d268430c5">GetData</a>(cf));</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    achClip = pData.get();</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    pData.release();    <span class="comment">// don&#39;t reset since the clipboard owns the item</span></div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    ach[0] = 0;</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>}</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
+<div class="foldopen" id="foldopen00083" data-start="{" data-end="}">
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno"><a class="line" href="../../d2/dcf/classiclipbuffer.html#a77d59172b682c132a589a02bf50438eb">   83</a></span><a class="code hl_function" href="../../d2/dcf/classiclipbuffer.html#a77d59172b682c132a589a02bf50438eb">iclipbuffer::iclipbuffer</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; iwapp, UINT cf)</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>{</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <a class="code hl_class" href="../../d7/d0b/classCLIP.html">CLIP</a> clip(iwapp.hwnd);</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <a class="code hl_class" href="../../d5/dd3/classglobal__ptr.html">global_ptr&lt;char&gt;</a> pData(clip.<a class="code hl_function" href="../../d7/d0b/classCLIP.html#aca0faac2c72034be1a7e7a9d268430c5">GetData</a>(cf));</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    achClip = pData.get();</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    pData.release();    <span class="comment">// don&#39;t reset since the clipboard owns the item</span></div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    ach[0] = 0;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>}</div>
 </div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="keywordtype">int</span> iclipbuffer::underflow(<span class="keywordtype">void</span>)</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>{</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    <span class="keywordflow">if</span> (achClip[ichClip] == 0)</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>        <span class="keywordflow">return</span> traits_type::eof();</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    <span class="keywordtype">char</span> ch = achClip[ichClip++];</div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordflow">if</span> (ch == <span class="charliteral">&#39;\r&#39;</span> &amp;&amp; achClip[ichClip] == <span class="charliteral">&#39;\n&#39;</span>) {</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        ++ichClip;</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>        ch = <span class="charliteral">&#39;\n&#39;</span>;</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    }</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    ach[0] = ch;</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    setg(ach, ach, ach + 1);</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keywordflow">return</span> traits_type::to_int_type(ch);</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>}</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
-<div class="foldopen" id="foldopen00105" data-start="{" data-end="}">
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno"><a class="line" href="../../d5/da0/classoclipbuffer.html#aa98466c72e2c6595309439c7e2336b9f">  105</a></span>oclipbuffer::oclipbuffer(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; iwappOwn, UINT cfOut) : iwapp(iwappOwn), cf(cfOut)</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>{</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>}</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="keywordtype">int</span> iclipbuffer::underflow(<span class="keywordtype">void</span>)</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>{</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keywordflow">if</span> (achClip[ichClip] == 0)</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        <span class="keywordflow">return</span> traits_type::eof();</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keywordtype">char</span> ch = achClip[ichClip++];</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keywordflow">if</span> (ch == <span class="charliteral">&#39;\r&#39;</span> &amp;&amp; achClip[ichClip] == <span class="charliteral">&#39;\n&#39;</span>) {</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        ++ichClip;</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>        ch = <span class="charliteral">&#39;\n&#39;</span>;</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    }</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    ach[0] = ch;</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    setg(ach, ach, ach + 1);</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="keywordflow">return</span> traits_type::to_int_type(ch);</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>}</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
+<div class="foldopen" id="foldopen00111" data-start="{" data-end="}">
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno"><a class="line" href="../../d5/da0/classoclipbuffer.html#aa98466c72e2c6595309439c7e2336b9f">  111</a></span>oclipbuffer::oclipbuffer(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; iwappOwn, UINT cfOut) : iwapp(iwappOwn), cf(cfOut)</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>{</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>}</div>
 </div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
-<div class="foldopen" id="foldopen00114" data-start="{" data-end="}">
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno"><a class="line" href="../../d5/da0/classoclipbuffer.html#a1d1bee120bd69c6b6a60843829b04317">  114</a></span><a class="code hl_function" href="../../d5/da0/classoclipbuffer.html#a1d1bee120bd69c6b6a60843829b04317">oclipbuffer::~oclipbuffer</a>()</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>{</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    sync();</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>}</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
+<div class="foldopen" id="foldopen00120" data-start="{" data-end="}">
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno"><a class="line" href="../../d5/da0/classoclipbuffer.html#a1d1bee120bd69c6b6a60843829b04317">  120</a></span><a class="code hl_function" href="../../d5/da0/classoclipbuffer.html#a1d1bee120bd69c6b6a60843829b04317">oclipbuffer::~oclipbuffer</a>()</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>{</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    sync();</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>}</div>
 </div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span><span class="keywordtype">int</span> oclipbuffer::sync(<span class="keywordtype">void</span>)</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>{</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <a class="code hl_class" href="../../d7/d0b/classCLIP.html">CLIP</a> clip(iwapp.hwnd);</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    clip.Empty();</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <span class="keywordtype">unsigned</span> cb = <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span><span class="keyword">&gt;</span>(str().size() + 1);</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <a class="code hl_class" href="../../d5/dd3/classglobal__ptr.html">global_ptr&lt;char&gt;</a> pData(cb);</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    memcpy(pData.get(), str().c_str(), cb);</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <span class="keywordflow">return</span> clip.SetData(cf, pData.release()) ? 0 : -1;</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>}</div>
-<div class="ttc" id="aclassCLIP_html"><div class="ttname"><a href="../../d7/d0b/classCLIP.html">CLIP</a></div><div class="ttdoc">Simplified clipboard wrapper.</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00024">clip.cpp:25</a></div></div>
-<div class="ttc" id="aclassCLIP_html_a7a73236440f4a150f6db351cd3c499c6"><div class="ttname"><a href="../../d7/d0b/classCLIP.html#a7a73236440f4a150f6db351cd3c499c6">CLIP::SetData</a></div><div class="ttdeci">bool SetData(UINT cf, HGLOBAL h)</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00056">clip.cpp:56</a></div></div>
-<div class="ttc" id="aclassCLIP_html_ab3647ef7990b57f75b38e145a7624894"><div class="ttname"><a href="../../d7/d0b/classCLIP.html#ab3647ef7990b57f75b38e145a7624894">CLIP::~CLIP</a></div><div class="ttdeci">~CLIP()</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00040">clip.cpp:40</a></div></div>
-<div class="ttc" id="aclassCLIP_html_aca0faac2c72034be1a7e7a9d268430c5"><div class="ttname"><a href="../../d7/d0b/classCLIP.html#aca0faac2c72034be1a7e7a9d268430c5">CLIP::GetData</a></div><div class="ttdeci">HGLOBAL GetData(UINT cf)</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00064">clip.cpp:64</a></div></div>
-<div class="ttc" id="aclassCLIP_html_ad75f48847d2cbedb57b064046b6ee0c4"><div class="ttname"><a href="../../d7/d0b/classCLIP.html#ad75f48847d2cbedb57b064046b6ee0c4">CLIP::Empty</a></div><div class="ttdeci">void Empty(void)</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00048">clip.cpp:48</a></div></div>
-<div class="ttc" id="aclassCLIP_html_af89ae6fcef42e3564138ce5d90948881"><div class="ttname"><a href="../../d7/d0b/classCLIP.html#af89ae6fcef42e3564138ce5d90948881">CLIP::CLIP</a></div><div class="ttdeci">CLIP(HWND hwnd)</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00032">clip.cpp:32</a></div></div>
-<div class="ttc" id="aclassIWAPP_html"><div class="ttname"><a href="../../d9/d15/classIWAPP.html">IWAPP</a></div><div class="ttdoc">The Windows Application.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d48/wapp_8h_source.html#l00039">wapp.h:40</a></div></div>
-<div class="ttc" id="aclassglobal__ptr_html"><div class="ttname"><a href="../../d5/dd3/classglobal__ptr.html">global_ptr</a></div><div class="ttdoc">A managed pointer to a memory object allocated with GlobalAlloc.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d39/app_8h_source.html#l00323">app.h:324</a></div></div>
-<div class="ttc" id="aclassiclipbuffer_html_a77d59172b682c132a589a02bf50438eb"><div class="ttname"><a href="../../d2/dcf/classiclipbuffer.html#a77d59172b682c132a589a02bf50438eb">iclipbuffer::iclipbuffer</a></div><div class="ttdeci">iclipbuffer(IWAPP &amp;iwapp, UINT cf)</div><div class="ttdoc">Creates the clipboard input buffer.</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00077">clip.cpp:77</a></div></div>
-<div class="ttc" id="aclassoclipbuffer_html_a1d1bee120bd69c6b6a60843829b04317"><div class="ttname"><a href="../../d5/da0/classoclipbuffer.html#a1d1bee120bd69c6b6a60843829b04317">oclipbuffer::~oclipbuffer</a></div><div class="ttdeci">virtual ~oclipbuffer()</div><div class="ttdoc">Destroys the clipboard output buffer, syncing it to the clipboard.</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00114">clip.cpp:114</a></div></div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span><span class="keywordtype">int</span> oclipbuffer::sync(<span class="keywordtype">void</span>)</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>{</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <a class="code hl_class" href="../../d7/d0b/classCLIP.html">CLIP</a> clip(iwapp.hwnd);</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    clip.Empty();</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="keywordtype">unsigned</span> cb = <span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span><span class="keyword">&gt;</span>(str().size() + 1);</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <a class="code hl_class" href="../../d5/dd3/classglobal__ptr.html">global_ptr&lt;char&gt;</a> pData(cb);</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    memcpy(pData.get(), str().c_str(), cb);</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    <span class="keywordflow">return</span> clip.SetData(cf, pData.release()) ? 0 : -1;</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>}</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="aclassCLIP_html"><div class="ttname"><a href="../../d7/d0b/classCLIP.html">CLIP</a></div><div class="ttdoc">Simplified clipboard wrapper.</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00026">clip.cpp:27</a></div></div>
+<div class="ttc" id="aclassCLIP_html_a7a73236440f4a150f6db351cd3c499c6"><div class="ttname"><a href="../../d7/d0b/classCLIP.html#a7a73236440f4a150f6db351cd3c499c6">CLIP::SetData</a></div><div class="ttdeci">bool SetData(UINT cf, HGLOBAL h)</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00058">clip.cpp:58</a></div></div>
+<div class="ttc" id="aclassCLIP_html_ab3647ef7990b57f75b38e145a7624894"><div class="ttname"><a href="../../d7/d0b/classCLIP.html#ab3647ef7990b57f75b38e145a7624894">CLIP::~CLIP</a></div><div class="ttdeci">~CLIP()</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00042">clip.cpp:42</a></div></div>
+<div class="ttc" id="aclassCLIP_html_aca0faac2c72034be1a7e7a9d268430c5"><div class="ttname"><a href="../../d7/d0b/classCLIP.html#aca0faac2c72034be1a7e7a9d268430c5">CLIP::GetData</a></div><div class="ttdeci">HGLOBAL GetData(UINT cf)</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00066">clip.cpp:66</a></div></div>
+<div class="ttc" id="aclassCLIP_html_ad75f48847d2cbedb57b064046b6ee0c4"><div class="ttname"><a href="../../d7/d0b/classCLIP.html#ad75f48847d2cbedb57b064046b6ee0c4">CLIP::Empty</a></div><div class="ttdeci">void Empty(void)</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00050">clip.cpp:50</a></div></div>
+<div class="ttc" id="aclassCLIP_html_af89ae6fcef42e3564138ce5d90948881"><div class="ttname"><a href="../../d7/d0b/classCLIP.html#af89ae6fcef42e3564138ce5d90948881">CLIP::CLIP</a></div><div class="ttdeci">CLIP(HWND hwnd)</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00034">clip.cpp:34</a></div></div>
+<div class="ttc" id="aclassIWAPP_html"><div class="ttname"><a href="../../d9/d15/classIWAPP.html">IWAPP</a></div><div class="ttdoc">The Windows Application.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d48/wapp_8h_source.html#l00039">wapp.h:45</a></div></div>
+<div class="ttc" id="aclassglobal__ptr_html"><div class="ttname"><a href="../../d5/dd3/classglobal__ptr.html">global_ptr</a></div><div class="ttdoc">A managed pointer to a memory object allocated with GlobalAlloc.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d39/app_8h_source.html#l00327">app.h:328</a></div></div>
+<div class="ttc" id="aclassiclipbuffer_html_a77d59172b682c132a589a02bf50438eb"><div class="ttname"><a href="../../d2/dcf/classiclipbuffer.html#a77d59172b682c132a589a02bf50438eb">iclipbuffer::iclipbuffer</a></div><div class="ttdeci">iclipbuffer(IWAPP &amp;iwapp, UINT cf)</div><div class="ttdoc">Creates the clipboard input buffer.</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00083">clip.cpp:83</a></div></div>
+<div class="ttc" id="aclassoclipbuffer_html_a1d1bee120bd69c6b6a60843829b04317"><div class="ttname"><a href="../../d5/da0/classoclipbuffer.html#a1d1bee120bd69c6b6a60843829b04317">oclipbuffer::~oclipbuffer</a></div><div class="ttdeci">virtual ~oclipbuffer()</div><div class="ttdoc">Destroys the clipboard output buffer, syncing it to the clipboard.</div><div class="ttdef"><b>Definition</b> <a href="../../de/def/clip_8cpp_source.html#l00120">clip.cpp:120</a></div></div>
 <div class="ttc" id="awapp_8h_html"><div class="ttname"><a href="../../d2/d48/wapp_8h.html">wapp.h</a></div><div class="ttdoc">Windows Application.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

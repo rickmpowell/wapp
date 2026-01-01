@@ -181,15 +181,42 @@ $(document).ready(function(){initNavTree('d8/d3c/util_8h_source.html','../../');
 <div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>};</div>
 </div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span><span class="keywordtype">string</span> SVFormat(string_view fmt, format_args args);</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Args&gt;</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span><span class="keywordtype">string</span> SFormat(string_view fmt, Args&amp;&amp;... args)</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>{</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    <span class="keywordflow">return</span> SVFormat(fmt, make_format_args(args...));</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>}</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span><span class="keywordtype">string</span> SVFormat(string_view fmt, format_args args);</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Args&gt;</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span><span class="keywordtype">string</span> SFormat(string_view fmt, Args&amp;&amp;... args)</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>{</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    <span class="keywordflow">return</span> SVFormat(fmt, make_format_args(args...));</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>}</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span> </div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span><span class="keywordtype">string</span> SEscapeQuoted(<span class="keyword">const</span> <span class="keywordtype">string</span>&amp; s);</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span> </div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
+<div class="foldopen" id="foldopen00153" data-start="{" data-end="};">
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno"><a class="line" href="../../d6/d4d/classobserver__ptr.html">  153</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d6/d4d/classobserver__ptr.html">observer_ptr</a> {</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    T* pt = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    <span class="keyword">constexpr</span> <a class="code hl_class" href="../../d6/d4d/classobserver__ptr.html">observer_ptr</a>() <span class="keyword">noexcept</span> = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    <span class="keyword">constexpr</span> <a class="code hl_class" href="../../d6/d4d/classobserver__ptr.html">observer_ptr</a>(T* ptInit) noexcept : pt(ptInit) {}</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span> </div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    <span class="keyword">constexpr</span> T* get() <span class="keyword">const</span> <span class="keyword">noexcept</span> { <span class="keywordflow">return</span> pt; }</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    <span class="keyword">constexpr</span> T&amp; operator*() <span class="keyword">const</span> <span class="keyword">noexcept</span> { <span class="keywordflow">return</span> *pt; }</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    <span class="keyword">constexpr</span> T* operator-&gt;() <span class="keyword">const</span> <span class="keyword">noexcept</span> { <span class="keywordflow">return</span> pt; }</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    <span class="keyword">constexpr</span> <span class="keyword">explicit</span> <span class="keyword">operator</span> bool() <span class="keyword">const</span> <span class="keyword">noexcept</span> { <span class="keywordflow">return</span> pt != <span class="keyword">nullptr</span>; }</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="keywordtype">void</span> reset(T* ptNew = <span class="keyword">nullptr</span>) <span class="keyword">noexcept</span> { this-&gt;pt = ptNew; }</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span> </div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    T* release() <span class="keyword">noexcept</span></div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    {</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>        T* ptT = pt;</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>        pt = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>        <span class="keywordflow">return</span> ptT;</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    }</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>};</div>
+</div>
 <div class="ttc" id="aclasslinestream_html"><div class="ttname"><a href="../../d9/d59/classlinestream.html">linestream</a></div><div class="ttdef"><b>Definition</b> <a href="../../d8/d3c/util_8h_source.html#l00096">util.h:96</a></div></div>
+<div class="ttc" id="aclassobserver__ptr_html"><div class="ttname"><a href="../../d6/d4d/classobserver__ptr.html">observer_ptr</a></div><div class="ttdoc">A non-owning smart pointer.</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d3c/util_8h_source.html#l00153">util.h:153</a></div></div>
 <div class="ttc" id="aframework_8h_html"><div class="ttname"><a href="../../d6/d29/framework_8h.html">framework.h</a></div><div class="ttdoc">System and standard library headers.</div></div>
 <div class="ttc" id="autil_8h_html_a79397a9c2bf1593c3a3ced62adb36dae"><div class="ttname"><a href="../../d8/d3c/util_8h.html#a79397a9c2bf1593c3a3ced62adb36dae">index_of</a></div><div class="ttdeci">constexpr size_t index_of(const array&lt; T, ct &gt; &amp;at, const T &amp;t)</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d3c/util_8h_source.html#l00052">util.h:52</a></div></div>
 <div class="ttc" id="autil_8h_html_a89f1b35fb401f63802878b65a713e7c7"><div class="ttname"><a href="../../d8/d3c/util_8h.html#a89f1b35fb401f63802878b65a713e7c7">FInRange</a></div><div class="ttdeci">bool FInRange(const T &amp;t, const T &amp;tFirst, const T &amp;tLast)</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d3c/util_8h_source.html#l00041">util.h:41</a></div></div>

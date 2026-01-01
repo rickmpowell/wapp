@@ -17,5 +17,5 @@ var searchData=
   ['staticr_14',['STATICR',['../d4/db7/classSTATICR.html',1,'']]],
   ['stimer_15',['STIMER',['../d2/db4/classSTIMER.html',1,'']]],
   ['style_16',['STYLE',['../d9/d78/classTF.html#a8778fd3769fd93aa2dcd4ae078f89735',1,'TF']]],
-  ['sz_17',['sz',['../db/dfa/classSZ.html#aa7df2ca902939639328a76dcdb43c637',1,'SZ::SZ()'],['../db/dfa/classSZ.html',1,'SZ']]]
+  ['sz_17',['sz',['../db/dfa/classSZ.html#a805ca87cc525085fb1a50d8909a2c85c',1,'SZ::SZ()'],['../db/dfa/classSZ.html',1,'SZ']]]
 ];

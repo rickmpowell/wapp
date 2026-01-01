@@ -103,271 +103,274 @@ $(document).ready(function(){initNavTree('d0/dd5/dlg_8h_source.html','../../'); 
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#include &quot;<a class="code" href="../../d2/d39/app_8h.html">app.h</a>&quot;</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#include &quot;<a class="code" href="../../dc/d9c/ctl_8h.html">ctl.h</a>&quot;</span></div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="comment"> *  Our dialog boxes have a certain style  ...</span></div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment"> */</span></div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keyword">inline</span> <span class="keyword">constexpr</span> <a class="code hl_class" href="../../d8/d5a/classCO.html">CO</a> coDlgBack(0.33f, 0.28f, 0.35f);</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="keyword">inline</span> <span class="keyword">constexpr</span> <a class="code hl_class" href="../../d8/d5a/classCO.html">CO</a> coDlgText(coWhite);</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keyword">inline</span> <span class="keyword">constexpr</span> <span class="keywordtype">char</span> sFontUI[] = <span class="stringliteral">&quot;Segoe UI&quot;</span>;</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keyword">inline</span> <span class="keyword">constexpr</span> <span class="keywordtype">char</span> sFontSymbol[] = <span class="stringliteral">&quot;Segoe UI Symbol&quot;</span>;</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keyword">inline</span> <span class="keyword">constexpr</span> <span class="keywordtype">float</span> dxyDlgPadding = 48;</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="keyword">inline</span> <span class="keyword">constexpr</span> <span class="keywordtype">float</span> dxyDlgGutter = 24;</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
-<div class="foldopen" id="foldopen00037" data-start="{" data-end="};">
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="../../d1/d5a/classDLG.html">   37</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>, <span class="keyword">public</span> <a class="code hl_class" href="../../d2/ded/classEVD.html">EVD</a></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>{</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>(<a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>&amp; wnOwner);</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../d1/d5a/classDLG.html">~DLG</a>();</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keywordtype">void</span> ShowCentered(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#ifndef CONSOLE</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment">/*</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment"> *  Our dialog boxes have a certain style  ...</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment"> */</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keyword">constexpr</span> <a class="code hl_class" href="../../d8/d5a/classCO.html">CO</a> coDlgBack(0.33f, 0.28f, 0.35f);</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keyword">constexpr</span> <a class="code hl_class" href="../../d8/d5a/classCO.html">CO</a> coDlgText(coWhite);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keyword">constexpr</span> <span class="keywordtype">char</span> sFontUI[] = <span class="stringliteral">&quot;Segoe UI&quot;</span>;</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="keyword">constexpr</span> <span class="keywordtype">char</span> sFontSymbol[] = <span class="stringliteral">&quot;Segoe UI Symbol&quot;</span>;</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="keyword">constexpr</span> <span class="keywordtype">float</span> dxyDlgPadding = 48;</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="keyword">constexpr</span> <span class="keywordtype">float</span> dxyDlgGutter = 24;</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="foldopen" id="foldopen00039" data-start="{" data-end="};">
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno"><a class="line" href="../../d1/d5a/classDLG.html">   39</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>, <span class="keyword">public</span> <a class="code hl_class" href="../../d2/ded/classEVD.html">EVD</a></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>{</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>(<a class="code hl_class" href="../../db/dd4/classWN.html">WN</a>&amp; wnOwner);</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../d1/d5a/classDLG.html">~DLG</a>();</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../d8/d5a/classCO.html">CO</a> CoText(<span class="keywordtype">void</span>) <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../d8/d5a/classCO.html">CO</a> CoBack(<span class="keywordtype">void</span>) <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> Draw(<span class="keyword">const</span> <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>&amp; rcUpdate) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FRun(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> EnterPump(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keyword">virtual</span> <span class="keywordtype">int</span> QuitPump(MSG&amp; msg) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FQuitPump(MSG&amp; msg) <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FKeyDown(<span class="keywordtype">int</span> vk) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordtype">void</span> ShowCentered(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../d8/d5a/classCO.html">CO</a> CoText(<span class="keywordtype">void</span>) <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../d8/d5a/classCO.html">CO</a> CoBack(<span class="keywordtype">void</span>) <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> Draw(<span class="keyword">const</span> <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>&amp; rcUpdate) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FRun(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> EnterPump(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keyword">virtual</span> <span class="keywordtype">int</span> QuitPump(MSG&amp; msg) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FQuitPump(MSG&amp; msg) <span class="keyword">const override</span>;</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> End(<span class="keywordtype">int</span> val);</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> Validate(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keywordtype">bool</span> fEnd;</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordtype">int</span> val;</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>};</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FKeyDown(<span class="keywordtype">int</span> vk) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> End(<span class="keywordtype">int</span> val);</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> Validate(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">bool</span> fEnd;</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordtype">int</span> val;</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>};</div>
 </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
-<div class="foldopen" id="foldopen00073" data-start="{" data-end="};">
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="../../df/daa/structOFN.html">   73</a></span><span class="keyword">struct </span><a class="code hl_struct" href="../../df/daa/structOFN.html">OFN</a></div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>{</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <a class="code hl_struct" href="../../df/daa/structOFN.html">OFN</a>(<span class="keywordtype">int</span> cwch)</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    {</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        memset(&amp;ofn, 0, <span class="keyword">sizeof</span>(ofn));</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        ofn.lStructSize = <span class="keyword">sizeof</span>(ofn);</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>        wsFilter = make_unique&lt;wchar_t[]&gt;(cwch);</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        wsFile = make_unique&lt;wchar_t[]&gt;(cwch);</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        wsDirectory = make_unique&lt;wchar_t[]&gt;(cwch);</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    }</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    OPENFILENAMEW ofn;</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    unique_ptr&lt;wchar_t[]&gt; wsFilter;</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    unique_ptr&lt;wchar_t[]&gt; wsFile;</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    unique_ptr&lt;wchar_t[]&gt; wsDirectory;</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>};</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
+<div class="foldopen" id="foldopen00075" data-start="{" data-end="};">
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno"><a class="line" href="../../df/daa/structOFN.html">   75</a></span><span class="keyword">struct </span><a class="code hl_struct" href="../../df/daa/structOFN.html">OFN</a></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>{</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <a class="code hl_struct" href="../../df/daa/structOFN.html">OFN</a>(<span class="keywordtype">int</span> cwch)</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    {</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>        memset(&amp;ofn, 0, <span class="keyword">sizeof</span>(ofn));</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        ofn.lStructSize = <span class="keyword">sizeof</span>(ofn);</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        wsFilter = make_unique&lt;wchar_t[]&gt;(cwch);</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        wsFile = make_unique&lt;wchar_t[]&gt;(cwch);</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        wsDirectory = make_unique&lt;wchar_t[]&gt;(cwch);</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    }</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    OPENFILENAMEW ofn;</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    unique_ptr&lt;wchar_t[]&gt; wsFilter;</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    unique_ptr&lt;wchar_t[]&gt; wsFile;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    unique_ptr&lt;wchar_t[]&gt; wsDirectory;</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>};</div>
 </div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
-<div class="foldopen" id="foldopen00096" data-start="{" data-end="};">
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno"><a class="line" href="../../d5/d73/classDLGFILE.html">   96</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d5/d73/classDLGFILE.html">DLGFILE</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a></div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>{</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <a class="code hl_class" href="../../d5/d73/classDLGFILE.html">DLGFILE</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keywordtype">void</span> BuildFilter(<span class="keywordtype">wchar_t</span>* wsFilter, <span class="keywordtype">int</span> cchFilter);</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <a class="code hl_struct" href="../../df/daa/structOFN.html">OFN</a> OfnDefault(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    map&lt;string, string&gt; mpextsLabel;</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keywordtype">string</span> extDefault;</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    filesystem::path file;</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>};</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
+<div class="foldopen" id="foldopen00098" data-start="{" data-end="};">
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno"><a class="line" href="../../d5/d73/classDLGFILE.html">   98</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d5/d73/classDLGFILE.html">DLGFILE</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a></div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>{</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <a class="code hl_class" href="../../d5/d73/classDLGFILE.html">DLGFILE</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <span class="keywordtype">void</span> BuildFilter(<span class="keywordtype">wchar_t</span>* wsFilter, <span class="keywordtype">int</span> cchFilter);</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <a class="code hl_struct" href="../../df/daa/structOFN.html">OFN</a> OfnDefault(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    map&lt;string, string&gt; mpextsLabel;</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordtype">string</span> extDefault;</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    filesystem::path file;</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>};</div>
 </div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
-<div class="foldopen" id="foldopen00118" data-start="{" data-end="};">
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno"><a class="line" href="../../d9/d7d/classDLGFILEOPEN.html">  118</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d9/d7d/classDLGFILEOPEN.html">DLGFILEOPEN</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d5/d73/classDLGFILE.html">DLGFILE</a></div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>{</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <a class="code hl_class" href="../../d9/d7d/classDLGFILEOPEN.html">DLGFILEOPEN</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FRun(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>};</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
+<div class="foldopen" id="foldopen00120" data-start="{" data-end="};">
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno"><a class="line" href="../../d9/d7d/classDLGFILEOPEN.html">  120</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d9/d7d/classDLGFILEOPEN.html">DLGFILEOPEN</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d5/d73/classDLGFILE.html">DLGFILE</a></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>{</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <a class="code hl_class" href="../../d9/d7d/classDLGFILEOPEN.html">DLGFILEOPEN</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FRun(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>};</div>
 </div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
-<div class="foldopen" id="foldopen00130" data-start="{" data-end="};">
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno"><a class="line" href="../../d6/da6/classDLGFILEOPENMULTI.html">  130</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d6/da6/classDLGFILEOPENMULTI.html">DLGFILEOPENMULTI</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d9/d7d/classDLGFILEOPEN.html">DLGFILEOPEN</a></div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>{</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    <a class="code hl_class" href="../../d6/da6/classDLGFILEOPENMULTI.html">DLGFILEOPENMULTI</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FRun(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    filesystem::path folder;</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>    vector&lt;filesystem::path&gt; vfile;</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>};</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span> </div>
+<div class="foldopen" id="foldopen00132" data-start="{" data-end="};">
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno"><a class="line" href="../../d6/da6/classDLGFILEOPENMULTI.html">  132</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d6/da6/classDLGFILEOPENMULTI.html">DLGFILEOPENMULTI</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d9/d7d/classDLGFILEOPEN.html">DLGFILEOPEN</a></div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>{</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    <a class="code hl_class" href="../../d6/da6/classDLGFILEOPENMULTI.html">DLGFILEOPENMULTI</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FRun(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>    filesystem::path folder;</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>    vector&lt;filesystem::path&gt; vfile;</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>};</div>
 </div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span> </div>
-<div class="foldopen" id="foldopen00145" data-start="{" data-end="};">
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno"><a class="line" href="../../da/df0/classDLGFILESAVE.html">  145</a></span><span class="keyword">class </span><a class="code hl_class" href="../../da/df0/classDLGFILESAVE.html">DLGFILESAVE</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d5/d73/classDLGFILE.html">DLGFILE</a></div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>{</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <a class="code hl_class" href="../../da/df0/classDLGFILESAVE.html">DLGFILESAVE</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FRun(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>};</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span> </div>
+<div class="foldopen" id="foldopen00147" data-start="{" data-end="};">
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno"><a class="line" href="../../da/df0/classDLGFILESAVE.html">  147</a></span><span class="keyword">class </span><a class="code hl_class" href="../../da/df0/classDLGFILESAVE.html">DLGFILESAVE</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d5/d73/classDLGFILE.html">DLGFILE</a></div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>{</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    <a class="code hl_class" href="../../da/df0/classDLGFILESAVE.html">DLGFILESAVE</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FRun(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>};</div>
 </div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span> </div>
-<div class="foldopen" id="foldopen00157" data-start="{" data-end="};">
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno"><a class="line" href="../../dc/da5/classDLGPRINT.html">  157</a></span><span class="keyword">class </span><a class="code hl_class" href="../../dc/da5/classDLGPRINT.html">DLGPRINT</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a></div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>{</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    <a class="code hl_class" href="../../dc/da5/classDLGPRINT.html">DLGPRINT</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FRun(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    HDC hdc = NULL; <span class="comment">// the printer DC</span></div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>};</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span> </div>
+<div class="foldopen" id="foldopen00159" data-start="{" data-end="};">
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno"><a class="line" href="../../dc/da5/classDLGPRINT.html">  159</a></span><span class="keyword">class </span><a class="code hl_class" href="../../dc/da5/classDLGPRINT.html">DLGPRINT</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a></div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>{</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    <a class="code hl_class" href="../../dc/da5/classDLGPRINT.html">DLGPRINT</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FRun(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    HDC hdc = NULL; <span class="comment">// the printer DC</span></div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>};</div>
 </div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span> </div>
-<div class="foldopen" id="foldopen00171" data-start="{" data-end="};">
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno"><a class="line" href="../../de/dab/classDLGFOLDER.html">  171</a></span><span class="keyword">class </span><a class="code hl_class" href="../../de/dab/classDLGFOLDER.html">DLGFOLDER</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a></div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>{</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    <a class="code hl_class" href="../../de/dab/classDLGFOLDER.html">DLGFOLDER</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FRun(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span> </div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    filesystem::path folder;</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>};</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span> </div>
+<div class="foldopen" id="foldopen00173" data-start="{" data-end="};">
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno"><a class="line" href="../../de/dab/classDLGFOLDER.html">  173</a></span><span class="keyword">class </span><a class="code hl_class" href="../../de/dab/classDLGFOLDER.html">DLGFOLDER</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a></div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>{</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <a class="code hl_class" href="../../de/dab/classDLGFOLDER.html">DLGFOLDER</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keyword">virtual</span> <span class="keywordtype">bool</span> FRun(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span> </div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    filesystem::path folder;</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>};</div>
 </div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span> </div>
-<div class="foldopen" id="foldopen00185" data-start="{" data-end="};">
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno"><a class="line" href="../../dd/d75/classCMDOK.html">  185</a></span><span class="keyword">class </span><a class="code hl_class" href="../../dd/d75/classCMDOK.html">CMDOK</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d2/d23/classCMD.html">CMD</a>&lt;CMDOK, IWAPP&gt;</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>{</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <a class="code hl_class" href="../../dd/d75/classCMDOK.html">CMDOK</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg, <span class="keywordtype">int</span> val=1) : </div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>        <a class="code hl_class" href="../../d2/d23/classCMD.html">CMD</a>(dlg.iwapp), </div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>        dlg(dlg),</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>        val(val)</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    {</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    }</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span> </div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="keyword">virtual</span> <span class="keywordtype">int</span> Execute(<span class="keywordtype">void</span>)<span class="keyword"> override</span></div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="keyword">    </span>{</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>        <span class="keywordflow">try</span> {</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>            dlg.Validate();</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>            dlg.End(val);</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>        }</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>        <span class="keywordflow">catch</span> (<a class="code hl_class" href="../../d7/d24/classERR.html">ERR</a> err) {</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>            dlg.iwapp.Error(err);</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>        }</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>        <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    }</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span><span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg;</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <span class="keywordtype">int</span> val;</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>};</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
+<div class="foldopen" id="foldopen00187" data-start="{" data-end="};">
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno"><a class="line" href="../../dd/d75/classCMDOK.html">  187</a></span><span class="keyword">class </span><a class="code hl_class" href="../../dd/d75/classCMDOK.html">CMDOK</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d2/d23/classCMD.html">CMD</a>&lt;CMDOK, IWAPP&gt;</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>{</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <a class="code hl_class" href="../../dd/d75/classCMDOK.html">CMDOK</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg, <span class="keywordtype">int</span> val=1) : </div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>        <a class="code hl_class" href="../../d2/d23/classCMD.html">CMD</a>(dlg.iwapp), </div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>        dlg(dlg),</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>        val(val)</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    {</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    }</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="keyword">virtual</span> <span class="keywordtype">int</span> Execute(<span class="keywordtype">void</span>)<span class="keyword"> override</span></div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>        <span class="keywordflow">try</span> {</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>            dlg.Validate();</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>            dlg.End(val);</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>        }</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>        <span class="keywordflow">catch</span> (<a class="code hl_class" href="../../d7/d24/classERR.html">ERR</a> err) {</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>            dlg.iwapp.Error(err);</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>        }</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>        <span class="keywordflow">return</span> 1;</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    }</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span><span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg;</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    <span class="keywordtype">int</span> val;</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>};</div>
 </div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span> </div>
-<div class="foldopen" id="foldopen00220" data-start="{" data-end="};">
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno"><a class="line" href="../../de/d80/classCMDCANCEL.html">  220</a></span><span class="keyword">class </span><a class="code hl_class" href="../../de/d80/classCMDCANCEL.html">CMDCANCEL</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../dd/d75/classCMDOK.html">CMDOK</a></div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>{</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    <a class="code hl_class" href="../../de/d80/classCMDCANCEL.html">CMDCANCEL</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg) : <a class="code hl_class" href="../../dd/d75/classCMDOK.html">CMDOK</a>(dlg) { }</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span> </div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../d1/d45/classICMD.html">ICMD</a>* clone(<span class="keywordtype">void</span>)<span class="keyword"> const override </span></div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span><span class="keyword">    </span>{</div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>        <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code hl_class" href="../../de/d80/classCMDCANCEL.html">CMDCANCEL</a>(*<span class="keyword">this</span>);</div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    }</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>    <span class="keyword">virtual</span> <span class="keywordtype">int</span> Execute(<span class="keywordtype">void</span>)<span class="keyword"> override </span></div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span><span class="keyword">    </span>{</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>        dlg.End(0);</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>        <span class="keywordflow">return</span> 1;</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    }</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>};</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span> </div>
+<div class="foldopen" id="foldopen00222" data-start="{" data-end="};">
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno"><a class="line" href="../../de/d80/classCMDCANCEL.html">  222</a></span><span class="keyword">class </span><a class="code hl_class" href="../../de/d80/classCMDCANCEL.html">CMDCANCEL</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../dd/d75/classCMDOK.html">CMDOK</a></div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>{</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    <a class="code hl_class" href="../../de/d80/classCMDCANCEL.html">CMDCANCEL</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg) : <a class="code hl_class" href="../../dd/d75/classCMDOK.html">CMDOK</a>(dlg) { }</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span> </div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../d1/d45/classICMD.html">ICMD</a>* clone(<span class="keywordtype">void</span>)<span class="keyword"> const override </span></div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>        <span class="keywordflow">return</span> <span class="keyword">new</span> <a class="code hl_class" href="../../de/d80/classCMDCANCEL.html">CMDCANCEL</a>(*<span class="keyword">this</span>);</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>    }</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span> </div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="keyword">virtual</span> <span class="keywordtype">int</span> Execute(<span class="keywordtype">void</span>)<span class="keyword"> override </span></div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>        dlg.End(0);</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>        <span class="keywordflow">return</span> 1;</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>    }</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>};</div>
 </div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span> </div>
-<div class="foldopen" id="foldopen00242" data-start="{" data-end="};">
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno"><a class="line" href="../../df/d72/classBTNOK.html">  242</a></span><span class="keyword">class </span><a class="code hl_class" href="../../df/d72/classBTNOK.html">BTNOK</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d8/d37/classBTNS.html">BTNS</a></div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>{</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="comment">/* TODO: localization */</span></div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <a class="code hl_class" href="../../df/d72/classBTNOK.html">BTNOK</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg, <span class="keyword">const</span> <span class="keywordtype">string</span>&amp; sText = <span class="stringliteral">&quot;OK&quot;</span>, <span class="keywordtype">int</span> val=1) : </div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>        <a class="code hl_class" href="../../d8/d37/classBTNS.html">BTNS</a>(dlg, <span class="keyword">new</span> <a class="code hl_class" href="../../dd/d75/classCMDOK.html">CMDOK</a>(dlg, val), sText) </div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    {</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    }</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>};</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span> </div>
+<div class="foldopen" id="foldopen00244" data-start="{" data-end="};">
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno"><a class="line" href="../../df/d72/classBTNOK.html">  244</a></span><span class="keyword">class </span><a class="code hl_class" href="../../df/d72/classBTNOK.html">BTNOK</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d8/d37/classBTNS.html">BTNS</a></div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>{</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>    <span class="comment">/* TODO: localization */</span></div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    <a class="code hl_class" href="../../df/d72/classBTNOK.html">BTNOK</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg, <span class="keyword">const</span> <span class="keywordtype">string</span>&amp; sText = <span class="stringliteral">&quot;OK&quot;</span>, <span class="keywordtype">int</span> val=1) : </div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>        <a class="code hl_class" href="../../d8/d37/classBTNS.html">BTNS</a>(dlg, <span class="keyword">new</span> <a class="code hl_class" href="../../dd/d75/classCMDOK.html">CMDOK</a>(dlg, val), sText) </div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    {</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>    }</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>};</div>
 </div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span> </div>
-<div class="foldopen" id="foldopen00257" data-start="{" data-end="};">
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno"><a class="line" href="../../d0/dd0/classTITLEDLG.html">  257</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d0/dd0/classTITLEDLG.html">TITLEDLG</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d4/dc5/classSTATIC.html">STATIC</a></div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>{</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    <a class="code hl_class" href="../../d0/dd0/classTITLEDLG.html">TITLEDLG</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg, <span class="keyword">const</span> <span class="keywordtype">string</span>&amp; sTitle);</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    <a class="code hl_class" href="../../d0/dd0/classTITLEDLG.html">TITLEDLG</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg, <span class="keywordtype">int</span> rssTitle);</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../d0/dd0/classTITLEDLG.html">~TITLEDLG</a>() = <span class="keywordflow">default</span>;</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span> </div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code hl_function" href="../../d0/dd0/classTITLEDLG.html#a6903025b2f4bc9c5fff562b40765190a">Layout</a>(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a> SzIntrinsic(<span class="keyword">const</span> <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>&amp; rcWithin) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span> </div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <a class="code hl_class" href="../../d0/d52/classBTNCLOSE.html">BTNCLOSE</a> btnclose;</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>};</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span> </div>
+<div class="foldopen" id="foldopen00259" data-start="{" data-end="};">
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno"><a class="line" href="../../d0/dd0/classTITLEDLG.html">  259</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d0/dd0/classTITLEDLG.html">TITLEDLG</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d4/dc5/classSTATIC.html">STATIC</a></div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>{</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    <a class="code hl_class" href="../../d0/dd0/classTITLEDLG.html">TITLEDLG</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg, <span class="keyword">const</span> <span class="keywordtype">string</span>&amp; sTitle);</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <a class="code hl_class" href="../../d0/dd0/classTITLEDLG.html">TITLEDLG</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg, <span class="keywordtype">int</span> rssTitle);</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../d0/dd0/classTITLEDLG.html">~TITLEDLG</a>() = <span class="keywordflow">default</span>;</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span> </div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code hl_function" href="../../d0/dd0/classTITLEDLG.html#a6903025b2f4bc9c5fff562b40765190a">Layout</a>(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a> SzIntrinsic(<span class="keyword">const</span> <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>&amp; rcWithin) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <a class="code hl_class" href="../../d0/d52/classBTNCLOSE.html">BTNCLOSE</a> btnclose;</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>};</div>
 </div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
-<div class="foldopen" id="foldopen00276" data-start="{" data-end="};">
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno"><a class="line" href="../../d9/d87/classINSTRUCT.html">  276</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d9/d87/classINSTRUCT.html">INSTRUCT</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d5/d4e/classSTATICL.html">STATICL</a></div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>{</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <a class="code hl_class" href="../../d9/d87/classINSTRUCT.html">INSTRUCT</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg, <span class="keyword">const</span> <span class="keywordtype">string</span>&amp; sText);</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    <a class="code hl_class" href="../../d9/d87/classINSTRUCT.html">INSTRUCT</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg, <span class="keywordtype">int</span> rssText);</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span> </div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> DrawLabel(<span class="keyword">const</span> <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>&amp; rcLabel) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>};</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
+<div class="foldopen" id="foldopen00278" data-start="{" data-end="};">
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno"><a class="line" href="../../d9/d87/classINSTRUCT.html">  278</a></span><span class="keyword">class </span><a class="code hl_class" href="../../d9/d87/classINSTRUCT.html">INSTRUCT</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d5/d4e/classSTATICL.html">STATICL</a></div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>{</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    <a class="code hl_class" href="../../d9/d87/classINSTRUCT.html">INSTRUCT</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg, <span class="keyword">const</span> <span class="keywordtype">string</span>&amp; sText);</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    <a class="code hl_class" href="../../d9/d87/classINSTRUCT.html">INSTRUCT</a>(<a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a>&amp; dlg, <span class="keywordtype">int</span> rssText);</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> DrawLabel(<span class="keyword">const</span> <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>&amp; rcLabel) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>};</div>
 </div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span> </div>
-<div class="foldopen" id="foldopen00292" data-start="{" data-end="};">
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno"><a class="line" href="../../da/d82/classDLGABOUT.html">  292</a></span><span class="keyword">class </span><a class="code hl_class" href="../../da/d82/classDLGABOUT.html">DLGABOUT</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a></div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>{</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>    <a class="code hl_class" href="../../da/d82/classDLGABOUT.html">DLGABOUT</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code hl_function" href="../../da/d82/classDLGABOUT.html#a4185050994d10ce65721789ff7f229d8">Layout</a>(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a> SzIntrinsic(<span class="keyword">const</span> <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>&amp; rcWithin) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span> </div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    <a class="code hl_class" href="../../d0/dd0/classTITLEDLG.html">TITLEDLG</a> title;</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    <a class="code hl_class" href="../../d5/d4e/classSTATICL.html">STATICL</a> instruct;</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <a class="code hl_class" href="../../d5/d4e/classSTATICL.html">STATICL</a> copyright;</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    <a class="code hl_class" href="../../d2/da1/classSTATICICON.html">STATICICON</a> icon;</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <a class="code hl_class" href="../../df/d72/classBTNOK.html">BTNOK</a> btnok;</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>};</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span> </div>
+<div class="foldopen" id="foldopen00294" data-start="{" data-end="};">
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno"><a class="line" href="../../da/d82/classDLGABOUT.html">  294</a></span><span class="keyword">class </span><a class="code hl_class" href="../../da/d82/classDLGABOUT.html">DLGABOUT</a> : <span class="keyword">public</span> <a class="code hl_class" href="../../d1/d5a/classDLG.html">DLG</a></div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>{</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <a class="code hl_class" href="../../da/d82/classDLGABOUT.html">DLGABOUT</a>(<a class="code hl_class" href="../../d9/d15/classIWAPP.html">IWAPP</a>&amp; wapp);</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code hl_function" href="../../da/d82/classDLGABOUT.html#a4185050994d10ce65721789ff7f229d8">Layout</a>(<span class="keywordtype">void</span>) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>    <span class="keyword">virtual</span> <a class="code hl_class" href="../../db/dfa/classSZ.html">SZ</a> SzIntrinsic(<span class="keyword">const</span> <a class="code hl_class" href="../../d2/d9b/classRC.html">RC</a>&amp; rcWithin) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span> </div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <a class="code hl_class" href="../../d0/dd0/classTITLEDLG.html">TITLEDLG</a> title;</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    <a class="code hl_class" href="../../d5/d4e/classSTATICL.html">STATICL</a> instruct;</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <a class="code hl_class" href="../../d5/d4e/classSTATICL.html">STATICL</a> copyright;</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>    <a class="code hl_class" href="../../d2/da1/classSTATICICON.html">STATICICON</a> icon;</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>    <a class="code hl_class" href="../../df/d72/classBTNOK.html">BTNOK</a> btnok;</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>};</div>
 </div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> </div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span> </div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span><span class="preprocessor">#endif </span><span class="comment">// CONSOLE</span></div>
 <div class="ttc" id="aapp_8h_html"><div class="ttname"><a href="../../d2/d39/app_8h.html">app.h</a></div><div class="ttdoc">The base WAPP application classes.</div></div>
-<div class="ttc" id="aclassBTNCLOSE_html"><div class="ttname"><a href="../../d0/d52/classBTNCLOSE.html">BTNCLOSE</a></div><div class="ttdoc">A close button for use in titlebars and dialogs.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00216">ctl.h:217</a></div></div>
-<div class="ttc" id="aclassBTNOK_html"><div class="ttname"><a href="../../df/d72/classBTNOK.html">BTNOK</a></div><div class="ttdoc">Standard OK button for dialog boxes.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00242">dlg.h:243</a></div></div>
-<div class="ttc" id="aclassBTNS_html"><div class="ttname"><a href="../../d8/d37/classBTNS.html">BTNS</a></div><div class="ttdoc">Button with a line of text for its image.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00195">ctl.h:196</a></div></div>
-<div class="ttc" id="aclassCMDCANCEL_html"><div class="ttname"><a href="../../de/d80/classCMDCANCEL.html">CMDCANCEL</a></div><div class="ttdoc">Clicking the cancel button in the titlebar of dialogs.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00220">dlg.h:221</a></div></div>
-<div class="ttc" id="aclassCMDOK_html"><div class="ttname"><a href="../../dd/d75/classCMDOK.html">CMDOK</a></div><div class="ttdoc">OK buytton in dialogs.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00185">dlg.h:186</a></div></div>
+<div class="ttc" id="aclassBTNCLOSE_html"><div class="ttname"><a href="../../d0/d52/classBTNCLOSE.html">BTNCLOSE</a></div><div class="ttdoc">A close button for use in titlebars and dialogs.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00218">ctl.h:219</a></div></div>
+<div class="ttc" id="aclassBTNOK_html"><div class="ttname"><a href="../../df/d72/classBTNOK.html">BTNOK</a></div><div class="ttdoc">Standard OK button for dialog boxes.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00244">dlg.h:245</a></div></div>
+<div class="ttc" id="aclassBTNS_html"><div class="ttname"><a href="../../d8/d37/classBTNS.html">BTNS</a></div><div class="ttdoc">Button with a line of text for its image.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00197">ctl.h:198</a></div></div>
+<div class="ttc" id="aclassCMDCANCEL_html"><div class="ttname"><a href="../../de/d80/classCMDCANCEL.html">CMDCANCEL</a></div><div class="ttdoc">Clicking the cancel button in the titlebar of dialogs.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00222">dlg.h:223</a></div></div>
+<div class="ttc" id="aclassCMDOK_html"><div class="ttname"><a href="../../dd/d75/classCMDOK.html">CMDOK</a></div><div class="ttdoc">OK buytton in dialogs.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00187">dlg.h:188</a></div></div>
 <div class="ttc" id="aclassCMD_html"><div class="ttname"><a href="../../d2/d23/classCMD.html">CMD</a></div><div class="ttdoc">Command base class.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d9f/cmd_8h_source.html#l00109">cmd.h:110</a></div></div>
-<div class="ttc" id="aclassCO_html"><div class="ttname"><a href="../../d8/d5a/classCO.html">CO</a></div><div class="ttdoc">A simple RGB color.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dec/color_8h_source.html#l00028">color.h:29</a></div></div>
-<div class="ttc" id="aclassDLGABOUT_html"><div class="ttname"><a href="../../da/d82/classDLGABOUT.html">DLGABOUT</a></div><div class="ttdoc">A simple standard About dialog.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00292">dlg.h:293</a></div></div>
-<div class="ttc" id="aclassDLGABOUT_html_a4185050994d10ce65721789ff7f229d8"><div class="ttname"><a href="../../da/d82/classDLGABOUT.html#a4185050994d10ce65721789ff7f229d8">DLGABOUT::Layout</a></div><div class="ttdeci">virtual void Layout(void) override</div><div class="ttdoc">Notification sent when a WN changes size and/or location.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d52/dlg_8cpp_source.html#l00368">dlg.cpp:368</a></div></div>
-<div class="ttc" id="aclassDLGFILEOPENMULTI_html"><div class="ttname"><a href="../../d6/da6/classDLGFILEOPENMULTI.html">DLGFILEOPENMULTI</a></div><div class="ttdoc">Open file dialog that permits a multi-selection file.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00130">dlg.h:131</a></div></div>
-<div class="ttc" id="aclassDLGFILEOPEN_html"><div class="ttname"><a href="../../d9/d7d/classDLGFILEOPEN.html">DLGFILEOPEN</a></div><div class="ttdoc">Dialog wrapper for standard Windows open dialog.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00118">dlg.h:119</a></div></div>
-<div class="ttc" id="aclassDLGFILESAVE_html"><div class="ttname"><a href="../../da/df0/classDLGFILESAVE.html">DLGFILESAVE</a></div><div class="ttdoc">Standard Windows File Save dialog.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00145">dlg.h:146</a></div></div>
-<div class="ttc" id="aclassDLGFILE_html"><div class="ttname"><a href="../../d5/d73/classDLGFILE.html">DLGFILE</a></div><div class="ttdoc">Base class for standard file dialogs.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00096">dlg.h:97</a></div></div>
-<div class="ttc" id="aclassDLGFOLDER_html"><div class="ttname"><a href="../../de/dab/classDLGFOLDER.html">DLGFOLDER</a></div><div class="ttdoc">The Windows standard directory picker dialog.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00171">dlg.h:172</a></div></div>
-<div class="ttc" id="aclassDLGPRINT_html"><div class="ttname"><a href="../../dc/da5/classDLGPRINT.html">DLGPRINT</a></div><div class="ttdoc">The Windows standard Print dialog.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00157">dlg.h:158</a></div></div>
-<div class="ttc" id="aclassDLG_html"><div class="ttname"><a href="../../d1/d5a/classDLG.html">DLG</a></div><div class="ttdoc">Dialog box window.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00037">dlg.h:38</a></div></div>
+<div class="ttc" id="aclassCO_html"><div class="ttname"><a href="../../d8/d5a/classCO.html">CO</a></div><div class="ttdoc">A simple RGB color.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dec/color_8h_source.html#l00030">color.h:31</a></div></div>
+<div class="ttc" id="aclassDLGABOUT_html"><div class="ttname"><a href="../../da/d82/classDLGABOUT.html">DLGABOUT</a></div><div class="ttdoc">A simple standard About dialog.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00294">dlg.h:295</a></div></div>
+<div class="ttc" id="aclassDLGABOUT_html_a4185050994d10ce65721789ff7f229d8"><div class="ttname"><a href="../../da/d82/classDLGABOUT.html#a4185050994d10ce65721789ff7f229d8">DLGABOUT::Layout</a></div><div class="ttdeci">virtual void Layout(void) override</div><div class="ttdoc">Notification sent when a WN changes size and/or location.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d52/dlg_8cpp_source.html#l00370">dlg.cpp:370</a></div></div>
+<div class="ttc" id="aclassDLGFILEOPENMULTI_html"><div class="ttname"><a href="../../d6/da6/classDLGFILEOPENMULTI.html">DLGFILEOPENMULTI</a></div><div class="ttdoc">Open file dialog that permits a multi-selection file.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00132">dlg.h:133</a></div></div>
+<div class="ttc" id="aclassDLGFILEOPEN_html"><div class="ttname"><a href="../../d9/d7d/classDLGFILEOPEN.html">DLGFILEOPEN</a></div><div class="ttdoc">Dialog wrapper for standard Windows open dialog.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00120">dlg.h:121</a></div></div>
+<div class="ttc" id="aclassDLGFILESAVE_html"><div class="ttname"><a href="../../da/df0/classDLGFILESAVE.html">DLGFILESAVE</a></div><div class="ttdoc">Standard Windows File Save dialog.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00147">dlg.h:148</a></div></div>
+<div class="ttc" id="aclassDLGFILE_html"><div class="ttname"><a href="../../d5/d73/classDLGFILE.html">DLGFILE</a></div><div class="ttdoc">Base class for standard file dialogs.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00098">dlg.h:99</a></div></div>
+<div class="ttc" id="aclassDLGFOLDER_html"><div class="ttname"><a href="../../de/dab/classDLGFOLDER.html">DLGFOLDER</a></div><div class="ttdoc">The Windows standard directory picker dialog.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00173">dlg.h:174</a></div></div>
+<div class="ttc" id="aclassDLGPRINT_html"><div class="ttname"><a href="../../dc/da5/classDLGPRINT.html">DLGPRINT</a></div><div class="ttdoc">The Windows standard Print dialog.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00159">dlg.h:160</a></div></div>
+<div class="ttc" id="aclassDLG_html"><div class="ttname"><a href="../../d1/d5a/classDLG.html">DLG</a></div><div class="ttdoc">Dialog box window.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00039">dlg.h:40</a></div></div>
 <div class="ttc" id="aclassERR_html"><div class="ttname"><a href="../../d7/d24/classERR.html">ERR</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/d40/err_8h_source.html#l00029">err.h:30</a></div></div>
 <div class="ttc" id="aclassEVD_html"><div class="ttname"><a href="../../d2/ded/classEVD.html">EVD</a></div><div class="ttdef"><b>Definition</b> <a href="../../d4/d55/ev_8h_source.html#l00028">ev.h:29</a></div></div>
 <div class="ttc" id="aclassICMD_html"><div class="ttname"><a href="../../d1/d45/classICMD.html">ICMD</a></div><div class="ttdef"><b>Definition</b> <a href="../../dd/d9f/cmd_8h_source.html#l00049">cmd.h:50</a></div></div>
-<div class="ttc" id="aclassINSTRUCT_html"><div class="ttname"><a href="../../d9/d87/classINSTRUCT.html">INSTRUCT</a></div><div class="ttdoc">A static instrution control.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00276">dlg.h:277</a></div></div>
-<div class="ttc" id="aclassIWAPP_html"><div class="ttname"><a href="../../d9/d15/classIWAPP.html">IWAPP</a></div><div class="ttdoc">The Windows Application.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d48/wapp_8h_source.html#l00039">wapp.h:40</a></div></div>
-<div class="ttc" id="aclassRC_html"><div class="ttname"><a href="../../d2/d9b/classRC.html">RC</a></div><div class="ttdoc">A rectangle class on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00373">coord.h:374</a></div></div>
-<div class="ttc" id="aclassSTATICICON_html"><div class="ttname"><a href="../../d2/da1/classSTATICICON.html">STATICICON</a></div><div class="ttdoc">Static icon control.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00156">ctl.h:157</a></div></div>
-<div class="ttc" id="aclassSTATICL_html"><div class="ttname"><a href="../../d5/d4e/classSTATICL.html">STATICL</a></div><div class="ttdoc">Static text control, left aligned.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00125">ctl.h:126</a></div></div>
-<div class="ttc" id="aclassSTATIC_html"><div class="ttname"><a href="../../d4/dc5/classSTATIC.html">STATIC</a></div><div class="ttdoc">Base class for no-UI static controls.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00097">ctl.h:98</a></div></div>
-<div class="ttc" id="aclassSZ_html"><div class="ttname"><a href="../../db/dfa/classSZ.html">SZ</a></div><div class="ttdoc">a size on the screen</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00026">coord.h:27</a></div></div>
-<div class="ttc" id="aclassTITLEDLG_html"><div class="ttname"><a href="../../d0/dd0/classTITLEDLG.html">TITLEDLG</a></div><div class="ttdoc">Dialog title.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00257">dlg.h:258</a></div></div>
-<div class="ttc" id="aclassTITLEDLG_html_a6903025b2f4bc9c5fff562b40765190a"><div class="ttname"><a href="../../d0/dd0/classTITLEDLG.html#a6903025b2f4bc9c5fff562b40765190a">TITLEDLG::Layout</a></div><div class="ttdeci">virtual void Layout(void) override</div><div class="ttdoc">Notification sent when a WN changes size and/or location.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d52/dlg_8cpp_source.html#l00405">dlg.cpp:405</a></div></div>
-<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00043">wn.h:44</a></div></div>
+<div class="ttc" id="aclassINSTRUCT_html"><div class="ttname"><a href="../../d9/d87/classINSTRUCT.html">INSTRUCT</a></div><div class="ttdoc">A static instrution control.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00278">dlg.h:279</a></div></div>
+<div class="ttc" id="aclassIWAPP_html"><div class="ttname"><a href="../../d9/d15/classIWAPP.html">IWAPP</a></div><div class="ttdoc">The Windows Application.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d48/wapp_8h_source.html#l00039">wapp.h:45</a></div></div>
+<div class="ttc" id="aclassRC_html"><div class="ttname"><a href="../../d2/d9b/classRC.html">RC</a></div><div class="ttdoc">A rectangle class on the screen.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00375">coord.h:376</a></div></div>
+<div class="ttc" id="aclassSTATICICON_html"><div class="ttname"><a href="../../d2/da1/classSTATICICON.html">STATICICON</a></div><div class="ttdoc">Static icon control.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00158">ctl.h:159</a></div></div>
+<div class="ttc" id="aclassSTATICL_html"><div class="ttname"><a href="../../d5/d4e/classSTATICL.html">STATICL</a></div><div class="ttdoc">Static text control, left aligned.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00127">ctl.h:128</a></div></div>
+<div class="ttc" id="aclassSTATIC_html"><div class="ttname"><a href="../../d4/dc5/classSTATIC.html">STATIC</a></div><div class="ttdoc">Base class for no-UI static controls.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/d9c/ctl_8h_source.html#l00099">ctl.h:100</a></div></div>
+<div class="ttc" id="aclassSZ_html"><div class="ttname"><a href="../../db/dfa/classSZ.html">SZ</a></div><div class="ttdoc">a size on the screen</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d56/coord_8h_source.html#l00028">coord.h:29</a></div></div>
+<div class="ttc" id="aclassTITLEDLG_html"><div class="ttname"><a href="../../d0/dd0/classTITLEDLG.html">TITLEDLG</a></div><div class="ttdoc">Dialog title.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00259">dlg.h:260</a></div></div>
+<div class="ttc" id="aclassTITLEDLG_html_a6903025b2f4bc9c5fff562b40765190a"><div class="ttname"><a href="../../d0/dd0/classTITLEDLG.html#a6903025b2f4bc9c5fff562b40765190a">TITLEDLG::Layout</a></div><div class="ttdeci">virtual void Layout(void) override</div><div class="ttdoc">Notification sent when a WN changes size and/or location.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d52/dlg_8cpp_source.html#l00407">dlg.cpp:407</a></div></div>
+<div class="ttc" id="aclassWN_html"><div class="ttname"><a href="../../db/dd4/classWN.html">WN</a></div><div class="ttdef"><b>Definition</b> <a href="../../d2/da3/wn_8h_source.html#l00045">wn.h:46</a></div></div>
 <div class="ttc" id="actl_8h_html"><div class="ttname"><a href="../../dc/d9c/ctl_8h.html">ctl.h</a></div><div class="ttdoc">Controls.</div></div>
-<div class="ttc" id="astructOFN_html"><div class="ttname"><a href="../../df/daa/structOFN.html">OFN</a></div><div class="ttdoc">Wrapper class around OPENFILENAME structure.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00073">dlg.h:74</a></div></div>
+<div class="ttc" id="astructOFN_html"><div class="ttname"><a href="../../df/daa/structOFN.html">OFN</a></div><div class="ttdoc">Wrapper class around OPENFILENAME structure.</div><div class="ttdef"><b>Definition</b> <a href="../../d0/dd5/dlg_8h_source.html#l00075">dlg.h:76</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
